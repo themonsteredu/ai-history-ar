@@ -10,10 +10,21 @@ interface LessonCardProps {
 }
 
 export function LessonCard({ era, lesson, mode = "student" }: LessonCardProps) {
-  const path = mode === "teacher"
-    ? `/teacher/${era.id}/lesson/${lesson.id}`
-    : `${era.route}/lesson/${lesson.id}`;
-  const isClassroomOnly = mode === "student" && era.id === "three-kingdoms" && lesson.id === 1;
+  if (mode === "student") {
+    const path = `${era.route}/lesson/${lesson.id}`;
+    return (
+      <article className="lesson-card lesson-card--classroom" style={{ "--era-accent": era.accent } as React.CSSProperties}>
+        <div className="lesson-card__number" aria-label={`${lesson.id}차시`}>{String(lesson.id).padStart(2, "0")}</div>
+        <div className="lesson-card__body"><PhaseBadge phase={lesson.phase} /><h3>{lesson.title}</h3></div>
+        <div className="lesson-card__classroom-actions">
+          <Link aria-label={`${lesson.id}차시 수업 PPT 열기`} to={`${path}?view=ppt`}><Icon name="book" size={19} /><span>수업 PPT</span></Link>
+          <Link aria-label={`${lesson.id}차시 웹앱 활동 열기`} to={`${path}?view=activity`}><Icon name="spark" size={19} /><span>웹앱 활동</span></Link>
+        </div>
+      </article>
+    );
+  }
+
+  const path = `/teacher/${era.id}/lesson/${lesson.id}`;
 
   return (
     <article className="lesson-card">
@@ -29,14 +40,9 @@ export function LessonCard({ era, lesson, mode = "student" }: LessonCardProps) {
           <span><Icon name="folder" size={17} />산출물 {lesson.outputs.length}종</span>
         </div>
       </div>
-      {isClassroomOnly ? (
-        <span className="lesson-card__link lesson-card__link--classroom"><Icon name="users" size={18} />교실 활동</span>
-      ) : (
-        <Link aria-label={`${lesson.id}차시 ${lesson.title} 자세히 보기`} className="lesson-card__link" to={path}>
-          <span>{mode === "teacher" ? "운영안 보기" : "차시 보기"}</span>
-          <Icon name="arrow" size={18} />
-        </Link>
-      )}
+      <Link aria-label={`${lesson.id}차시 ${lesson.title} 교사 설정 열기`} className="lesson-card__link" to={path}>
+        <span>지도안·자료</span><Icon name="arrow" size={18} />
+      </Link>
     </article>
   );
 }

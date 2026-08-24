@@ -85,8 +85,8 @@ async function inspectPage(page, pathname, expectedHeading) {
 
 async function unlockTeacher(page) {
   await page.getByLabel("교사용 PIN").fill("3035");
-  await page.getByRole("button", { name: "교사 화면 열기" }).click();
-  await page.getByRole("heading", { name: /20차시 운영안/ }).waitFor();
+  await page.getByRole("button", { name: "설정 열기" }).click();
+  await page.getByRole("heading", { name: /지도안과 인쇄 자료/ }).waitFor();
 }
 
 async function verifyDownload(page, pathname, expectedSignature, expectedType) {
@@ -115,12 +115,12 @@ try {
   const desktopCoverLoaded = await desktop.locator(".home-hero__visual img").evaluate((image) => image.complete && image.naturalWidth > 0);
   if (!desktopCoverLoaded) throw new Error("데스크톱 홈 표지 이미지가 로드되지 않았습니다.");
   await desktop.screenshot({ path: path.join(outputDirectory, "home-desktop.png"), fullPage: true });
-  await desktop.getByRole("link", { name: "교사 입장" }).first().click();
+  await desktop.getByRole("link", { name: "설정", exact: true }).first().click();
   await desktop.waitForURL(routeUrl("/teacher"));
-  results.push(await inspectPage(desktop, "/teacher", "교사 전용 화면"));
+  results.push(await inspectPage(desktop, "/teacher", "교사 설정 잠금"));
   await desktop.screenshot({ path: path.join(outputDirectory, "teacher-gate-desktop.png"), fullPage: true });
   await desktop.getByLabel("교사용 PIN").fill("0000");
-  await desktop.getByRole("button", { name: "교사 화면 열기" }).click();
+  await desktop.getByRole("button", { name: "설정 열기" }).click();
   await desktop.getByRole("alert").waitFor();
   await unlockTeacher(desktop);
   await desktop.screenshot({ path: path.join(outputDirectory, "teacher-dashboard-desktop.png"), fullPage: true });
@@ -137,9 +137,10 @@ try {
     "삼국시대 유산 박물관 개관",
   ];
   let verifiedSlideCount = 0;
+  let verifiedWebActivityCount = 0;
   for (const [lessonIndex, expectedHeading] of lessonHeadings.entries()) {
     const lessonId = lessonIndex + 1;
-    results.push(await inspectPage(desktop, `/teacher/three-kingdoms/lesson/${lessonId}`, expectedHeading));
+    results.push(await inspectPage(desktop, `/three-kingdoms/lesson/${lessonId}?view=ppt`, expectedHeading));
     const slideViewer = desktop.getByLabel(`삼국시대 ${lessonId}차시 수업 슬라이드`);
     await slideViewer.waitFor();
     const slideButtons = desktop.locator(".lesson-slides__dots button");
@@ -167,13 +168,19 @@ try {
       verifiedSlideCount += 1;
     }
 
-    if (lessonId === 4 || lessonId === 6 || lessonId === 10) {
+    if (lessonId === 1 || lessonId === 6 || lessonId === 10) {
       await desktop.getByRole("button", { name: "2번 슬라이드" }).click();
       await slideViewer.screenshot({ path: path.join(outputDirectory, `lesson-${String(lessonId).padStart(2, "0")}-slides-desktop.png`) });
     }
+
+    await desktop.goto(routeUrl(`/three-kingdoms/lesson/${lessonId}?view=activity`), { waitUntil: "networkidle" });
+    await desktop.locator(".web-activity-shell").waitFor();
+    const restrictedPublicSections = await desktop.locator(".download-panel, .question-card, .activity-timeline, .output-grid, .prep-grid").count();
+    if (restrictedPublicSections !== 0) throw new Error(`${lessonId}차시 학생 화면에 교사용 영역이 노출되었습니다.`);
+    verifiedWebActivityCount += 1;
   }
 
-  await desktop.goto(routeUrl("/teacher/three-kingdoms/lesson/1"), { waitUntil: "networkidle" });
+  await desktop.goto(routeUrl("/three-kingdoms/lesson/1?view=ppt"), { waitUntil: "networkidle" });
   await desktop.getByRole("button", { name: "4번 슬라이드" }).click();
   const artifactCardCount = await desktop.locator(".artifact-choice-card").count();
   const loadedArtifactImages = await desktop.locator(".artifact-choice-card img").evaluateAll((images) =>
@@ -183,7 +190,16 @@ try {
     throw new Error(`1차시 유물 선택 카드 검증 실패: 카드 ${artifactCardCount}개, 사진 ${loadedArtifactImages}개`);
   }
   await desktop.getByLabel("삼국시대 1차시 수업 슬라이드").screenshot({ path: path.join(outputDirectory, "lesson-01-slides-desktop.png") });
-  results.push(await inspectPage(desktop, "/teacher/joseon/downloads", "10차시 수업자료 다운로드"));
+
+  results.push(await inspectPage(desktop, "/joseon/lesson/1?view=ppt", "조선에는 무엇이 남아 있을까"));
+  const joseonSlideButtons = desktop.locator(".lesson-slides__dots button");
+  if (await joseonSlideButtons.count() !== 8) throw new Error("조선시대 1차시 수업 PPT가 8장이 아닙니다.");
+
+  results.push(await inspectPage(desktop, "/teacher/three-kingdoms/lesson/1", "1500년 전에는 무엇이 있었을까"));
+  const teacherMaterialVisible = await desktop.locator(".download-panel, .activity-timeline, .output-grid, .prep-grid").count();
+  if (teacherMaterialVisible !== 4) throw new Error("교사 설정에 지도안 또는 인쇄 자료가 빠졌습니다.");
+
+  results.push(await inspectPage(desktop, "/teacher/joseon/downloads", "활동지·활동카드·답안"));
   await desktop.screenshot({ path: path.join(outputDirectory, "download-center-desktop.png"), fullPage: true });
 
   const downloadLinkCount = await desktop.locator("a[download]").count();
@@ -199,7 +215,9 @@ try {
     await verifyDownload(desktop, "/downloads/joseon/joseon-all-materials.zip", Buffer.from("PK"), "application/zip"),
   ];
 
-  results.push(await inspectPage(desktop, "/three-kingdoms", "삼국시대 문화유산"));
+  results.push(await inspectPage(desktop, "/three-kingdoms", "삼국시대 수업"));
+  const classroomActionLinks = await desktop.locator(".lesson-card__classroom-actions a").count();
+  if (classroomActionLinks !== 20) throw new Error(`학생 차시 목록의 PPT·웹앱 버튼이 20개가 아닙니다: ${classroomActionLinks}개`);
   const exposedTeacherMaterialLinks = await desktop.locator('a[href^="/teacher/"]').count();
   if (exposedTeacherMaterialLinks > 0) {
     throw new Error(`학생 화면에 교사용 자료 링크 ${exposedTeacherMaterialLinks}개가 노출되었습니다.`);
@@ -210,18 +228,20 @@ try {
   const mobileCoverLoaded = await mobile.locator(".home-hero__visual img").evaluate((image) => image.complete && image.naturalWidth > 0);
   if (!mobileCoverLoaded) throw new Error("모바일 홈 표지 이미지가 로드되지 않았습니다.");
   await mobile.screenshot({ path: path.join(outputDirectory, "home-mobile.png"), fullPage: true });
-  results.push(await inspectPage(mobile, "/teacher", "교사 전용 화면"));
+  results.push(await inspectPage(mobile, "/three-kingdoms/lesson/1?view=activity", "1500년 전에는 무엇이 있었을까"));
+  await mobile.screenshot({ path: path.join(outputDirectory, "lesson-01-web-activity-mobile.png"), fullPage: true });
+  results.push(await inspectPage(mobile, "/teacher", "교사 설정 잠금"));
   await mobile.screenshot({ path: path.join(outputDirectory, "teacher-gate-mobile.png"), fullPage: true });
   await unlockTeacher(mobile);
-  results.push(await inspectPage(mobile, "/teacher", "20차시 운영안"));
+  results.push(await inspectPage(mobile, "/teacher", "지도안과 인쇄 자료"));
   await mobile.screenshot({ path: path.join(outputDirectory, "teacher-mobile.png"), fullPage: true });
 
   await mobile.getByRole("button", { name: "잠그기" }).evaluate((button) => button.click());
-  await mobile.getByRole("heading", { name: "교사 전용 화면" }).waitFor();
+  await mobile.getByRole("heading", { name: "교사 설정 잠금" }).waitFor();
   await mobile.goto(routeUrl("/teacher/joseon/downloads"), { waitUntil: "networkidle" });
-  await mobile.getByRole("heading", { name: "교사 전용 화면" }).waitFor();
+  await mobile.getByRole("heading", { name: "교사 설정 잠금" }).waitFor();
 
-  console.log(JSON.stringify({ ok: true, results, verifiedSlideCount, downloadLinkCount, downloadedFiles }, null, 2));
+  console.log(JSON.stringify({ ok: true, results, verifiedSlideCount, verifiedWebActivityCount, downloadLinkCount, downloadedFiles }, null, 2));
 } finally {
   await browser.close();
 }

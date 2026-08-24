@@ -1,11 +1,11 @@
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { DownloadPanel } from "../components/DownloadPanel";
 import { Icon } from "../components/Icon";
-import { LessonSlides } from "../components/LessonSlides";
 import { PhaseBadge } from "../components/PhaseBadge";
 import { getEra, getEraFromRoute, getLesson } from "../content/catalog";
 import { getLessonMinutes } from "../content/lesson-helpers";
 import type { EraId } from "../types/curriculum";
+import { ClassroomLessonPage } from "./ClassroomLessonPage";
 import { NotFoundPage } from "./NotFoundPage";
 
 interface LessonPageProps {
@@ -19,18 +19,18 @@ export function LessonPage({ eraId, mode }: LessonPageProps) {
   const lesson = era ? getLesson(era, lessonId) : undefined;
 
   if (!era || !lesson) return <NotFoundPage />;
-  if (mode === "student" && era.id === "three-kingdoms" && lesson.id === 1) return <Navigate replace to={era.route} />;
+  if (mode === "student") return <ClassroomLessonPage era={era} lesson={lesson} />;
 
   const previousLesson = era.lessons.find((candidate) => candidate.id === lesson.id - 1);
   const nextLesson = era.lessons.find((candidate) => candidate.id === lesson.id + 1);
-  const basePath = mode === "teacher" ? `/teacher/${era.id}/lesson` : `${era.route}/lesson`;
+  const basePath = `/teacher/${era.id}/lesson`;
 
   return (
-    <div className={`lesson-page lesson-page--${mode}`}>
+    <div className="lesson-page lesson-page--teacher">
       <section className="lesson-hero" style={{ "--era-accent": era.accent, "--era-soft": era.accentSoft } as React.CSSProperties}>
         <div className="page-width">
-          <Link className="back-link" to={mode === "teacher" ? "/teacher" : era.route}>
-            <span aria-hidden="true">←</span> {mode === "teacher" ? "교사용 대시보드" : `${era.shortName} 10차시`}
+          <Link className="back-link" to="/teacher">
+            <span aria-hidden="true">←</span> 교사 설정
           </Link>
           <div className="lesson-hero__title-row">
             <div className="lesson-hero__number">{String(lesson.id).padStart(2, "0")}</div>
@@ -49,10 +49,8 @@ export function LessonPage({ eraId, mode }: LessonPageProps) {
         </div>
       </section>
 
-      <div className={`page-width lesson-layout${mode === "student" ? " lesson-layout--student" : ""}`}>
+      <div className="page-width lesson-layout">
         <article className="lesson-main">
-          {mode === "teacher" && era.id === "three-kingdoms" ? <LessonSlides key={lesson.id} lessonId={lesson.id} /> : null}
-
           <section className="question-card">
             <p className="eyebrow">이 차시의 핵심 질문</p>
             <h2>“{lesson.keyQuestion}”</h2>
@@ -109,8 +107,7 @@ export function LessonPage({ eraId, mode }: LessonPageProps) {
             </div>
           </section>
 
-          {mode === "teacher" ? (
-            <section className="lesson-section" aria-labelledby="prep-title">
+          <section className="lesson-section" aria-labelledby="prep-title">
               <div className="lesson-section__heading">
                 <span>03</span>
                 <div><p>교사 사전 준비</p><h2 id="prep-title">수업 전에 확인하세요</h2></div>
@@ -130,8 +127,7 @@ export function LessonPage({ eraId, mode }: LessonPageProps) {
                 </div>
               </div>
               <div className="next-prep"><strong>다음 차시 준비</strong><p>{lesson.nextLessonPrep}</p></div>
-            </section>
-          ) : null}
+          </section>
 
           <nav aria-label="이전·다음 차시" className="lesson-pagination">
             {previousLesson ? (
@@ -139,10 +135,10 @@ export function LessonPage({ eraId, mode }: LessonPageProps) {
             ) : <span />}
             {nextLesson ? (
               <Link className="lesson-pagination__next" to={`${basePath}/${nextLesson.id}`}><span>다음 차시</span><strong>{nextLesson.title} →</strong></Link>
-            ) : <Link className="lesson-pagination__next" to={mode === "teacher" ? "/teacher" : era.route}><span>과정 완료</span><strong>10차시 목록으로 →</strong></Link>}
+            ) : <Link className="lesson-pagination__next" to="/teacher"><span>과정 완료</span><strong>교사 설정으로 →</strong></Link>}
           </nav>
         </article>
-        {mode === "teacher" ? <DownloadPanel era={era} lesson={lesson} /> : null}
+        <DownloadPanel era={era} lesson={lesson} />
       </div>
     </div>
   );

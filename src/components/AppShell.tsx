@@ -23,7 +23,7 @@ export function AppShell() {
             <NavLink className={navClassName} end to="/">과정 선택</NavLink>
             <NavLink className={navClassName} to="/three-kingdoms">삼국시대</NavLink>
             <NavLink className={navClassName} to="/joseon">조선시대</NavLink>
-            <NavLink className={({ isActive }) => `${navClassName({ isActive })} site-nav__teacher`} to="/teacher">교사 입장</NavLink>
+            <NavLink className={({ isActive }) => `${navClassName({ isActive })} site-nav__teacher`} to="/teacher">설정</NavLink>
           </nav>
         </div>
       </header>

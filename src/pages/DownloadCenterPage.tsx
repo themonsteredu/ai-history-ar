@@ -25,10 +25,10 @@ export function DownloadCenterPage() {
     <div className="downloads-page">
       <section className="downloads-hero" style={{ "--era-accent": era.accent, "--era-soft": era.accentSoft } as React.CSSProperties}>
         <div className="page-width">
-          <Link className="back-link" to="/teacher"><span aria-hidden="true">←</span> 교사용 대시보드</Link>
+          <Link className="back-link" to="/teacher"><span aria-hidden="true">←</span> 교사 설정</Link>
           <p className="eyebrow">{era.grade} · {era.shortName} · 교사용 다운로드 센터</p>
-          <h1>10차시 수업자료 다운로드</h1>
-          <p>초등학교 5학년용 학생 활동지, 교사지도안, 활동지 답안을 차시별 PDF와 ZIP으로 내려받을 수 있습니다.</p>
+          <h1>활동지·활동카드·답안</h1>
+          <p>학생 공개 화면에는 나오지 않는 교사용 인쇄 자료입니다. 차시별 PDF와 ZIP으로 내려받을 수 있습니다.</p>
           <div className="downloads-hero__stats">
             <span><strong>10</strong>차시</span>
             <span><strong>30</strong>개 PDF</span>

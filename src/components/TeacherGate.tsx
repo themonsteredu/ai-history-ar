@@ -42,8 +42,8 @@ export function TeacherGate() {
       <section aria-labelledby="teacher-gate-title" className="teacher-gate__card">
         <div aria-hidden="true" className="teacher-gate__seal"><Icon name="lock" size={28} /></div>
         <p className="teacher-gate__eyebrow">MOA HISTORY AR · TEACHER ONLY</p>
-        <h1 id="teacher-gate-title">교사 전용 화면</h1>
-        <p className="teacher-gate__description">수업 운영안과 교사용 자료는 PIN 확인 후 열립니다.</p>
+        <h1 id="teacher-gate-title">교사 설정 잠금</h1>
+        <p className="teacher-gate__description">지도안·학생활동지·활동카드·답안은 PIN 확인 후에만 열립니다.</p>
         <form className="teacher-gate__form" onSubmit={handleSubmit}>
           <label htmlFor="teacher-pin">교사용 PIN</label>
           <input
@@ -65,7 +65,7 @@ export function TeacherGate() {
           />
           {error ? <p className="teacher-gate__error" id="teacher-pin-error" role="alert">{error}</p> : null}
           <button className="button button--primary button--full" type="submit">
-            교사 화면 열기 <Icon name="arrow" size={18} />
+            설정 열기 <Icon name="arrow" size={18} />
           </button>
         </form>
         <p className="teacher-gate__help" id="teacher-pin-help">현재 브라우저 탭을 닫으면 교사 화면이 자동으로 잠깁니다.</p>

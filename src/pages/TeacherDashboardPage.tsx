@@ -27,9 +27,9 @@ export function TeacherDashboardPage() {
       <section className="teacher-hero">
         <div className="page-width teacher-hero__grid">
           <div>
-            <p className="eyebrow">교사용 수업 준비실</p>
-            <h1>20차시 운영안을<br />한눈에 준비하세요</h1>
-            <p>차시별 40분 흐름, 발문, 준비물, 평가 기준과 활동지 구성을 시대별로 확인합니다.</p>
+            <p className="eyebrow">PIN으로 잠긴 교사 설정</p>
+            <h1>지도안과 인쇄 자료를<br />여기에서만 관리합니다</h1>
+            <p>공개 수업 화면과 분리된 교사용 공간입니다. 지도안·학생활동지·활동카드·답안을 시대별로 확인합니다.</p>
           </div>
           <div className="teacher-hero__summary">
             <div><span>수업 과정</span><strong>2</strong><small>시대</small></div>
@@ -69,11 +69,11 @@ export function TeacherDashboardPage() {
         <div className="dashboard-heading">
           <div>
             <p className="eyebrow">{selectedEra.verificationLabel} · {selectedEra.verificationSteps.join(" · ")}</p>
-            <h2>{selectedEra.shortName} 수업 운영안</h2>
+            <h2>{selectedEra.shortName} 교사 지도안</h2>
             <p>“{selectedEra.coreQuestion}”</p>
           </div>
           <Link className="button button--primary" to={`/teacher/${selectedEra.id}/downloads`}>
-            <Icon name="download" size={18} />10차시 자료 구성
+            <Icon name="download" size={18} />활동지·카드·답안
           </Link>
         </div>
 
