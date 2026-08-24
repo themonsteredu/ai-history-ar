@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-const imageRoot = "/images/heritage/three-kingdoms";
+const imageRoot = `${import.meta.env.BASE_URL}images/heritage/three-kingdoms`;
 
 const artifacts = [
   {
