@@ -9,6 +9,7 @@ type ArStatus = "idle" | "loading" | "scanning" | "found" | "lost" | "error" | "
 interface RunningAr {
   started: boolean;
   stop: () => void;
+  dispose: () => void;
   renderer: {
     dispose: () => void;
     setAnimationLoop: (callback: (() => void) | null) => void;
@@ -43,6 +44,7 @@ export default function TrackedHeritageAr() {
           // 이미 닫힌 카메라는 다시 정지하지 않습니다.
         }
       }
+      running.dispose();
       running.renderer.dispose();
       runningRef.current = null;
     }
@@ -79,41 +81,83 @@ export default function TrackedHeritageAr() {
         uiError: "no",
       });
       const { renderer, scene, camera } = mindarThree;
-      const running: RunningAr = { started: false, stop: () => mindarThree.stop(), renderer };
+      const disposables: Array<{ dispose: () => void }> = [];
+      const running: RunningAr = {
+        started: false,
+        stop: () => mindarThree.stop(),
+        dispose: () => disposables.forEach((item) => item.dispose()),
+        renderer,
+      };
       runningRef.current = running;
 
       const anchor = mindarThree.addAnchor(selectedId - 1);
-      const ringGeometry = new THREE.RingGeometry(0.38, 0.48, 48);
-      const ringMaterial = new THREE.MeshBasicMaterial({ color: 0xf0c66e, transparent: true, opacity: 0.92, side: THREE.DoubleSide });
-      const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-      ring.position.z = 0.05;
+      const accentMaterial = new THREE.MeshBasicMaterial({ color: 0xe9c36d, transparent: true, opacity: 0.88 });
+      const brickMaterial = new THREE.MeshBasicMaterial({ color: 0xa84a3b, transparent: true, opacity: 0.96 });
+      disposables.push(accentMaterial, brickMaterial);
 
-      const markerGeometry = new THREE.ConeGeometry(0.11, 0.28, 4);
-      const markerMaterial = new THREE.MeshBasicMaterial({ color: 0xb53b31, transparent: true, opacity: 0.95 });
-      const marker = new THREE.Mesh(markerGeometry, markerMaterial);
-      marker.position.set(0, 0.05, 0.22);
-      marker.rotation.x = Math.PI / 2;
+      const connectorGeometry = new THREE.BoxGeometry(0.012, 0.3, 0.012);
+      const connector = new THREE.Mesh(connectorGeometry, accentMaterial);
+      connector.position.set(0, 0.35, 0.1);
+      disposables.push(connectorGeometry);
+
+      const pinGeometry = new THREE.BoxGeometry(0.075, 0.075, 0.018);
+      const pin = new THREE.Mesh(pinGeometry, brickMaterial);
+      pin.position.set(0, 0.18, 0.11);
+      pin.rotation.z = Math.PI / 4;
+      disposables.push(pinGeometry);
+
+      const bracketGeometry = new THREE.BoxGeometry(0.16, 0.018, 0.012);
+      const bracketVerticalGeometry = new THREE.BoxGeometry(0.018, 0.16, 0.012);
+      disposables.push(bracketGeometry, bracketVerticalGeometry);
+      const bracketPositions = [
+        [-0.42, 0.31, 1, -1],
+        [0.42, 0.31, -1, -1],
+        [-0.42, -0.31, 1, 1],
+        [0.42, -0.31, -1, 1],
+      ] as const;
+      const brackets: unknown[] = [];
+      for (const [x, y, horizontalDirection, verticalDirection] of bracketPositions) {
+        const horizontal = new THREE.Mesh(bracketGeometry, accentMaterial);
+        horizontal.position.set(x + horizontalDirection * 0.07, y, 0.06);
+        const vertical = new THREE.Mesh(bracketVerticalGeometry, accentMaterial);
+        vertical.position.set(x, y + verticalDirection * 0.07, 0.06);
+        brackets.push(horizontal, vertical);
+      }
 
       const labelCanvas = document.createElement("canvas");
-      labelCanvas.width = 1024;
-      labelCanvas.height = 320;
+      labelCanvas.width = 1280;
+      labelCanvas.height = 420;
       const context = labelCanvas.getContext("2d");
       if (context) {
-        context.fillStyle = "rgba(17, 39, 32, 0.92)";
-        context.fillRect(12, 12, 1000, 296);
-        context.fillStyle = "#f0c66e";
-        context.font = '700 44px "S-Core Dream", sans-serif';
-        context.fillText(`${selectedCase.category} 문화유산`, 62, 94);
+        context.fillStyle = "rgba(14, 38, 31, 0.96)";
+        context.fillRect(24, 24, 1232, 372);
+        context.fillStyle = "#a84a3b";
+        context.fillRect(24, 24, 156, 372);
+        context.fillStyle = "#e9c36d";
+        context.fillRect(180, 24, 1076, 8);
         context.fillStyle = "#ffffff";
         context.font = '900 78px "S-Core Dream", sans-serif';
-        context.fillText(selectedCase.heritage, 62, 210);
+        context.textAlign = "center";
+        context.fillText(String(selectedId).padStart(2, "0"), 102, 240);
+        context.textAlign = "left";
+        context.fillStyle = "#e9c36d";
+        context.font = '700 36px "S-Core Dream", sans-serif';
+        context.fillText(`유물 인식 완료  ·  ${selectedCase.category}`, 230, 115);
+        context.fillStyle = "#ffffff";
+        context.font = '900 86px "S-Core Dream", sans-serif';
+        context.fillText(selectedCase.heritage, 230, 245);
+        context.fillStyle = "rgba(255, 255, 255, 0.7)";
+        context.font = '500 30px "S-Core Dream", sans-serif';
+        context.fillText("MOA HISTORY AR · 근거로 확인하는 문화유산", 230, 322);
       }
       const labelTexture = new THREE.CanvasTexture(labelCanvas);
       const labelMaterial = new THREE.MeshBasicMaterial({ map: labelTexture, transparent: true, side: THREE.DoubleSide });
-      const label = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 0.36), labelMaterial);
-      label.position.set(0, 0.76, 0.12);
+      const labelGeometry = new THREE.PlaneGeometry(1.28, 0.42);
+      const label = new THREE.Mesh(labelGeometry, labelMaterial);
+      label.position.set(0, 0.72, 0.12);
+      disposables.push(labelTexture, labelMaterial, labelGeometry);
 
-      anchor.group.add(ring, marker, label);
+      anchor.group.add(...brackets, connector, pin, label);
       anchor.onTargetFound = () => setStatus("found");
       anchor.onTargetLost = () => setStatus("lost");
 
@@ -121,8 +165,6 @@ export default function TrackedHeritageAr() {
       running.started = true;
       setStatus("scanning");
       renderer.setAnimationLoop(() => {
-        ring.rotation.z += 0.012;
-        marker.rotation.z -= 0.015;
         renderer.render(scene, camera);
       });
     } catch (error) {
@@ -170,7 +212,14 @@ export default function TrackedHeritageAr() {
         {status === "fallback" ? (
           <div className="ar-fallback-scene">
             <img alt={`${selectedCase.heritage} 대체 AR 체험`} src={`${imageRoot}/${selectedCase.image}`} />
-            <div className="ar-fallback-marker"><i /><strong>{selectedCase.heritage}</strong><span>AR 핵심 지점</span></div>
+            <div className="ar-fallback-marker">
+              <span className="ar-fallback-marker__number">{String(selectedId).padStart(2, "0")}</span>
+              <div>
+                <span>유물 인식 완료 · {selectedCase.category}</span>
+                <strong>{selectedCase.heritage}</strong>
+                <small>MOA HISTORY AR · 근거로 확인하는 문화유산</small>
+              </div>
+            </div>
           </div>
         ) : status === "idle" || status === "error" ? (
           <div className="ar-camera-placeholder">

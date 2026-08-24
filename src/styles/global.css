@@ -5752,43 +5752,93 @@ input:focus-visible {
 
 .ar-fallback-marker {
   position: absolute;
-  top: 50%;
+  top: 18%;
   left: 50%;
-  min-width: 240px;
-  padding: 18px 22px;
-  border: 3px solid #f0c66e;
-  border-radius: 50%;
+  width: min(620px, calc(100% - 160px));
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  overflow: visible;
+  border: 1px solid rgba(235, 202, 118, 0.72);
+  border-top: 4px solid #e9c36d;
   color: #fff;
-  background: rgba(20, 49, 40, 0.9);
-  text-align: center;
-  transform: translate(-50%, -50%);
+  background: linear-gradient(118deg, rgba(12, 34, 28, 0.97), rgba(22, 51, 42, 0.91));
+  box-shadow: 0 22px 55px rgba(4, 17, 13, 0.42), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  text-align: left;
+  transform: translateX(-50%);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
 }
 
-.ar-fallback-marker i {
+.ar-fallback-marker::before {
   position: absolute;
-  inset: -13px;
-  border: 2px dashed #f0c66e;
-  border-radius: 50%;
-  animation: ar-spin 10s linear infinite;
+  top: 100%;
+  left: 50%;
+  width: 2px;
+  height: 64px;
+  content: "";
+  background: linear-gradient(#e9c36d, rgba(233, 195, 109, 0.25));
+  transform: translateX(-50%);
 }
 
-.ar-fallback-marker strong,
-.ar-fallback-marker span {
+.ar-fallback-marker::after {
+  position: absolute;
+  top: calc(100% + 57px);
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  content: "";
+  border: 2px solid #e9c36d;
+  background: #a84a3b;
+  box-shadow: 0 0 0 6px rgba(233, 195, 109, 0.15);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.ar-fallback-marker__number {
+  min-height: 132px;
+  display: grid !important;
+  place-items: center;
+  margin: 0 !important;
+  color: #fff !important;
+  background: #a84a3b;
+  font-size: 29px !important;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.ar-fallback-marker > div {
+  align-self: center;
+  padding: 21px 25px 19px;
+}
+
+.ar-fallback-marker > div strong,
+.ar-fallback-marker > div span,
+.ar-fallback-marker > div small {
   display: block;
 }
 
-.ar-fallback-marker strong {
-  font-size: 22px;
+.ar-fallback-marker > div span {
+  margin: 0;
+  color: #e9c36d;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
 }
 
-.ar-fallback-marker span {
-  margin-top: 5px;
-  color: #efd58f;
-  font-size: 9px;
+.ar-fallback-marker > div strong {
+  margin-top: 6px;
+  overflow: hidden;
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1.18;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-@keyframes ar-spin {
-  to { transform: rotate(360deg); }
+.ar-fallback-marker > div small {
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 8px;
+  letter-spacing: 0.06em;
 }
 
 .ar-learning-card {
@@ -6102,6 +6152,35 @@ input:focus-visible {
   .ar-camera-stage {
     height: 520px;
     min-height: 0;
+  }
+
+  .ar-fallback-marker {
+    top: 17%;
+    width: calc(100% - 70px);
+    grid-template-columns: 66px minmax(0, 1fr);
+    border-top-width: 3px;
+  }
+
+  .ar-fallback-marker__number {
+    min-height: 112px;
+    font-size: 22px !important;
+  }
+
+  .ar-fallback-marker > div {
+    padding: 16px 15px 14px;
+  }
+
+  .ar-fallback-marker > div span {
+    font-size: 8px;
+  }
+
+  .ar-fallback-marker > div strong {
+    font-size: 20px;
+  }
+
+  .ar-fallback-marker > div small {
+    margin-top: 7px;
+    font-size: 6px;
   }
 
   .verification-choice-panel > div {
