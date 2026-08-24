@@ -121,11 +121,57 @@ try {
   await desktop.getByRole("alert").waitFor();
   await unlockTeacher(desktop);
   await desktop.screenshot({ path: path.join(outputDirectory, "teacher-dashboard-desktop.png"), fullPage: true });
-  results.push(await inspectPage(desktop, "/teacher/three-kingdoms/lesson/1", "1500년 전에는 무엇이 있었을까"));
-  const slideViewer = desktop.getByLabel("삼국시대 1차시 수업 슬라이드");
-  await slideViewer.waitFor();
-  await desktop.getByRole("button", { name: "다음 슬라이드" }).click();
-  await desktop.getByRole("button", { name: "다음 슬라이드" }).click();
+  const lessonHeadings = [
+    "1500년 전에는 무엇이 있었을까",
+    "AI에게 물어보았습니다",
+    "진짜인지 확인하는 방법",
+    "우리 모둠 유산 파헤치기",
+    "AR로 만나는 문화유산",
+    "헤리티지 검증 공방",
+    "AR 카드 만들기",
+    "30초 해설사",
+    "카드에 생명 불어넣기",
+    "삼국시대 유산 박물관 개관",
+  ];
+  let verifiedSlideCount = 0;
+  for (const [lessonIndex, expectedHeading] of lessonHeadings.entries()) {
+    const lessonId = lessonIndex + 1;
+    results.push(await inspectPage(desktop, `/teacher/three-kingdoms/lesson/${lessonId}`, expectedHeading));
+    const slideViewer = desktop.getByLabel(`삼국시대 ${lessonId}차시 수업 슬라이드`);
+    await slideViewer.waitFor();
+    const slideButtons = desktop.locator(".lesson-slides__dots button");
+    if (await slideButtons.count() !== 8) throw new Error(`${lessonId}차시 슬라이드가 8장이 아닙니다.`);
+
+    for (let slideIndex = 0; slideIndex < 8; slideIndex += 1) {
+      await desktop.getByRole("button", { name: `${slideIndex + 1}번 슬라이드` }).click();
+      await desktop.waitForFunction(() => {
+        const images = [...document.querySelectorAll(".lesson-slides__stage img")];
+        return images.length > 0 && images.every((image) => image.complete && image.naturalWidth > 0);
+      });
+      const stageCheck = await desktop.locator(".lesson-slides__stage").evaluate((stage) => {
+        const slide = stage.querySelector(".class-slide");
+        const images = [...stage.querySelectorAll("img")];
+        return {
+          hasSlide: Boolean(slide),
+          noOverflow: Boolean(slide) && slide.scrollWidth <= slide.clientWidth + 1 && slide.scrollHeight <= slide.clientHeight + 1,
+          imageCount: images.length,
+          loadedImageCount: images.filter((image) => image.complete && image.naturalWidth > 0).length,
+        };
+      });
+      if (!stageCheck.hasSlide || !stageCheck.noOverflow || stageCheck.imageCount < 1 || stageCheck.imageCount !== stageCheck.loadedImageCount) {
+        throw new Error(`${lessonId}차시 ${slideIndex + 1}번 슬라이드 검증 실패: ${JSON.stringify(stageCheck)}`);
+      }
+      verifiedSlideCount += 1;
+    }
+
+    if (lessonId === 4 || lessonId === 6 || lessonId === 10) {
+      await desktop.getByRole("button", { name: "2번 슬라이드" }).click();
+      await slideViewer.screenshot({ path: path.join(outputDirectory, `lesson-${String(lessonId).padStart(2, "0")}-slides-desktop.png`) });
+    }
+  }
+
+  await desktop.goto(routeUrl("/teacher/three-kingdoms/lesson/1"), { waitUntil: "networkidle" });
+  await desktop.getByRole("button", { name: "4번 슬라이드" }).click();
   const artifactCardCount = await desktop.locator(".artifact-choice-card").count();
   const loadedArtifactImages = await desktop.locator(".artifact-choice-card img").evaluateAll((images) =>
     images.filter((image) => image.complete && image.naturalWidth > 0).length,
@@ -133,8 +179,7 @@ try {
   if (artifactCardCount !== 6 || loadedArtifactImages !== 6) {
     throw new Error(`1차시 유물 선택 카드 검증 실패: 카드 ${artifactCardCount}개, 사진 ${loadedArtifactImages}개`);
   }
-  await slideViewer.screenshot({ path: path.join(outputDirectory, "lesson-01-slides-desktop.png") });
-  results.push(await inspectPage(desktop, "/teacher/three-kingdoms/lesson/6", "헤리티지 검증 공방"));
+  await desktop.getByLabel("삼국시대 1차시 수업 슬라이드").screenshot({ path: path.join(outputDirectory, "lesson-01-slides-desktop.png") });
   results.push(await inspectPage(desktop, "/teacher/joseon/downloads", "10차시 수업자료 다운로드"));
   await desktop.screenshot({ path: path.join(outputDirectory, "download-center-desktop.png"), fullPage: true });
 
@@ -169,7 +214,7 @@ try {
   await mobile.goto(routeUrl("/teacher/joseon/downloads"), { waitUntil: "networkidle" });
   await mobile.getByRole("heading", { name: "교사 전용 화면" }).waitFor();
 
-  console.log(JSON.stringify({ ok: true, results, downloadLinkCount, downloadedFiles }, null, 2));
+  console.log(JSON.stringify({ ok: true, results, verifiedSlideCount, downloadLinkCount, downloadedFiles }, null, 2));
 } finally {
   await browser.close();
 }

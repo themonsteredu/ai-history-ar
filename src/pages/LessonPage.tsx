@@ -50,7 +50,7 @@ export function LessonPage({ eraId, mode }: LessonPageProps) {
 
       <div className={`page-width lesson-layout${mode === "student" ? " lesson-layout--student" : ""}`}>
         <article className="lesson-main">
-          {mode === "teacher" && era.id === "three-kingdoms" && lesson.id === 1 ? <LessonSlides /> : null}
+          {mode === "teacher" && era.id === "three-kingdoms" ? <LessonSlides key={lesson.id} lessonId={lesson.id} /> : null}
 
           <section className="question-card">
             <p className="eyebrow">이 차시의 핵심 질문</p>
