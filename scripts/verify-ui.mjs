@@ -197,6 +197,10 @@ try {
 
   await desktop.goto(routeUrl("/three-kingdoms/lesson/1?view=ppt"), { waitUntil: "networkidle" });
   await desktop.getByRole("button", { name: "4번 슬라이드", exact: true }).click();
+  await desktop.waitForFunction(() => {
+    const images = [...document.querySelectorAll(".artifact-choice-card img")];
+    return images.length === 6 && images.every((image) => image.complete && image.naturalWidth > 0);
+  });
   const artifactCardCount = await desktop.locator(".artifact-choice-card").count();
   const loadedArtifactImages = await desktop.locator(".artifact-choice-card img").evaluateAll((images) =>
     images.filter((image) => image.complete && image.naturalWidth > 0).length,
