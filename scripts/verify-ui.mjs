@@ -25,12 +25,17 @@ async function findBrowser() {
 
 async function inspectPage(page, pathname, expectedHeading) {
   const errors = [];
+  const failedResponses = [];
   const onConsole = (message) => {
     if (message.type() === "error") errors.push(message.text());
   };
   const onPageError = (error) => errors.push(error.message);
+  const onResponse = (response) => {
+    if (response.status() >= 400) failedResponses.push({ status: response.status(), url: response.url() });
+  };
   page.on("console", onConsole);
   page.on("pageerror", onPageError);
+  page.on("response", onResponse);
 
   const response = await page.goto(`${baseUrl}${pathname}`, { waitUntil: "networkidle" });
   const result = await page.evaluate(() => ({
@@ -43,6 +48,7 @@ async function inspectPage(page, pathname, expectedHeading) {
   const heading = await page.locator("h1").first().innerText();
   page.off("console", onConsole);
   page.off("pageerror", onPageError);
+  page.off("response", onResponse);
 
   const checks = {
     status: response?.status() ?? 0,
@@ -53,6 +59,7 @@ async function inspectPage(page, pathname, expectedHeading) {
     hasContent: result.bodyTextLength > 100,
     fontLoaded: result.fontLoaded,
     consoleErrors: errors,
+    failedResponses,
   };
 
   if (
@@ -62,7 +69,8 @@ async function inspectPage(page, pathname, expectedHeading) {
     !checks.noOverlay ||
     !checks.hasContent ||
     !checks.fontLoaded ||
-    checks.consoleErrors.length > 0
+    checks.consoleErrors.length > 0 ||
+    checks.failedResponses.length > 0
   ) {
     throw new Error(`${pathname} 검증 실패: ${JSON.stringify({ ...checks, ...result })}`);
   }

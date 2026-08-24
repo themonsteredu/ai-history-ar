@@ -16,7 +16,7 @@ export function EraArtwork({ eraId, compact = false }: EraArtworkProps) {
         decoding="async"
         height="1536"
         loading={compact ? "eager" : "lazy"}
-        src={`/images/${eraId}-cover.webp`}
+        src={`${import.meta.env.BASE_URL}images/${eraId}-cover.webp`}
         width="1536"
       />
     </picture>
