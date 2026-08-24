@@ -195,6 +195,45 @@ try {
     verifiedWebActivityCount += 1;
   }
 
+  await desktop.goto(routeUrl("/three-kingdoms/lesson/1?view=activity"), { waitUntil: "networkidle" });
+  const heritageChoices = desktop.locator(".heritage-choice-card");
+  if (await heritageChoices.count() !== 6) throw new Error("1차시 유물 관찰 카드가 6개가 아닙니다.");
+  await desktop.waitForFunction(() => {
+    const images = [...document.querySelectorAll(".heritage-choice-card img")];
+    return images.length === 6 && images.every((image) => image.complete && image.naturalWidth > 0);
+  });
+  await desktop.getByRole("button", { name: "2모둠", exact: true }).click();
+  await desktop.getByTestId("heritage-choice-3").click();
+  await desktop.getByRole("button", { name: "2모둠 선택 확정" }).click();
+  await desktop.getByRole("status").filter({ hasText: "첨성대" }).waitFor();
+  await desktop.reload({ waitUntil: "networkidle" });
+  await desktop.locator(".selection-board li").filter({ hasText: "2모둠" }).filter({ hasText: "첨성대" }).waitFor();
+  await desktop.locator(".web-activity-shell").screenshot({ path: path.join(outputDirectory, "lesson-01-web-activity-desktop.png") });
+
+  await desktop.goto(routeUrl("/three-kingdoms/lesson/2?view=activity"), { waitUntil: "networkidle" });
+  if (await desktop.locator(".case-tabs button").count() !== 6) throw new Error("2차시 유산별 AI 질문이 6개가 아닙니다.");
+  await desktop.getByTestId("ai-sentence-1").click();
+  await desktop.getByRole("button", { name: "알고 있는 자료와 다름" }).click();
+  await desktop.getByRole("button", { name: "우리 모둠 판단 제출" }).click();
+  if (await desktop.getByTestId("ai-answer-summary").count() !== 0) throw new Error("2차시 답이 교사 공개 전에 노출되었습니다.");
+  await desktop.getByTestId("reveal-ai-answer").click();
+  await desktop.getByTestId("ai-answer-summary").waitFor();
+  await desktop.locator(".web-activity-shell").screenshot({ path: path.join(outputDirectory, "lesson-02-web-activity-desktop.png") });
+
+  await desktop.goto(routeUrl("/three-kingdoms/lesson/3?view=activity"), { waitUntil: "networkidle" });
+  if (await desktop.locator(".evidence-source-grid article").count() !== 3) throw new Error("3차시 비교 자료가 3개가 아닙니다.");
+  for (const sourceIndex of [0, 1]) {
+    const sourceCard = desktop.getByTestId(`evidence-source-${sourceIndex}`);
+    await sourceCard.getByRole("button", { name: "자료 내용 열기" }).click();
+    await sourceCard.getByRole("button", { name: "근거로 담기" }).click();
+  }
+  await desktop.getByRole("button", { name: "틀림", exact: true }).click();
+  await desktop.getByRole("button", { name: "우리 모둠 판단 제출" }).click();
+  if (await desktop.getByTestId("verification-answer-summary").count() !== 0) throw new Error("3차시 답이 교사 공개 전에 노출되었습니다.");
+  await desktop.getByTestId("reveal-verification-answer").click();
+  await desktop.getByTestId("verification-answer-summary").waitFor();
+  await desktop.locator(".web-activity-shell").screenshot({ path: path.join(outputDirectory, "lesson-03-web-activity-desktop.png") });
+
   await desktop.goto(routeUrl("/three-kingdoms/lesson/1?view=ppt"), { waitUntil: "networkidle" });
   await desktop.getByRole("button", { name: "4번 슬라이드", exact: true }).click();
   await desktop.waitForFunction(() => {
