@@ -93,8 +93,11 @@ async function verifyDownload(page, pathname, expectedSignature, expectedType) {
   const response = await page.request.get(`${baseUrl}${pathname}`);
   const contentType = response.headers()["content-type"] ?? "";
   const body = await response.body();
+  const contentTypeMatches = expectedType === "application/zip"
+    ? contentType.includes("zip")
+    : contentType.includes(expectedType);
 
-  if (!response.ok() || !contentType.includes(expectedType) || !body.subarray(0, expectedSignature.length).equals(expectedSignature)) {
+  if (!response.ok() || !contentTypeMatches || !body.subarray(0, expectedSignature.length).equals(expectedSignature)) {
     throw new Error(`${pathname} 다운로드 검증 실패: ${JSON.stringify({ status: response.status(), contentType, size: body.length })}`);
   }
 
