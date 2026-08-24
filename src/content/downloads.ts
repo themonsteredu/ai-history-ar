@@ -1,4 +1,4 @@
-export type LessonDownloadKind = "student" | "teacher" | "bundle";
+export type LessonDownloadKind = "student" | "teacher" | "answer" | "bundle";
 
 function lessonNumber(lessonId: number) {
   return String(lessonId).padStart(2, "0");

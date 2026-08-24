@@ -39,6 +39,13 @@ describe("curriculum catalog", () => {
     expect(eras[1].verificationSteps).toEqual(["출처", "시기", "교차", "원본"]);
   });
 
+  it("aligns both courses to the 2022 revised grade-five social studies standards", () => {
+    expect(eras.every((era) => era.grade === "초등학교 5학년")).toBe(true);
+    expect(eras[0].curriculumStandards.map((standard) => standard.code)).toEqual(["6사04-02"]);
+    expect(eras[1].curriculumStandards.map((standard) => standard.code)).toEqual(["6사05-01", "6사05-02"]);
+    expect(eras.flatMap((era) => era.lessons).every((lesson) => lesson.objective.length <= 55)).toBe(true);
+  });
+
   it("defines six distinct heritage groups and downloads for every lesson", () => {
     for (const era of eras) {
       expect(era.groups).toHaveLength(6);

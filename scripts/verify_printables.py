@@ -15,6 +15,7 @@ PUBLIC_DIR = ROOT / "public" / "downloads"
 RENDER_DIR = ROOT / "work" / "pdf-check"
 
 A4 = (595, 842)
+A4_LANDSCAPE = (842, 595)
 A6 = (298, 420)
 A5 = (420, 595)
 
@@ -73,7 +74,7 @@ def main() -> None:
     lesson_zips = sorted(FINAL_DIR.glob("*/lesson-*-all.zip"))
     era_zips = sorted(FINAL_DIR.glob("*/*-all-materials.zip"))
 
-    if len(pdf_paths) != 40 or len(lesson_zips) != 20 or len(era_zips) != 2:
+    if len(pdf_paths) != 60 or len(lesson_zips) != 20 or len(era_zips) != 2:
         raise AssertionError(
             f"Unexpected artifact counts: PDFs={len(pdf_paths)}, lesson ZIPs={len(lesson_zips)}, era ZIPs={len(era_zips)}"
         )
@@ -82,19 +83,21 @@ def main() -> None:
     for path in pdf_paths:
         lesson_id = int(path.name.split("-")[1])
         is_student = path.name.endswith("-student.pdf")
-        expected_size = A6 if is_student and lesson_id == 7 else A5 if is_student and lesson_id == 10 else A4
+        expected_size = A4_LANDSCAPE if is_student and lesson_id in (7, 10) else A4
         results[str(path.relative_to(FINAL_DIR))] = assert_pdf(path, expected_size)
+        if is_student and results[str(path.relative_to(FINAL_DIR))]["pages"] != 1:
+            raise AssertionError(f"Student lesson must be exactly one page: {path}")
 
     for path in lesson_zips:
         with ZipFile(path) as archive:
             names = archive.namelist()
-            if len(names) != 2 or not any(name.endswith("student.pdf") for name in names) or not any(name.endswith("teacher.pdf") for name in names):
+            if len(names) != 3 or not any(name.endswith("student.pdf") for name in names) or not any(name.endswith("teacher.pdf") for name in names) or not any(name.endswith("answer.pdf") for name in names):
                 raise AssertionError(f"Lesson ZIP contents are invalid: {path}")
 
     for path in era_zips:
         with ZipFile(path) as archive:
-            if len(archive.namelist()) != 20:
-                raise AssertionError(f"Era ZIP must contain 20 PDFs: {path}")
+            if len(archive.namelist()) != 30:
+                raise AssertionError(f"Era ZIP must contain 30 PDFs: {path}")
 
     if set(manifest.get("eras", {})) != {"three-kingdoms", "joseon"}:
         raise AssertionError("Manifest is missing an era")
@@ -102,11 +105,17 @@ def main() -> None:
     if RENDER_DIR.exists():
         shutil.rmtree(RENDER_DIR)
     RENDER_DIR.mkdir(parents=True)
+    for era_id in ("three-kingdoms", "joseon"):
+        for lesson_id in range(1, 11):
+            render_page(
+                FINAL_DIR / era_id / f"lesson-{lesson_id:02d}-student.pdf",
+                0,
+                f"{era_id}-lesson-{lesson_id:02d}-student.png",
+            )
     render_page(FINAL_DIR / "three-kingdoms" / "lesson-01-teacher.pdf", 0, "three-kingdoms-lesson-01-teacher.png")
-    render_page(FINAL_DIR / "three-kingdoms" / "lesson-06-teacher.pdf", 2, "three-kingdoms-lesson-06-questions.png")
     render_page(FINAL_DIR / "three-kingdoms" / "lesson-06-teacher.pdf", 8, "three-kingdoms-lesson-06-answers.png")
-    render_page(FINAL_DIR / "three-kingdoms" / "lesson-07-student.pdf", 0, "three-kingdoms-lesson-07-a6.png")
-    render_page(FINAL_DIR / "joseon" / "lesson-10-student.pdf", 0, "joseon-lesson-10-a5.png")
+    render_page(FINAL_DIR / "three-kingdoms" / "lesson-01-answer.pdf", 0, "three-kingdoms-lesson-01-answer.png")
+    render_page(FINAL_DIR / "joseon" / "lesson-04-answer.pdf", 0, "joseon-lesson-04-answer.png")
 
     total_pages = sum(item["pages"] for item in results.values())
     total_bytes = sum(item["bytes"] for item in results.values())

@@ -52,8 +52,14 @@ export interface HeritageGroup {
   alternative?: string;
 }
 
+export interface CurriculumStandard {
+  code: string;
+  description: string;
+}
+
 export interface Era {
   id: EraId;
+  grade: "초등학교 5학년";
   shortName: string;
   title: string;
   eyebrow: string;
@@ -64,6 +70,7 @@ export interface Era {
   accent: string;
   accentSoft: string;
   route: string;
+  curriculumStandards: readonly CurriculumStandard[];
   lessons: readonly Lesson[];
   groups: readonly HeritageGroup[];
 }

@@ -7,6 +7,7 @@ import type { Era, EraId, Lesson } from "../types/curriculum";
 export const eras = [
   {
     id: "three-kingdoms",
+    grade: "초등학교 5학년",
     shortName: "삼국시대",
     title: "삼국시대 문화유산 AI 해설사",
     eyebrow: "1500년 전의 단서를 따라가는 수업",
@@ -17,11 +18,18 @@ export const eras = [
     accent: "#7f3f31",
     accentSoft: "#f2ded5",
     route: "/three-kingdoms",
+    curriculumStandards: [
+      {
+        code: "6사04-02",
+        description: "역사 기록이나 유적과 유물에 나타난 고대 사람들의 생각과 생활을 추론한다.",
+      },
+    ],
     lessons: threeKingdomsLessons,
     groups: threeKingdomsGroups,
   },
   {
     id: "joseon",
+    grade: "초등학교 5학년",
     shortName: "조선시대",
     title: "조선시대 문화유산 AI 해설사",
     eyebrow: "기록과 통념을 구분하는 수업",
@@ -32,6 +40,16 @@ export const eras = [
     accent: "#24574e",
     accentSoft: "#dcebe5",
     route: "/joseon",
+    curriculumStandards: [
+      {
+        code: "6사05-01",
+        description: "조선 시대 사람들의 생각과 생활에 유교 문화가 미친 영향을 파악한다.",
+      },
+      {
+        code: "6사05-02",
+        description: "조선 후기 사회·문화적 변화와 개항기 근대 문물 수용 과정에서 달라진 사람들의 생활을 이해한다.",
+      },
+    ],
     lessons: joseonLessons,
     groups: joseonGroups,
   },

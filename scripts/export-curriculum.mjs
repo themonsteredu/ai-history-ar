@@ -30,21 +30,30 @@ const [threeKingdomsLessons, threeKingdomsGroups, joseonLessons, joseonGroups] =
 const eras = [
   {
     id: "three-kingdoms",
+    grade: "초등학교 5학년",
     shortName: "삼국시대",
     title: "삼국시대 문화유산 AI 해설사",
     coreQuestion: "1500년 전 이야기, AI는 어떻게 알고 있을까?",
     verificationLabel: "검증 5단계",
     verificationSteps: ["출처", "시기", "교차", "원본", "보류"],
+    curriculumStandards: [
+      { code: "6사04-02", description: "역사 기록이나 유적과 유물에 나타난 고대 사람들의 생각과 생활을 추론한다." },
+    ],
     lessons: threeKingdomsLessons,
     groups: threeKingdomsGroups,
   },
   {
     id: "joseon",
+    grade: "초등학교 5학년",
     shortName: "조선시대",
     title: "조선시대 문화유산 AI 해설사",
     coreQuestion: "우리가 아는 조선, 정말 그랬을까?",
     verificationLabel: "검증 4단계",
     verificationSteps: ["출처", "시기", "교차", "원본"],
+    curriculumStandards: [
+      { code: "6사05-01", description: "조선 시대 사람들의 생각과 생활에 유교 문화가 미친 영향을 파악한다." },
+      { code: "6사05-02", description: "조선 후기 사회·문화적 변화와 개항기 근대 문물 수용 과정에서 달라진 사람들의 생활을 이해한다." },
+    ],
     lessons: joseonLessons,
     groups: joseonGroups,
   },

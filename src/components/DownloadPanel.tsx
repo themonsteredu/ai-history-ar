@@ -28,6 +28,9 @@ export function DownloadPanel({ era, lesson }: DownloadPanelProps) {
         <a className="button button--gold button--full" download href={lessonDownloadPath(era.id, lesson.id, "teacher")}>
           <Icon name="download" size={18} />교사지도안·활동카드 PDF
         </a>
+        <a className="button button--quiet button--full" download href={lessonDownloadPath(era.id, lesson.id, "answer")}>
+          <Icon name="download" size={18} />학생 활동지 답안 PDF
+        </a>
         <a className="button button--outline button--full" download href={lessonDownloadPath(era.id, lesson.id, "bundle")}>
           <Icon name="download" size={18} />이 차시 전체 ZIP
         </a>
@@ -39,7 +42,7 @@ export function DownloadPanel({ era, lesson }: DownloadPanelProps) {
         10차시 전체 다운로드 센터 <Icon name="arrow" size={16} />
       </Link>
       <p className="download-panel__notice">
-        PDF에 S-Core Dream 글꼴이 내장되어 있어 다른 컴퓨터에서도 같은 모양으로 인쇄됩니다.
+        학생용은 차시당 A4 한 장이며, 교사용 답안은 별도 PDF입니다. 모든 파일은 흑백 인쇄용입니다.
       </p>
     </aside>
   );

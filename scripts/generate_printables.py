@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape, quoteattr
 from reportlab.lib import colors
 from reportlab.lib.colors import HexColor
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
-from reportlab.lib.pagesizes import A4, A5, A6
+from reportlab.lib.pagesizes import A4, A5, A6, landscape
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
@@ -31,14 +31,14 @@ OUTPUT_ROOT = ROOT / "output" / "pdf"
 PUBLIC_ROOT = ROOT / "public" / "downloads"
 FONT_ROOT = ROOT / "public" / "fonts"
 
-INK = HexColor("#1D2825")
-SOFT = HexColor("#5D6864")
-PAPER = HexColor("#FFFDF7")
-LINE = HexColor("#D9D2C3")
-GREEN = HexColor("#173F38")
-GREEN_SOFT = HexColor("#EAF1EE")
-RED = HexColor("#A94B36")
-GOLD = HexColor("#C49744")
+INK = HexColor("#111111")
+SOFT = HexColor("#444444")
+PAPER = colors.white
+LINE = HexColor("#B8B8B8")
+GREEN = HexColor("#222222")
+GREEN_SOFT = HexColor("#F0F0F0")
+RED = HexColor("#111111")
+GOLD = HexColor("#555555")
 
 
 SOURCES = {
@@ -163,6 +163,10 @@ def styles_for(page_size):
         "body": ParagraphStyle("body", parent=sample["BodyText"], fontName="SCore", fontSize=8 if compact else 10, leading=12 if compact else 15, textColor=INK, wordWrap="CJK"),
         "small": ParagraphStyle("small", parent=sample["BodyText"], fontName="SCore", fontSize=6.4 if compact else 8, leading=9 if compact else 11, textColor=SOFT, wordWrap="CJK"),
         "label": ParagraphStyle("label", parent=sample["BodyText"], fontName="SCoreBold", fontSize=7 if compact else 9, leading=10 if compact else 12, textColor=RED, wordWrap="CJK"),
+        "sheetTitle": ParagraphStyle("sheetTitle", parent=sample["Title"], fontName="SCoreHeavy", fontSize=24, leading=28, textColor=GREEN, spaceAfter=0, wordWrap="CJK"),
+        "sheetTopic": ParagraphStyle("sheetTopic", parent=sample["BodyText"], fontName="SCoreBold", fontSize=12, leading=16, textColor=INK, wordWrap="CJK"),
+        "identity": ParagraphStyle("identity", parent=sample["BodyText"], fontName="SCoreMedium", fontSize=9, leading=12, textColor=INK, alignment=2, wordWrap="CJK"),
+        "tableHeader": ParagraphStyle("tableHeader", parent=sample["BodyText"], fontName="SCoreBold", fontSize=6.4 if compact else 8, leading=9 if compact else 11, textColor=colors.white, wordWrap="CJK"),
         "center": ParagraphStyle("center", parent=sample["BodyText"], fontName="SCoreBold", fontSize=10 if compact else 13, leading=14 if compact else 18, textColor=INK, alignment=TA_CENTER, wordWrap="CJK"),
         "source": ParagraphStyle("source", parent=sample["BodyText"], fontName="SCore", fontSize=5.5 if compact else 6.5, leading=8, textColor=SOFT, wordWrap="CJK"),
     }
@@ -188,9 +192,12 @@ def ruled_box(title, prompt, width, height, st):
     return table
 
 
-def data_table(rows, widths, st, header=True, font_size=8):
-    converted = [[cell if isinstance(cell, Paragraph) else para(cell, st["small"]) for cell in row] for row in rows]
-    table = Table(converted, colWidths=widths, repeatRows=1 if header else 0, hAlign="LEFT")
+def data_table(rows, widths, st, header=True, font_size=8, row_heights=None):
+    converted = []
+    for row_index, row in enumerate(rows):
+        style = st["tableHeader"] if header and row_index == 0 else st["small"]
+        converted.append([cell if isinstance(cell, Paragraph) else para(cell, style) for cell in row])
+    table = Table(converted, colWidths=widths, rowHeights=row_heights, repeatRows=1 if header else 0, hAlign="LEFT")
     commands = [
         ("GRID", (0, 0), (-1, -1), 0.5, LINE),
         ("VALIGN", (0, 0), (-1, -1), "TOP"),
@@ -208,6 +215,13 @@ def data_table(rows, widths, st, header=True, font_size=8):
 def document_header(canvas, doc, era, lesson, audience):
     canvas.saveState()
     width, height = doc.pagesize
+    if audience == "학생용":
+        canvas.setFont("SCore", 6.5)
+        canvas.setFillColor(SOFT)
+        canvas.drawString(doc.leftMargin, 6.5 * mm, "MOA 역사 AR 교실")
+        canvas.drawRightString(width - doc.rightMargin, 6.5 * mm, "S-Core Dream")
+        canvas.restoreState()
+        return
     canvas.setStrokeColor(LINE)
     canvas.line(doc.leftMargin, height - 13 * mm, width - doc.rightMargin, height - 13 * mm)
     canvas.setFont("SCoreBold", 7.5)
@@ -236,6 +250,278 @@ def cover_story(era, lesson, audience, st, width):
         para("학교 ________  학년·반 ________  이름 ____________________", st["body"]),
         PageBreak(),
     ]
+
+
+def student_sheet_header(era, lesson, width, st):
+    identity = Table(
+        [[para(f"{era['shortName']} {lesson['id']}차시", st["sheetTitle"]), para("5학년 ______반   이름 ____________________", st["identity"])]],
+        colWidths=[width * .44, width * .56],
+    )
+    identity.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("TOPPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ("LINEBELOW", (0, 0), (-1, -1), 1.1, GREEN),
+    ]))
+    topic = Table(
+        [
+            [para("학습 주제", st["label"]), para(lesson["title"], st["sheetTopic"])],
+            [para("학습 목표", st["label"]), para(lesson["objective"], st["small"])],
+        ],
+        colWidths=[24 * mm, width - 24 * mm],
+    )
+    topic.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("BACKGROUND", (0, 0), (-1, -1), GREEN_SOFT),
+        ("BOX", (0, 0), (-1, -1), 0.6, LINE),
+        ("INNERGRID", (0, 0), (-1, -1), 0.4, LINE),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 5),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+    ]))
+    return [identity, Spacer(1, 4 * mm), topic, Spacer(1, 5 * mm)]
+
+
+def sheet_columns(left, right, width, st, left_ratio=.5, divider=False):
+    gap = 5 * mm
+    left_width = (width - gap) * left_ratio
+    right_width = width - gap - left_width
+    table = Table([[left, "", right]], colWidths=[left_width, gap, right_width], hAlign="LEFT")
+    commands = [
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("TOPPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+    ]
+    if divider:
+        commands.append(("LINEBEFORE", (1, 0), (1, 0), 0.8, LINE, None, (2, 2)))
+    table.setStyle(TableStyle(commands))
+    return table
+
+
+def student_lesson_sheet(era, lesson, width, st):
+    flow = student_sheet_header(era, lesson, width, st)
+    lesson_id = lesson["id"]
+
+    if lesson_id == 1:
+        role_rows = [["역할", "이름", "오늘 할 일"], ["자료", "", "자료 찾기"], ["기록", "", "근거 남기기"], ["기기", "", "기기·파일 관리"], ["발표", "", "의견 전달"]]
+        left = [ruled_box("나의 첫 생각", f"{era['shortName']} 또는 우리 모둠 유산을 생각하면 무엇이 떠오르나요?", width * .47, 110 * mm, st)]
+        right = [data_table(role_rows, [width * .11, width * .12, width * .24], st, row_heights=[10 * mm] + [25 * mm] * 4)]
+        flow += [sheet_columns(left, right, width, st), Spacer(1, 5 * mm)]
+        flow += [ruled_box("AI를 얼마나 믿나요?", "0(거의 믿지 않음)  1  2  3  4  5(매우 믿음)   선택한 까닭: ______________________________________________", width, 50 * mm, st), Spacer(1, 4 * mm)]
+        flow += [ruled_box("수업 뒤 다시 볼 나의 문장", "AI가 역사 질문에 답하면 나는 ______________________________________________________________", width, 60 * mm, st)]
+    elif lesson_id == 2:
+        flow += [ruled_box("AI 답변에서 의심되는 문장", "답변을 붙이거나 옮겨 쓰고, 이상한 부분에 밑줄을 그으세요.", width, 130 * mm, st), Spacer(1, 4 * mm)]
+        flow += [sheet_columns(
+            [ruled_box("왜 이상하다고 생각했나요?", "시기·인물·나라·출처·단정 표현을 살펴보세요.", width * .47, 100 * mm, st)],
+            [ruled_box("어떻게 확인할까요?", "찾아볼 자료와 확인할 질문을 적으세요.", width * .47, 100 * mm, st)],
+            width, st,
+        )]
+    elif lesson_id == 3:
+        compare_rows = [["자료", "무엇을 알게 되었나요?", "믿을까?"], ["국가기관", "", "○ △ ×"], ["블로그·영상", "", "○ △ ×"], ["AI 답변", "", "○ △ ×"]]
+        questions = {"출처": "누가 만들었나요?", "시기": "언제 만든 자료인가요?", "교차": "다른 자료도 같은 말인가요?", "원본": "원래 자료를 보았나요?", "보류": "모르면 '아직 모름'으로 남겼나요?"}
+        verify_rows = [["확인할 것", "해 보았나요?"]] + [[questions[step], "□ 네"] for step in era["verificationSteps"]]
+        left_width = (width - 5 * mm) * .55
+        right_width = width - 5 * mm - left_width
+        flow += [sheet_columns(
+            [data_table(compare_rows, [left_width * .22, left_width * .58, left_width * .2], st, row_heights=[10 * mm] + [30 * mm] * 3)],
+            [data_table(verify_rows, [right_width * .76, right_width * .24], st, row_heights=[10 * mm] + [18 * mm] * len(era["verificationSteps"]))],
+            width, st, left_ratio=.55,
+        ), Spacer(1, 5 * mm), ruled_box("내 결론", "□ 믿을 수 있어요   □ 더 확인해야 해요   □ 아직 모르겠어요\n그렇게 생각한 까닭을 한 문장으로 적어 보세요.", width, 120 * mm, st)]
+    elif lesson_id == 4:
+        investigation_rows = [["궁금한 것", "찾은 내용"], ["언제 만들었나요?", ""], ["누가, 왜 만들었나요?", ""], ["왜 중요한 유산인가요?", ""], ["AI가 틀리게 말한 것은?", ""]]
+        flow += [data_table(investigation_rows, [width * .27, width * .73], st, row_heights=[10 * mm] + [30 * mm] * 4), Spacer(1, 5 * mm)]
+        source_rows = [["어디서 찾았나요?", "왜 믿을 수 있나요?"], ["", ""], ["", ""]]
+        final_label = "아직 모름으로 남길 점" if era["id"] == "three-kingdoms" else "드라마·통념과 다른 사실"
+        flow += [sheet_columns(
+            [data_table(source_rows, [width * .25, width * .25], st, row_heights=[10 * mm] + [42.5 * mm] * 2)],
+            [ruled_box(final_label, "확실하지 않은 내용은 억지로 답하지 않아도 괜찮아요.", width * .45, 95 * mm, st)],
+            width, st, left_ratio=.53,
+        )]
+    elif lesson_id == 5:
+        eval_rows = [["살펴볼 것", "좋았던 점", "고치고 싶은 점"], ["카드가 잘 보이나요?", "", ""], ["움직임이 재미있나요?", "", ""], ["설명이 잘 들리나요?", "", ""]]
+        plan_rows = [["우리 AR에 넣을 것", "우리 모둠 생각"], ["무엇이 나오나요?", ""], ["관람객은 무엇을 하나요?", ""], ["어떤 한 문장을 말하나요?", ""]]
+        flow += [sheet_columns(
+            [data_table(eval_rows, [width * .18, width * .16, width * .16], st, row_heights=[10 * mm] + [22 * mm] * 3)],
+            [data_table(plan_rows, [width * .22, width * .23], st, row_heights=[10 * mm] + [22 * mm] * 3)],
+            width, st, left_ratio=.53,
+        ), Spacer(1, 5 * mm), ruled_box("AR 카드 스케치", "굵은 선과 뚜렷한 무늬로 카드 모습을 크게 그려 보세요.", width, 145 * mm, st)]
+    elif lesson_id == 6:
+        evidence_rows = [["번호", "내 생각", "그렇게 생각한 까닭·본 자료"]] + [[str(i), "참 / 거짓 / 아직 모름", ""] for i in range(1, 7)]
+        flow += [para("문장을 읽고 내 생각을 고른 뒤, 왜 그렇게 생각했는지 적어 보세요.", st["small"]), Spacer(1, 3 * mm)]
+        flow += [data_table(evidence_rows, [width * .1, width * .26, width * .64], st, row_heights=[10 * mm] + [22 * mm] * 6), Spacer(1, 5 * mm)]
+        flow += [ruled_box("오늘 새롭게 알게 된 것", "처음 생각과 달라진 점을 한 문장으로 적어 보세요.", width, 55 * mm, st)]
+    elif lesson_id == 7:
+        front = [ruled_box("A6 카드 앞면 원화", "굵은 선·뚜렷한 명암·비대칭 구성을 적용해 그리세요. 테두리 5mm는 비워 둡니다.", width * .47, 128 * mm, st)]
+        back = [ruled_box("A6 카드 뒷면", "유산 이름:\n한 문장 해설:\n확인한 출처:\nQR 자리:\n모둠·역할:", width * .47, 128 * mm, st)]
+        flow += [para("앞면과 뒷면을 완성한 뒤 점선을 따라 잘라 카드로 사용하세요.", st["small"]), Spacer(1, 3 * mm), sheet_columns(front, back, width, st, divider=True)]
+    elif lesson_id == 8:
+        script_rows = [["말할 순서", "내가 할 말"], ["1. 유산 이름", ""], ["2. 중요한 사실", ""], ["3. AI가 틀린 점과 확인 방법", ""], ["4. 관람객에게 할 질문", ""]]
+        check_rows = [["연습한 뒤 확인해요", "체크"], ["30초 안에 말했나요?", "□"], ["쉬운 말로 설명했나요?", "□"], ["확인한 근거가 있나요?", "□"], ["또렷하게 말했나요?", "□"], ["촬영 전 동의를 받았나요?", "□"]]
+        flow += [sheet_columns(
+            [data_table(script_rows, [width * .2, width * .35], st, row_heights=[10 * mm] + [24 * mm] * 4)],
+            [data_table(check_rows, [width * .35, width * .1], st, row_heights=[10 * mm] + [19.2 * mm] * 5)],
+            width, st, left_ratio=.58,
+        ), Spacer(1, 5 * mm), ruled_box("내 30초 해설", "친구에게 이야기하듯 쉬운 말로 이어서 적어 보세요.", width, 125 * mm, st)]
+    elif lesson_id == 9:
+        test_rows = [["어디서 해 보았나요?", "잘 되었나요?", "무엇을 고칠까요?"], ["밝은 곳", "○ △ ×", ""], ["어두운 곳", "○ △ ×", ""], ["가까이·멀리", "○ △ ×", ""], ["QR로 보기", "○ △ ×", ""]]
+        question_rows = [["관람객이 물을 것", "우리의 쉬운 답"], ["1.", ""], ["2.", ""]]
+        role_rows = [["부스에서 할 일", "이름"], ["해설하기", ""], ["AR 도와주기", ""], ["질문받기", ""]]
+        flow += [data_table(test_rows, [width * .25, width * .18, width * .57], st, row_heights=[10 * mm] + [24 * mm] * 4), Spacer(1, 5 * mm)]
+        flow += [sheet_columns(
+            [data_table(question_rows, [width * .18, width * .37], st, row_heights=[10 * mm] + [52 * mm] * 2)],
+            [data_table(role_rows, [width * .28, width * .17], st, row_heights=[10 * mm] + [34.7 * mm] * 3)],
+            width, st, left_ratio=.58,
+        )]
+    elif lesson_id == 10:
+        stamp_rows = [["부스", "문화유산", "스탬프"]] + [[f"{g['id']}모둠", g["heritage"], "□"] for g in era["groups"]]
+        left = [data_table(stamp_rows, [width * .1, width * .27, width * .1], st, row_heights=[9 * mm] + [13 * mm] * 6), Spacer(1, 4 * mm), ruled_box("가장 인상 깊었던 부스", "까닭과 학생 해설사에게 전할 말을 적으세요.", width * .47, 43 * mm, st)]
+        right = [ruled_box("1차시의 나", "처음에는 AI와 역사 정보를 어떻게 생각했나요?", width * .47, 38 * mm, st), Spacer(1, 3 * mm), ruled_box("지금의 나", "지금은 무엇을 먼저 확인하나요?", width * .47, 38 * mm, st), Spacer(1, 3 * mm), ruled_box("나의 AI 활용 다짐", "나는 먼저 __________________ 을/를 확인하고, __________________ 하겠습니다.\n서명 __________________", width * .47, 48 * mm, st)]
+        flow += [para("가운데 점선을 따라 접으면 A5 관람 스탬프북이 됩니다.", st["small"]), Spacer(1, 3 * mm), sheet_columns(left, right, width, st, divider=True)]
+
+    return flow
+
+
+def activity_answer_examples(era, lesson):
+    is_three = era["id"] == "three-kingdoms"
+    first_heritage = era["groups"][0]["heritage"]
+    examples = {
+        1: [
+            ("나의 첫 생각", "정해진 답은 없습니다. " + ("예: 금관, 고분, 벽화, 여러 나라" if is_three else "예: 한글, 궁궐, 기록, 과학 기구")),
+            ("AI를 믿는 정도", "점수보다 까닭을 확인합니다. 예: 3점 - 빠르게 알려 주지만 틀릴 수도 있어서 다시 확인해야 한다."),
+            ("모둠 역할", "모든 학생에게 역할이 있고, 이름과 할 일이 서로 맞으면 됩니다."),
+        ],
+        2: [
+            ("의심되는 문장", "예: " + ("첨성대에서 어떤 방식으로 관측했는지 모두 밝혀졌다." if is_three else "장영실이 관직에서 물러난 뒤의 삶이 모두 기록되어 있다.")),
+            ("왜 이상한가", "'모두', '반드시'처럼 지나치게 확실하게 말하며, 확인할 출처가 적혀 있지 않다."),
+            ("확인 방법", "국가유산청·국립박물관 자료에서 같은 내용을 찾고, 만든 기관과 날짜를 확인한다."),
+        ],
+        3: [
+            ("자료 비교", "국가기관 자료는 만든 곳과 근거가 분명한지 확인한다. 블로그와 AI 답변은 원래 자료를 다시 찾아본다."),
+            ("확인 순서", "누가 만들었나 → 언제 만들었나 → 다른 자료도 같은가 → 원래 자료가 있는가" + (" → 모르면 아직 모름" if is_three else "")),
+            ("내 결론", "예: 국가유산청과 국립박물관 자료에서 같은 내용을 확인했으므로 믿을 수 있다."),
+        ],
+        4: [
+            ("조사 예시", ("무령왕릉은 백제 무령왕과 왕비의 벽돌무덤이며 지석으로 주인을 확인했다." if is_three else "훈민정음 해례본은 1446년에 간행되었고 새 문자의 원리와 쓰는 법을 설명한다.")),
+            ("자료 출처", ("국립중앙박물관 무령왕릉 해설" if is_three else "국가유산청 훈민정음 해례본 안내")),
+            ("모르는 점", ("첨성대의 구체적인 관측 방법처럼 자료만으로 확정하기 어려운 내용은 '아직 모름'으로 남긴다." if is_three else "드라마 장면은 기록과 같지 않을 수 있으므로 확인된 사실과 나누어 쓴다.")),
+        ],
+        5: [
+            ("체험 평가", "예: 카드는 잘 보이지만 설명이 길다. 한 문장 설명으로 줄이면 좋겠다."),
+            ("AR 계획", f"예: {first_heritage}의 중요한 특징이 나타나고, 관람객이 한 곳을 눌러 설명을 듣는다."),
+            ("스케치 확인", "유산의 특징이 크게 보이고, 선과 무늬가 뚜렷하며, 글이 너무 많지 않으면 됩니다."),
+        ],
+        6: [
+            ("판단 방법", "문장을 먼저 읽고 참·거짓·아직 모름 중 하나를 고른 뒤, 본 자료를 적습니다."),
+            ("근거 예시", ("'첨성대는 나무로 지었다'는 거짓이다. 국가유산청 자료에서 돌로 쌓은 건축물임을 확인했다." if is_three else "'자격루와 앙부일구는 같은 원리다'는 거짓이다. 하나는 물, 하나는 해 그림자를 이용한다.")),
+            ("수업 뒤 정리", "정답만 맞힌 경우보다 판단을 바꾼 까닭과 확인한 자료를 설명한 경우를 높게 봅니다."),
+        ],
+        7: [
+            ("앞면", "유산의 대표 모양이 크게 보이고, 카메라가 알아보기 쉬운 굵은 선과 뚜렷한 무늬가 있어야 합니다."),
+            ("뒷면", "유산 이름, 확인한 한 문장, 출처, QR 자리, 모둠 이름이 빠짐없이 들어가야 합니다."),
+            ("역사 내용", "예쁜 그림보다 유산이 당시 사람들의 생각이나 생활을 어떻게 보여 주는지가 드러나야 합니다."),
+        ],
+        8: [
+            ("30초 해설 예시", ("무령왕릉은 지석 덕분에 주인을 알 수 있는 백제 무덤입니다. 벽돌과 여러 출토품을 보면 백제의 장례와 교류 모습을 짐작할 수 있습니다." if is_three else "훈민정음 해례본은 새 글자의 원리와 쓰는 법을 담은 책입니다. 이 책을 통해 백성이 쉽게 글을 익히게 하려는 생각을 살펴볼 수 있습니다.")),
+            ("확인할 점", "유산 이름 → 중요한 사실 → 확인한 자료 → 관람객 질문 순서가 있으면 됩니다."),
+            ("말하기", "문장을 외우는 것보다 쉬운 말로 정확하게 설명하는지를 확인합니다."),
+        ],
+        9: [
+            ("AR 시험", "○만 고르는 것이 목표가 아닙니다. 잘 안 된 조건과 고칠 방법을 구체적으로 적으면 됩니다."),
+            ("예상 질문", f"예: {first_heritage}에서 가장 중요한 단서는 무엇인가요?"),
+            ("쉬운 답", "자료에서 확인한 사실 한 가지와 그 사실로 짐작한 생활 모습을 이어서 말합니다."),
+        ],
+        10: [
+            ("1차시의 나", "예: 처음에는 AI가 알려 주면 대부분 맞는다고 생각했다."),
+            ("지금의 나", "예: 이제는 누가 만든 자료인지 보고 다른 자료와 같은지 확인한다."),
+            ("AI 활용 다짐", "예: 나는 먼저 출처를 확인하고, 모르는 내용은 다시 찾아보겠습니다."),
+        ],
+    }
+    return examples[lesson["id"]]
+
+
+def answer_guide_sheet(era, lesson, width, st):
+    title = Table(
+        [[para(f"{era['shortName']} {lesson['id']}차시 활동지 답안", st["sheetTitle"]), para("초등학교 5학년 · 교사용", st["identity"])]],
+        colWidths=[width * .67, width * .33],
+    )
+    title.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("TOPPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+        ("LINEBELOW", (0, 0), (-1, -1), 1.2, INK),
+    ]))
+    standards = " / ".join(f"[{item['code']}] {item['description']}" for item in era["curriculumStandards"])
+    overview = Table(
+        [
+            [para("학습 주제", st["label"]), para(lesson["title"], st["sheetTopic"])],
+            [para("성취기준", st["label"]), para(standards, st["small"])],
+        ],
+        colWidths=[25 * mm, width - 25 * mm],
+    )
+    overview.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("BACKGROUND", (0, 0), (-1, -1), GREEN_SOFT),
+        ("BOX", (0, 0), (-1, -1), 0.6, LINE),
+        ("INNERGRID", (0, 0), (-1, -1), 0.4, LINE),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 5),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+    ]))
+    rows = [["활동", "예시 답안·확인 기준"]] + [[label, answer] for label, answer in activity_answer_examples(era, lesson)]
+    flow = [
+        title,
+        Spacer(1, 4 * mm),
+        overview,
+        Spacer(1, 4 * mm),
+        ruled_box("답안 사용 안내", "아래 내용은 예시입니다. 학생이 다른 답을 써도 역사 자료에 맞는 근거를 말하면 정답으로 인정합니다.", width, 24 * mm, st),
+        Spacer(1, 4 * mm),
+        data_table(rows, [width * .22, width * .78], st, row_heights=[10 * mm] + [27 * mm] * (len(rows) - 1)),
+        Spacer(1, 5 * mm),
+    ]
+    if lesson["id"] in (4, 5, 7, 8, 10):
+        references = [["모둠", "문화유산", "교사가 확인할 핵심 사실"]]
+        for group in era["groups"]:
+            fact, verdict, reason = QUIZ_BANK[group["heritage"]][0]
+            references.append([f"{group['id']}모둠", group["heritage"], reason])
+        flow += [para("모둠별 핵심 내용", st["h2"]), data_table(references, [width * .12, width * .24, width * .64], st, row_heights=[9 * mm] + [12 * mm] * 6)]
+    else:
+        flow += [ruled_box("교사 확인", f"평가 기준: {lesson['assessment']['criterion']}\n학생 답에서 근거로 사용한 자료와 생각이 바뀐 까닭을 함께 확인하세요.", width, 58 * mm, st)]
+    return flow
+
+
+def build_answer_pdf(era, lesson, destination):
+    doc = SimpleDocTemplate(
+        str(destination),
+        pagesize=A4,
+        leftMargin=12 * mm,
+        rightMargin=12 * mm,
+        topMargin=15 * mm,
+        bottomMargin=10 * mm,
+        title=f"{era['shortName']} {lesson['id']}차시 활동지 답안",
+        author="MOA 역사 AR 교실",
+    )
+    st = styles_for(A4)
+    st["small"] = ParagraphStyle("answerSmall", parent=st["small"], fontSize=8.7, leading=12)
+    st["label"] = ParagraphStyle("answerLabel", parent=st["label"], fontSize=9.2, leading=12)
+    st["tableHeader"] = ParagraphStyle("answerTableHeader", parent=st["tableHeader"], fontSize=8.2, leading=11)
+    width = A4[0] - doc.leftMargin - doc.rightMargin
+    story = answer_guide_sheet(era, lesson, width, st)
+    if lesson["id"] == 6:
+        story += [PageBreak(), para("검증 공방 30문항 정답·해설", st["h1"]), Spacer(1, 3 * mm)]
+        story += quiz_operation_pages(era, width, st, include_answers=True)
+    doc.build(
+        story,
+        onFirstPage=lambda c, d: document_header(c, d, era, lesson, "교사용 답안"),
+        onLaterPages=lambda c, d: document_header(c, d, era, lesson, "교사용 답안"),
+    )
 
 
 def resource_heading(name, lesson, st):
@@ -314,6 +600,8 @@ def student_resource(era, lesson, name, width, st):
 
 def teacher_guide(era, lesson, width, st):
     flow = resource_heading("교사지도안", lesson, st)
+    standards = "\n".join(f"[{item['code']}] {item['description']}" for item in era["curriculumStandards"])
+    flow += [ruled_box("2022 개정 교육과정 · 초등학교 5학년 사회", standards, width, 28 * mm if len(era["curriculumStandards"]) == 1 else 38 * mm, st), Spacer(1, 5 * mm)]
     rows = [["단계", "시간", "교수·학습 활동", "자료"]]
     for activity in lesson["activities"]:
         rows.append([activity["stage"], f"{activity['minutes']}분", f"{activity['title']}\n" + "\n".join(f"• {d}" for d in activity["details"]), "\n".join(activity["materials"])])
@@ -442,8 +730,35 @@ def teacher_resource(era, lesson, name, width, st):
 
 
 def build_pdf(era, lesson, audience, destination):
+    if audience == "학생용":
+        page_size = landscape(A4) if lesson["id"] in (7, 10) else A4
+        doc = SimpleDocTemplate(
+            str(destination),
+            pagesize=page_size,
+            leftMargin=12 * mm,
+            rightMargin=12 * mm,
+            topMargin=10 * mm,
+            bottomMargin=7 * mm,
+            title=f"{era['shortName']} {lesson['id']}차시 {audience}",
+            author="MOA 역사 AR 교실",
+        )
+        st = styles_for(page_size)
+        st["small"] = ParagraphStyle("studentSmall", parent=st["small"], fontSize=8.8, leading=12.4)
+        st["body"] = ParagraphStyle("studentBody", parent=st["body"], fontSize=9.8, leading=14)
+        st["label"] = ParagraphStyle("studentLabel", parent=st["label"], fontSize=9.4, leading=12.5)
+        st["tableHeader"] = ParagraphStyle("studentTableHeader", parent=st["tableHeader"], fontSize=8.3, leading=11)
+        st["identity"] = ParagraphStyle("studentIdentity", parent=st["identity"], fontSize=9.5, leading=12.5)
+        width = page_size[0] - doc.leftMargin - doc.rightMargin
+        story = student_lesson_sheet(era, lesson, width, st)
+        doc.build(
+            story,
+            onFirstPage=lambda c, d: document_header(c, d, era, lesson, audience),
+            onLaterPages=lambda c, d: document_header(c, d, era, lesson, audience),
+        )
+        return
+
     special = lesson["downloads"].get("specialFormat")
-    page_size = A6 if audience == "학생용" and special == "A6 카드" else A5 if audience == "학생용" and special == "A5 접지" else A4
+    page_size = A4
     margin = 10 * mm if page_size == A6 else 14 * mm
     doc = SimpleDocTemplate(str(destination), pagesize=page_size, leftMargin=margin, rightMargin=margin, topMargin=18 * mm, bottomMargin=14 * mm, title=f"{era['shortName']} {lesson['id']}차시 {audience}", author="MOA 역사 AR 교실")
     st = styles_for(page_size)
@@ -493,10 +808,17 @@ def main():
                 files[audience_key] = {"path": f"/downloads/{era['id']}/{filename}", "size": output_path.stat().st_size}
                 era_files.append(output_path)
                 pdf_count += 1
+            answer_filename = f"lesson-{lesson['id']:02d}-answer.pdf"
+            answer_output_path = output_era / answer_filename
+            build_answer_pdf(era, lesson, answer_output_path)
+            shutil.copy2(answer_output_path, public_era / answer_filename)
+            files["answer"] = {"path": f"/downloads/{era['id']}/{answer_filename}", "size": answer_output_path.stat().st_size}
+            era_files.append(answer_output_path)
+            pdf_count += 1
             lesson_zip_name = f"lesson-{lesson['id']:02d}-all.zip"
             lesson_zip_output = output_era / lesson_zip_name
             with zipfile.ZipFile(lesson_zip_output, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
-                for audience_key in ("student", "teacher"):
+                for audience_key in ("student", "teacher", "answer"):
                     pdf_name = f"lesson-{lesson['id']:02d}-{audience_key}.pdf"
                     archive.write(output_era / pdf_name, arcname=pdf_name)
             shutil.copy2(lesson_zip_output, public_era / lesson_zip_name)

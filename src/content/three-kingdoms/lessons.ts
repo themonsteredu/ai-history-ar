@@ -6,7 +6,7 @@ export const threeKingdomsLessons = [
     id: 1,
     title: "1500년 전에는 무엇이 있었을까",
     role: "10차시 성장 비교의 기준점",
-    objective: "삼국시대 문화유산을 찾아보고 모둠별 탐구 주제를 정할 수 있다.",
+    objective: "삼국·가야의 유적과 유물을 보고 옛사람들의 생활을 궁금해할 수 있다.",
     keyQuestion: "왕과 인물 말고, 1500년 전부터 지금까지 남은 것은 무엇일까?",
     activities: [
       {
@@ -49,7 +49,7 @@ export const threeKingdomsLessons = [
     id: 2,
     title: "AI에게 물어보았습니다",
     role: "공개수업 전시의 핵심 증거물",
-    objective: "AI가 제공한 정보에서 잘못되거나 확정할 수 없는 부분을 찾아낼 수 있다.",
+    objective: "AI 설명과 유물 자료를 비교해 더 확인할 내용을 찾을 수 있다.",
     keyQuestion: "AI는 모르는 내용도 아는 것처럼 말할까?",
     activities: [
       {
@@ -92,7 +92,7 @@ export const threeKingdomsLessons = [
     id: 3,
     title: "진짜인지 확인하는 방법",
     role: "이후 모든 조사의 기준",
-    objective: "정보의 진위를 확인하는 5단계 방법을 익히고 적용할 수 있다.",
+    objective: "자료를 만든 곳과 근거를 살펴 믿을 만한지 판단할 수 있다.",
     keyQuestion: "결론을 낼 수 없을 때도 정답처럼 말해야 할까?",
     activities: [
       {
@@ -135,7 +135,7 @@ export const threeKingdomsLessons = [
     id: 4,
     title: "우리 모둠 유산 파헤치기",
     role: "카드 뒷면 문구의 원천",
-    objective: "신뢰할 수 있는 자료를 활용하여 담당 유산을 조사할 수 있다.",
+    objective: "유적·유물 자료를 보고 고대 사람들의 생각과 생활을 짐작할 수 있다.",
     keyQuestion: "확인된 사실과 아직 모르는 점을 함께 기록할 수 있을까?",
     activities: [
       {
@@ -178,7 +178,7 @@ export const threeKingdomsLessons = [
     id: 5,
     title: "AR로 만나는 문화유산",
     role: "학생을 소비자가 아닌 기획자로",
-    objective: "AR 콘텐츠를 체험하고 담당 유산의 AR 표현을 기획할 수 있다.",
+    objective: "담당 유산이 보여 주는 옛 생활 모습을 AR 장면으로 계획할 수 있다.",
     keyQuestion: "카드를 비추면 무엇이 나타나고, 어떻게 움직이며, 무엇을 말할까?",
     activities: [
       {
@@ -221,7 +221,7 @@ export const threeKingdomsLessons = [
     id: 6,
     title: "헤리티지 검증 공방",
     role: "배운 검증을 실제로 수행하는 시간",
-    objective: "검증 기준을 적용하여 문화유산 정보의 진위 또는 판단 보류를 결정할 수 있다.",
+    objective: "유산 설명을 자료와 비교해 참·거짓·아직 모름으로 판단할 수 있다.",
     keyQuestion: "정답을 맞히는 것보다 근거를 남기는 일이 왜 중요할까?",
     activities: [
       {
@@ -264,7 +264,7 @@ export const threeKingdomsLessons = [
     id: 7,
     title: "AR 카드 만들기",
     role: "AR 인식률을 결정하는 차시",
-    objective: "담당 유산의 특징이 드러나고 카메라가 구분하기 쉬운 AR 카드 원화를 제작할 수 있다.",
+    objective: "유산의 특징과 옛 생활 모습이 드러나는 AR 카드를 만들 수 있다.",
     keyQuestion: "예쁜 그림과 잘 인식되는 그림은 무엇이 다를까?",
     activities: [
       {
@@ -308,7 +308,7 @@ export const threeKingdomsLessons = [
     id: 8,
     title: "30초 해설사",
     role: "카드에 띄울 실제 해설 만들기",
-    objective: "조사한 내용을 30초 대본으로 구성하고 음성·영상으로 제작할 수 있다.",
+    objective: "유산으로 알 수 있는 고대 사람들의 생활을 30초로 설명할 수 있다.",
     keyQuestion: "AI의 오류와 확인한 사실을 30초 안에 어떻게 전할까?",
     activities: [
       {
@@ -351,7 +351,7 @@ export const threeKingdomsLessons = [
     id: 9,
     title: "카드에 생명 불어넣기",
     role: "공개수업 사고를 미리 걸러내는 차시",
-    objective: "완성된 AR 카드를 실제 조건에서 테스트하고 전시를 준비할 수 있다.",
+    objective: "AR 카드와 해설을 시험하고 자료의 근거에 맞게 고칠 수 있다.",
     keyQuestion: "교실의 각도·거리·조명이 달라도 우리 카드가 작동할까?",
     activities: [
       {
@@ -394,7 +394,7 @@ export const threeKingdomsLessons = [
     id: 10,
     title: "삼국시대 유산 박물관 개관",
     role: "학생이 스스로 답하는 공개수업",
-    objective: "조사·검증한 문화유산을 관람객에게 자신의 말로 해설할 수 있다.",
+    objective: "유적·유물로 짐작한 고대 사람들의 생활을 자신의 말로 설명할 수 있다.",
     keyQuestion: "처음의 나와 지금의 나는 AI와 역사를 어떻게 다르게 바라볼까?",
     activities: [
       {

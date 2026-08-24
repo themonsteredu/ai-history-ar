@@ -7,6 +7,8 @@ describe("printable download paths", () => {
       .toBe("/downloads/three-kingdoms/lesson-01-student.pdf");
     expect(lessonDownloadPath("joseon", 10, "teacher"))
       .toBe("/downloads/joseon/lesson-10-teacher.pdf");
+    expect(lessonDownloadPath("joseon", 10, "answer"))
+      .toBe("/downloads/joseon/lesson-10-answer.pdf");
     expect(lessonDownloadPath("joseon", 7, "bundle"))
       .toBe("/downloads/joseon/lesson-07-all.zip");
   });

@@ -110,13 +110,14 @@ try {
   await desktop.screenshot({ path: path.join(outputDirectory, "download-center-desktop.png"), fullPage: true });
 
   const downloadLinkCount = await desktop.locator("a[download]").count();
-  if (downloadLinkCount !== 31) {
-    throw new Error(`다운로드 센터 파일 링크 수가 31개가 아닙니다: ${downloadLinkCount}개`);
+  if (downloadLinkCount !== 41) {
+    throw new Error(`다운로드 센터 파일 링크 수가 41개가 아닙니다: ${downloadLinkCount}개`);
   }
 
   const downloadedFiles = [
     await verifyDownload(desktop, "/downloads/joseon/lesson-01-student.pdf", Buffer.from("%PDF"), "application/pdf"),
     await verifyDownload(desktop, "/downloads/joseon/lesson-06-teacher.pdf", Buffer.from("%PDF"), "application/pdf"),
+    await verifyDownload(desktop, "/downloads/joseon/lesson-06-answer.pdf", Buffer.from("%PDF"), "application/pdf"),
     await verifyDownload(desktop, "/downloads/joseon/lesson-10-all.zip", Buffer.from("PK"), "application/zip"),
     await verifyDownload(desktop, "/downloads/joseon/joseon-all-materials.zip", Buffer.from("PK"), "application/zip"),
   ];
