@@ -1,9 +1,8 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { DownloadPanel } from "../components/DownloadPanel";
 import { Icon } from "../components/Icon";
 import { LessonSlides } from "../components/LessonSlides";
 import { PhaseBadge } from "../components/PhaseBadge";
-import { StudentLessonOneActivity } from "../components/StudentLessonOneActivity";
 import { getEra, getEraFromRoute, getLesson } from "../content/catalog";
 import { getLessonMinutes } from "../content/lesson-helpers";
 import type { EraId } from "../types/curriculum";
@@ -20,50 +19,38 @@ export function LessonPage({ eraId, mode }: LessonPageProps) {
   const lesson = era ? getLesson(era, lessonId) : undefined;
 
   if (!era || !lesson) return <NotFoundPage />;
+  if (mode === "student" && era.id === "three-kingdoms" && lesson.id === 1) return <Navigate replace to={era.route} />;
 
   const previousLesson = era.lessons.find((candidate) => candidate.id === lesson.id - 1);
   const nextLesson = era.lessons.find((candidate) => candidate.id === lesson.id + 1);
   const basePath = mode === "teacher" ? `/teacher/${era.id}/lesson` : `${era.route}/lesson`;
-  const isStudentLessonOne = mode === "student" && era.id === "three-kingdoms" && lesson.id === 1;
 
   return (
     <div className={`lesson-page lesson-page--${mode}`}>
-      <section className={`lesson-hero${isStudentLessonOne ? " lesson-hero--student-task" : ""}`} style={{ "--era-accent": era.accent, "--era-soft": era.accentSoft } as React.CSSProperties}>
+      <section className="lesson-hero" style={{ "--era-accent": era.accent, "--era-soft": era.accentSoft } as React.CSSProperties}>
         <div className="page-width">
           <Link className="back-link" to={mode === "teacher" ? "/teacher" : era.route}>
             <span aria-hidden="true">←</span> {mode === "teacher" ? "교사용 대시보드" : `${era.shortName} 10차시`}
           </Link>
-          {isStudentLessonOne ? (
-            <div className="lesson-hero__student-title">
-              <p>초등학교 5학년 사회</p>
-              <h1>삼국시대 1차시</h1>
-              <span>문화유산 사진을 보고 우리 모둠의 탐구 주제를 정해요.</span>
+          <div className="lesson-hero__title-row">
+            <div className="lesson-hero__number">{String(lesson.id).padStart(2, "0")}</div>
+            <div>
+              <PhaseBadge phase={lesson.phase} />
+              <p className="lesson-hero__era">{era.shortName} · {lesson.id}차시</p>
+              <h1>{lesson.title}</h1>
+              <p>{lesson.role}</p>
             </div>
-          ) : (
-            <>
-              <div className="lesson-hero__title-row">
-                <div className="lesson-hero__number">{String(lesson.id).padStart(2, "0")}</div>
-                <div>
-                  <PhaseBadge phase={lesson.phase} />
-                  <p className="lesson-hero__era">{era.shortName} · {lesson.id}차시</p>
-                  <h1>{lesson.title}</h1>
-                  <p>{lesson.role}</p>
-                </div>
-              </div>
-              <div className="lesson-hero__facts">
-                <span><Icon name="clock" size={18} />총 {getLessonMinutes(lesson)}분</span>
-                <span><Icon name="folder" size={18} />산출물 {lesson.outputs.length}종</span>
-                <span><Icon name="check" size={18} />{lesson.assessment.method}</span>
-              </div>
-            </>
-          )}
+          </div>
+          <div className="lesson-hero__facts">
+            <span><Icon name="clock" size={18} />총 {getLessonMinutes(lesson)}분</span>
+            <span><Icon name="folder" size={18} />산출물 {lesson.outputs.length}종</span>
+            <span><Icon name="check" size={18} />{lesson.assessment.method}</span>
+          </div>
         </div>
       </section>
 
       <div className={`page-width lesson-layout${mode === "student" ? " lesson-layout--student" : ""}`}>
         <article className="lesson-main">
-          {isStudentLessonOne ? <StudentLessonOneActivity /> : (
-            <>
           {mode === "teacher" && era.id === "three-kingdoms" ? <LessonSlides key={lesson.id} lessonId={lesson.id} /> : null}
 
           <section className="question-card">
@@ -154,8 +141,6 @@ export function LessonPage({ eraId, mode }: LessonPageProps) {
               <Link className="lesson-pagination__next" to={`${basePath}/${nextLesson.id}`}><span>다음 차시</span><strong>{nextLesson.title} →</strong></Link>
             ) : <Link className="lesson-pagination__next" to={mode === "teacher" ? "/teacher" : era.route}><span>과정 완료</span><strong>10차시 목록으로 →</strong></Link>}
           </nav>
-            </>
-          )}
         </article>
         {mode === "teacher" ? <DownloadPanel era={era} lesson={lesson} /> : null}
       </div>

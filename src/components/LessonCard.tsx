@@ -13,6 +13,7 @@ export function LessonCard({ era, lesson, mode = "student" }: LessonCardProps) {
   const path = mode === "teacher"
     ? `/teacher/${era.id}/lesson/${lesson.id}`
     : `${era.route}/lesson/${lesson.id}`;
+  const isClassroomOnly = mode === "student" && era.id === "three-kingdoms" && lesson.id === 1;
 
   return (
     <article className="lesson-card">
@@ -28,10 +29,14 @@ export function LessonCard({ era, lesson, mode = "student" }: LessonCardProps) {
           <span><Icon name="folder" size={17} />산출물 {lesson.outputs.length}종</span>
         </div>
       </div>
-      <Link aria-label={`${lesson.id}차시 ${lesson.title} 자세히 보기`} className="lesson-card__link" to={path}>
-        <span>{mode === "teacher" ? "운영안 보기" : "차시 보기"}</span>
-        <Icon name="arrow" size={18} />
-      </Link>
+      {isClassroomOnly ? (
+        <span className="lesson-card__link lesson-card__link--classroom"><Icon name="users" size={18} />교실 활동</span>
+      ) : (
+        <Link aria-label={`${lesson.id}차시 ${lesson.title} 자세히 보기`} className="lesson-card__link" to={path}>
+          <span>{mode === "teacher" ? "운영안 보기" : "차시 보기"}</span>
+          <Icon name="arrow" size={18} />
+        </Link>
+      )}
     </article>
   );
 }
