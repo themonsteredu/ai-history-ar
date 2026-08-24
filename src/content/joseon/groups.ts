@@ -1,0 +1,58 @@
+import type { HeritageGroup } from "../../types/curriculum";
+
+export const joseonGroups = [
+  {
+    id: 1,
+    heritage: "훈민정음 해례본",
+    category: "문자",
+    inquiryQuestion: "한글은 정말 세종 혼자 만들었을까?",
+    colorName: "남색",
+    color: "#334f72",
+    visualCue: "한글 자모의 원리와 소리 기관의 형태를 대비해 표현합니다.",
+  },
+  {
+    id: 2,
+    heritage: "조선왕조실록",
+    category: "기록",
+    inquiryQuestion: "임금도 못 보는 기록이 어떻게 지켜졌나?",
+    colorName: "먹색",
+    color: "#3d4548",
+    visualCue: "책 표지 대신 사고 건물과 기록 보관의 흐름을 표현합니다.",
+  },
+  {
+    id: 3,
+    heritage: "수원 화성",
+    category: "건축",
+    inquiryQuestion: "거중기는 정말 공사를 바꿨을까?",
+    colorName: "회청색",
+    color: "#5c7880",
+    visualCue: "성곽의 굴곡, 성문, 공사 도구를 비대칭으로 배치합니다.",
+  },
+  {
+    id: 4,
+    heritage: "자격루·앙부일구",
+    category: "과학",
+    inquiryQuestion: "장영실은 그 뒤 어떻게 되었을까?",
+    colorName: "금동색",
+    color: "#9c6b34",
+    visualCue: "물의 흐름, 눈금, 해와 그림자 선을 촘촘하게 구성합니다.",
+  },
+  {
+    id: 5,
+    heritage: "종묘와 종묘제례악",
+    category: "의례",
+    inquiryQuestion: "왜 이렇게 단순하게 지었을까?",
+    colorName: "진갈색",
+    color: "#674942",
+    visualCue: "긴 수평 건축선과 악기의 리듬을 대비해 표현합니다.",
+  },
+  {
+    id: 6,
+    heritage: "난중일기",
+    category: "기록",
+    inquiryQuestion: "드라마 속 이순신은 진짜일까?",
+    colorName: "청록",
+    color: "#2f716d",
+    visualCue: "책 표지 대신 거북선·판옥선과 해전의 항로를 표현합니다.",
+  },
+] as const satisfies readonly HeritageGroup[];
