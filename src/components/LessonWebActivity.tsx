@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Era, HeritageGroup, Lesson } from "../types/curriculum";
 import { Icon } from "./Icon";
 import { ThreeKingdomsCoreActivity } from "./ThreeKingdomsCoreActivities";
+import { ThreeKingdomsProjectActivity } from "./ThreeKingdomsProjectActivities";
 
 const threeKingdomsImages = [
   "muryeong-tomb.jpg",
@@ -282,6 +283,7 @@ function RandomPromptTool({ lessonId }: { lessonId: number }) {
 
 function LessonTool({ era, lesson }: { era: Era; lesson: Lesson }) {
   if (era.id === "three-kingdoms" && lesson.id <= 3) return <ThreeKingdomsCoreActivity lessonId={lesson.id} />;
+  if (era.id === "three-kingdoms" && lesson.id <= 6) return <ThreeKingdomsProjectActivity lessonId={lesson.id} />;
   if (lesson.id === 1) return <ArtifactExplorer era={era} />;
   if (lesson.id === 2) return <QuickChoiceTool challenges={lessonTwoChallenges[era.id]} choices={["확인 필요", "자료와 맞음"]} />;
   if (lesson.id === 3) return <SourceRankingTool />;
@@ -307,10 +309,13 @@ const toolNames = [
 ] as const;
 
 const threeKingdomsCoreToolNames = ["유물 관찰·모둠 선택", "AI 문장 오류 탐정", "검증 5단계 자료실"] as const;
+const threeKingdomsProjectToolNames = ["공식 자료 탐색·근거 수집", "실제 카메라 AR 체험", "문화유산 검증 공방 30"] as const;
 
 export function LessonWebActivity({ era, lesson }: { era: Era; lesson: Lesson }) {
   const toolName = era.id === "three-kingdoms" && lesson.id <= 3
     ? threeKingdomsCoreToolNames[lesson.id - 1]
+    : era.id === "three-kingdoms" && lesson.id <= 6
+      ? threeKingdomsProjectToolNames[lesson.id - 4]
     : toolNames[lesson.id - 1];
 
   return (

@@ -107,7 +107,11 @@ async function verifyDownload(page, pathname, expectedSignature, expectedType) {
 
 const executablePath = await findBrowser();
 await mkdir(outputDirectory, { recursive: true });
-const browser = await chromium.launch({ executablePath, headless: true });
+const browser = await chromium.launch({
+  executablePath,
+  headless: true,
+  args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"],
+});
 
 try {
   const desktop = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
@@ -234,6 +238,41 @@ try {
   await desktop.getByTestId("verification-answer-summary").waitFor();
   await desktop.locator(".web-activity-shell").screenshot({ path: path.join(outputDirectory, "lesson-03-web-activity-desktop.png") });
 
+  await desktop.goto(routeUrl("/three-kingdoms/lesson/4?view=activity"), { waitUntil: "networkidle" });
+  if (await desktop.locator(".project-case-tabs button").count() !== 6) throw new Error("4차시 유산별 공식 자료실이 6개가 아닙니다.");
+  if (await desktop.locator(".research-source-card").count() !== 3) throw new Error("4차시 유산별 비교 자료가 3개가 아닙니다.");
+  const firstSourceFacts = desktop.locator(".research-source-card").nth(0).locator(".research-fact-list button");
+  await firstSourceFacts.nth(0).click();
+  await firstSourceFacts.nth(1).click();
+  await desktop.locator(".research-source-card__title").nth(2).click();
+  await desktop.locator(".research-source-card").nth(2).locator(".research-fact-list button").click();
+  await desktop.getByRole("button", { name: "조사 완료 저장" }).click();
+  await desktop.getByText("근거 꾸러미를 이 기기에 저장했습니다").waitFor();
+  await desktop.locator(".web-activity-shell").screenshot({ path: path.join(outputDirectory, "lesson-04-web-activity-desktop.png") });
+
+  await desktop.goto(routeUrl("/three-kingdoms/lesson/5?view=activity"), { waitUntil: "networkidle" });
+  await desktop.locator(".ar-target-picker").waitFor();
+  if (await desktop.locator(".ar-target-picker button").count() !== 6) throw new Error("5차시 AR 표적 카드가 6개가 아닙니다.");
+  await desktop.getByRole("button", { name: "카메라 없이 체험" }).click();
+  await desktop.getByRole("heading", { name: "무령왕릉", exact: true }).waitFor();
+  await desktop.locator(".web-activity-shell").screenshot({ path: path.join(outputDirectory, "lesson-05-web-activity-desktop.png") });
+  await desktop.getByRole("button", { name: "카메라 AR 시작" }).click();
+  await desktop.getByText(/카드 전체가 네모 안에|카메라를 시작하지 못했습니다|카메라 사용이 차단되었습니다/).waitFor({ timeout: 30000 });
+  const arTargetResponse = await desktop.request.get(`${baseUrl}/ar/three-kingdoms-targets.mind`).catch(() => null);
+  if (arTargetResponse && !arTargetResponse.ok()) throw new Error("5차시 AR 인식 파일을 불러오지 못했습니다.");
+  await desktop.getByRole("button", { name: "카메라 끄기" }).click().catch(() => {});
+
+  await desktop.goto(routeUrl("/three-kingdoms/lesson/6?view=activity"), { waitUntil: "networkidle" });
+  if (await desktop.locator(".verification-case-tabs button").count() !== 6) throw new Error("6차시 유산별 검증 세트가 6개가 아닙니다.");
+  if (!await desktop.getByText("전체 문제 은행 30문항").isVisible()) throw new Error("6차시 30문항 문제 은행 표시가 없습니다.");
+  await desktop.getByRole("button", { name: "확인됨", exact: true }).click();
+  await desktop.getByRole("button", { name: "공식 자료의 기록", exact: true }).click();
+  await desktop.getByRole("button", { name: "우리 모둠 판정 제출" }).click();
+  if (await desktop.locator(".verification-answer").count() !== 0) throw new Error("6차시 답이 교사 공개 전에 노출되었습니다.");
+  await desktop.getByTestId("lesson-6-reveal").click();
+  await desktop.locator(".verification-answer").waitFor();
+  await desktop.locator(".web-activity-shell").screenshot({ path: path.join(outputDirectory, "lesson-06-web-activity-desktop.png") });
+
   await desktop.goto(routeUrl("/three-kingdoms/lesson/1?view=ppt"), { waitUntil: "networkidle" });
   await desktop.getByRole("button", { name: "4번 슬라이드", exact: true }).click();
   await desktop.waitForFunction(() => {
@@ -288,6 +327,14 @@ try {
   await mobile.screenshot({ path: path.join(outputDirectory, "home-mobile.png"), fullPage: true });
   results.push(await inspectPage(mobile, "/three-kingdoms/lesson/1?view=activity", "1500년 전에는 무엇이 있었을까"));
   await mobile.screenshot({ path: path.join(outputDirectory, "lesson-01-web-activity-mobile.png"), fullPage: true });
+  results.push(await inspectPage(mobile, "/three-kingdoms/lesson/4?view=activity", "우리 모둠 유산 파헤치기"));
+  await mobile.locator(".research-source-card__title").first().click();
+  await mobile.screenshot({ path: path.join(outputDirectory, "lesson-04-web-activity-mobile.png"), fullPage: true });
+  results.push(await inspectPage(mobile, "/three-kingdoms/lesson/5?view=activity", "AR로 만나는 문화유산"));
+  await mobile.getByRole("button", { name: "카메라 없이 체험" }).click();
+  await mobile.screenshot({ path: path.join(outputDirectory, "lesson-05-web-activity-mobile.png"), fullPage: true });
+  results.push(await inspectPage(mobile, "/three-kingdoms/lesson/6?view=activity", "헤리티지 검증 공방"));
+  await mobile.screenshot({ path: path.join(outputDirectory, "lesson-06-web-activity-mobile.png"), fullPage: true });
   results.push(await inspectPage(mobile, "/teacher", "교사 설정 잠금"));
   await mobile.screenshot({ path: path.join(outputDirectory, "teacher-gate-mobile.png"), fullPage: true });
   await unlockTeacher(mobile);
