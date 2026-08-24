@@ -110,7 +110,10 @@ const browser = await chromium.launch({ executablePath, headless: true });
 
 try {
   const desktop = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
-  const results = [await inspectPage(desktop, "/", "믿기 전에")];
+  const results = [await inspectPage(desktop, "/", "AI의 역사 설명을")];
+  await desktop.locator(".home-hero__visual img").waitFor();
+  const desktopCoverLoaded = await desktop.locator(".home-hero__visual img").evaluate((image) => image.complete && image.naturalWidth > 0);
+  if (!desktopCoverLoaded) throw new Error("데스크톱 홈 표지 이미지가 로드되지 않았습니다.");
   await desktop.screenshot({ path: path.join(outputDirectory, "home-desktop.png"), fullPage: true });
   await desktop.getByRole("link", { name: "교사 입장" }).first().click();
   await desktop.waitForURL(routeUrl("/teacher"));
@@ -203,6 +206,10 @@ try {
   }
 
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true });
+  results.push(await inspectPage(mobile, "/", "AI의 역사 설명을"));
+  const mobileCoverLoaded = await mobile.locator(".home-hero__visual img").evaluate((image) => image.complete && image.naturalWidth > 0);
+  if (!mobileCoverLoaded) throw new Error("모바일 홈 표지 이미지가 로드되지 않았습니다.");
+  await mobile.screenshot({ path: path.join(outputDirectory, "home-mobile.png"), fullPage: true });
   results.push(await inspectPage(mobile, "/teacher", "교사 전용 화면"));
   await mobile.screenshot({ path: path.join(outputDirectory, "teacher-gate-mobile.png"), fullPage: true });
   await unlockTeacher(mobile);

@@ -28,29 +28,32 @@ export function HomePage() {
   return (
     <>
       <section className="home-hero">
+        <div className="home-hero__visual" aria-hidden="true">
+          <img
+            alt=""
+            decoding="async"
+            fetchPriority="high"
+            height="945"
+            src={`${import.meta.env.BASE_URL}images/home-cover-ink-v2.jpg`}
+            width="1680"
+          />
+        </div>
         <div className="page-width home-hero__grid">
           <div className="home-hero__copy">
-            <p className="eyebrow"><Icon name="spark" size={18} />AI 시대의 역사 수업</p>
+            <p className="home-hero__kicker">초등학교 5학년 · 역사 탐구 프로젝트</p>
             <h1>
-              믿기 전에 <em>의심하고,</em><br />
-              말하기 전에 <em>확인합니다.</em>
+              AI의 역사 설명을<br />
+              믿는 데서 끝내지 않는다
             </h1>
             <p className="home-hero__lead">
-              AI의 설명을 그대로 받아 적지 않습니다. 학생이 오류를 찾고, 원본을 확인하고,
-              자기 언어로 다시 설명하는 20차시 문화유산 AR 프로젝트입니다.
+              문화유산을 살펴보고, 출처를 확인하고, 우리 말로 설명합니다.<br />
+              삼국시대와 조선시대를 만나는 20차시 AR 역사 수업입니다.
             </p>
             <div className="home-hero__actions">
-              <a className="button button--primary" href="#courses">시대 선택하기 <Icon name="arrow" size={18} /></a>
-              <Link className="button button--quiet" to="/teacher"><Icon name="book" size={18} />교사용 대시보드</Link>
+              <a className="button home-hero__primary" href="#courses">역사 수업 시작하기 <Icon name="arrow" size={18} /></a>
+              <Link className="home-hero__teacher" to="/teacher">교사 운영실 <Icon name="arrow" size={16} /></Link>
             </div>
-            <dl className="home-hero__stats">
-              <div><dt>과정</dt><dd>2개 시대</dd></div>
-              <div><dt>수업</dt><dd>총 20차시</dd></div>
-              <div><dt>탐구</dt><dd>12개 문화유산</dd></div>
-            </dl>
-          </div>
-          <div className="home-hero__visual" aria-hidden="true">
-            <img alt="" decoding="async" fetchPriority="high" height="1536" src={`${import.meta.env.BASE_URL}images/home-cover.webp`} width="1536" />
+            <p className="home-hero__meta">삼국시대 10차시 · 조선시대 10차시 · 6모둠 문화유산 탐구</p>
           </div>
         </div>
       </section>
