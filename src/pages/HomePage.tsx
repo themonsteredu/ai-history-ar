@@ -50,24 +50,7 @@ export function HomePage() {
             </dl>
           </div>
           <div className="home-hero__visual" aria-hidden="true">
-            <div className="hero-orbit hero-orbit--one" />
-            <div className="hero-orbit hero-orbit--two" />
-            <div className="hero-card hero-card--back">
-              <span className="hero-card__label">AI가 말한 내용</span>
-              <span className="hero-card__line" />
-              <span className="hero-card__line hero-card__line--short" />
-              <strong>정말일까?</strong>
-            </div>
-            <div className="hero-card hero-card--front">
-              <span className="hero-card__step">출처</span>
-              <span className="hero-card__step">시기</span>
-              <span className="hero-card__step">교차</span>
-              <span className="hero-card__step">원본</span>
-              <span className="hero-card__step hero-card__step--accent">보류</span>
-              <div className="hero-card__seal">검증</div>
-            </div>
-            <div className="hero-note hero-note--one">오류 발견</div>
-            <div className="hero-note hero-note--two">근거 기록</div>
+            <img alt="" decoding="async" fetchPriority="high" height="1536" src="/images/home-cover.webp" width="1536" />
           </div>
         </div>
       </section>

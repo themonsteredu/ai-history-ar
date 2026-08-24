@@ -1,0 +1,382 @@
+{
+  "eras": {
+    "three-kingdoms": {
+      "title": "삼국시대",
+      "bundle": {
+        "path": "/downloads/three-kingdoms/three-kingdoms-all-materials.zip",
+        "size": 825060
+      },
+      "lessons": [
+        {
+          "lessonId": 1,
+          "title": "1500년 전에는 무엇이 있었을까",
+          "files": {
+            "student": {
+              "path": "/downloads/three-kingdoms/lesson-01-student.pdf",
+              "size": 38027
+            },
+            "teacher": {
+              "path": "/downloads/three-kingdoms/lesson-01-teacher.pdf",
+              "size": 57422
+            },
+            "bundle": {
+              "path": "/downloads/three-kingdoms/lesson-01-all.zip",
+              "size": 85661
+            }
+          }
+        },
+        {
+          "lessonId": 2,
+          "title": "AI에게 물어보았습니다",
+          "files": {
+            "student": {
+              "path": "/downloads/three-kingdoms/lesson-02-student.pdf",
+              "size": 33519
+            },
+            "teacher": {
+              "path": "/downloads/three-kingdoms/lesson-02-teacher.pdf",
+              "size": 55774
+            },
+            "bundle": {
+              "path": "/downloads/three-kingdoms/lesson-02-all.zip",
+              "size": 80588
+            }
+          }
+        },
+        {
+          "lessonId": 3,
+          "title": "진짜인지 확인하는 방법",
+          "files": {
+            "student": {
+              "path": "/downloads/three-kingdoms/lesson-03-student.pdf",
+              "size": 37835
+            },
+            "teacher": {
+              "path": "/downloads/three-kingdoms/lesson-03-teacher.pdf",
+              "size": 50477
+            },
+            "bundle": {
+              "path": "/downloads/three-kingdoms/lesson-03-all.zip",
+              "size": 79687
+            }
+          }
+        },
+        {
+          "lessonId": 4,
+          "title": "우리 모둠 유산 파헤치기",
+          "files": {
+            "student": {
+              "path": "/downloads/three-kingdoms/lesson-04-student.pdf",
+              "size": 38737
+            },
+            "teacher": {
+              "path": "/downloads/three-kingdoms/lesson-04-teacher.pdf",
+              "size": 53787
+            },
+            "bundle": {
+              "path": "/downloads/three-kingdoms/lesson-04-all.zip",
+              "size": 82917
+            }
+          }
+        },
+        {
+          "lessonId": 5,
+          "title": "AR로 만나는 문화유산",
+          "files": {
+            "student": {
+              "path": "/downloads/three-kingdoms/lesson-05-student.pdf",
+              "size": 38830
+            },
+            "teacher": {
+              "path": "/downloads/three-kingdoms/lesson-05-teacher.pdf",
+              "size": 47364
+            },
+            "bundle": {
+              "path": "/downloads/three-kingdoms/lesson-05-all.zip",
+              "size": 77648
+            }
+          }
+        },
+        {
+          "lessonId": 6,
+          "title": "헤리티지 검증 공방",
+          "files": {
+            "student": {
+              "path": "/downloads/three-kingdoms/lesson-06-student.pdf",
+              "size": 32794
+            },
+            "teacher": {
+              "path": "/downloads/three-kingdoms/lesson-06-teacher.pdf",
+              "size": 83074
+            },
+            "bundle": {
+              "path": "/downloads/three-kingdoms/lesson-06-all.zip",
+              "size": 95084
+            }
+          }
+        },
+        {
+          "lessonId": 7,
+          "title": "AR 카드 만들기",
+          "files": {
+            "student": {
+              "path": "/downloads/three-kingdoms/lesson-07-student.pdf",
+              "size": 37289
+            },
+            "teacher": {
+              "path": "/downloads/three-kingdoms/lesson-07-teacher.pdf",
+              "size": 50097
+            },
+            "bundle": {
+              "path": "/downloads/three-kingdoms/lesson-07-all.zip",
+              "size": 78223
+            }
+          }
+        },
+        {
+          "lessonId": 8,
+          "title": "30초 해설사",
+          "files": {
+            "student": {
+              "path": "/downloads/three-kingdoms/lesson-08-student.pdf",
+              "size": 37196
+            },
+            "teacher": {
+              "path": "/downloads/three-kingdoms/lesson-08-teacher.pdf",
+              "size": 49371
+            },
+            "bundle": {
+              "path": "/downloads/three-kingdoms/lesson-08-all.zip",
+              "size": 78062
+            }
+          }
+        },
+        {
+          "lessonId": 9,
+          "title": "카드에 생명 불어넣기",
+          "files": {
+            "student": {
+              "path": "/downloads/three-kingdoms/lesson-09-student.pdf",
+              "size": 38562
+            },
+            "teacher": {
+              "path": "/downloads/three-kingdoms/lesson-09-teacher.pdf",
+              "size": 49734
+            },
+            "bundle": {
+              "path": "/downloads/three-kingdoms/lesson-09-all.zip",
+              "size": 79270
+            }
+          }
+        },
+        {
+          "lessonId": 10,
+          "title": "삼국시대 유산 박물관 개관",
+          "files": {
+            "student": {
+              "path": "/downloads/three-kingdoms/lesson-10-student.pdf",
+              "size": 41841
+            },
+            "teacher": {
+              "path": "/downloads/three-kingdoms/lesson-10-teacher.pdf",
+              "size": 56454
+            },
+            "bundle": {
+              "path": "/downloads/three-kingdoms/lesson-10-all.zip",
+              "size": 87598
+            }
+          }
+        }
+      ]
+    },
+    "joseon": {
+      "title": "조선시대",
+      "bundle": {
+        "path": "/downloads/joseon/joseon-all-materials.zip",
+        "size": 826617
+      },
+      "lessons": [
+        {
+          "lessonId": 1,
+          "title": "조선에는 무엇이 남아 있을까",
+          "files": {
+            "student": {
+              "path": "/downloads/joseon/lesson-01-student.pdf",
+              "size": 37847
+            },
+            "teacher": {
+              "path": "/downloads/joseon/lesson-01-teacher.pdf",
+              "size": 57990
+            },
+            "bundle": {
+              "path": "/downloads/joseon/lesson-01-all.zip",
+              "size": 86045
+            }
+          }
+        },
+        {
+          "lessonId": 2,
+          "title": "AI에게 물어보았습니다",
+          "files": {
+            "student": {
+              "path": "/downloads/joseon/lesson-02-student.pdf",
+              "size": 33344
+            },
+            "teacher": {
+              "path": "/downloads/joseon/lesson-02-teacher.pdf",
+              "size": 55855
+            },
+            "bundle": {
+              "path": "/downloads/joseon/lesson-02-all.zip",
+              "size": 80524
+            }
+          }
+        },
+        {
+          "lessonId": 3,
+          "title": "진짜인지 확인하는 방법",
+          "files": {
+            "student": {
+              "path": "/downloads/joseon/lesson-03-student.pdf",
+              "size": 37347
+            },
+            "teacher": {
+              "path": "/downloads/joseon/lesson-03-teacher.pdf",
+              "size": 49035
+            },
+            "bundle": {
+              "path": "/downloads/joseon/lesson-03-all.zip",
+              "size": 77788
+            }
+          }
+        },
+        {
+          "lessonId": 4,
+          "title": "우리 모둠 유산 파헤치기",
+          "files": {
+            "student": {
+              "path": "/downloads/joseon/lesson-04-student.pdf",
+              "size": 38940
+            },
+            "teacher": {
+              "path": "/downloads/joseon/lesson-04-teacher.pdf",
+              "size": 54794
+            },
+            "bundle": {
+              "path": "/downloads/joseon/lesson-04-all.zip",
+              "size": 84092
+            }
+          }
+        },
+        {
+          "lessonId": 5,
+          "title": "AR로 만나는 문화유산",
+          "files": {
+            "student": {
+              "path": "/downloads/joseon/lesson-05-student.pdf",
+              "size": 38831
+            },
+            "teacher": {
+              "path": "/downloads/joseon/lesson-05-teacher.pdf",
+              "size": 47348
+            },
+            "bundle": {
+              "path": "/downloads/joseon/lesson-05-all.zip",
+              "size": 77621
+            }
+          }
+        },
+        {
+          "lessonId": 6,
+          "title": "헤리티지 검증 공방",
+          "files": {
+            "student": {
+              "path": "/downloads/joseon/lesson-06-student.pdf",
+              "size": 33130
+            },
+            "teacher": {
+              "path": "/downloads/joseon/lesson-06-teacher.pdf",
+              "size": 84295
+            },
+            "bundle": {
+              "path": "/downloads/joseon/lesson-06-all.zip",
+              "size": 95992
+            }
+          }
+        },
+        {
+          "lessonId": 7,
+          "title": "AR 카드 만들기",
+          "files": {
+            "student": {
+              "path": "/downloads/joseon/lesson-07-student.pdf",
+              "size": 37739
+            },
+            "teacher": {
+              "path": "/downloads/joseon/lesson-07-teacher.pdf",
+              "size": 50637
+            },
+            "bundle": {
+              "path": "/downloads/joseon/lesson-07-all.zip",
+              "size": 79217
+            }
+          }
+        },
+        {
+          "lessonId": 8,
+          "title": "30초 해설사",
+          "files": {
+            "student": {
+              "path": "/downloads/joseon/lesson-08-student.pdf",
+              "size": 37250
+            },
+            "teacher": {
+              "path": "/downloads/joseon/lesson-08-teacher.pdf",
+              "size": 49431
+            },
+            "bundle": {
+              "path": "/downloads/joseon/lesson-08-all.zip",
+              "size": 78248
+            }
+          }
+        },
+        {
+          "lessonId": 9,
+          "title": "카드에 생명 불어넣기",
+          "files": {
+            "student": {
+              "path": "/downloads/joseon/lesson-09-student.pdf",
+              "size": 38604
+            },
+            "teacher": {
+              "path": "/downloads/joseon/lesson-09-teacher.pdf",
+              "size": 49809
+            },
+            "bundle": {
+              "path": "/downloads/joseon/lesson-09-all.zip",
+              "size": 79327
+            }
+          }
+        },
+        {
+          "lessonId": 10,
+          "title": "조선시대 유산 박물관 개관",
+          "files": {
+            "student": {
+              "path": "/downloads/joseon/lesson-10-student.pdf",
+              "size": 42119
+            },
+            "teacher": {
+              "path": "/downloads/joseon/lesson-10-teacher.pdf",
+              "size": 56143
+            },
+            "bundle": {
+              "path": "/downloads/joseon/lesson-10-all.zip",
+              "size": 87441
+            }
+          }
+        }
+      ]
+    }
+  }
+}

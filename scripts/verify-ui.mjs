@@ -76,6 +76,18 @@ async function unlockTeacher(page) {
   await page.getByRole("heading", { name: /20차시 운영안/ }).waitFor();
 }
 
+async function verifyDownload(page, pathname, expectedSignature, expectedType) {
+  const response = await page.request.get(`${baseUrl}${pathname}`);
+  const contentType = response.headers()["content-type"] ?? "";
+  const body = await response.body();
+
+  if (!response.ok() || !contentType.includes(expectedType) || !body.subarray(0, expectedSignature.length).equals(expectedSignature)) {
+    throw new Error(`${pathname} 다운로드 검증 실패: ${JSON.stringify({ status: response.status(), contentType, size: body.length })}`);
+  }
+
+  return { pathname, status: response.status(), contentType, size: body.length };
+}
+
 const executablePath = await findBrowser();
 await mkdir(outputDirectory, { recursive: true });
 const browser = await chromium.launch({ executablePath, headless: true });
@@ -94,7 +106,20 @@ try {
   await unlockTeacher(desktop);
   await desktop.screenshot({ path: path.join(outputDirectory, "teacher-dashboard-desktop.png"), fullPage: true });
   results.push(await inspectPage(desktop, "/teacher/three-kingdoms/lesson/6", "헤리티지 검증 공방"));
-  results.push(await inspectPage(desktop, "/teacher/joseon/downloads", "10차시 활동지 구성"));
+  results.push(await inspectPage(desktop, "/teacher/joseon/downloads", "10차시 수업자료 다운로드"));
+  await desktop.screenshot({ path: path.join(outputDirectory, "download-center-desktop.png"), fullPage: true });
+
+  const downloadLinkCount = await desktop.locator("a[download]").count();
+  if (downloadLinkCount !== 31) {
+    throw new Error(`다운로드 센터 파일 링크 수가 31개가 아닙니다: ${downloadLinkCount}개`);
+  }
+
+  const downloadedFiles = [
+    await verifyDownload(desktop, "/downloads/joseon/lesson-01-student.pdf", Buffer.from("%PDF"), "application/pdf"),
+    await verifyDownload(desktop, "/downloads/joseon/lesson-06-teacher.pdf", Buffer.from("%PDF"), "application/pdf"),
+    await verifyDownload(desktop, "/downloads/joseon/lesson-10-all.zip", Buffer.from("PK"), "application/zip"),
+    await verifyDownload(desktop, "/downloads/joseon/joseon-all-materials.zip", Buffer.from("PK"), "application/zip"),
+  ];
 
   results.push(await inspectPage(desktop, "/three-kingdoms", "삼국시대 문화유산"));
   const exposedTeacherMaterialLinks = await desktop.locator('a[href^="/teacher/"]').count();
@@ -109,12 +134,12 @@ try {
   results.push(await inspectPage(mobile, "/teacher", "20차시 운영안"));
   await mobile.screenshot({ path: path.join(outputDirectory, "teacher-mobile.png"), fullPage: true });
 
-  await mobile.getByRole("button", { name: "잠그기" }).click();
+  await mobile.getByRole("button", { name: "잠그기" }).evaluate((button) => button.click());
   await mobile.getByRole("heading", { name: "교사 전용 화면" }).waitFor();
   await mobile.goto(`${baseUrl}/teacher/joseon/downloads`, { waitUntil: "networkidle" });
   await mobile.getByRole("heading", { name: "교사 전용 화면" }).waitFor();
 
-  console.log(JSON.stringify({ ok: true, results }, null, 2));
+  console.log(JSON.stringify({ ok: true, results, downloadLinkCount, downloadedFiles }, null, 2));
 } finally {
   await browser.close();
 }

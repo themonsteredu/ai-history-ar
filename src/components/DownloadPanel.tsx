@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { lessonDownloadPath } from "../content/downloads";
 import type { Era, Lesson } from "../types/curriculum";
 import { Icon } from "./Icon";
 
@@ -20,14 +21,25 @@ export function DownloadPanel({ era, lesson }: DownloadPanelProps) {
         {lesson.downloads.student.slice(0, 2).map((item) => <li key={item}>{item}</li>)}
         {lesson.downloads.student.length > 2 ? <li>외 {lesson.downloads.student.length - 2}종</li> : null}
       </ul>
+      <div className="download-panel__downloads">
+        <a className="button button--primary button--full" download href={lessonDownloadPath(era.id, lesson.id, "student")}>
+          <Icon name="download" size={18} />학생 활동지 PDF
+        </a>
+        <a className="button button--gold button--full" download href={lessonDownloadPath(era.id, lesson.id, "teacher")}>
+          <Icon name="download" size={18} />교사지도안·활동카드 PDF
+        </a>
+        <a className="button button--outline button--full" download href={lessonDownloadPath(era.id, lesson.id, "bundle")}>
+          <Icon name="download" size={18} />이 차시 전체 ZIP
+        </a>
+      </div>
       <button className="button button--outline button--full" onClick={() => window.print()} type="button">
-        <Icon name="print" size={18} />현재 운영안 인쇄
+        <Icon name="print" size={18} />화면 운영안 바로 인쇄
       </button>
-      <Link className="button button--primary button--full" to={`/teacher/${era.id}/downloads`}>
-        <Icon name="download" size={18} />다운로드 센터
+      <Link className="button button--quiet button--full" to={`/teacher/${era.id}/downloads`}>
+        10차시 전체 다운로드 센터 <Icon name="arrow" size={16} />
       </Link>
       <p className="download-panel__notice">
-        활동지 PDF 파일은 다음 구현 단계에서 연결됩니다. 현재는 자료 구성과 인쇄용 운영안을 확인할 수 있습니다.
+        PDF에 S-Core Dream 글꼴이 내장되어 있어 다른 컴퓨터에서도 같은 모양으로 인쇄됩니다.
       </p>
     </aside>
   );

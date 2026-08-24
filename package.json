@@ -8,6 +8,8 @@
     "build": "tsc -b && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
+    "generate:printables": "node scripts/export-curriculum.mjs && python scripts/generate_printables.py",
+    "verify:printables": "python scripts/verify_printables.py",
     "verify:ui": "node scripts/verify-ui.mjs",
     "preview": "vite preview",
     "check": "pnpm test && pnpm build"
