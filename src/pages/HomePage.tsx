@@ -50,7 +50,7 @@ export function HomePage() {
             </dl>
           </div>
           <div className="home-hero__visual" aria-hidden="true">
-            <img alt="" decoding="async" fetchPriority="high" height="1536" src="/images/home-cover.webp" width="1536" />
+            <img alt="" decoding="async" fetchPriority="high" height="1536" src={`${import.meta.env.BASE_URL}images/home-cover.webp`} width="1536" />
           </div>
         </div>
       </section>
