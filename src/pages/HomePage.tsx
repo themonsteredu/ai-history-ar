@@ -4,6 +4,10 @@ import { Icon } from "../components/Icon";
 import { eras } from "../content/catalog";
 
 export function HomePage() {
+  const scrollToCourses = () => {
+    document.getElementById("courses")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <>
       <section className="home-hero">
@@ -29,7 +33,9 @@ export function HomePage() {
               삼국시대와 조선시대를 만나는 20차시 AR 역사 수업입니다.
             </p>
             <div className="home-hero__actions">
-              <a className="button home-hero__primary" href="#courses">역사 수업 시작하기 <Icon name="arrow" size={18} /></a>
+              <button className="button home-hero__primary" type="button" onClick={scrollToCourses}>
+                역사 수업 시작하기 <Icon name="arrow" size={18} />
+              </button>
               <Link className="home-hero__teacher" to="/teacher"><Icon name="lock" size={15} />설정</Link>
             </div>
             <p className="home-hero__meta">삼국시대 10차시 · 조선시대 10차시 · 6모둠 문화유산 탐구</p>

@@ -50,7 +50,8 @@ async function inspectPage(page, pathname, expectedHeading) {
     viewportWidth: window.innerWidth,
     scrollWidth: document.documentElement.scrollWidth,
   }));
-  const heading = await page.locator("h1").first().innerText();
+  const headingLocator = page.locator("h1").first();
+  const heading = await headingLocator.count() > 0 ? await headingLocator.innerText() : "";
   page.off("console", onConsole);
   page.off("pageerror", onPageError);
   page.off("response", onResponse);
@@ -115,6 +116,12 @@ try {
   const desktopCoverLoaded = await desktop.locator(".home-hero__visual img").evaluate((image) => image.complete && image.naturalWidth > 0);
   if (!desktopCoverLoaded) throw new Error("데스크톱 홈 표지 이미지가 로드되지 않았습니다.");
   await desktop.screenshot({ path: path.join(outputDirectory, "home-desktop.png"), fullPage: true });
+  const homeUrlBeforeStart = desktop.url();
+  await desktop.getByRole("button", { name: /역사 수업 시작하기/ }).click();
+  await desktop.getByRole("heading", { name: "시대를 선택하세요" }).waitFor();
+  if (desktop.url() !== homeUrlBeforeStart) {
+    throw new Error(`수업 시작 버튼이 주소를 변경했습니다: ${homeUrlBeforeStart} → ${desktop.url()}`);
+  }
   await desktop.getByRole("link", { name: "설정", exact: true }).first().click();
   await desktop.waitForURL(routeUrl("/teacher"));
   results.push(await inspectPage(desktop, "/teacher", "교사 설정 잠금"));
@@ -144,10 +151,12 @@ try {
     const slideViewer = desktop.getByLabel(`삼국시대 ${lessonId}차시 수업 슬라이드`);
     await slideViewer.waitFor();
     const slideButtons = desktop.locator(".lesson-slides__dots button");
-    if (await slideButtons.count() !== 8) throw new Error(`${lessonId}차시 슬라이드가 8장이 아닙니다.`);
+    const slideCount = await slideButtons.count();
+    if (slideCount < 8) throw new Error(`${lessonId}차시 슬라이드가 8장보다 적습니다: ${slideCount}장`);
 
-    for (let slideIndex = 0; slideIndex < 8; slideIndex += 1) {
-      await desktop.getByRole("button", { name: `${slideIndex + 1}번 슬라이드` }).click();
+    let previousWasPrompt = false;
+    for (let slideIndex = 0; slideIndex < slideCount; slideIndex += 1) {
+      await desktop.getByRole("button", { name: `${slideIndex + 1}번 슬라이드`, exact: true }).click();
       await desktop.waitForFunction(() => {
         const images = [...document.querySelectorAll(".lesson-slides__stage img")];
         return images.length > 0 && images.every((image) => image.complete && image.naturalWidth > 0);
@@ -160,16 +169,22 @@ try {
           noOverflow: Boolean(slide) && slide.scrollWidth <= slide.clientWidth + 1 && slide.scrollHeight <= slide.clientHeight + 1,
           imageCount: images.length,
           loadedImageCount: images.filter((image) => image.complete && image.naturalWidth > 0).length,
+          isPrompt: Boolean(stage.querySelector(".class-slide--prompt")),
+          isAnswer: Boolean(stage.querySelector(".class-slide--lesson-compare, .class-slide--lesson-quiz")),
         };
       });
       if (!stageCheck.hasSlide || !stageCheck.noOverflow || stageCheck.imageCount < 1 || stageCheck.imageCount !== stageCheck.loadedImageCount) {
         throw new Error(`${lessonId}차시 ${slideIndex + 1}번 슬라이드 검증 실패: ${JSON.stringify(stageCheck)}`);
       }
+      if (stageCheck.isAnswer && !previousWasPrompt) {
+        throw new Error(`${lessonId}차시 ${slideIndex + 1}번 답 공개 슬라이드 앞에 질문 슬라이드가 없습니다.`);
+      }
+      previousWasPrompt = stageCheck.isPrompt;
       verifiedSlideCount += 1;
     }
 
     if (lessonId === 1 || lessonId === 6 || lessonId === 10) {
-      await desktop.getByRole("button", { name: "2번 슬라이드" }).click();
+      await desktop.getByRole("button", { name: "2번 슬라이드", exact: true }).click();
       await slideViewer.screenshot({ path: path.join(outputDirectory, `lesson-${String(lessonId).padStart(2, "0")}-slides-desktop.png`) });
     }
 
@@ -181,7 +196,7 @@ try {
   }
 
   await desktop.goto(routeUrl("/three-kingdoms/lesson/1?view=ppt"), { waitUntil: "networkidle" });
-  await desktop.getByRole("button", { name: "4번 슬라이드" }).click();
+  await desktop.getByRole("button", { name: "4번 슬라이드", exact: true }).click();
   const artifactCardCount = await desktop.locator(".artifact-choice-card").count();
   const loadedArtifactImages = await desktop.locator(".artifact-choice-card img").evaluateAll((images) =>
     images.filter((image) => image.complete && image.naturalWidth > 0).length,

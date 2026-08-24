@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { getThreeKingdomsSlides, type HeritageImageKey, type LessonSlide } from "../content/three-kingdoms/slides";
+import {
+  getThreeKingdomsSlides,
+  type HeritageImageKey,
+  type LessonSlide,
+  type SlideSource,
+} from "../content/three-kingdoms/slides";
 
 const imageRoot = `${import.meta.env.BASE_URL}images/heritage/three-kingdoms`;
 
@@ -68,7 +73,55 @@ const artifacts = [
 
 const artifactByKey = Object.fromEntries(artifacts.map((artifact) => [artifact.key, artifact])) as Record<HeritageImageKey, (typeof artifacts)[number]>;
 
-function SlideSources({ slide }: { slide: LessonSlide }) {
+interface PromptSlide {
+  kind: "prompt";
+  image: HeritageImageKey;
+  source?: SlideSource;
+  eyebrow: string;
+  title: string;
+  question: string;
+  instruction: string;
+}
+
+type PresentationSlide = LessonSlide | PromptSlide;
+
+function expandPresentationSlides(slides: readonly LessonSlide[]): readonly PresentationSlide[] {
+  return slides.flatMap<PresentationSlide>((slide): readonly PresentationSlide[] => {
+    if (slide.kind === "quiz") {
+      return [
+        {
+          kind: "prompt" as const,
+          image: slide.image,
+          source: slide.source,
+          eyebrow: slide.eyebrow,
+          title: slide.title,
+          question: slide.statement,
+          instruction: "확인·틀림·보류 중 하나를 고르고, 그렇게 생각한 까닭을 말해 봅시다.",
+        },
+        slide,
+      ];
+    }
+
+    if (slide.kind === "compare") {
+      return [
+        {
+          kind: "prompt" as const,
+          image: slide.image,
+          source: slide.source,
+          eyebrow: slide.eyebrow,
+          title: slide.title,
+          question: `‘${slide.left.label}’과 ‘${slide.right.label}’은 무엇이 다를까요?`,
+          instruction: "사진과 앞에서 배운 내용을 떠올려 차이점을 먼저 말해 봅시다.",
+        },
+        slide,
+      ];
+    }
+
+    return [slide];
+  });
+}
+
+function SlideSources({ slide }: { slide: { image: HeritageImageKey; source?: SlideSource } }) {
   const artifact = artifactByKey[slide.image];
   return (
     <div className="class-slide__source-row">
@@ -100,7 +153,7 @@ function CompareSlide({ slide }: { slide: Extract<LessonSlide, { kind: "compare"
     <section className="class-slide class-slide--lesson-compare">
       <img className="class-slide__compare-photo" src={artifact.image} alt={artifact.alt} />
       <div className="class-slide__compare-body">
-        <p className="class-slide__kicker">{slide.eyebrow}</p>
+        <p className="class-slide__kicker">답 확인 · {slide.eyebrow}</p>
         <h3>{slide.title}</h3>
         <div className="class-slide__comparison">
           {[slide.left, slide.right].map((column) => (
@@ -140,10 +193,28 @@ function QuizSlide({ slide }: { slide: Extract<LessonSlide, { kind: "quiz" }> })
       <img src={artifact.image} alt={artifact.alt} />
       <div className="class-slide__quiz-shade" />
       <div className="class-slide__quiz-copy">
-        <p>{slide.eyebrow}</p>
+        <p>답 확인 · {slide.eyebrow}</p>
         <h3>{slide.title}</h3>
         <blockquote>“{slide.statement}”</blockquote>
         <div><strong>{slide.verdict}</strong><span>{slide.explanation}</span></div>
+      </div>
+      <SlideSources slide={slide} />
+    </section>
+  );
+}
+
+function PromptSlideView({ slide }: { slide: PromptSlide }) {
+  const artifact = artifactByKey[slide.image];
+  return (
+    <section className="class-slide class-slide--prompt">
+      <img src={artifact.image} alt={artifact.alt} />
+      <div className="class-slide__prompt-shade" />
+      <div className="class-slide__prompt-copy">
+        <p>{slide.eyebrow} · 먼저 생각하기</p>
+        <h3>{slide.title}</h3>
+        <blockquote>“{slide.question}”</blockquote>
+        <span>{slide.instruction}</span>
+        <strong>답과 근거는 다음 장에서 확인합니다 →</strong>
       </div>
       <SlideSources slide={slide} />
     </section>
@@ -170,9 +241,10 @@ function GallerySlide({ slide }: { slide: Extract<LessonSlide, { kind: "gallery"
   );
 }
 
-function ClassSlide({ slide }: { slide: LessonSlide }) {
+function ClassSlide({ slide }: { slide: PresentationSlide }) {
   const artifact = artifactByKey[slide.image];
 
+  if (slide.kind === "prompt") return <PromptSlideView slide={slide} />;
   if (slide.kind === "fact") return <FactSlide slide={slide} />;
   if (slide.kind === "compare") return <CompareSlide slide={slide} />;
   if (slide.kind === "activity") return <ActivitySlide slide={slide} />;
@@ -210,7 +282,7 @@ function ClassSlide({ slide }: { slide: LessonSlide }) {
 }
 
 export function LessonSlides({ lessonId }: { lessonId: number }) {
-  const slides = getThreeKingdomsSlides(lessonId);
+  const slides = expandPresentationSlides(getThreeKingdomsSlides(lessonId));
   const [current, setCurrent] = useState(0);
   const viewerRef = useRef<HTMLDivElement>(null);
 
