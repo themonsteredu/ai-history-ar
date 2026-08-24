@@ -4,12 +4,17 @@ import process from "node:process";
 import { chromium } from "playwright-core";
 
 const baseUrl = process.env.APP_URL ?? "http://127.0.0.1:4173";
+const usesHashRouter = process.env.APP_HASH_ROUTER === "true";
 const outputDirectory = process.env.UI_CHECK_OUTPUT ?? path.resolve("work/ui-check");
 const browserCandidates = [
   process.env.BROWSER_EXECUTABLE_PATH,
   "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
   "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
 ].filter(Boolean);
+
+function routeUrl(pathname) {
+  return `${baseUrl}${usesHashRouter ? "/#" : ""}${pathname}`;
+}
 
 async function findBrowser() {
   for (const candidate of browserCandidates) {
@@ -37,7 +42,7 @@ async function inspectPage(page, pathname, expectedHeading) {
   page.on("pageerror", onPageError);
   page.on("response", onResponse);
 
-  const response = await page.goto(`${baseUrl}${pathname}`, { waitUntil: "networkidle" });
+  const response = await page.goto(routeUrl(pathname), { waitUntil: "networkidle" });
   const result = await page.evaluate(() => ({
     bodyTextLength: document.body.innerText.trim().length,
     fontLoaded: document.fonts.check('16px "S-Core Dream"'),
@@ -105,7 +110,7 @@ try {
   const results = [await inspectPage(desktop, "/", "믿기 전에")];
   await desktop.screenshot({ path: path.join(outputDirectory, "home-desktop.png"), fullPage: true });
   await desktop.getByRole("link", { name: "교사 입장" }).first().click();
-  await desktop.waitForURL(`${baseUrl}/teacher`);
+  await desktop.waitForURL(routeUrl("/teacher"));
   results.push(await inspectPage(desktop, "/teacher", "교사 전용 화면"));
   await desktop.screenshot({ path: path.join(outputDirectory, "teacher-gate-desktop.png"), fullPage: true });
   await desktop.getByLabel("교사용 PIN").fill("0000");
@@ -145,7 +150,7 @@ try {
 
   await mobile.getByRole("button", { name: "잠그기" }).evaluate((button) => button.click());
   await mobile.getByRole("heading", { name: "교사 전용 화면" }).waitFor();
-  await mobile.goto(`${baseUrl}/teacher/joseon/downloads`, { waitUntil: "networkidle" });
+  await mobile.goto(routeUrl("/teacher/joseon/downloads"), { waitUntil: "networkidle" });
   await mobile.getByRole("heading", { name: "교사 전용 화면" }).waitFor();
 
   console.log(JSON.stringify({ ok: true, results, downloadLinkCount, downloadedFiles }, null, 2));

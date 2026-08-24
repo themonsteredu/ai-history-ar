@@ -1,10 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, HashRouter } from "react-router-dom";
 import { App } from "./App";
 import "./styles/global.css";
 
 const rootElement = document.getElementById("root");
+const Router = import.meta.env.BASE_URL === "/" ? BrowserRouter : HashRouter;
 
 if (!rootElement) {
   throw new Error("앱을 표시할 #root 요소를 찾을 수 없습니다.");
@@ -12,8 +13,8 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <Router>
       <App />
-    </BrowserRouter>
+    </Router>
   </StrictMode>,
 );
