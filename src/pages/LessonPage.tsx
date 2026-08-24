@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { DownloadPanel } from "../components/DownloadPanel";
 import { Icon } from "../components/Icon";
+import { LessonSlides } from "../components/LessonSlides";
 import { PhaseBadge } from "../components/PhaseBadge";
 import { getEra, getEraFromRoute, getLesson } from "../content/catalog";
 import { getLessonMinutes } from "../content/lesson-helpers";
@@ -49,6 +50,8 @@ export function LessonPage({ eraId, mode }: LessonPageProps) {
 
       <div className={`page-width lesson-layout${mode === "student" ? " lesson-layout--student" : ""}`}>
         <article className="lesson-main">
+          {mode === "teacher" && era.id === "three-kingdoms" && lesson.id === 1 ? <LessonSlides /> : null}
+
           <section className="question-card">
             <p className="eyebrow">이 차시의 핵심 질문</p>
             <h2>“{lesson.keyQuestion}”</h2>

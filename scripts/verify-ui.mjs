@@ -121,6 +121,19 @@ try {
   await desktop.getByRole("alert").waitFor();
   await unlockTeacher(desktop);
   await desktop.screenshot({ path: path.join(outputDirectory, "teacher-dashboard-desktop.png"), fullPage: true });
+  results.push(await inspectPage(desktop, "/teacher/three-kingdoms/lesson/1", "1500년 전에는 무엇이 있었을까"));
+  const slideViewer = desktop.getByLabel("삼국시대 1차시 수업 슬라이드");
+  await slideViewer.waitFor();
+  await desktop.getByRole("button", { name: "다음 슬라이드" }).click();
+  await desktop.getByRole("button", { name: "다음 슬라이드" }).click();
+  const artifactCardCount = await desktop.locator(".artifact-choice-card").count();
+  const loadedArtifactImages = await desktop.locator(".artifact-choice-card img").evaluateAll((images) =>
+    images.filter((image) => image.complete && image.naturalWidth > 0).length,
+  );
+  if (artifactCardCount !== 6 || loadedArtifactImages !== 6) {
+    throw new Error(`1차시 유물 선택 카드 검증 실패: 카드 ${artifactCardCount}개, 사진 ${loadedArtifactImages}개`);
+  }
+  await slideViewer.screenshot({ path: path.join(outputDirectory, "lesson-01-slides-desktop.png") });
   results.push(await inspectPage(desktop, "/teacher/three-kingdoms/lesson/6", "헤리티지 검증 공방"));
   results.push(await inspectPage(desktop, "/teacher/joseon/downloads", "10차시 수업자료 다운로드"));
   await desktop.screenshot({ path: path.join(outputDirectory, "download-center-desktop.png"), fullPage: true });
