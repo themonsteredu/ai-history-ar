@@ -36,7 +36,7 @@ export function EraPage({ eraId }: { eraId: EraId }) {
             <p className="eyebrow">10차시 수업 여정</p>
             <h2>한 차시씩, 검증의 흔적을 쌓습니다</h2>
           </div>
-          <Link className="text-link" to={`/teacher/${era.id}/downloads`}>활동지 구성 보기 <Icon name="arrow" size={18} /></Link>
+          <span className="student-view-label"><Icon name="users" size={18} />학생 활동 화면</span>
         </div>
         <div className="lesson-list">
           {era.lessons.map((lesson) => <LessonCard era={era} key={lesson.id} lesson={lesson} />)}

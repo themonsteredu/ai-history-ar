@@ -70,6 +70,12 @@ async function inspectPage(page, pathname, expectedHeading) {
   return { pathname, ...checks, viewportWidth: result.viewportWidth, scrollWidth: result.scrollWidth };
 }
 
+async function unlockTeacher(page) {
+  await page.getByLabel("교사용 PIN").fill("3035");
+  await page.getByRole("button", { name: "교사 화면 열기" }).click();
+  await page.getByRole("heading", { name: /20차시 운영안/ }).waitFor();
+}
+
 const executablePath = await findBrowser();
 await mkdir(outputDirectory, { recursive: true });
 const browser = await chromium.launch({ executablePath, headless: true });
@@ -78,14 +84,35 @@ try {
   const desktop = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const results = [await inspectPage(desktop, "/", "믿기 전에")];
   await desktop.screenshot({ path: path.join(outputDirectory, "home-desktop.png"), fullPage: true });
-  await desktop.getByRole("link", { name: "교사용" }).first().click();
+  await desktop.getByRole("link", { name: "교사 입장" }).first().click();
   await desktop.waitForURL(`${baseUrl}/teacher`);
+  results.push(await inspectPage(desktop, "/teacher", "교사 전용 화면"));
+  await desktop.screenshot({ path: path.join(outputDirectory, "teacher-gate-desktop.png"), fullPage: true });
+  await desktop.getByLabel("교사용 PIN").fill("0000");
+  await desktop.getByRole("button", { name: "교사 화면 열기" }).click();
+  await desktop.getByRole("alert").waitFor();
+  await unlockTeacher(desktop);
+  await desktop.screenshot({ path: path.join(outputDirectory, "teacher-dashboard-desktop.png"), fullPage: true });
   results.push(await inspectPage(desktop, "/teacher/three-kingdoms/lesson/6", "헤리티지 검증 공방"));
   results.push(await inspectPage(desktop, "/teacher/joseon/downloads", "10차시 활동지 구성"));
 
+  results.push(await inspectPage(desktop, "/three-kingdoms", "삼국시대 문화유산"));
+  const exposedTeacherMaterialLinks = await desktop.locator('a[href^="/teacher/"]').count();
+  if (exposedTeacherMaterialLinks > 0) {
+    throw new Error(`학생 화면에 교사용 자료 링크 ${exposedTeacherMaterialLinks}개가 노출되었습니다.`);
+  }
+
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true });
+  results.push(await inspectPage(mobile, "/teacher", "교사 전용 화면"));
+  await mobile.screenshot({ path: path.join(outputDirectory, "teacher-gate-mobile.png"), fullPage: true });
+  await unlockTeacher(mobile);
   results.push(await inspectPage(mobile, "/teacher", "20차시 운영안"));
   await mobile.screenshot({ path: path.join(outputDirectory, "teacher-mobile.png"), fullPage: true });
+
+  await mobile.getByRole("button", { name: "잠그기" }).click();
+  await mobile.getByRole("heading", { name: "교사 전용 화면" }).waitFor();
+  await mobile.goto(`${baseUrl}/teacher/joseon/downloads`, { waitUntil: "networkidle" });
+  await mobile.getByRole("heading", { name: "교사 전용 화면" }).waitFor();
 
   console.log(JSON.stringify({ ok: true, results }, null, 2));
 } finally {

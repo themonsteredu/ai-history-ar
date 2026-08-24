@@ -1,11 +1,10 @@
-import type { PropsWithChildren } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 
 function navClassName({ isActive }: { isActive: boolean }) {
   return isActive ? "site-nav__link site-nav__link--active" : "site-nav__link";
 }
 
-export function AppShell({ children }: PropsWithChildren) {
+export function AppShell() {
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main-content">
@@ -24,11 +23,11 @@ export function AppShell({ children }: PropsWithChildren) {
             <NavLink className={navClassName} end to="/">과정 선택</NavLink>
             <NavLink className={navClassName} to="/three-kingdoms">삼국시대</NavLink>
             <NavLink className={navClassName} to="/joseon">조선시대</NavLink>
-            <NavLink className={({ isActive }) => `${navClassName({ isActive })} site-nav__teacher`} to="/teacher">교사용</NavLink>
+            <NavLink className={({ isActive }) => `${navClassName({ isActive })} site-nav__teacher`} to="/teacher">교사 입장</NavLink>
           </nav>
         </div>
       </header>
-      <main id="main-content">{children}</main>
+      <main id="main-content"><Outlet /></main>
       <footer className="site-footer">
         <div className="page-width site-footer__inner">
           <div>
