@@ -30,6 +30,91 @@ const sourceLinks = {
   ],
 } as const;
 
+const verificationSourceExamples = {
+  "three-kingdoms": [
+    {
+      id: "official",
+      label: "자료 A · 국가기관",
+      title: "국가유산포털 첨성대 설명",
+      excerpt: "첨성대는 신라 선덕여왕 때 세운 것으로 전하는 천문 관련 문화유산이다.",
+      heritageId: 3,
+      findings: [
+        "국가유산청이 문화유산 안내를 위해 제공한 자료입니다.",
+        "오늘날 작성·갱신된 설명이며, 다루는 대상은 신라 시대입니다.",
+        "우리역사넷과 다른 기관 설명에서도 천문 관련성과 남은 구조를 확인할 수 있습니다.",
+        "지정 정보와 참고 자료로 이어지는 국가유산포털 상세 페이지를 확인합니다.",
+        "천문과 관련된 유산이라는 범위까지만 확인하고 정확한 관측 방법은 보류합니다.",
+      ],
+      verdict: "근거 범위를 밝혀 사용",
+      verdictDetail: "좋은 출발 자료입니다. 다만 모든 사용 방법이 확정된 것처럼 넓혀 말하지 않습니다.",
+    },
+    {
+      id: "blog",
+      label: "자료 B · 여행 블로그",
+      title: "경주 여행 후기",
+      excerpt: "신라 사람들은 매일 첨성대 안으로 들어가 망원경으로 별을 관찰했다.",
+      heritageId: 3,
+      findings: [
+        "개인 여행자가 방문 경험을 소개한 글이며 역사 연구 자료가 아닙니다.",
+        "최근 작성된 글이지만 신라 시대의 사용 장면을 직접 기록한 자료는 아닙니다.",
+        "공식 자료와 비교하면 ‘망원경’과 ‘매일’이라는 설명을 뒷받침할 근거가 없습니다.",
+        "인용한 기록이나 발굴 자료가 제시되지 않아 원본으로 이동할 수 없습니다.",
+        "정확한 관측 장면은 확인할 수 없으므로 해당 주장을 보류합니다.",
+      ],
+      verdict: "그대로 사용하지 않음",
+      verdictDetail: "사진 감상에는 활용할 수 있지만 역사 설명은 원본 근거를 찾기 전까지 인용하지 않습니다.",
+    },
+    {
+      id: "ai",
+      label: "자료 C · AI 요약",
+      title: "출처 없는 AI 답변",
+      excerpt: "첨성대의 돌 365개는 1년의 날짜를 뜻하며 꼭대기에서 매일 별을 관측했다.",
+      heritageId: 3,
+      findings: [
+        "답변을 만든 모델만 보이고 어떤 역사 자료를 이용했는지는 제시되지 않았습니다.",
+        "서로 다른 시기의 설명을 한 문장으로 합쳤을 가능성을 확인해야 합니다.",
+        "기관 자료마다 돌의 수와 상징 해석, 관측 방법에 관한 설명 범위가 다릅니다.",
+        "AI가 참고했다는 최초 기록·발굴 보고서·연구 자료를 바로 확인할 수 없습니다.",
+        "돌의 상징과 정확한 관측 방법은 근거를 더 찾을 때까지 보류합니다.",
+      ],
+      verdict: "질문 출발점으로만 사용",
+      verdictDetail: "확인할 질문을 만드는 데 활용하고, 역사 사실의 출처로는 기록하지 않습니다.",
+    },
+  ],
+  joseon: [
+    {
+      id: "official",
+      label: "자료 A · 국가기관",
+      title: "훈민정음 해례본 소장·해설 자료",
+      excerpt: "훈민정음 해례본에는 새 문자를 만든 원리와 사용 예가 설명되어 있다.",
+      heritageId: 1,
+      findings: ["소장 기관과 국가유산 관련 기관이 제공한 자료입니다.", "해례본이 만들어진 조선 시대와 오늘날 해설 작성 시기를 구분합니다.", "여러 기관의 번역·해설에서 책의 구성과 내용을 함께 확인합니다.", "해례본 원문 이미지와 번역 자료로 이동해 문맥을 확인합니다."],
+      verdict: "출처와 함께 사용",
+      verdictDetail: "원문 이미지와 해설의 범위를 구분해 확인된 사실로 기록합니다.",
+    },
+    {
+      id: "blog",
+      label: "자료 B · 개인 게시물",
+      title: "출처 없는 한글 이야기",
+      excerpt: "세종은 어느 날 혼자서 한글을 모두 만들고 곧바로 백성에게 사용하게 했다.",
+      heritageId: 1,
+      findings: ["작성자의 전문성과 자료 작성 목적을 확인하기 어렵습니다.", "최근 글이 조선 시대의 복잡한 창제·반포 과정을 단순한 장면으로 바꿨습니다.", "해례본·실록·기관 해설과 비교하면 ‘혼자서 모두’라는 표현을 더 확인해야 합니다.", "인용한 원문 기록이 없어 최초 자료로 이동할 수 없습니다."],
+      verdict: "그대로 사용하지 않음",
+      verdictDetail: "드라마처럼 만든 장면을 역사적 사실로 기록하지 않습니다.",
+    },
+    {
+      id: "ai",
+      label: "자료 C · AI 요약",
+      title: "근거가 빠진 AI 답변",
+      excerpt: "훈민정음은 집현전 학자들이 만들었고 세종은 이름만 붙였다.",
+      heritageId: 1,
+      findings: ["어떤 기록을 근거로 답했는지 출처가 표시되지 않았습니다.", "창제와 해례본 편찬의 시기·주체를 한 문장에 섞었는지 확인해야 합니다.", "실록과 해례본 해설, 기관 자료를 서로 비교합니다.", "AI 요약 대신 번역된 원문 기록까지 이동해 확인합니다."],
+      verdict: "추가 확인 뒤 판단",
+      verdictDetail: "창제와 해설서 편찬을 구분한 뒤 근거가 확인된 범위만 사용합니다.",
+    },
+  ],
+} as const;
+
 const lessonTwoChallenges = {
   "three-kingdoms": [
     {
@@ -385,25 +470,70 @@ function QuickChoiceTool({ challenges, choices }: { challenges: readonly Challen
   );
 }
 
-function SourceRankingTool() {
-  const [revealed, setRevealed] = useState(false);
-  const sources = [
-    { rank: "1", name: "국가기관 원문·소장품 기록", description: "유물과 기록을 직접 관리하는 기관의 자료" },
-    { rank: "2", name: "역사 연구서·교육 자료", description: "원문과 유물을 바탕으로 해석한 자료" },
-    { rank: "3", name: "출처가 없는 영상·게시물", description: "누가 어떤 근거로 만들었는지 먼저 확인할 자료" },
-  ];
+function SourceVerificationTool({ era }: { era: Era }) {
+  const sources = verificationSourceExamples[era.id];
+  const [sourceIndex, setSourceIndex] = useState(0);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [revealedSteps, setRevealedSteps] = useState<number[]>([]);
+  const [showVerdict, setShowVerdict] = useState(false);
+  const source = sources[sourceIndex];
+  const steps = era.verificationSteps;
+
+  function selectSource(nextIndex: number) {
+    setSourceIndex(nextIndex);
+    setStepIndex(0);
+    setRevealedSteps([]);
+    setShowVerdict(false);
+  }
+
+  function revealStep(nextIndex: number) {
+    setStepIndex(nextIndex);
+    setRevealedSteps((current) => current.includes(nextIndex) ? current : [...current, nextIndex]);
+    setShowVerdict(false);
+  }
+
   return (
-    <div className="web-tool web-tool--sources">
-      <p>세 카드를 먼저 읽고 가장 믿을 만한 순서를 모둠에서 정한 뒤 답을 공개하세요.</p>
-      <div className="source-rank-grid">
-        {sources.map((source) => (
-          <article key={source.name}>
-            <span>{revealed ? `${source.rank}순위` : "?"}</span>
-            <h3>{source.name}</h3><p>{source.description}</p>
-          </article>
+    <div className="web-tool verification-lab">
+      <div className="verification-lab__source-tabs" role="tablist" aria-label="비교할 자료 선택">
+        {sources.map((item, index) => (
+          <button aria-selected={sourceIndex === index} className={sourceIndex === index ? "is-selected" : ""} key={item.id} onClick={() => selectSource(index)} role="tab" type="button">
+            <span>{item.label}</span><strong>{item.title}</strong>
+          </button>
         ))}
       </div>
-      <button className="button button--primary" onClick={() => setRevealed((value) => !value)} type="button">{revealed ? "순위 가리기" : "추천 순위 공개"}</button>
+
+      <div className="verification-lab__workspace">
+        <figure>
+          <img alt={`${era.groups[source.heritageId - 1].heritage} 검증 자료 이미지`} src={heritageImage(era, source.heritageId)} />
+          <figcaption>{era.groups[source.heritageId - 1].heritage}</figcaption>
+        </figure>
+        <div className="verification-lab__document">
+          <span>{source.label}</span>
+          <h3>{source.title}</h3>
+          <blockquote>“{source.excerpt}”</blockquote>
+        </div>
+      </div>
+
+      <div className="verification-lab__steps" role="tablist" aria-label={era.verificationLabel}>
+        {steps.map((step, index) => (
+          <button aria-selected={stepIndex === index} className={stepIndex === index ? "is-active" : ""} key={step} onClick={() => revealStep(index)} role="tab" type="button">
+            <span>{revealedSteps.includes(index) ? <Icon name="check" size={14} /> : index + 1}</span><strong>{step}</strong>
+          </button>
+        ))}
+      </div>
+
+      <section className="verification-lab__finding" aria-live="polite">
+        <div><span>{stepIndex + 1}단계</span><h3>{steps[stepIndex]} 확인</h3></div>
+        {revealedSteps.includes(stepIndex)
+          ? <p>{source.findings[stepIndex]}</p>
+          : <button onClick={() => revealStep(stepIndex)} type="button">학급의 생각을 들은 뒤 확인하기</button>}
+      </section>
+
+      <div className="verification-lab__decision">
+        <button className="button button--primary" disabled={revealedSteps.length < steps.length} onClick={() => setShowVerdict(true)} type="button">최종 판단 확인</button>
+        <span>{revealedSteps.length} / {steps.length}단계 확인</span>
+      </div>
+      {showVerdict ? <div className="verification-lab__verdict" role="status"><span>최종 판단</span><strong>{source.verdict}</strong><p>{source.verdictDetail}</p></div> : null}
     </div>
   );
 }
@@ -514,7 +644,7 @@ function RandomPromptTool({ lessonId }: { lessonId: number }) {
 function LessonTool({ era, lesson }: { era: Era; lesson: Lesson }) {
   if (lesson.id === 1) return <ArtifactExplorer era={era} />;
   if (lesson.id === 2) return <StudentResponseTool challenges={lessonTwoChallenges[era.id]} choices={["확인 필요", "자료와 맞음"]} storageKey={`ai-history-${era.id}-lesson-02-responses`} />;
-  if (lesson.id === 3) return <SourceRankingTool />;
+  if (lesson.id === 3) return <SourceVerificationTool era={era} />;
   if (lesson.id === 4) return <SourcePortal era={era} />;
   if (lesson.id === 5) return <ArPreviewTool era={era} />;
   if (lesson.id === 6) return <QuickChoiceTool challenges={lessonSixChallenges[era.id]} choices={["진짜", "가짜", "판단 보류"]} />;
@@ -554,7 +684,7 @@ function WorksheetLessonView({ era, lesson }: { era: Era; lesson: Lesson }) {
 const toolNames = [
   "유물 사진 탐색기",
   "AI 문장 개인 판단",
-  "출처 신뢰도 비교",
+  "검증 단계 공동 연습",
   "공식 역사 자료 찾기",
   "AR 장면 미리보기",
   "진짜·가짜·보류 판정",
@@ -567,8 +697,7 @@ const toolNames = [
 export function LessonWebActivity({ era, lesson }: { era: Era; lesson: Lesson }) {
   if (lesson.classroomMode === "worksheet") return <WorksheetLessonView era={era} lesson={lesson} />;
 
-  const toolName = toolNames[lesson.id - 1];
-  const isTeacherLed = lesson.classroomMode === "teacher-led";
+  const toolName = lesson.id === 3 ? `${era.verificationLabel} 공동 연습` : toolNames[lesson.id - 1];
   const activityMode = classroomModeInfo[lesson.classroomMode];
 
   return (
@@ -577,7 +706,6 @@ export function LessonWebActivity({ era, lesson }: { era: Era; lesson: Lesson })
         <div aria-hidden="true" className="web-activity-shell__icon"><Icon name="spark" size={24} /></div>
         <div><p>{activityMode.label} · {activityMode.description}</p><h2 id="web-activity-title">{toolName}</h2></div>
       </header>
-      {isTeacherLed ? <aside className="web-activity-shell__teacher-note"><Icon name="eye" size={20} /><div><strong>학생 개인기기는 필요하지 않습니다.</strong><p>교사가 화면에 문장을 하나씩 띄우고, 학생은 말로 판단한 뒤 활동지에 근거를 기록합니다.</p></div></aside> : null}
       <LessonTool era={era} key={`${era.id}-${lesson.id}`} lesson={lesson} />
     </section>
   );

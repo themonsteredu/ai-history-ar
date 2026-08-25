@@ -59,11 +59,11 @@ describe("curriculum catalog", () => {
     }
   });
 
-  it("keeps the current Three Kingdoms sequence while restoring AI doubt in lesson two", () => {
+  it("restores AI doubt and source verification in the early Three Kingdoms sequence", () => {
     expect(eras[0].lessons.map((lesson) => lesson.title)).toEqual([
       "역사 데이터 질문 찾기",
       "AI에게 물어보았습니다",
-      "믿을 수 있는 자료 수집 방법",
+      "진짜인지 확인하는 방법",
       "우리 모둠 역사 데이터 모으기",
       "데이터 깨끗하게 다듬기",
       "역사 데이터를 그림으로 보기",
@@ -90,7 +90,7 @@ describe("curriculum catalog", () => {
       const visibleCopy = JSON.stringify(slides);
       expect(slides.length, `${lessonId}차시 기본 슬라이드`).toBeGreaterThanOrEqual(7);
       expect(slides.filter((slide) => slide.kind === "fact").length, `${lessonId}차시 내용 슬라이드`).toBeGreaterThanOrEqual(3);
-      if (lessonId <= 2) {
+      if (lessonId <= 3) {
         expect(slides.length, `${lessonId}차시 확장 슬라이드`).toBeGreaterThanOrEqual(14);
         expect(slides.some((slide) => slide.kind === "gallery"), `${lessonId}차시 문화유산 관찰 슬라이드`).toBe(true);
         expect(slides.some((slide) => slide.kind === "quiz"), `${lessonId}차시 판단 퀴즈`).toBe(true);

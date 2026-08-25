@@ -4,7 +4,7 @@
       "title": "삼국시대",
       "bundle": {
         "path": "/downloads/three-kingdoms/three-kingdoms-all-materials.zip",
-        "size": 1070439
+        "size": 1078755
       },
       "lessons": [
         {
@@ -53,23 +53,23 @@
         },
         {
           "lessonId": 3,
-          "title": "믿을 수 있는 자료 수집 방법",
+          "title": "진짜인지 확인하는 방법",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-03-student.pdf",
-              "size": 29746
+              "size": 31802
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-03-teacher.pdf",
-              "size": 48275
+              "size": 53681
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-03-answer.pdf",
-              "size": 32787
+              "size": 35135
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-03-all.zip",
-              "size": 101211
+              "size": 109858
             }
           }
         },
