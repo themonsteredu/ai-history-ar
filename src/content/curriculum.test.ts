@@ -83,10 +83,10 @@ describe("curriculum catalog", () => {
       const visibleCopy = JSON.stringify(slides);
       expect(slides.length, `${lessonId}차시 기본 슬라이드`).toBeGreaterThanOrEqual(7);
       expect(slides.filter((slide) => slide.kind === "fact").length, `${lessonId}차시 내용 슬라이드`).toBeGreaterThanOrEqual(3);
-      if (lessonId === 1) {
-        expect(slides.length, "1차시 데이터 수업 확장 슬라이드").toBeGreaterThanOrEqual(14);
-        expect(slides.some((slide) => slide.kind === "gallery"), "1차시 문화유산 관찰 슬라이드").toBe(true);
-        expect(slides.some((slide) => slide.kind === "quiz"), "1차시 데이터 판단 퀴즈").toBe(true);
+      if (lessonId <= 2) {
+        expect(slides.length, `${lessonId}차시 데이터 수업 확장 슬라이드`).toBeGreaterThanOrEqual(14);
+        expect(slides.some((slide) => slide.kind === "gallery"), `${lessonId}차시 문화유산 관찰 슬라이드`).toBe(true);
+        expect(slides.some((slide) => slide.kind === "quiz"), `${lessonId}차시 데이터 판단 퀴즈`).toBe(true);
       }
       expect(lastSlide?.kind, `${lessonId}차시 마지막 슬라이드`).toBe("closing");
       expect(internalPhrases.test(visibleCopy), `${lessonId}차시 운영 문구`).toBe(false);
