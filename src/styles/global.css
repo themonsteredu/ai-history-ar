@@ -2413,15 +2413,28 @@ input:focus-visible {
 .class-slide--verdict-틀림 .class-slide__quiz-copy strong { background: #e4b2a7; }
 .class-slide--verdict-보류 .class-slide__quiz-copy strong { background: #d9d8d0; }
 
-.class-slide__closing-prompt {
-  display: block !important;
-  width: auto !important;
-  max-width: 56cqw;
+.class-slide__closing-answer {
+  width: min(61cqw, 100%) !important;
+  display: grid !important;
+  grid-template-columns: 6.2cqw 1fr !important;
+  align-items: start !important;
+  gap: 1.2cqw !important;
   margin-top: 1.7cqw !important;
-  padding: 0 !important;
-  color: rgba(255, 255, 255, 0.82) !important;
-  background: transparent !important;
-  font-size: 1.45cqw;
+  padding: 1.25cqw 1.45cqw !important;
+  color: #21302b !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+}
+
+.class-slide__closing-answer span {
+  padding-top: 0.15cqw;
+  color: #8f3f31;
+  font-size: 1.05cqw;
+  font-weight: 800;
+}
+
+.class-slide__closing-answer strong {
+  font-size: 1.65cqw;
+  font-weight: 700;
   line-height: 1.5;
 }
 

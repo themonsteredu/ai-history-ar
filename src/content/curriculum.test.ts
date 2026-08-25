@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { eras } from "./catalog";
 import { getLessonMinutes } from "./lesson-helpers";
+import { getThreeKingdomsSlides } from "./three-kingdoms/slides";
 
 describe("curriculum catalog", () => {
   it("contains two complete 10-lesson courses", () => {
@@ -71,5 +72,23 @@ describe("curriculum catalog", () => {
       "데이터로 미래 변화 예측하기",
       "AR 데이터 박물관 열기",
     ]);
+  });
+
+  it("keeps every Three Kingdoms deck rich, classroom-facing, and Q&A-led", () => {
+    const internalPhrases = /웹앱|다운로드 없음|Google|CODAP|Desmos|CSV|PNG|새 탭/;
+
+    for (let lessonId = 1; lessonId <= 10; lessonId += 1) {
+      const slides = getThreeKingdomsSlides(lessonId);
+      const lastSlide = slides.at(-1);
+      const visibleCopy = JSON.stringify(slides);
+      expect(slides, `${lessonId}차시 기본 슬라이드`).toHaveLength(7);
+      expect(slides.filter((slide) => slide.kind === "fact"), `${lessonId}차시 내용 슬라이드`).toHaveLength(3);
+      expect(lastSlide?.kind, `${lessonId}차시 마지막 슬라이드`).toBe("closing");
+      expect(internalPhrases.test(visibleCopy), `${lessonId}차시 운영 문구`).toBe(false);
+      if (lastSlide?.kind === "closing") {
+        expect(lastSlide.title.endsWith("까요?") || lastSlide.title.endsWith("할까요?")).toBe(true);
+        expect(lastSlide.prompt.length).toBeGreaterThan(45);
+      }
+    }
   });
 });

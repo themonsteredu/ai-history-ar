@@ -28,9 +28,10 @@ export type LessonSlide =
 const sources = {
   overview: { label: "자료: 우리역사넷 ‘삼국 및 가야의 문화’", href: "https://contents.history.go.kr/front/newEh/list.do?code=eh_age_10&type=eh_ty_020" },
   muryeong: { label: "자료: 국립공주박물관 웅진백제실", href: "https://gongju.museum.go.kr/prog/prmntDspyRelic/kor/sub02_01_01/list.do" },
-  incense: { label: "자료: 국립부여박물관 백제대향로관", href: "https://buyeo.museum.go.kr/content.do?key=2605140001" },
+  incense: { label: "자료: 국립부여박물관 ‘백제금동대향로’", href: "https://buyeo.museum.go.kr/rprsPsn/view.do?rprsPsnCmdtyMngSn=2001010001" },
   cheomseongdae: { label: "자료: 국가유산청 국가유산포털", href: "https://www.heritage.go.kr/heri/cul/culGuidePostDetail.do?ccbaCpno=1113700310000&ccgbGbtype=IND&ccgbGbtypeNo=2&pageNo=1_5_0_0" },
   crown: { label: "자료: 국립중앙박물관 소장품 ‘금관’", href: "https://www.museum.go.kr/site/main/relic/search/view?relicId=752" },
+  crownCulture: { label: "자료: 국립경주박물관 ‘신라 황금 문화유산’", href: "https://gyeongju.museum.go.kr/kor/html/sub04/0403.html" },
   mural: { label: "자료: UNESCO ‘고구려 고분군’", href: "https://whc.unesco.org/en/list/1091/" },
   gaya: { label: "자료: UNESCO ‘가야 고분군’", href: "https://whc.unesco.org/en/list/1666/" },
 } as const satisfies Record<string, SlideSource>;
@@ -73,6 +74,8 @@ interface DeckPlan {
 }
 
 function makeDeck(lessonId: number, plan: DeckPlan): readonly LessonSlide[] {
+  const historyDetail = historyDetails[lessonId] ?? plan.history;
+
   return [
     {
       kind: "cover",
@@ -90,6 +93,15 @@ function makeDeck(lessonId: number, plan: DeckPlan): readonly LessonSlide[] {
       takeaway: plan.history.takeaway,
       image: plan.history.image,
       source: plan.history.source,
+    },
+    {
+      kind: "fact",
+      eyebrow: "자료에서 더 찾기",
+      title: historyDetail.title,
+      points: historyDetail.points,
+      takeaway: historyDetail.takeaway,
+      image: historyDetail.image,
+      source: historyDetail.source,
     },
     {
       kind: "fact",
@@ -120,7 +132,7 @@ function makeDeck(lessonId: number, plan: DeckPlan): readonly LessonSlide[] {
     },
     {
       kind: "closing",
-      eyebrow: `${lessonId}차시 정리`,
+      eyebrow: `${lessonId}차시 마지막 Q&A`,
       title: plan.closing.title,
       prompt: plan.closing.prompt,
       next: plan.closing.next,
@@ -156,11 +168,11 @@ const deckPlans: Record<number, DeckPlan> = {
     },
     activity: {
       image: "incense",
-      title: "유산을 보고 데이터 질문 하나를 정해요",
-      instruction: "웹앱의 여섯 유산을 관찰한 뒤 활동지에는 최종 질문만 남깁니다.",
-      steps: ["눈에 보이는 특징 말하기", "비교할 정보 고르기", "모둠 질문 한 문장 만들기"],
+      title: "사진 근거로 질문을 고쳐 말해요",
+      instruction: "유산 한 점을 고르고 ‘무엇이 궁금한가’와 ‘어떤 자료가 필요한가’를 연결해 말합니다.",
+      steps: ["사진에서 보이는 사실 말하기", "비교할 정보 한 가지 고르기", "자료로 확인할 질문 만들기"],
     },
-    closing: { image: "mural", title: "우리 질문은 자료로 확인할 수 있나요?", prompt: "모둠 질문에 ‘시기·지역·종류·출처’ 중 어떤 데이터가 필요한지 말해 봅시다.", next: "2차시 · 데이터 항목과 관계 정하기" },
+    closing: { image: "mural", title: "유물 하나만 보면 과거를 정확히 알 수 있을까요?", prompt: "아니요. 유물의 모양뿐 아니라 시기·발견 장소·용도·출처를 연결해야 하며, 확인할 수 없는 내용은 모른다고 남겨야 합니다.", next: "2차시 · 데이터 항목과 관계 정하기" },
   },
   2: {
     title: "데이터 항목과\n관계 정하기",
@@ -187,11 +199,11 @@ const deckPlans: Record<number, DeckPlan> = {
     },
     activity: {
       image: "crown",
-      title: "Google Sheets에서 공통 항목을 정해요",
-      instruction: "읽기용 예시 표를 보고 모둠 설계표를 완성합니다.",
-      steps: ["꼭 필요한 열 표시하기", "항목과 질문 연결하기", "모둠 추가 항목 정하기"],
+      title: "열 이름을 학급 공통 약속으로 정해요",
+      instruction: "서로 다른 모둠의 표 두 개를 비교해 어떤 열 이름을 같게 해야 하는지 토론합니다.",
+      steps: ["꼭 필요한 열 찾기", "각 열이 답할 질문 말하기", "정확한 연도와 시대 범위 나누기"],
     },
-    closing: { image: "muryeong", title: "정확한 연도가 없으면 어떻게 기록할까요?", prompt: "‘6세기’처럼 확인된 범위를 그대로 남겨야 하는 까닭을 말해 봅시다.", next: "3차시 · 믿을 수 있는 자료 수집 방법" },
+    closing: { image: "muryeong", title: "왜 모든 모둠이 같은 항목 이름을 써야 할까요?", prompt: "같은 뜻을 같은 이름으로 기록해야 자료를 합치고 비교할 수 있습니다. 정확한 연도와 ‘6세기’ 같은 시대 범위는 서로 다른 열에 남깁니다.", next: "3차시 · 믿을 수 있는 자료 수집 방법" },
   },
   3: {
     title: "믿을 수 있는\n자료 수집 방법",
@@ -218,11 +230,11 @@ const deckPlans: Record<number, DeckPlan> = {
     },
     activity: {
       image: "mural",
-      title: "Google Forms에 같은 방식으로 입력해요",
-      instruction: "연습 자료 한 건을 읽고 출처·사실·자료 상태를 입력합니다.",
-      steps: ["기관과 원주소 확인하기", "사실과 해석 나누기", "자료 상태 선택하기"],
+      title: "출처가 다른 두 설명을 평가해요",
+      instruction: "같은 유산을 설명한 두 자료에서 만든 곳·작성 시기·근거를 찾아 비교합니다.",
+      steps: ["자료를 만든 기관 확인하기", "사실과 해석에 밑줄 긋기", "확인·주의·보류로 판단하기"],
     },
-    closing: { image: "crown", title: "다시 확인할 수 있는 데이터인가요?", prompt: "내가 입력한 자료를 친구도 같은 출처에서 확인할 수 있는지 점검해 봅시다.", next: "4차시 · 우리 모둠 역사 데이터 모으기" },
+    closing: { image: "crown", title: "공식 기관 자료라면 모두 그대로 믿어도 될까요?", prompt: "공식 자료는 좋은 출발점이지만 작성 시기와 근거를 확인하고 다른 자료와도 비교해야 합니다. 확인된 사실과 해석도 구분합니다.", next: "4차시 · 우리 모둠 역사 데이터 모으기" },
   },
   4: {
     title: "우리 모둠 역사\n데이터 모으기",
@@ -249,11 +261,11 @@ const deckPlans: Record<number, DeckPlan> = {
     },
     activity: {
       image: "muryeong",
-      title: "모둠 수집 폼에 자료를 입력해요",
-      instruction: "공식 자료를 읽고 모둠 코드로 한 건씩 정확하게 입력합니다.",
-      steps: ["공식 자료 찾기", "공통 항목 입력하기", "수집량과 빠진 칸 확인하기"],
+      title: "한 자료를 30초 안에 검수해요",
+      instruction: "자료 한 건을 읽고 친구가 다시 확인할 수 있는 기록인지 짝과 점검합니다.",
+      steps: ["기관·주소·확인 날짜 찾기", "한 행에 한 자료인지 확인하기", "빈칸과 중복 표시하기"],
     },
-    closing: { image: "gaya", title: "우리 자료는 충분하고 고르게 모였나요?", prompt: "출처 없는 행, 빈칸, 같은 내용의 중복 행이 없는지 함께 확인합시다.", next: "5차시 · 데이터 깨끗하게 다듬기" },
+    closing: { image: "gaya", title: "자료를 많이 모으면 무조건 좋은 데이터일까요?", prompt: "아니요. 출처를 확인할 수 있고 중복과 빈칸이 적으며, 여러 시기와 지역이 고르게 포함되어야 질문에 답할 수 있는 데이터가 됩니다.", next: "5차시 · 데이터 깨끗하게 다듬기" },
   },
   5: {
     title: "데이터 깨끗하게\n다듬기",
@@ -280,15 +292,15 @@ const deckPlans: Record<number, DeckPlan> = {
     },
     activity: {
       image: "gaya",
-      title: "Google Sheets에서 원자료를 다듬어요",
-      instruction: "원본 탭은 남겨 두고 편집 사본에서 전처리합니다.",
-      steps: ["중복 찾기", "빈칸·오탈자 확인하기", "표기 통일 후 CSV 저장하기"],
+      title: "수정 전과 수정 후를 비교해요",
+      instruction: "원자료는 보존하고 사본에서 한 번에 한 가지 문제만 고친 뒤 이유를 말합니다.",
+      steps: ["중복과 빈칸 표시하기", "같은 뜻의 표기 묶기", "무엇을 왜 고쳤는지 기록하기"],
     },
-    closing: { image: "cheomseongdae", title: "판단 보류 행도 지워야 할까요?", prompt: "분석하기 불편하다는 이유로 확인되지 않은 자료를 삭제하면 안 되는 까닭을 말해 봅시다.", next: "6차시 · 역사 데이터를 그림으로 보기" },
+    closing: { image: "cheomseongdae", title: "판단 보류 자료는 분석하기 불편하니 지워도 될까요?", prompt: "지우면 안 됩니다. 원자료는 남겨 두고 사본에서 분석 여부만 구분해야 합니다. 삭제하면 아직 모른다는 중요한 사실까지 사라집니다.", next: "6차시 · 역사 데이터를 그림으로 보기" },
   },
   6: {
     title: "역사 데이터를\n그림으로 보기",
-    subtitle: "정리한 데이터를 CODAP에서 비교 목적에 맞는 그래프로 나타냅니다.",
+    subtitle: "정리한 데이터를 탐구 질문에 맞는 그래프로 나타내고 무엇이 보이는지 살핍니다.",
     coverImage: "mural",
     history: {
       image: "mural",
@@ -311,11 +323,11 @@ const deckPlans: Record<number, DeckPlan> = {
     },
     activity: {
       image: "gaya",
-      title: "CODAP에서 그래프 한 장을 완성해요",
-      instruction: "정리된 CSV를 불러오고 비교할 항목을 축에 놓습니다.",
-      steps: ["CSV 불러오기", "축에 항목 놓기", "제목·단위 확인 후 PNG 저장하기"],
+      title: "같은 자료를 다른 그래프로 읽어 봐요",
+      instruction: "같은 자료라도 비교 항목이 달라지면 무엇이 보이고 사라지는지 말합니다.",
+      steps: ["탐구 질문 다시 읽기", "가로축·세로축 항목 정하기", "제목·단위·자료 수 확인하기"],
     },
-    closing: { image: "muryeong", title: "우리 그래프는 질문에 답하고 있나요?", prompt: "그래프에서 가장 먼저 보이는 한 가지를 말하고 탐구 질문과 연결해 봅시다.", next: "7차시 · 그래프를 읽고 설명하기" },
+    closing: { image: "muryeong", title: "그래프가 역사 문제의 정답을 바로 보여 줄까요?", prompt: "아니요. 그래프는 우리가 모은 자료 안의 차이와 관계를 보여 줍니다. 축·단위·자료 수와 출처를 확인하고 다른 역사 자료와 함께 해석해야 합니다.", next: "7차시 · 그래프를 읽고 설명하기" },
   },
   7: {
     title: "그래프를 읽고\n설명하기",
@@ -342,11 +354,11 @@ const deckPlans: Record<number, DeckPlan> = {
     },
     activity: {
       image: "incense",
-      title: "보이는 점과 모르는 점을 나누어 발표해요",
-      instruction: "모둠 그래프를 가리키며 1분 안에 설명합니다.",
-      steps: ["큰 값과 작은 값 찾기", "경향 한 문장 만들기", "자료의 한계 함께 말하기"],
+      title: "그래프 발표를 질문으로 다듬어요",
+      instruction: "한 친구가 해석을 말하면 다른 친구는 근거 위치와 자료의 한계를 질문합니다.",
+      steps: ["실제로 보이는 값 말하기", "그 값의 역사 의미 설명하기", "그래프로 모르는 점 덧붙이기"],
     },
-    closing: { image: "mural", title: "그래프만으로 전체 역사를 말할 수 있나요?", prompt: "우리 자료가 어느 지역·시기·사람을 중심으로 모였는지 확인해 봅시다.", next: "8차시 · 데이터로 과거 유추하기" },
+    closing: { image: "mural", title: "그래프에서 가장 큰 값이 역사적으로 가장 중요할까요?", prompt: "꼭 그렇지는 않습니다. 자료에 많이 남았다는 뜻일 수 있지만 역사적 중요성은 시대 배경·자료의 성격·다른 근거를 함께 보아 판단해야 합니다.", next: "8차시 · 데이터로 과거 유추하기" },
   },
   8: {
     title: "데이터로 과거\n유추하기",
@@ -373,11 +385,11 @@ const deckPlans: Record<number, DeckPlan> = {
     },
     activity: {
       image: "gaya",
-      title: "근거 2개와 과거 유추 1개를 만들어요",
-      instruction: "CODAP 관계 그래프를 보고 근거부터 말합니다.",
-      steps: ["관계 있는 두 항목 고르기", "반복되는 모습 찾기", "근거 2개 → 유추 1개 쓰기"],
+      title: "근거와 유추를 구분해 발표해요",
+      instruction: "확인된 사실 두 개를 먼저 말한 뒤 그 사실로 가능한 설명 한 문장을 만듭니다.",
+      steps: ["관계 있는 근거 두 개 고르기", "근거가 가리키는 공통점 찾기", "‘가능성이 있다’로 유추 말하기"],
     },
-    closing: { image: "crown", title: "유추와 확인된 사실을 구분했나요?", prompt: "우리 문장에 ‘가능성이 있다’가 필요한지 자료 근거와 함께 점검해 봅시다.", next: "9차시 · 데이터로 미래 변화 예측하기" },
+    closing: { image: "crown", title: "데이터가 있으면 과거를 확실하게 알 수 있을까요?", prompt: "데이터는 유추의 근거를 주지만 모든 장면을 확정하지는 못합니다. 확인된 사실과 가능한 설명을 나누고 ‘가능성이 있다’처럼 범위를 밝혀야 합니다.", next: "9차시 · 데이터로 미래 변화 예측하기" },
   },
   9: {
     title: "데이터로 미래\n변화 예측하기",
@@ -404,11 +416,11 @@ const deckPlans: Record<number, DeckPlan> = {
     },
     activity: {
       image: "gaya",
-      title: "Desmos에서 세 가지 미래를 그려요",
-      instruction: "연도별 수치를 입력하고 조건에 따른 시나리오를 만듭니다.",
-      steps: ["연도·수치 입력하기", "추세선 확인하기", "세 시나리오와 한계 기록하기"],
+      title: "예측 문장에 조건을 붙여요",
+      instruction: "같은 연도별 흐름에서 기본·좋은 조건·나쁜 조건의 세 문장을 만들어 비교합니다.",
+      steps: ["과거의 증가·감소 흐름 찾기", "달라질 조건 한 가지 정하기", "예측과 한계를 함께 말하기"],
     },
-    closing: { image: "mural", title: "예측이 빗나갈 수 있는 까닭은 무엇인가요?", prompt: "정책·날씨·관람 환경처럼 그래프 밖에서 달라질 수 있는 조건을 한 가지 말해 봅시다.", next: "10차시 · AR 데이터 박물관 열기" },
+    closing: { image: "mural", title: "미래 예측도 역사적 사실이라고 할 수 있을까요?", prompt: "아니요. 예측은 과거 수치의 흐름과 가정을 바탕으로 만든 조건부 설명입니다. 사용한 데이터·가정·빗나갈 수 있는 이유를 함께 밝혀야 합니다.", next: "10차시 · AR 데이터 박물관 열기" },
   },
   10: {
     title: "AR 데이터\n박물관 열기",
@@ -435,11 +447,124 @@ const deckPlans: Record<number, DeckPlan> = {
     },
     activity: {
       image: "crown",
-      title: "AR 카드와 데이터 결과를 함께 보여 주세요",
-      instruction: "AR이 멈추면 그래프 PNG와 QR 대체 자료로 계속 설명합니다.",
-      steps: ["그래프 경향 설명하기", "과거 유추와 AR 사실 연결하기", "예측 조건·한계 말하고 질문받기"],
+      title: "관람객 질문에 도슨트로 답해요",
+      instruction: "유산 사진과 그래프를 가리키며 사실·유추·예측을 구분해 설명하고 질문을 받습니다.",
+      steps: ["출처와 확인된 사실 설명하기", "그래프 근거와 과거 유추 연결하기", "예측 조건·한계를 말하고 질문받기"],
     },
-    closing: { image: "gaya", title: "1차시의 나와 무엇이 달라졌나요?", prompt: "첫 생각 카드를 다시 읽고 데이터와 AI를 역사 공부에 어떻게 사용할지 한 문장으로 씁니다.", next: "삼국시대 데이터·AI·AR 탐구 완료" },
+    closing: { image: "gaya", title: "좋은 AR 역사 도슨트는 어떻게 설명해야 할까요?", prompt: "출처와 확인된 사실을 먼저 보여 주고, 그래프 해석·과거 유추·미래 예측을 구분합니다. 모르는 질문에는 꾸며내지 않고 더 확인하겠다고 답합니다.", next: "삼국시대 데이터·AI·AR 탐구 완료" },
+  },
+};
+
+const historyDetails: Record<number, DeckPlan["history"]> = {
+  1: {
+    image: "crown",
+    title: "유물마다 남기는 정보가 다릅니다",
+    points: [
+      "무령왕릉 지석은 이름과 사망·매장 시기를 글자로 남겼습니다.",
+      "금동대향로는 발견 장소와 모양으로 왕실 의식과 사상을 살필 단서를 줍니다.",
+      "가야 고분군은 여러 지역의 무덤과 껴묻거리를 서로 비교하게 합니다.",
+    ],
+    takeaway: "그래서 ‘언제·어디서·무엇이·어떤 출처에’가 역사 데이터의 기본 항목이 됩니다.",
+    source: sources.overview,
+  },
+  2: {
+    image: "muryeong",
+    title: "글자·연도·출토 위치를 연결하면 이야기가 됩니다",
+    points: [
+      "왕의 지석에는 523년 사망과 525년 안장 기록이 있습니다.",
+      "왕비의 지석에는 526년 사망과 529년 안장 기록이 남아 있습니다.",
+      "유물이 놓인 위치까지 기록해 왕과 왕비의 물건을 구분합니다.",
+    ],
+    takeaway: "같은 무덤 자료도 사람·연도·위치 항목을 연결해야 변화와 차이가 보입니다.",
+    source: sources.muryeong,
+  },
+  3: {
+    image: "cheomseongdae",
+    title: "확인되는 구조와 해석이 필요한 쓰임은 다릅니다",
+    points: [
+      "다듬은 돌을 27단으로 쌓아 둥근 몸체를 만들었습니다.",
+      "남쪽 13~15단 사이에 네모난 출입구가 있습니다.",
+      "천문 관측대라는 설명이 널리 쓰이지만 제단·기념물이라는 견해도 있습니다.",
+    ],
+    takeaway: "눈으로 확인되는 구조는 사실로, 쓰임에 관한 여러 견해는 해석으로 기록합니다.",
+    source: sources.cheomseongdae,
+  },
+  4: {
+    image: "incense",
+    title: "향로 한 점에도 여러 종류의 데이터가 있습니다",
+    points: [
+      "높이 61.8cm의 금동 향로로 부여 능산리 절터에서 발견되었습니다.",
+      "용 받침·연꽃 몸통·산 모양 뚜껑·봉황으로 이루어져 있습니다.",
+      "산과 동식물 사이에는 서로 다른 악기를 연주하는 다섯 악사가 보입니다.",
+    ],
+    takeaway: "크기·재료·발견 장소·무늬를 같은 기준으로 모으면 백제인의 기술과 생각을 비교할 수 있습니다.",
+    source: sources.incense,
+  },
+  5: {
+    image: "crown",
+    title: "신라 금관은 지배층의 권위를 보여 줍니다",
+    points: [
+      "신라의 황금 문화는 5세기부터 6세기 전반까지 약 150년간 이어졌습니다.",
+      "지배층은 큰 무덤에 금관·귀걸이·허리띠 같은 정교한 금제품을 남겼습니다.",
+      "황금 장신구는 무덤 주인의 신성함과 정통성, 오래가는 권위를 드러냈습니다.",
+    ],
+    takeaway: "‘금으로 만든 관’만 기록하지 말고 시기·출토 무덤·함께 나온 유물을 연결해야 합니다.",
+    source: sources.crownCulture,
+  },
+  6: {
+    image: "mural",
+    title: "벽화가 남은 무덤은 전체 가운데 일부입니다",
+    points: [
+      "중국과 한반도에서 발견된 고구려 무덤은 1만 기가 넘습니다.",
+      "그중 벽화가 있는 무덤은 약 100기로 알려져 있습니다.",
+      "벽화묘는 왕·왕족·귀족의 무덤으로 본다는 점도 함께 살펴야 합니다.",
+    ],
+    takeaway: "벽화 자료는 귀중하지만 모든 고구려 사람의 생활을 똑같이 보여 주는 표본은 아닙니다.",
+    source: sources.mural,
+  },
+  7: {
+    image: "gaya",
+    title: "가야 고분군의 공통점과 차이는 모두 근거입니다",
+    points: [
+      "세계유산 가야 고분군은 일곱 지역의 고분군으로 이루어집니다.",
+      "가야식 돌덧널무덤과 토기는 여러 지역의 문화적 공통점을 보여 줍니다.",
+      "무덤과 껴묻거리의 지역별 차이는 각 정치체의 자율성을 보여 주는 단서입니다.",
+    ],
+    takeaway: "공통점만 말하면 지역 차이를 놓치고, 차이만 말하면 가야가 공유한 문화를 놓칩니다.",
+    source: sources.gaya,
+  },
+  8: {
+    image: "muryeong",
+    title: "같은 무덤 안에서도 유추의 강도는 다릅니다",
+    points: [
+      "무령왕 지석의 이름과 연도는 글자로 직접 확인할 수 있습니다.",
+      "일본 군마현 고분의 거울과 비슷한 청동거울은 교류를 살필 단서가 됩니다.",
+      "왕비 발 부근의 작은 귀걸이는 어린 시절 물건으로 추정됩니다.",
+    ],
+    takeaway: "직접 적힌 기록·비교 가능한 유물·학자의 추정을 같은 수준의 사실처럼 쓰면 안 됩니다.",
+    source: sources.muryeong,
+  },
+  9: {
+    image: "mural",
+    title: "보존 데이터는 문화유산의 미래를 준비하게 합니다",
+    points: [
+      "고분벽화는 습기·유해 세균·자연 풍화에 영향을 받을 수 있습니다.",
+      "온도와 습도를 계속 측정하면 갑작스러운 변화를 빨리 발견할 수 있습니다.",
+      "관람 환경과 보존 조치가 달라지면 미래 수치도 달라질 수 있습니다.",
+    ],
+    takeaway: "예측은 유산의 운명을 맞히는 일이 아니라 어떤 관리가 필요한지 미리 생각하는 일입니다.",
+    source: sources.mural,
+  },
+  10: {
+    image: "incense",
+    title: "여섯 유산은 서로 다른 방식으로 과거를 증언합니다",
+    points: [
+      "지석은 글자로, 벽화는 장면으로, 금관과 향로는 재료와 기술로 말합니다.",
+      "첨성대는 남은 구조로, 가야 고분군은 여러 지역의 분포와 관계로 말합니다.",
+      "모든 유산에는 확인된 사실과 더 연구해야 할 질문이 함께 있습니다.",
+    ],
+    takeaway: "도슨트의 역할은 정답을 외우는 것이 아니라 근거를 보여 주며 질문을 이어 가는 것입니다.",
+    source: sources.overview,
   },
 };
 

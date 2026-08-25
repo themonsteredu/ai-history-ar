@@ -133,7 +133,7 @@ try {
     results.push(await inspectPage(desktop, `/three-kingdoms/lesson/${lessonId}?view=ppt`, title));
     const slideButtons = desktop.locator(".lesson-slides__dots button");
     const slideCount = await slideButtons.count();
-    if (slideCount < 7) throw new Error(`${lessonId}차시 슬라이드가 7장보다 적습니다: ${slideCount}장`);
+    if (slideCount !== 9) throw new Error(`${lessonId}차시 슬라이드가 질문·답 포함 9장이 아닙니다: ${slideCount}장`);
 
     let previousWasPrompt = false;
     for (let slideIndex = 0; slideIndex < slideCount; slideIndex += 1) {
@@ -148,10 +148,20 @@ try {
           noOverflow: Boolean(slide) && slide.scrollWidth <= slide.clientWidth + 1 && slide.scrollHeight <= slide.clientHeight + 1,
           isPrompt: Boolean(stage.querySelector(".class-slide--prompt")),
           isAnswer: Boolean(stage.querySelector(".class-slide--lesson-compare, .class-slide--lesson-quiz")),
+          isClosingAnswer: Boolean(stage.querySelector(".class-slide--closing .class-slide__closing-answer")),
         };
       });
       if (!slideCheck.noOverflow) throw new Error(`${lessonId}차시 ${slideIndex + 1}번 슬라이드가 화면을 넘칩니다.`);
       if (slideCheck.isAnswer && !previousWasPrompt) throw new Error(`${lessonId}차시 답 슬라이드 앞에 질문 슬라이드가 없습니다.`);
+      if (slideIndex === slideCount - 1 && (!slideCheck.isClosingAnswer || !previousWasPrompt)) {
+        throw new Error(`${lessonId}차시 마지막 Q&A 질문·답 구조가 없습니다.`);
+      }
+      if ([1, 6, 10].includes(lessonId) && slideIndex >= slideCount - 2) {
+        const suffix = slideIndex === slideCount - 2 ? "qna-question" : "qna-answer";
+        await desktop.locator(".lesson-slides__stage").screenshot({
+          path: path.join(outputDirectory, `lesson-${String(lessonId).padStart(2, "0")}-${suffix}.png`),
+        });
+      }
       previousWasPrompt = slideCheck.isPrompt;
       verifiedSlideCount += 1;
     }

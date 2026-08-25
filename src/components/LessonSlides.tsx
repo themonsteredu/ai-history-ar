@@ -117,6 +117,21 @@ function expandPresentationSlides(slides: readonly LessonSlide[]): readonly Pres
       ];
     }
 
+    if (slide.kind === "closing") {
+      return [
+        {
+          kind: "prompt" as const,
+          image: slide.image,
+          source: slide.source,
+          eyebrow: "오늘의 Q&A",
+          title: "마지막 질문",
+          question: slide.title,
+          instruction: "친구와 먼저 답을 말해 본 뒤 다음 장에서 핵심 답을 확인해 봅시다.",
+        },
+        slide,
+      ];
+    }
+
     return [slide];
   });
 }
@@ -271,9 +286,9 @@ function ClassSlide({ slide }: { slide: PresentationSlide }) {
       <img src={artifact.image} alt={artifact.alt} />
       <div className="class-slide__shade" />
       <div className="class-slide__closing-copy">
-        <p>{slide.eyebrow}</p>
+        <p>{slide.eyebrow} · 답 공개</p>
         <h3>{slide.title}</h3>
-        <div className="class-slide__closing-prompt">{slide.prompt}</div>
+        <div className="class-slide__closing-answer"><span>핵심 답</span><strong>{slide.prompt}</strong></div>
         <div><span>이어 보기</span><strong>{slide.next}</strong></div>
       </div>
       <SlideSources slide={slide} />
@@ -311,7 +326,7 @@ export function LessonSlides({ lessonId }: { lessonId: number }) {
     <section className="lesson-slides-section" aria-labelledby={`lesson-slides-title-${lessonId}`}>
       <div className="lesson-slides-section__heading">
         <div>
-          <p>교실 화면용 · 역사 내용 + 활동 안내 · 별도 다운로드 없음</p>
+          <p>교실 화면용 · 역사 근거 + 질문하고 답하기</p>
           <h2 id={`lesson-slides-title-${lessonId}`}>{lessonId}차시 수업 슬라이드</h2>
         </div>
         <button className="lesson-slides__fullscreen" type="button" onClick={enterFullscreen}>전체 화면으로 수업하기</button>
