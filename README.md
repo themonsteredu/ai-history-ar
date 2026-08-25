@@ -57,6 +57,8 @@
 
 상세 사양은 `docs/CURRICULUM_IMPLEMENTATION_SPEC.md`와 `docs/WORKSHEET_CATALOG.md`에서 관리합니다.
 
+삼국시대 데이터 수집·시각화·해석·예측 활동을 설치 없는 외부 도구와 연결하는 다음 개편은 `docs/EXTERNAL_TOOL_HUB_IMPLEMENTATION_PLAN.md`를 기준으로 진행합니다.
+
 ## 현재 구현 상태
 
 첫 번째 코드 단계가 완료되었습니다.
