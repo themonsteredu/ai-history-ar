@@ -12,10 +12,10 @@ export function AppShell() {
       </a>
       <header className="site-header">
         <div className="site-header__inner page-width">
-          <NavLink aria-label="MOA 역사 AR 교실 홈" className="brand" to="/">
+          <NavLink aria-label="역사돋보기 AR 홈" className="brand" to="/">
             <span aria-hidden="true" className="brand__seal">史</span>
             <span className="brand__text">
-              <strong>MOA 역사 AR 교실</strong>
+              <strong>역사돋보기 AR</strong>
               <small>의심하고 · 확인하고 · 설명하기</small>
             </span>
           </NavLink>
@@ -31,7 +31,7 @@ export function AppShell() {
       <footer className="site-footer">
         <div className="page-width site-footer__inner">
           <div>
-            <strong>MOA 역사 AR 교실</strong>
+            <strong>역사돋보기 AR</strong>
             <p>기술은 도구로, 학생의 검증과 성장을 수업의 결과로.</p>
           </div>
           <p className="site-footer__meta">초등학교 5학년 · 시대별 10차시 · 6모둠</p>

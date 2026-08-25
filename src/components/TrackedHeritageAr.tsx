@@ -148,7 +148,7 @@ export default function TrackedHeritageAr() {
         context.fillText(selectedCase.heritage, 230, 245);
         context.fillStyle = "rgba(255, 255, 255, 0.7)";
         context.font = '500 30px "S-Core Dream", sans-serif';
-        context.fillText("MOA HISTORY AR · 근거로 확인하는 문화유산", 230, 322);
+        context.fillText("HISTORY LENS AR · 근거로 확인하는 문화유산", 230, 322);
       }
       const labelTexture = new THREE.CanvasTexture(labelCanvas);
       const labelMaterial = new THREE.MeshBasicMaterial({ map: labelTexture, transparent: true, side: THREE.DoubleSide });
@@ -217,7 +217,7 @@ export default function TrackedHeritageAr() {
               <div>
                 <span>유물 인식 완료 · {selectedCase.category}</span>
                 <strong>{selectedCase.heritage}</strong>
-                <small>MOA HISTORY AR · 근거로 확인하는 문화유산</small>
+                <small>HISTORY LENS AR · 근거로 확인하는 문화유산</small>
               </div>
             </div>
           </div>
