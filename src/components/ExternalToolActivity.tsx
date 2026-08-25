@@ -22,6 +22,7 @@ const heritageCards = [
 
 const questionDataFields = ["시기", "지역", "재료", "모양", "발견 장소", "출처"] as const;
 const LESSON_ONE_QUESTION_KEY = "ai-history:three-kingdoms:lesson-1-question:v1";
+type HeritageCard = (typeof heritageCards)[number];
 
 export interface LessonOneQuestionDraft {
   group: number;
@@ -66,6 +67,78 @@ function readLessonOneQuestion(): LessonOneQuestionDraft {
   } catch {
     return emptyQuestionDraft;
   }
+}
+
+function HeritageImageViewer({ heritage }: { heritage: HeritageCard }) {
+  const [open, setOpen] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const imageSrc = `${import.meta.env.BASE_URL}images/heritage/three-kingdoms/${heritage.file}`;
+
+  useEffect(() => {
+    if (!open) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
+
+  function openViewer() {
+    setZoom(1);
+    setOpen(true);
+  }
+
+  return (
+    <>
+      <button
+        aria-haspopup="dialog"
+        aria-label={`${heritage.name} 사진 크게 보기`}
+        className="question-workshop__image-preview"
+        onClick={openViewer}
+        type="button"
+      >
+        <img alt={`${heritage.name} 전체 모습`} src={imageSrc} />
+        <span><Icon name="eye" size={17} />사진 크게 보기</span>
+      </button>
+
+      {open ? (
+        <div
+          aria-label={`${heritage.name} 사진 확대 보기`}
+          aria-modal="true"
+          className="heritage-image-viewer"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setOpen(false);
+          }}
+          role="dialog"
+        >
+          <div className="heritage-image-viewer__panel">
+            <header>
+              <div><span>{heritage.kingdom} 문화유산</span><strong>{heritage.name}</strong></div>
+              <div className="heritage-image-viewer__controls" role="group" aria-label="사진 확대 조절">
+                <button aria-label="사진 축소" disabled={zoom <= 1} onClick={() => setZoom((current) => Math.max(1, current - 0.25))} type="button">−</button>
+                <output aria-live="polite">{Math.round(zoom * 100)}%</output>
+                <button aria-label="사진 확대" disabled={zoom >= 3} onClick={() => setZoom((current) => Math.min(3, current + 0.25))} type="button">＋</button>
+                <button onClick={() => setZoom(1)} type="button">원래 크기</button>
+                <button className="heritage-image-viewer__close" onClick={() => setOpen(false)} type="button">닫기 ×</button>
+              </div>
+            </header>
+            <div className="heritage-image-viewer__canvas">
+              <div className="heritage-image-viewer__stage" style={{ height: `${zoom * 100}%`, width: `${zoom * 100}%` }}>
+                <img alt={`${heritage.name} 확대 사진`} draggable="false" src={imageSrc} />
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
 }
 
 function LessonOneQuestionWorkshop({ onSaved }: { onSaved: () => void }) {
@@ -119,7 +192,7 @@ function LessonOneQuestionWorkshop({ onSaved }: { onSaved: () => void }) {
       </header>
 
       <section className="question-workshop__step" aria-labelledby="question-group-title">
-        <div className="question-workshop__step-heading"><span>1</span><div><h5 id="question-group-title">우리 모둠과 문화유산을 선택하세요</h5><p>사진을 누르면 아래 관찰 화면이 바뀝니다.</p></div></div>
+        <div className="question-workshop__step-heading"><span>1</span><div><h5 id="question-group-title">우리 모둠과 문화유산을 선택하세요</h5><p>카드를 고른 뒤 아래 큰 사진을 누르면 확대해서 볼 수 있습니다.</p></div></div>
         <div className="question-workshop__groups" role="group" aria-label="모둠 선택">
           {[1, 2, 3, 4, 5, 6].map((group) => <button aria-pressed={draft.group === group} key={group} onClick={() => updateDraft({ group })} type="button">{group}모둠</button>)}
         </div>
@@ -135,8 +208,8 @@ function LessonOneQuestionWorkshop({ onSaved }: { onSaved: () => void }) {
 
       <div className="question-workshop__workspace">
         <section className="question-workshop__observation" aria-labelledby="question-observation-title">
-          <div className="question-workshop__step-heading"><span>2</span><div><h5 id="question-observation-title">사진에서 실제로 보이는 단서를 고르세요</h5><p>추측이 아니라 눈으로 확인한 것부터 기록합니다.</p></div></div>
-          <img alt={`${selectedHeritage.name} 확대 관찰`} src={`${import.meta.env.BASE_URL}images/heritage/three-kingdoms/${selectedHeritage.file}`} />
+          <div className="question-workshop__step-heading"><span>2</span><div><h5 id="question-observation-title">사진에서 실제로 보이는 단서를 고르세요</h5><p>사진을 누르면 크게 열립니다. 추측이 아니라 눈으로 확인한 것부터 기록합니다.</p></div></div>
+          <HeritageImageViewer heritage={selectedHeritage} />
           <div className="question-workshop__clues" role="group" aria-label="관찰 단서 선택">
             {selectedHeritage.clues.map((clue) => <button aria-pressed={draft.clues.includes(clue)} key={clue} onClick={() => toggleItem("clues", clue)} type="button"><span aria-hidden="true">✓</span>{clue}</button>)}
           </div>
