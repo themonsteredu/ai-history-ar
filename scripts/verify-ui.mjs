@@ -4,6 +4,7 @@ import process from "node:process";
 import { chromium } from "playwright-core";
 
 const baseUrl = process.env.APP_URL ?? "http://127.0.0.1:4173";
+const usesHashRouter = process.env.APP_HASH_ROUTER === "true";
 const outputDirectory = process.env.UI_CHECK_OUTPUT ?? path.resolve("work/ui-check");
 const browserCandidates = [
   process.env.BROWSER_EXECUTABLE_PATH,
@@ -23,6 +24,10 @@ const lessonTitles = [
   "데이터로 미래 변화 예측하기",
   "AR 데이터 박물관 열기",
 ];
+
+function routeUrl(pathname) {
+  return `${baseUrl}${usesHashRouter ? "/#" : ""}${pathname}`;
+}
 
 async function findBrowser() {
   for (const candidate of browserCandidates) {
@@ -45,7 +50,7 @@ async function inspectPage(page, pathname, expectedHeading) {
   page.on("console", onConsole);
   page.on("pageerror", onPageError);
 
-  const response = await page.goto(`${baseUrl}${pathname}`, { waitUntil: "networkidle" });
+  const response = await page.goto(routeUrl(pathname), { waitUntil: "networkidle" });
   const result = await page.evaluate(() => ({
     bodyTextLength: document.body.innerText.trim().length,
     fontLoaded: document.fonts.check('16px "S-Core Dream"'),
@@ -174,13 +179,13 @@ try {
     if (exposedTeacherContent !== 0) throw new Error(`${lessonId}차시 학생 화면에 교사용 영역이 노출되었습니다.`);
   }
 
-  await desktop.goto(`${baseUrl}/three-kingdoms/lesson/1?view=activity`, { waitUntil: "networkidle" });
+  await desktop.goto(routeUrl("/three-kingdoms/lesson/1?view=activity"), { waitUntil: "networkidle" });
   const heritageImages = desktop.locator(".external-heritage-grid img");
   if (await heritageImages.count() !== 6) throw new Error("1차시 유산 이미지가 6개가 아닙니다.");
   await desktop.waitForFunction(() => [...document.querySelectorAll(".external-heritage-grid img")].every((image) => image.complete && image.naturalWidth > 0));
   await desktop.locator(".external-activity").screenshot({ path: path.join(outputDirectory, "lesson-01-activity-desktop.png") });
 
-  await desktop.goto(`${baseUrl}/three-kingdoms/lesson/6?view=activity`, { waitUntil: "networkidle" });
+  await desktop.goto(routeUrl("/three-kingdoms/lesson/6?view=activity"), { waitUntil: "networkidle" });
   await desktop.getByRole("button", { name: "화면 안에서 시작" }).click();
   const toolFrame = desktop.locator(".external-tool-frame iframe");
   await toolFrame.waitFor();
