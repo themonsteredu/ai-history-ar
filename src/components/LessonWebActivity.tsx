@@ -245,6 +245,112 @@ function ChallengeImageViewer({ challenge }: { challenge: Challenge }) {
   );
 }
 
+interface SavedStudentResponse {
+  statement: string;
+  choice: string;
+}
+
+function readSavedResponses(storageKey: string, challenges: readonly Challenge[]) {
+  if (typeof window === "undefined") return [];
+
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(storageKey) ?? "{}") as { version?: number; responses?: SavedStudentResponse[] };
+    if (saved.version !== 1) return [];
+    return challenges.map((challenge) => saved.responses?.find((response) => response.statement === challenge.statement)?.choice ?? "");
+  } catch {
+    return [];
+  }
+}
+
+function StudentResponseTool({ challenges, choices, storageKey }: { challenges: readonly Challenge[]; choices: readonly string[]; storageKey: string }) {
+  const [initialResponses] = useState(() => readSavedResponses(storageKey, challenges));
+  const [responses, setResponses] = useState<string[]>(initialResponses);
+  const [index, setIndex] = useState(0);
+  const [complete, setComplete] = useState(() => initialResponses.length === challenges.length && initialResponses.every(Boolean));
+  const challenge = challenges[index];
+  const choice = responses[index] ?? "";
+  const savedCount = responses.filter(Boolean).length;
+
+  function saveResponses(nextResponses: string[]) {
+    setResponses(nextResponses);
+    window.localStorage.setItem(storageKey, JSON.stringify({
+      version: 1,
+      savedAt: new Date().toISOString(),
+      responses: challenges.flatMap<SavedStudentResponse>((item, responseIndex) => (
+        nextResponses[responseIndex] ? [{ statement: item.statement, choice: nextResponses[responseIndex] }] : []
+      )),
+    }));
+  }
+
+  function choose(item: string) {
+    const nextResponses = [...responses];
+    nextResponses[index] = item;
+    saveResponses(nextResponses);
+  }
+
+  function moveNext() {
+    if (!choice) return;
+    if (index === challenges.length - 1) {
+      setComplete(true);
+      return;
+    }
+    setIndex((current) => current + 1);
+  }
+
+  function resetResponses() {
+    window.localStorage.removeItem(storageKey);
+    setResponses([]);
+    setIndex(0);
+    setComplete(false);
+  }
+
+  if (complete) {
+    return (
+      <div className="web-tool student-response-summary">
+        <header>
+          <span aria-hidden="true"><Icon name="check" size={24} /></span>
+          <div><p>개인 판단 저장 완료</p><h3>{challenges.length}개 문장의 선택을 모두 저장했습니다</h3></div>
+        </header>
+        <aside><strong>학생 화면에는 정답이 나오지 않습니다.</strong><p>선생님이 수업 화면에서 답을 공개하면 아래의 내 선택과 한 문장씩 비교하세요.</p></aside>
+        <ol>
+          {challenges.map((item, responseIndex) => (
+            <li key={item.statement}>
+              <span>{responseIndex + 1}</span>
+              <p>{item.statement}</p>
+              <strong>내 선택 · {responses[responseIndex]}</strong>
+            </li>
+          ))}
+        </ol>
+        <div className="student-response-summary__actions">
+          <button className="button button--primary" onClick={() => { setIndex(0); setComplete(false); }} type="button">내 선택 수정하기</button>
+          <button className="button button--outline" onClick={resetResponses} type="button">응답 지우고 다시 하기</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="web-tool web-tool--choice web-tool--student-response">
+      <div className="student-response-progress"><strong>개인 판단</strong><span>{savedCount} / {challenges.length} 저장됨</span></div>
+      <div className={challenge.image ? "choice-tool__stage has-image" : "choice-tool__stage"}>
+        <ChallengeImageViewer challenge={challenge} key={challenge.statement} />
+        <div className="choice-tool__question">
+          <div className="choice-tool__counter">문장 {index + 1} / {challenges.length}</div>
+          {challenge.heritage ? <span className="choice-tool__heritage">{challenge.heritage}</span> : null}
+          <blockquote>“{challenge.statement}”</blockquote>
+        </div>
+      </div>
+      <div className="choice-tool__buttons" role="group" aria-label={`${index + 1}번 문장 판단`}>
+        {choices.map((item) => <button aria-pressed={choice === item} className={choice === item ? "is-selected" : ""} key={item} onClick={() => choose(item)} type="button">{item}</button>)}
+      </div>
+      <div className="student-response-save">
+        <p><Icon name="lock" size={16} />정답·점수 없이 내 선택만 이 기기에 저장됩니다.</p>
+        <button className="button button--primary" disabled={!choice} onClick={moveNext} type="button">{index === challenges.length - 1 ? "선택 저장 완료" : "선택 저장하고 다음 문장 →"}</button>
+      </div>
+    </div>
+  );
+}
+
 function QuickChoiceTool({ challenges, choices }: { challenges: readonly Challenge[]; choices: readonly string[] }) {
   const [index, setIndex] = useState(0);
   const [choice, setChoice] = useState("");
@@ -407,7 +513,7 @@ function RandomPromptTool({ lessonId }: { lessonId: number }) {
 
 function LessonTool({ era, lesson }: { era: Era; lesson: Lesson }) {
   if (lesson.id === 1) return <ArtifactExplorer era={era} />;
-  if (lesson.id === 2) return <QuickChoiceTool challenges={lessonTwoChallenges[era.id]} choices={["확인 필요", "자료와 맞음"]} />;
+  if (lesson.id === 2) return <StudentResponseTool challenges={lessonTwoChallenges[era.id]} choices={["확인 필요", "자료와 맞음"]} storageKey={`ai-history-${era.id}-lesson-02-responses`} />;
   if (lesson.id === 3) return <SourceRankingTool />;
   if (lesson.id === 4) return <SourcePortal era={era} />;
   if (lesson.id === 5) return <ArPreviewTool era={era} />;
@@ -447,7 +553,7 @@ function WorksheetLessonView({ era, lesson }: { era: Era; lesson: Lesson }) {
 
 const toolNames = [
   "유물 사진 탐색기",
-  "AI 문장 의심 버튼",
+  "AI 문장 개인 판단",
   "출처 신뢰도 비교",
   "공식 역사 자료 찾기",
   "AR 장면 미리보기",

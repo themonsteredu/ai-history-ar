@@ -45,6 +45,7 @@ export function LessonPage({ eraId, mode }: LessonPageProps) {
             <span><Icon name="clock" size={18} />총 {getLessonMinutes(lesson)}분</span>
             <span><Icon name="folder" size={18} />산출물 {lesson.outputs.length}종</span>
             <span><Icon name="check" size={18} />{lesson.assessment.method}</span>
+            {lesson.id === 2 ? <Link to={`${era.route}/lesson/${lesson.id}?view=ppt`}><Icon name="book" size={18} />수업 PPT로 함께 답 확인</Link> : null}
           </div>
         </div>
       </section>

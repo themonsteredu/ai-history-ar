@@ -29,7 +29,7 @@ export function EraPage({ eraId }: { eraId: EraId }) {
             <p className="eyebrow">수업 화면 선택</p>
             <h2>몇 차시를 시작할까요?</h2>
           </div>
-          <p>각 차시에는 교실용 PPT와 학생 참여형 웹앱 활동만 있습니다.</p>
+          <p>차시 목적에 따라 교사 공동 화면·활동지·학생 웹앱을 다르게 사용합니다.</p>
         </div>
         <div className="lesson-list">
           {era.lessons.map((lesson) => <LessonCard era={era} key={lesson.id} lesson={lesson} />)}

@@ -14,7 +14,7 @@ export const classroomModeInfo = {
   student: {
     label: "학생 체험 웹앱",
     shortLabel: "학생 직접 체험",
-    description: "종이로 대체하기 어려운 기능 실행하기",
+    description: "각자 체험하고 결과를 수업에서 활용하기",
   },
 } as const satisfies Record<ClassroomActivityMode, { label: string; shortLabel: string; description: string }>;
 
@@ -25,6 +25,7 @@ export function getLessonPhase(lessonId: number): LessonPhase {
 }
 
 export function getClassroomActivityMode(lessonId: number): ClassroomActivityMode {
+  if (lessonId === 2) return "student";
   if (lessonId <= 3) return "teacher-led";
   if (lessonId === 4) return "worksheet";
   return "student";

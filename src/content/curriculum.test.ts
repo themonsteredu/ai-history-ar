@@ -74,8 +74,8 @@ describe("curriculum catalog", () => {
     ]);
   });
 
-  it("uses worksheets first, teacher-led shared activities next, and student web apps only when needed", () => {
-    const expectedModes = ["teacher-led", "teacher-led", "teacher-led", "worksheet", "student", "student", "student", "student", "student", "student"];
+  it("uses individual web responses in lesson two and reserves other web apps for needed interactions", () => {
+    const expectedModes = ["teacher-led", "student", "teacher-led", "worksheet", "student", "student", "student", "student", "student", "student"];
     for (const era of eras) {
       expect(era.lessons.map((lesson) => lesson.classroomMode), era.shortName).toEqual(expectedModes);
     }
