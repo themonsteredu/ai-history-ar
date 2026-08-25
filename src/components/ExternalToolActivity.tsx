@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import type { Lesson } from "../types/curriculum";
 import {
   EXTERNAL_TOOL_STORAGE_KEY,
@@ -12,13 +12,160 @@ import { ExternalToolFrame } from "./ExternalToolFrame";
 const COMPLETION_STORAGE_KEY = "moa-history-ar:external-tool-completion:v1";
 
 const heritageCards = [
-  ["백제", "무령왕릉", "muryeong-tomb.jpg"],
-  ["백제", "금동대향로", "baekje-incense-burner.jpg"],
-  ["신라", "첨성대", "cheomseongdae.jpg"],
-  ["신라", "신라 금관", "silla-crown.jpg"],
-  ["고구려", "고분벽화", "goguryeo-mural.jpg"],
-  ["가야", "가야 고분군", "gaya-tombs.jpg"],
+  { id: 1, kingdom: "백제", name: "무령왕릉", file: "muryeong-tomb.jpg", clues: ["아치 모양의 벽돌 입구", "반복되는 벽돌무늬", "무덤 주인을 알려 준 지석"] },
+  { id: 2, kingdom: "백제", name: "백제 금동대향로", file: "baekje-incense-burner.jpg", clues: ["받침 부분의 용", "산봉우리와 여러 동물", "꼭대기의 봉황"] },
+  { id: 3, kingdom: "신라", name: "첨성대", file: "cheomseongdae.jpg", clues: ["돌을 층층이 쌓은 몸통", "가운데 난 네모난 창", "위로 갈수록 달라지는 모양"] },
+  { id: 4, kingdom: "신라", name: "신라 금관", file: "silla-crown.jpg", clues: ["나뭇가지 모양 장식", "굽은옥과 둥근 달개", "얇은 금판의 구조"] },
+  { id: 5, kingdom: "고구려", name: "고구려 고분벽화", file: "goguryeo-mural.jpg", clues: ["말을 달리는 사람", "활과 사냥 장면", "힘차게 이어지는 선"] },
+  { id: 6, kingdom: "가야", name: "가야 고분군", file: "gaya-tombs.jpg", clues: ["능선을 따라 이어진 봉분", "무덤마다 다른 크기", "여러 지역에 나뉜 위치"] },
 ] as const;
+
+const questionDataFields = ["시기", "지역", "재료", "모양", "발견 장소", "출처"] as const;
+const LESSON_ONE_QUESTION_KEY = "ai-history:three-kingdoms:lesson-1-question:v1";
+
+export interface LessonOneQuestionDraft {
+  group: number;
+  heritageId: number;
+  clues: string[];
+  dataFields: string[];
+  observation: string;
+  question: string;
+  savedAt: number;
+}
+
+export function isLessonOneQuestionComplete(draft: LessonOneQuestionDraft) {
+  return draft.group > 0 && draft.clues.length > 0 && draft.dataFields.length > 0 && draft.observation.trim().length >= 5 && draft.question.trim().length >= 10;
+}
+
+export function normalizeLessonOneQuestion(question: string) {
+  return question.trim().replace(/\?*$/, "?");
+}
+
+const emptyQuestionDraft: LessonOneQuestionDraft = {
+  group: 0,
+  heritageId: 1,
+  clues: [],
+  dataFields: [],
+  observation: "",
+  question: "",
+  savedAt: 0,
+};
+
+function readLessonOneQuestion(): LessonOneQuestionDraft {
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(LESSON_ONE_QUESTION_KEY) ?? "{}") as Partial<LessonOneQuestionDraft>;
+    return {
+      group: typeof parsed.group === "number" && parsed.group >= 1 && parsed.group <= 6 ? parsed.group : 0,
+      heritageId: typeof parsed.heritageId === "number" && heritageCards.some((item) => item.id === parsed.heritageId) ? parsed.heritageId : 1,
+      clues: Array.isArray(parsed.clues) ? parsed.clues.filter((item): item is string => typeof item === "string") : [],
+      dataFields: Array.isArray(parsed.dataFields) ? parsed.dataFields.filter((item): item is string => typeof item === "string") : [],
+      observation: typeof parsed.observation === "string" ? parsed.observation : "",
+      question: typeof parsed.question === "string" ? parsed.question : "",
+      savedAt: typeof parsed.savedAt === "number" ? parsed.savedAt : 0,
+    };
+  } catch {
+    return emptyQuestionDraft;
+  }
+}
+
+function LessonOneQuestionWorkshop({ onSaved }: { onSaved: () => void }) {
+  const [draft, setDraft] = useState(readLessonOneQuestion);
+  const [message, setMessage] = useState("");
+  const selectedHeritage = heritageCards.find((item) => item.id === draft.heritageId) ?? heritageCards[0];
+  const canSave = isLessonOneQuestionComplete(draft);
+
+  function updateDraft(next: Partial<LessonOneQuestionDraft>) {
+    setDraft((current) => ({ ...current, ...next, savedAt: 0 }));
+    setMessage("");
+  }
+
+  function toggleItem(key: "clues" | "dataFields", item: string) {
+    const items = draft[key];
+    updateDraft({ [key]: items.includes(item) ? items.filter((value) => value !== item) : [...items, item] });
+  }
+
+  function selectHeritage(heritageId: number) {
+    updateDraft({ heritageId, clues: [], observation: "", question: "" });
+  }
+
+  function saveQuestion(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!canSave) {
+      setMessage("모둠·유산·관찰 단서·데이터 항목을 고르고, 관찰과 질문을 모두 작성해 주세요.");
+      return;
+    }
+    const savedDraft = { ...draft, question: normalizeLessonOneQuestion(draft.question), observation: draft.observation.trim(), savedAt: Date.now() };
+    setDraft(savedDraft);
+    window.localStorage.setItem(LESSON_ONE_QUESTION_KEY, JSON.stringify(savedDraft));
+    setMessage("우리 모둠 질문 카드가 이 기기에 저장되었습니다.");
+    onSaved();
+  }
+
+  function resetQuestion() {
+    setDraft(emptyQuestionDraft);
+    setMessage("");
+    window.localStorage.removeItem(LESSON_ONE_QUESTION_KEY);
+  }
+
+  return (
+    <div className="question-workshop">
+      <header className="question-workshop__mission">
+        <div><span>12분 미션</span><h4>사진에서 단서를 찾고, 조사할 질문 한 문장을 완성하세요.</h4></div>
+        <ol aria-label="활동 진행 단계">
+          <li className={draft.group > 0 && draft.heritageId > 0 ? "is-done" : ""}><span>1</span>모둠·유산 선택</li>
+          <li className={draft.clues.length > 0 && draft.dataFields.length > 0 ? "is-done" : ""}><span>2</span>관찰·데이터 선택</li>
+          <li className={draft.savedAt > 0 ? "is-done" : ""}><span>3</span>질문 저장</li>
+        </ol>
+      </header>
+
+      <section className="question-workshop__step" aria-labelledby="question-group-title">
+        <div className="question-workshop__step-heading"><span>1</span><div><h5 id="question-group-title">우리 모둠과 문화유산을 선택하세요</h5><p>사진을 누르면 아래 관찰 화면이 바뀝니다.</p></div></div>
+        <div className="question-workshop__groups" role="group" aria-label="모둠 선택">
+          {[1, 2, 3, 4, 5, 6].map((group) => <button aria-pressed={draft.group === group} key={group} onClick={() => updateDraft({ group })} type="button">{group}모둠</button>)}
+        </div>
+        <div className="question-workshop__heritages" role="group" aria-label="문화유산 선택">
+          {heritageCards.map((heritage) => (
+            <button aria-pressed={draft.heritageId === heritage.id} key={heritage.id} onClick={() => selectHeritage(heritage.id)} type="button">
+              <img alt="" src={`${import.meta.env.BASE_URL}images/heritage/three-kingdoms/${heritage.file}`} />
+              <span>{heritage.kingdom}</span><strong>{heritage.name}</strong>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <div className="question-workshop__workspace">
+        <section className="question-workshop__observation" aria-labelledby="question-observation-title">
+          <div className="question-workshop__step-heading"><span>2</span><div><h5 id="question-observation-title">사진에서 실제로 보이는 단서를 고르세요</h5><p>추측이 아니라 눈으로 확인한 것부터 기록합니다.</p></div></div>
+          <img alt={`${selectedHeritage.name} 확대 관찰`} src={`${import.meta.env.BASE_URL}images/heritage/three-kingdoms/${selectedHeritage.file}`} />
+          <div className="question-workshop__clues" role="group" aria-label="관찰 단서 선택">
+            {selectedHeritage.clues.map((clue) => <button aria-pressed={draft.clues.includes(clue)} key={clue} onClick={() => toggleItem("clues", clue)} type="button"><span aria-hidden="true">✓</span>{clue}</button>)}
+          </div>
+        </section>
+
+        <form className="question-workshop__form" onSubmit={saveQuestion}>
+          <div className="question-workshop__step-heading"><span>3</span><div><h5>모을 데이터와 질문을 작성하세요</h5><p>다른 유산과 비교할 수 있는 항목을 선택합니다.</p></div></div>
+          <fieldset>
+            <legend>어떤 데이터를 모을까요?</legend>
+            <div className="question-workshop__data-fields">
+              {questionDataFields.map((field) => <button aria-pressed={draft.dataFields.includes(field)} key={field} onClick={() => toggleItem("dataFields", field)} type="button">{field}</button>)}
+            </div>
+          </fieldset>
+          <label><span>사진에서 관찰한 사실</span><textarea maxLength={100} onChange={(event) => updateDraft({ observation: event.target.value })} placeholder="예: 둥근 봉분이 능선을 따라 여러 개 이어져 있다." rows={3} value={draft.observation} /><small>{draft.observation.length}/100</small></label>
+          <label><span>우리 모둠의 역사 데이터 질문</span><textarea maxLength={140} onChange={(event) => updateDraft({ question: event.target.value })} placeholder="예: 유산의 재료와 발견 지역은 서로 어떤 관계가 있을까?" rows={4} value={draft.question} /><small>{draft.question.length}/140</small></label>
+          {message ? <p className={draft.savedAt > 0 ? "question-workshop__message is-saved" : "question-workshop__message"} role="status">{message}</p> : null}
+          <div className="question-workshop__actions"><button className="button button--primary" type="submit">질문 카드 저장</button><button className="button button--outline" onClick={resetQuestion} type="button">처음부터 다시</button></div>
+        </form>
+      </div>
+
+      <section className={draft.savedAt > 0 ? "question-workshop__result is-saved" : "question-workshop__result"} aria-live="polite">
+        <div><span>오늘 남길 결과</span><h5>우리 모둠 질문 카드</h5></div>
+        {draft.savedAt > 0 ? (
+          <div className="question-workshop__result-card"><span>{draft.group}모둠 · {selectedHeritage.kingdom} · {selectedHeritage.name}</span><strong>“{draft.question}”</strong><p><b>관찰:</b> {draft.observation}</p><p><b>모을 데이터:</b> {draft.dataFields.join(" · ")}</p></div>
+        ) : <p>세 단계를 마치고 저장하면 발표할 질문 카드가 여기에 완성됩니다.</p>}
+      </section>
+    </div>
+  );
+}
 
 function readCompletion(lessonId: number) {
   try {
@@ -39,25 +186,9 @@ function saveCompletion(lessonId: number, completed: boolean) {
   }
 }
 
-function InternalLessonPanel({ lessonId, resultBoardUrl }: { lessonId: number; resultBoardUrl: string }) {
+function InternalLessonPanel({ lessonId, onLessonOneSaved, resultBoardUrl }: { lessonId: number; onLessonOneSaved: () => void; resultBoardUrl: string }) {
   if (lessonId === 1) {
-    return (
-      <div className="external-tool-internal external-tool-internal--heritage">
-        <div className="external-heritage-grid">
-          {heritageCards.map(([kingdom, name, file]) => (
-            <article key={name}>
-              <img alt={`${name} 관찰 사진`} src={`${import.meta.env.BASE_URL}images/heritage/three-kingdoms/${file}`} />
-              <div><span>{kingdom}</span><strong>{name}</strong></div>
-            </article>
-          ))}
-        </div>
-        <div className="external-question-guide">
-          <strong>모을 수 있는 데이터로 질문하세요</strong>
-          <div><span>시기</span><span>지역</span><span>자료 종류</span><span>발견 장소</span><span>출처</span></div>
-          <p>웹에서는 사진을 관찰하고 말로 정합니다. 최종 질문 한 문장만 활동지에 씁니다.</p>
-        </div>
-      </div>
-    );
+    return <div className="external-tool-internal"><LessonOneQuestionWorkshop onSaved={onLessonOneSaved} /></div>;
   }
 
   return (
@@ -104,6 +235,11 @@ export function ExternalToolActivity({ lesson }: { lesson: Lesson }) {
     saveCompletion(lesson.id, next);
   }
 
+  function markCompleted() {
+    setCompleted(true);
+    saveCompletion(lesson.id, true);
+  }
+
   return (
     <div className="external-activity">
       <section className="external-activity__summary">
@@ -126,7 +262,7 @@ export function ExternalToolActivity({ lesson }: { lesson: Lesson }) {
         <div className="external-activity__notice"><strong>이 차시의 외부 도구가 꺼져 있습니다.</strong><span>교사가 대체 활동을 안내할 때까지 기다리세요.</span></div>
       ) : null}
 
-      {tool.launchMode === "internal" && tool.enabled ? <InternalLessonPanel lessonId={lesson.id} resultBoardUrl={tool.resultBoardUrl} /> : null}
+      {tool.launchMode === "internal" && tool.enabled ? <InternalLessonPanel lessonId={lesson.id} onLessonOneSaved={markCompleted} resultBoardUrl={tool.resultBoardUrl} /> : null}
 
       {tool.launchMode !== "internal" && tool.enabled ? (
         <section className="external-launch-panel">
@@ -152,7 +288,7 @@ export function ExternalToolActivity({ lesson }: { lesson: Lesson }) {
 
       {embedOpen && executableUrl ? <ExternalToolFrame onClose={() => setEmbedOpen(false)} title={tool.toolName} url={executableUrl} /> : null}
 
-      <div className="external-activity__work-grid">
+      {lesson.id !== 1 ? <div className="external-activity__work-grid">
         <section className="external-step-card">
           <span>딱 세 단계</span>
           <ol>{tool.steps.map((step, index) => <li key={step}><strong>{index + 1}</strong><p>{step}</p></li>)}</ol>
@@ -164,9 +300,9 @@ export function ExternalToolActivity({ lesson }: { lesson: Lesson }) {
           {tool.submissionUrl ? <a href={tool.submissionUrl} rel="noreferrer" target="_blank">결과 제출하기 ↗</a> : <small>제출 주소가 없으면 교사에게 링크나 파일을 보여 주세요.</small>}
           {tool.resultBoardUrl ? <a href={tool.resultBoardUrl} rel="noreferrer" target="_blank">모둠 결과 모아보기 ↗</a> : null}
         </section>
-      </div>
+      </div> : null}
 
-      <aside className="external-data-tip"><Icon name="spark" size={20} /><div><strong>역사 데이터 약속</strong><p>{tool.dataTip}</p></div></aside>
+      {lesson.id !== 1 ? <aside className="external-data-tip"><Icon name="spark" size={20} /><div><strong>역사 데이터 약속</strong><p>{tool.dataTip}</p></div></aside> : null}
 
       {tool.helperLinks?.length ? (
         <nav aria-label="선택 도구" className="external-helper-links">
@@ -175,10 +311,10 @@ export function ExternalToolActivity({ lesson }: { lesson: Lesson }) {
         </nav>
       ) : null}
 
-      <button aria-pressed={completed} className={completed ? "external-completion is-complete" : "external-completion"} onClick={toggleCompleted} type="button">
+      {lesson.id !== 1 ? <button aria-pressed={completed} className={completed ? "external-completion is-complete" : "external-completion"} onClick={toggleCompleted} type="button">
         <span><Icon name="check" size={20} /></span>
         <div><strong>{completed ? "우리 모둠 활동 완료" : "결과를 확인한 뒤 완료 표시"}</strong><small>이 표시는 현재 기기에만 저장됩니다.</small></div>
-      </button>
+      </button> : null}
     </div>
   );
 }

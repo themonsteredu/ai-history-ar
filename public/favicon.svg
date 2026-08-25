@@ -1,5 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="17" fill="#a94b36"/>
-  <rect x="6" y="6" width="52" height="52" rx="12" fill="none" stroke="#fff4dc" stroke-opacity=".42" stroke-width="2"/>
-  <path fill="#fffaf0" d="M19 17h27v5H35v5h9v5h-9v8h12v5H18v-5h5V25h6v15h1V22H19v-5Zm9 15v8h2v-8h-2Z"/>
+  <defs>
+    <linearGradient id="ink" x1="8" y1="5" x2="56" y2="59" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1e4b42"/>
+      <stop offset="1" stop-color="#0b211d"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="16" y1="15" x2="48" y2="50" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f3d68e"/>
+      <stop offset="1" stop-color="#b98532"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="17" fill="url(#ink)"/>
+  <rect x="5.5" y="5.5" width="53" height="53" rx="12.5" fill="none" stroke="url(#gold)" stroke-opacity=".72"/>
+  <path d="M15.5 25.5c6.5-2.1 11.7-.8 16.5 3.2 4.8-4 10-5.3 16.5-3.2v21c-6.2-1.6-11.4-.2-16.5 4.1-5.1-4.3-10.3-5.7-16.5-4.1v-21Z" fill="#fff7e8" fill-opacity=".96" stroke="url(#gold)" stroke-linejoin="round" stroke-width="1.8"/>
+  <path d="M32 29v21.4" fill="none" stroke="#b98532" stroke-linecap="round" stroke-width="1.6"/>
+  <path d="M20 32.5c3.8-.5 6.6.2 9.2 2.1M20 37c3.8-.5 6.6.2 9.2 2.1M44 32.5c-3.8-.5-6.6.2-9.2 2.1M44 37c-3.8-.5-6.6.2-9.2 2.1" fill="none" stroke="#2b5149" stroke-linecap="round" stroke-width="1.5"/>
+  <path d="M23 18.5 32 14l9 4.5M23 18.5l9 6.5 9-6.5" fill="none" stroke="url(#gold)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"/>
+  <circle cx="23" cy="18.5" r="2.7" fill="#a94b36" stroke="#ffe6ad"/>
+  <circle cx="32" cy="14" r="2.7" fill="#a94b36" stroke="#ffe6ad"/>
+  <circle cx="41" cy="18.5" r="2.7" fill="#a94b36" stroke="#ffe6ad"/>
 </svg>

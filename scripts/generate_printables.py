@@ -218,7 +218,7 @@ def document_header(canvas, doc, era, lesson, audience):
     if audience == "학생용":
         canvas.setFont("SCore", 6.5)
         canvas.setFillColor(SOFT)
-        canvas.drawString(doc.leftMargin, 6.5 * mm, "역사돋보기 AR")
+        canvas.drawString(doc.leftMargin, 6.5 * mm, "인공지능과 역사")
         canvas.drawRightString(width - doc.rightMargin, 6.5 * mm, "S-Core Dream")
         canvas.restoreState()
         return
@@ -226,7 +226,7 @@ def document_header(canvas, doc, era, lesson, audience):
     canvas.line(doc.leftMargin, height - 13 * mm, width - doc.rightMargin, height - 13 * mm)
     canvas.setFont("SCoreBold", 7.5)
     canvas.setFillColor(GREEN)
-    canvas.drawString(doc.leftMargin, height - 9.5 * mm, f"역사돋보기 AR  |  {era['shortName']} {lesson['id']}차시  |  {audience}")
+    canvas.drawString(doc.leftMargin, height - 9.5 * mm, f"인공지능과 역사  |  {era['shortName']} {lesson['id']}차시  |  {audience}")
     canvas.setFont("SCore", 7)
     canvas.setFillColor(SOFT)
     canvas.drawRightString(width - doc.rightMargin, 8 * mm, f"{canvas.getPageNumber()} / S-Core Dream")
@@ -581,7 +581,7 @@ def build_answer_pdf(era, lesson, destination):
         topMargin=15 * mm,
         bottomMargin=10 * mm,
         title=f"{era['shortName']} {lesson['id']}차시 활동지 답안",
-        author="역사돋보기 AR",
+        author="인공지능과 역사",
     )
     st = styles_for(A4)
     st["small"] = ParagraphStyle("answerSmall", parent=st["small"], fontSize=8.7, leading=12)
@@ -775,7 +775,7 @@ def teacher_resource(era, lesson, name, width, st):
         flow += [data_table(rows, [width * .5, width * .5], st, header=False)]
     elif "도슨트 자격증" in name:
         for _ in range(2):
-            flow += [ruled_box("역사돋보기 문화유산 도슨트 자격증", f"이름 ____________________\n담당 유산 ____________________\n위 학생은 {era['verificationLabel']}에 따라 근거를 확인하고 자신의 말로 설명할 준비를 마쳤습니다.\n\n교사 확인 ____________________", width, 63 * mm, st), Spacer(1, 7 * mm)]
+            flow += [ruled_box("인공지능과 역사 문화유산 도슨트 자격증", f"이름 ____________________\n담당 유산 ____________________\n위 학생은 {era['verificationLabel']}에 따라 근거를 확인하고 자신의 말로 설명할 준비를 마쳤습니다.\n\n교사 확인 ____________________", width, 63 * mm, st), Spacer(1, 7 * mm)]
     elif "인식률" in name or "카드 비교" in name:
         rows = [["카드", "진한 선", "고유 무늬", "강한 명암", "비대칭", "다른 카드와 구분"], *[[f"{g['id']} {g['heritage']}", "□", "□", "□", "□", "□"] for g in era["groups"]]]
         flow += [data_table(rows, [width * .28, width * .13, width * .14, width * .14, width * .13, width * .18], st)]
@@ -815,7 +815,7 @@ def build_pdf(era, lesson, audience, destination):
             topMargin=10 * mm,
             bottomMargin=7 * mm,
             title=f"{era['shortName']} {lesson['id']}차시 {audience}",
-            author="역사돋보기 AR",
+            author="인공지능과 역사",
         )
         st = styles_for(page_size)
         st["small"] = ParagraphStyle("studentSmall", parent=st["small"], fontSize=8.8, leading=12.4)
@@ -835,7 +835,7 @@ def build_pdf(era, lesson, audience, destination):
     special = lesson["downloads"].get("specialFormat")
     page_size = A4
     margin = 10 * mm if page_size == A6 else 14 * mm
-    doc = SimpleDocTemplate(str(destination), pagesize=page_size, leftMargin=margin, rightMargin=margin, topMargin=18 * mm, bottomMargin=14 * mm, title=f"{era['shortName']} {lesson['id']}차시 {audience}", author="역사돋보기 AR")
+    doc = SimpleDocTemplate(str(destination), pagesize=page_size, leftMargin=margin, rightMargin=margin, topMargin=18 * mm, bottomMargin=14 * mm, title=f"{era['shortName']} {lesson['id']}차시 {audience}", author="인공지능과 역사")
     st = styles_for(page_size)
     width = page_size[0] - doc.leftMargin - doc.rightMargin
     story = cover_story(era, lesson, audience, st, width)
