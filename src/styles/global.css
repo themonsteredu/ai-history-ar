@@ -3845,6 +3845,108 @@ input:focus-visible {
   color: #fff;
 }
 
+.web-activity-shell__teacher-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 22px 28px 0;
+  padding: 15px 17px;
+  border: 1px solid color-mix(in srgb, var(--era-accent) 25%, #d8d2c5);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--era-soft) 58%, #fff);
+  color: var(--ink);
+}
+
+.web-activity-shell__teacher-note svg {
+  flex: 0 0 auto;
+  color: var(--era-accent);
+}
+
+.web-activity-shell__teacher-note strong,
+.web-activity-shell__teacher-note p {
+  display: block;
+}
+
+.web-activity-shell__teacher-note p {
+  margin: 3px 0 0;
+  color: #5f6863;
+  font-size: 12px;
+}
+
+.worksheet-classroom {
+  overflow: hidden;
+  border: 1px solid #d8d2c5;
+  border-radius: 22px;
+  background: #fffef9;
+  box-shadow: var(--shadow);
+}
+
+.worksheet-classroom > header {
+  padding: 32px;
+  border-bottom: 1px solid #dfd9cc;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--era-soft) 62%, #fff), #fffef9);
+}
+
+.worksheet-classroom > header span {
+  color: var(--era-accent);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.worksheet-classroom > header h2 {
+  max-width: 720px;
+  margin: 8px 0;
+  font-size: clamp(25px, 4vw, 40px);
+  line-height: 1.16;
+}
+
+.worksheet-classroom > header p {
+  max-width: 760px;
+  margin: 0;
+  color: #5f6863;
+}
+
+.worksheet-classroom__grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 18px;
+  padding: 26px 32px;
+}
+
+.worksheet-classroom__grid > div {
+  padding: 20px;
+  border: 1px solid #dfd9cc;
+  border-radius: 15px;
+  background: #f8f5ee;
+}
+
+.worksheet-classroom__grid strong {
+  color: var(--era-accent);
+}
+
+.worksheet-classroom__grid ol,
+.worksheet-classroom__grid ul {
+  margin: 14px 0 0;
+  padding-left: 20px;
+}
+
+.worksheet-classroom__grid li + li {
+  margin-top: 8px;
+}
+
+.worksheet-classroom__actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 32px 30px;
+}
+
+.worksheet-classroom__actions p {
+  margin: 0;
+  color: #69716d;
+  font-size: 12px;
+}
+
 .web-tool {
   padding: 30px;
 }
@@ -5086,8 +5188,24 @@ input:focus-visible {
   }
 
   .web-activity-shell > header,
-  .web-tool {
+  .web-tool,
+  .worksheet-classroom > header,
+  .worksheet-classroom__grid {
     padding: 20px;
+  }
+
+  .web-activity-shell__teacher-note {
+    margin: 18px 20px 0;
+  }
+
+  .worksheet-classroom__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .worksheet-classroom__actions {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 0 20px 22px;
   }
 
   .artifact-explorer__grid {

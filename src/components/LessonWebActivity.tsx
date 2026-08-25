@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { lessonDownloadPath } from "../content/downloads";
+import { classroomModeInfo } from "../content/lesson-helpers";
 import type { Era, HeritageGroup, Lesson } from "../types/curriculum";
-import { ExternalToolActivity } from "./ExternalToolActivity";
 import { Icon } from "./Icon";
 
 const threeKingdomsImages = [
@@ -30,8 +31,11 @@ const sourceLinks = {
 const lessonTwoChallenges = {
   "three-kingdoms": [
     { statement: "무령왕릉은 누구의 무덤인지 아직 모른다.", answer: "확인 필요", feedback: "무덤에서 나온 지석으로 무령왕과 왕비의 무덤임을 확인했습니다." },
+    { statement: "백제 금동대향로에 새겨진 모든 동물의 뜻은 하나로 확정되었다.", answer: "확인 필요", feedback: "사진에서 동물 형상은 확인할 수 있지만 모든 무늬의 의미를 하나로 단정할 수는 없습니다." },
     { statement: "첨성대에서는 망원경으로 별을 관찰했다.", answer: "확인 필요", feedback: "당시 망원경을 사용했다는 근거가 없습니다." },
+    { statement: "신라 금관은 왕이 살아 있을 때 매일 쓴 관이다.", answer: "확인 필요", feedback: "금관의 출토 위치와 구조만으로 실제 착용 방법을 확정하기 어렵습니다." },
     { statement: "무령왕릉에서는 무덤 주인을 알려 주는 지석이 발견되었다.", answer: "자료와 맞음", feedback: "지석은 무덤 주인을 확인하게 해 준 중요한 기록입니다." },
+    { statement: "고구려 고분벽화에는 사냥과 생활 모습이 그려져 있다.", answer: "자료와 맞음", feedback: "벽화에서 인물·사냥·행렬과 생활 장면을 확인할 수 있습니다." },
   ],
   joseon: [
     { statement: "훈민정음은 세종 혼자 아무 도움 없이 만들었다.", answer: "확인 필요", feedback: "창제와 해설서 편찬 과정을 나누어 자료로 확인해야 합니다." },
@@ -292,6 +296,34 @@ function LessonTool({ era, lesson }: { era: Era; lesson: Lesson }) {
   return <RandomPromptTool lessonId={lesson.id} />;
 }
 
+function WorksheetLessonView({ era, lesson }: { era: Era; lesson: Lesson }) {
+  return (
+    <section className="worksheet-classroom" aria-labelledby="worksheet-classroom-title">
+      <header>
+        <span>학생 개인기기 사용 없음</span>
+        <h2 id="worksheet-classroom-title">활동지에 조사 과정과 근거를 남깁니다</h2>
+        <p>{lesson.objective}</p>
+      </header>
+      <div className="worksheet-classroom__grid">
+        <div>
+          <strong>활동 순서</strong>
+          <ol>
+            {lesson.activities.flatMap((activity) => activity.details).map((detail) => <li key={detail}>{detail}</li>)}
+          </ol>
+        </div>
+        <div>
+          <strong>오늘 남길 결과</strong>
+          <ul>{lesson.outputs.map((output) => <li key={output}>{output}</li>)}</ul>
+        </div>
+      </div>
+      <div className="worksheet-classroom__actions">
+        <a className="button button--primary" download href={lessonDownloadPath(era.id, lesson.id, "student")}><Icon name="download" size={18} />학생 활동지 PDF</a>
+        <p>교사는 수업 PPT와 인쇄 자료를 안내하고, 학생은 웹에 다시 입력하지 않습니다.</p>
+      </div>
+    </section>
+  );
+}
+
 const toolNames = [
   "유물 사진 탐색기",
   "AI 문장 의심 버튼",
@@ -306,26 +338,19 @@ const toolNames = [
 ] as const;
 
 export function LessonWebActivity({ era, lesson }: { era: Era; lesson: Lesson }) {
-  if (era.id === "three-kingdoms") {
-    return (
-      <section aria-labelledby="web-activity-title" className="web-activity-shell web-activity-shell--external">
-        <header>
-          <div aria-hidden="true" className="web-activity-shell__icon"><Icon name="spark" size={24} /></div>
-          <div><p>설치 없이 바로 쓰는 차시별 수업 도구</p><h2 id="web-activity-title">데이터·AI·AR 활동</h2></div>
-        </header>
-        <ExternalToolActivity lesson={lesson} />
-      </section>
-    );
-  }
+  if (lesson.classroomMode === "worksheet") return <WorksheetLessonView era={era} lesson={lesson} />;
 
   const toolName = toolNames[lesson.id - 1];
+  const isTeacherLed = lesson.classroomMode === "teacher-led";
+  const activityMode = classroomModeInfo[lesson.classroomMode];
 
   return (
     <section aria-labelledby="web-activity-title" className="web-activity-shell">
       <header>
         <div aria-hidden="true" className="web-activity-shell__icon"><Icon name="spark" size={24} /></div>
-        <div><p>교실에서 바로 실행하는 디지털 도구</p><h2 id="web-activity-title">{toolName}</h2></div>
+        <div><p>{activityMode.label} · {activityMode.description}</p><h2 id="web-activity-title">{toolName}</h2></div>
       </header>
+      {isTeacherLed ? <aside className="web-activity-shell__teacher-note"><Icon name="eye" size={20} /><div><strong>학생 개인기기는 필요하지 않습니다.</strong><p>교사가 화면에 문장을 하나씩 띄우고, 학생은 말로 판단한 뒤 활동지에 근거를 기록합니다.</p></div></aside> : null}
       <LessonTool era={era} key={`${era.id}-${lesson.id}`} lesson={lesson} />
     </section>
   );

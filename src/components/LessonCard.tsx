@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { Era, Lesson } from "../types/curriculum";
+import { classroomModeInfo } from "../content/lesson-helpers";
 import { Icon } from "./Icon";
 import { PhaseBadge } from "./PhaseBadge";
 
@@ -10,6 +11,8 @@ interface LessonCardProps {
 }
 
 export function LessonCard({ era, lesson, mode = "student" }: LessonCardProps) {
+  const activityMode = classroomModeInfo[lesson.classroomMode];
+
   if (mode === "student") {
     const path = `${era.route}/lesson/${lesson.id}`;
     return (
@@ -18,7 +21,7 @@ export function LessonCard({ era, lesson, mode = "student" }: LessonCardProps) {
         <div className="lesson-card__body"><PhaseBadge phase={lesson.phase} /><h3>{lesson.title}</h3></div>
         <div className="lesson-card__classroom-actions">
           <Link aria-label={`${lesson.id}차시 수업 PPT 열기`} to={`${path}?view=ppt`}><Icon name="book" size={19} /><span>수업 PPT</span></Link>
-          <Link aria-label={`${lesson.id}차시 웹앱 활동 열기`} to={`${path}?view=activity`}><Icon name="spark" size={19} /><span>웹앱 활동</span></Link>
+          <Link aria-label={`${lesson.id}차시 ${activityMode.label} 열기`} to={`${path}?view=activity`}><Icon name={lesson.classroomMode === "worksheet" ? "book" : "spark"} size={19} /><span>{activityMode.label}</span></Link>
         </div>
       </article>
     );
@@ -38,6 +41,7 @@ export function LessonCard({ era, lesson, mode = "student" }: LessonCardProps) {
         <div className="lesson-card__meta">
           <span><Icon name="clock" size={17} />40분</span>
           <span><Icon name="folder" size={17} />산출물 {lesson.outputs.length}종</span>
+          <span><Icon name={lesson.classroomMode === "worksheet" ? "book" : "spark"} size={17} />{activityMode.shortLabel}</span>
         </div>
       </div>
       <Link aria-label={`${lesson.id}차시 ${lesson.title} 교사 설정 열기`} className="lesson-card__link" to={path}>

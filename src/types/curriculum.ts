@@ -4,6 +4,8 @@ export type LessonPhase = "의심하기" | "확인하고 만들기" | "해설사
 
 export type LessonStage = "도입" | "전개" | "정리";
 
+export type ClassroomActivityMode = "worksheet" | "teacher-led" | "student";
+
 export interface LessonActivity {
   stage: LessonStage;
   minutes: number;
@@ -39,6 +41,7 @@ export interface Lesson {
   cautions: readonly string[];
   nextLessonPrep: string;
   downloads: DownloadSummary;
+  classroomMode: ClassroomActivityMode;
 }
 
 export interface HeritageGroup {

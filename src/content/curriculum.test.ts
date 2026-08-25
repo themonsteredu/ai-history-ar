@@ -59,10 +59,10 @@ describe("curriculum catalog", () => {
     }
   });
 
-  it("uses the revised data inquiry sequence for the Three Kingdoms course", () => {
+  it("keeps the current Three Kingdoms sequence while restoring AI doubt in lesson two", () => {
     expect(eras[0].lessons.map((lesson) => lesson.title)).toEqual([
       "역사 데이터 질문 찾기",
-      "데이터 항목과 관계 정하기",
+      "AI에게 물어보았습니다",
       "믿을 수 있는 자료 수집 방법",
       "우리 모둠 역사 데이터 모으기",
       "데이터 깨끗하게 다듬기",
@@ -72,6 +72,13 @@ describe("curriculum catalog", () => {
       "데이터로 미래 변화 예측하기",
       "AR 데이터 박물관 열기",
     ]);
+  });
+
+  it("uses worksheets first, teacher-led shared activities next, and student web apps only when needed", () => {
+    const expectedModes = ["teacher-led", "teacher-led", "teacher-led", "worksheet", "student", "student", "student", "student", "student", "student"];
+    for (const era of eras) {
+      expect(era.lessons.map((lesson) => lesson.classroomMode), era.shortName).toEqual(expectedModes);
+    }
   });
 
   it("keeps every Three Kingdoms deck rich, classroom-facing, and Q&A-led", () => {
@@ -84,9 +91,9 @@ describe("curriculum catalog", () => {
       expect(slides.length, `${lessonId}차시 기본 슬라이드`).toBeGreaterThanOrEqual(7);
       expect(slides.filter((slide) => slide.kind === "fact").length, `${lessonId}차시 내용 슬라이드`).toBeGreaterThanOrEqual(3);
       if (lessonId <= 2) {
-        expect(slides.length, `${lessonId}차시 데이터 수업 확장 슬라이드`).toBeGreaterThanOrEqual(14);
+        expect(slides.length, `${lessonId}차시 확장 슬라이드`).toBeGreaterThanOrEqual(14);
         expect(slides.some((slide) => slide.kind === "gallery"), `${lessonId}차시 문화유산 관찰 슬라이드`).toBe(true);
-        expect(slides.some((slide) => slide.kind === "quiz"), `${lessonId}차시 데이터 판단 퀴즈`).toBe(true);
+        expect(slides.some((slide) => slide.kind === "quiz"), `${lessonId}차시 판단 퀴즈`).toBe(true);
       }
       expect(lastSlide?.kind, `${lessonId}차시 마지막 슬라이드`).toBe("closing");
       expect(internalPhrases.test(visibleCopy), `${lessonId}차시 운영 문구`).toBe(false);

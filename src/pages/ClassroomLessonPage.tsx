@@ -2,6 +2,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { LessonSlides } from "../components/LessonSlides";
 import { LessonWebActivity } from "../components/LessonWebActivity";
 import { SimpleLessonSlides } from "../components/SimpleLessonSlides";
+import { classroomModeInfo } from "../content/lesson-helpers";
 import type { Era, Lesson } from "../types/curriculum";
 
 export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson }) {
@@ -10,6 +11,7 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
   const previousLesson = era.lessons.find((candidate) => candidate.id === lesson.id - 1);
   const nextLesson = era.lessons.find((candidate) => candidate.id === lesson.id + 1);
   const basePath = `${era.route}/lesson`;
+  const activityTab = classroomModeInfo[lesson.classroomMode];
 
   return (
     <div className="classroom-page" style={{ "--era-accent": era.accent, "--era-soft": era.accentSoft } as React.CSSProperties}>
@@ -25,7 +27,7 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
               <span>01</span><strong>수업 PPT</strong><small>교실 화면으로 설명하기</small>
             </Link>
             <Link aria-current={view === "activity" ? "page" : undefined} className={view === "activity" ? "is-active" : ""} to={`${basePath}/${lesson.id}?view=activity`}>
-              <span>02</span><strong>웹앱 활동</strong><small>학생과 함께 조작하기</small>
+              <span>02</span><strong>{activityTab.label}</strong><small>{activityTab.description}</small>
             </Link>
           </nav>
         </div>

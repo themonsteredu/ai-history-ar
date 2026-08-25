@@ -73,11 +73,6 @@ export function TeacherDashboardPage() {
             <p>“{selectedEra.coreQuestion}”</p>
           </div>
           <div className="dashboard-heading__actions">
-            {selectedEra.id === "three-kingdoms" ? (
-              <Link className="button button--outline" to="/teacher/three-kingdoms/tools">
-                <Icon name="spark" size={18} />외부 도구 설정
-              </Link>
-            ) : null}
             <Link className="button button--primary" to={`/teacher/${selectedEra.id}/downloads`}>
               <Icon name="download" size={18} />활동지·카드·답안
             </Link>
