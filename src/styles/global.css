@@ -1578,6 +1578,28 @@ input:focus-visible {
   overflow: hidden;
   color: #18221f;
   background: #f7f5ef;
+  animation: class-slide-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes class-slide-enter {
+  from { opacity: 0; transform: translateX(2.4%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.slide-reveal {
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(1.1cqw);
+}
+
+.slide-reveal.is-visible {
+  visibility: visible;
+  animation: slide-reveal-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes slide-reveal-in {
+  from { opacity: 0; transform: translateY(1.1cqw); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .class-slide h3,
@@ -2443,6 +2465,7 @@ input:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 14px;
   padding: 9px 14px;
   color: rgba(255, 255, 255, 0.82);
@@ -2463,16 +2486,46 @@ input:focus-visible {
   cursor: default;
 }
 
-.lesson-slides__controls > span {
-  min-width: 42px;
+.lesson-slides__counter {
+  display: grid;
+  min-width: 62px;
+  gap: 1px;
   font-size: 10px;
   text-align: center;
+}
+
+.lesson-slides__counter small {
+  color: #e4c071;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.lesson-slides__controls > .lesson-slides__reveal-button {
+  width: auto;
+  min-width: 112px;
+  height: 34px;
+  padding: 0 14px;
+  border-color: #e4c071;
+  border-radius: 999px;
+  background: #e4c071;
+  color: #17332c;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.lesson-slides__controls > .lesson-slides__reveal-button:hover:not(:disabled),
+.lesson-slides__controls > .lesson-slides__reveal-button:focus-visible {
+  background: #f0d99e;
 }
 
 .lesson-slides__dots {
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 6px;
+  max-width: min(330px, 38vw);
 }
 
 .lesson-slides__dots button {
@@ -2514,6 +2567,13 @@ input:focus-visible {
 
 .lesson-slides:fullscreen .lesson-slides__controls {
   flex: 0 0 58px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .class-slide,
+  .slide-reveal.is-visible {
+    animation: none;
+  }
 }
 
 .question-card {

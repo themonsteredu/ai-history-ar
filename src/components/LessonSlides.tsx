@@ -85,6 +85,20 @@ interface PromptSlide {
 
 type PresentationSlide = LessonSlide | PromptSlide;
 
+function revealClass(visible: boolean) {
+  return visible ? "slide-reveal is-visible" : "slide-reveal";
+}
+
+function getRevealCount(slide: PresentationSlide) {
+  if (slide.kind === "fact") return slide.points.length + (slide.takeaway ? 1 : 0);
+  if (slide.kind === "compare") return 2;
+  if (slide.kind === "activity") return slide.steps.length;
+  if (slide.kind === "quiz") return 1;
+  if (slide.kind === "gallery") return 3;
+  if (slide.kind === "closing") return 2;
+  return 0;
+}
+
 function expandPresentationSlides(slides: readonly LessonSlide[]): readonly PresentationSlide[] {
   return slides.flatMap<PresentationSlide>((slide): readonly PresentationSlide[] => {
     if (slide.kind === "quiz") {
@@ -146,7 +160,7 @@ function SlideSources({ slide }: { slide: { image: HeritageImageKey; source?: Sl
   );
 }
 
-function FactSlide({ slide }: { slide: Extract<LessonSlide, { kind: "fact" }> }) {
+function FactSlide({ slide, revealStep }: { slide: Extract<LessonSlide, { kind: "fact" }>; revealStep: number }) {
   const artifact = artifactByKey[slide.image];
   return (
     <section className="class-slide class-slide--lesson-fact">
@@ -154,15 +168,15 @@ function FactSlide({ slide }: { slide: Extract<LessonSlide, { kind: "fact" }> })
       <div className="class-slide__lesson-copy">
         <p className="class-slide__kicker">{slide.eyebrow}</p>
         <h3>{slide.title}</h3>
-        <ul>{slide.points.map((point) => <li key={point}>{point}</li>)}</ul>
-        {slide.takeaway ? <p className="class-slide__takeaway">{slide.takeaway}</p> : null}
+        <ul>{slide.points.map((point, index) => <li aria-hidden={revealStep < index + 1} className={revealClass(revealStep >= index + 1)} key={point}>{point}</li>)}</ul>
+        {slide.takeaway ? <p aria-hidden={revealStep < slide.points.length + 1} className={`class-slide__takeaway ${revealClass(revealStep >= slide.points.length + 1)}`}>{slide.takeaway}</p> : null}
       </div>
       <SlideSources slide={slide} />
     </section>
   );
 }
 
-function CompareSlide({ slide }: { slide: Extract<LessonSlide, { kind: "compare" }> }) {
+function CompareSlide({ slide, revealStep }: { slide: Extract<LessonSlide, { kind: "compare" }>; revealStep: number }) {
   const artifact = artifactByKey[slide.image];
   return (
     <section className="class-slide class-slide--lesson-compare">
@@ -171,8 +185,8 @@ function CompareSlide({ slide }: { slide: Extract<LessonSlide, { kind: "compare"
         <p className="class-slide__kicker">답 확인 · {slide.eyebrow}</p>
         <h3>{slide.title}</h3>
         <div className="class-slide__comparison">
-          {[slide.left, slide.right].map((column) => (
-            <article key={column.label}>
+          {[slide.left, slide.right].map((column, index) => (
+            <article aria-hidden={revealStep < index + 1} className={revealClass(revealStep >= index + 1)} key={column.label}>
               <span>{column.label}</span>
               <h4>{column.title}</h4>
               <ul>{column.items.map((item) => <li key={item}>{item}</li>)}</ul>
@@ -185,7 +199,7 @@ function CompareSlide({ slide }: { slide: Extract<LessonSlide, { kind: "compare"
   );
 }
 
-function ActivitySlide({ slide }: { slide: Extract<LessonSlide, { kind: "activity" }> }) {
+function ActivitySlide({ slide, revealStep }: { slide: Extract<LessonSlide, { kind: "activity" }>; revealStep: number }) {
   const artifact = artifactByKey[slide.image];
   return (
     <section className="class-slide class-slide--lesson-activity">
@@ -193,7 +207,7 @@ function ActivitySlide({ slide }: { slide: Extract<LessonSlide, { kind: "activit
         <p className="class-slide__kicker">{slide.eyebrow}</p>
         <h3>{slide.title}</h3>
         <p className="class-slide__activity-instruction">{slide.instruction}</p>
-        <ol>{slide.steps.map((step, index) => <li key={step}><span>{index + 1}</span>{step}</li>)}</ol>
+        <ol>{slide.steps.map((step, index) => <li aria-hidden={revealStep < index + 1} className={revealClass(revealStep >= index + 1)} key={step}><span>{index + 1}</span>{step}</li>)}</ol>
       </div>
       <figure><img src={artifact.image} alt={artifact.alt} /></figure>
       <SlideSources slide={slide} />
@@ -201,7 +215,7 @@ function ActivitySlide({ slide }: { slide: Extract<LessonSlide, { kind: "activit
   );
 }
 
-function QuizSlide({ slide }: { slide: Extract<LessonSlide, { kind: "quiz" }> }) {
+function QuizSlide({ slide, revealStep }: { slide: Extract<LessonSlide, { kind: "quiz" }>; revealStep: number }) {
   const artifact = artifactByKey[slide.image];
   return (
     <section className={`class-slide class-slide--lesson-quiz class-slide--verdict-${slide.verdict}`}>
@@ -211,7 +225,7 @@ function QuizSlide({ slide }: { slide: Extract<LessonSlide, { kind: "quiz" }> })
         <p>답 확인 · {slide.eyebrow}</p>
         <h3>{slide.title}</h3>
         <blockquote>“{slide.statement}”</blockquote>
-        <div><strong>{slide.verdict}</strong><span>{slide.explanation}</span></div>
+        <div aria-hidden={revealStep < 1} className={revealClass(revealStep >= 1)}><strong>{slide.verdict}</strong><span>{slide.explanation}</span></div>
       </div>
       <SlideSources slide={slide} />
     </section>
@@ -236,7 +250,7 @@ function PromptSlideView({ slide }: { slide: PromptSlide }) {
   );
 }
 
-function GallerySlide({ slide }: { slide: Extract<LessonSlide, { kind: "gallery" }> }) {
+function GallerySlide({ slide, revealStep }: { slide: Extract<LessonSlide, { kind: "gallery" }>; revealStep: number }) {
   return (
     <section className="class-slide class-slide--cards">
       <header>
@@ -244,8 +258,8 @@ function GallerySlide({ slide }: { slide: Extract<LessonSlide, { kind: "gallery"
         <span>{slide.instruction}</span>
       </header>
       <div className="artifact-choice-grid">
-        {artifacts.map((artifact) => (
-          <article className="artifact-choice-card" key={artifact.name}>
+        {artifacts.map((artifact, index) => (
+          <article aria-hidden={revealStep < Math.floor(index / 2) + 1} className={`artifact-choice-card ${revealClass(revealStep >= Math.floor(index / 2) + 1)}`} key={artifact.name}>
             <img src={artifact.image} alt={artifact.alt} />
             <div><span>{artifact.kingdom}</span><h4>{artifact.name}</h4><p>{artifact.question}</p></div>
           </article>
@@ -256,15 +270,15 @@ function GallerySlide({ slide }: { slide: Extract<LessonSlide, { kind: "gallery"
   );
 }
 
-function ClassSlide({ slide }: { slide: PresentationSlide }) {
+function ClassSlide({ slide, revealStep }: { slide: PresentationSlide; revealStep: number }) {
   const artifact = artifactByKey[slide.image];
 
   if (slide.kind === "prompt") return <PromptSlideView slide={slide} />;
-  if (slide.kind === "fact") return <FactSlide slide={slide} />;
-  if (slide.kind === "compare") return <CompareSlide slide={slide} />;
-  if (slide.kind === "activity") return <ActivitySlide slide={slide} />;
-  if (slide.kind === "quiz") return <QuizSlide slide={slide} />;
-  if (slide.kind === "gallery") return <GallerySlide slide={slide} />;
+  if (slide.kind === "fact") return <FactSlide revealStep={revealStep} slide={slide} />;
+  if (slide.kind === "compare") return <CompareSlide revealStep={revealStep} slide={slide} />;
+  if (slide.kind === "activity") return <ActivitySlide revealStep={revealStep} slide={slide} />;
+  if (slide.kind === "quiz") return <QuizSlide revealStep={revealStep} slide={slide} />;
+  if (slide.kind === "gallery") return <GallerySlide revealStep={revealStep} slide={slide} />;
 
   if (slide.kind === "cover") {
     return (
@@ -288,8 +302,8 @@ function ClassSlide({ slide }: { slide: PresentationSlide }) {
       <div className="class-slide__closing-copy">
         <p>{slide.eyebrow} · 답 공개</p>
         <h3>{slide.title}</h3>
-        <div className="class-slide__closing-answer"><span>핵심 답</span><strong>{slide.prompt}</strong></div>
-        <div><span>이어 보기</span><strong>{slide.next}</strong></div>
+        <div aria-hidden={revealStep < 1} className={`class-slide__closing-answer ${revealClass(revealStep >= 1)}`}><span>핵심 답</span><strong>{slide.prompt}</strong></div>
+        <div aria-hidden={revealStep < 2} className={revealClass(revealStep >= 2)}><span>이어 보기</span><strong>{slide.next}</strong></div>
       </div>
       <SlideSources slide={slide} />
     </section>
@@ -299,23 +313,49 @@ function ClassSlide({ slide }: { slide: PresentationSlide }) {
 export function LessonSlides({ lessonId }: { lessonId: number }) {
   const slides = expandPresentationSlides(getThreeKingdomsSlides(lessonId));
   const [current, setCurrent] = useState(0);
+  const [revealStep, setRevealStep] = useState(0);
   const viewerRef = useRef<HTMLDivElement>(null);
+  const slide = slides[current];
+  const revealTotal = getRevealCount(slide);
 
-  const move = (direction: number) => {
-    setCurrent((index) => Math.min(slides.length - 1, Math.max(0, index + direction)));
+  const goTo = (index: number) => {
+    setCurrent(Math.min(slides.length - 1, Math.max(0, index)));
+    setRevealStep(0);
+  };
+
+  const advance = () => {
+    if (revealStep < revealTotal) {
+      setRevealStep((step) => Math.min(revealTotal, step + 1));
+      return;
+    }
+    if (current < slides.length - 1) goTo(current + 1);
+  };
+
+  const retreat = () => {
+    if (revealStep > 0) {
+      setRevealStep((step) => Math.max(0, step - 1));
+      return;
+    }
+    if (current > 0) goTo(current - 1);
   };
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!viewerRef.current?.contains(document.activeElement) && document.fullscreenElement !== viewerRef.current) return;
-      if (event.key === "ArrowRight" || event.key === "PageDown") setCurrent((index) => Math.min(slides.length - 1, index + 1));
-      if (event.key === "ArrowLeft" || event.key === "PageUp") setCurrent((index) => Math.max(0, index - 1));
-      if (event.key === "Home") setCurrent(0);
-      if (event.key === "End") setCurrent(slides.length - 1);
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+        event.preventDefault();
+        advance();
+      }
+      if (event.key === "ArrowLeft" || event.key === "PageUp") {
+        event.preventDefault();
+        retreat();
+      }
+      if (event.key === "Home") goTo(0);
+      if (event.key === "End") goTo(slides.length - 1);
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [slides.length]);
+  }, [current, revealStep, revealTotal, slides.length]);
 
   const enterFullscreen = async () => {
     await viewerRef.current?.requestFullscreen();
@@ -326,7 +366,7 @@ export function LessonSlides({ lessonId }: { lessonId: number }) {
     <section className="lesson-slides-section" aria-labelledby={`lesson-slides-title-${lessonId}`}>
       <div className="lesson-slides-section__heading">
         <div>
-          <p>교실 화면용 · 역사 근거 + 질문하고 답하기</p>
+          <p>교실 화면용 · 질문 → 생각 → 클릭 공개</p>
           <h2 id={`lesson-slides-title-${lessonId}`}>{lessonId}차시 수업 슬라이드</h2>
         </div>
         <button className="lesson-slides__fullscreen" type="button" onClick={enterFullscreen}>전체 화면으로 수업하기</button>
@@ -334,27 +374,30 @@ export function LessonSlides({ lessonId }: { lessonId: number }) {
 
       <div className="lesson-slides" ref={viewerRef} tabIndex={0} aria-label={`삼국시대 ${lessonId}차시 수업 슬라이드`}>
         <div className="lesson-slides__stage" aria-live="polite">
-          <ClassSlide slide={slides[current]} />
+          <ClassSlide key={current} revealStep={revealStep} slide={slide} />
         </div>
         <div className="lesson-slides__controls">
-          <button type="button" onClick={() => move(-1)} disabled={current === 0} aria-label="이전 슬라이드">←</button>
+          <button type="button" onClick={retreat} disabled={current === 0 && revealStep === 0} aria-label="이전 내용">←</button>
           <div className="lesson-slides__dots" aria-label="슬라이드 선택">
             {slides.map((_, index) => (
               <button
                 type="button"
                 className={index === current ? "is-active" : ""}
-                onClick={() => setCurrent(index)}
+                onClick={() => goTo(index)}
                 aria-label={`${index + 1}번 슬라이드`}
                 aria-current={index === current ? "step" : undefined}
                 key={index}
               />
             ))}
           </div>
-          <span>{current + 1} / {slides.length}</span>
-          <button type="button" onClick={() => move(1)} disabled={current === slides.length - 1} aria-label="다음 슬라이드">→</button>
+          <div className="lesson-slides__counter"><span>{current + 1} / {slides.length}</span>{revealTotal > 0 ? <small>내용 {revealStep} / {revealTotal}</small> : null}</div>
+          <button className="lesson-slides__reveal-button" disabled={current === slides.length - 1 && revealStep === revealTotal} onClick={advance} type="button">
+            {revealStep < revealTotal ? "다음 내용 공개" : "다음 슬라이드"}
+          </button>
+          <button type="button" onClick={advance} disabled={current === slides.length - 1 && revealStep === revealTotal} aria-label={revealStep < revealTotal ? "다음 내용 공개" : "다음 슬라이드"}>→</button>
         </div>
       </div>
-      <p className="lesson-slides-section__hint">화면을 한 번 누른 뒤 키보드 ← → 로도 넘길 수 있습니다.</p>
+      <p className="lesson-slides-section__hint">질문을 먼저 보여 준 뒤 ‘다음 내용 공개’를 누르세요. 키보드 → 또는 Space로도 한 단계씩 진행됩니다.</p>
     </section>
   );
 }

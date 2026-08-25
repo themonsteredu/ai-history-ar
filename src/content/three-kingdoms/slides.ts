@@ -73,6 +73,94 @@ interface DeckPlan {
   };
 }
 
+const lessonExtensions: Partial<Record<number, readonly LessonSlide[]>> = {
+  1: [
+    {
+      kind: "gallery",
+      eyebrow: "오늘의 탐구 대상",
+      title: "여섯 문화유산을 같은 기준으로 살펴봅니다",
+      instruction: "이름을 외우기보다 사진에서 확인되는 단서를 먼저 찾으세요.",
+      image: "muryeong",
+      source: sources.overview,
+    },
+    {
+      kind: "fact",
+      eyebrow: "데이터 수업 1 · 관찰",
+      title: "보이는 사실과 떠오른 생각을 나누어 기록해요",
+      points: [
+        "관찰: 사진에서 직접 확인되는 모양·색·글자·위치를 적습니다.",
+        "해석: 그 모습이 무엇을 뜻하는지는 자료를 찾아 설명합니다.",
+        "모름: 아직 확인하지 못한 내용은 빈칸이나 판단 보류로 남깁니다.",
+      ],
+      takeaway: "관찰과 해석을 한 칸에 섞지 않는 것이 역사 데이터의 첫 번째 약속입니다.",
+      image: "incense",
+      source: sources.incense,
+    },
+    {
+      kind: "compare",
+      eyebrow: "데이터 수업 1 · 구분 연습",
+      title: "두 문장은 어떤 점이 다를까요?",
+      left: {
+        label: "눈으로 확인",
+        title: "뚜껑에 산봉우리와 여러 동물이 보인다",
+        items: ["사진에서 위치와 모양을 확인할 수 있습니다.", "관찰 데이터로 먼저 기록할 수 있습니다."],
+      },
+      right: {
+        label: "자료로 확인",
+        title: "이 장식은 백제인의 세계관을 나타낸다",
+        items: ["뜻을 설명하려면 역사 자료가 필요합니다.", "출처와 함께 해석으로 기록합니다."],
+      },
+      image: "incense",
+      source: sources.incense,
+    },
+    {
+      kind: "fact",
+      eyebrow: "데이터 수업 2 · 질문",
+      title: "좋은 데이터 질문에는 세 가지가 들어갑니다",
+      points: [
+        "비교 대상: 어떤 유산들을 서로 살펴볼지 정합니다.",
+        "공통 항목: 시기·지역·재료·모양처럼 같은 기준을 고릅니다.",
+        "확인 방법: 박물관·국가기관 자료처럼 다시 찾을 수 있는 출처를 정합니다.",
+      ],
+      takeaway: "‘무엇과 무엇의 어떤 항목을 비교할까?’라고 물으면 모을 데이터가 분명해집니다.",
+      image: "gaya",
+      source: sources.gaya,
+    },
+    {
+      kind: "fact",
+      eyebrow: "데이터 수업 3 · 표 만들기",
+      title: "문화유산 한 점을 표의 한 행으로 바꿔요",
+      points: [
+        "유산 이름·나라·시기를 각각 다른 칸에 적습니다.",
+        "발견 지역·종류·재료·사진 단서를 공통 항목으로 나눕니다.",
+        "설명을 가져온 기관과 원문 주소를 출처 칸에 남깁니다.",
+      ],
+      takeaway: "한 칸에는 한 종류의 정보만 적어야 다른 모둠의 행과 정확히 비교할 수 있습니다.",
+      image: "muryeong",
+      source: sources.muryeong,
+    },
+    {
+      kind: "activity",
+      eyebrow: "30초 데이터 연습",
+      title: "사진 한 장을 데이터 한 행으로 바꿔 봅시다",
+      instruction: "선생님이 보여 주는 유산 사진에서 확인되는 것만 말하고, 조사할 항목은 따로 표시합니다.",
+      steps: ["눈으로 보이는 사실 한 가지 말하기", "표에 넣을 공통 항목 한 가지 고르기", "자료로 확인할 질문 한 문장 만들기"],
+      image: "crown",
+      source: sources.crown,
+    },
+    {
+      kind: "quiz",
+      eyebrow: "데이터 판단 퀴즈",
+      title: "사진과 데이터의 한계",
+      statement: "사진에서 모양이 잘 보이면 유물의 정확한 쓰임도 바로 확정할 수 있다.",
+      verdict: "틀림",
+      explanation: "사진은 모양과 위치를 관찰하게 하지만 정확한 쓰임은 출토 맥락·기록·연구 자료를 함께 확인해야 합니다. 근거가 부족하면 판단 보류로 남깁니다.",
+      image: "cheomseongdae",
+      source: sources.cheomseongdae,
+    },
+  ],
+};
+
 function makeDeck(lessonId: number, plan: DeckPlan): readonly LessonSlide[] {
   const historyDetail = historyDetails[lessonId] ?? plan.history;
 
@@ -112,6 +200,7 @@ function makeDeck(lessonId: number, plan: DeckPlan): readonly LessonSlide[] {
       image: plan.data.image,
       source: sources.overview,
     },
+    ...(lessonExtensions[lessonId] ?? []),
     {
       kind: "compare",
       eyebrow: "질문 뒤 답 확인",
