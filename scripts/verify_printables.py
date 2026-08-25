@@ -113,7 +113,7 @@ def main() -> None:
                 f"{era_id}-lesson-{lesson_id:02d}-student.png",
             )
     render_page(FINAL_DIR / "three-kingdoms" / "lesson-01-teacher.pdf", 0, "three-kingdoms-lesson-01-teacher.png")
-    render_page(FINAL_DIR / "three-kingdoms" / "lesson-06-teacher.pdf", 8, "three-kingdoms-lesson-06-answers.png")
+    render_page(FINAL_DIR / "three-kingdoms" / "lesson-06-teacher.pdf", 0, "three-kingdoms-lesson-06-teacher.png")
     render_page(FINAL_DIR / "three-kingdoms" / "lesson-01-answer.pdf", 0, "three-kingdoms-lesson-01-answer.png")
     render_page(FINAL_DIR / "joseon" / "lesson-04-answer.pdf", 0, "joseon-lesson-04-answer.png")
 

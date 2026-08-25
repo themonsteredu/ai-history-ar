@@ -303,7 +303,67 @@ def sheet_columns(left, right, width, st, left_ratio=.5, divider=False):
     return table
 
 
+def three_kingdoms_data_sheet(era, lesson, width, st):
+    flow = student_sheet_header(era, lesson, width, st)
+    lesson_id = lesson["id"]
+
+    if lesson_id == 1:
+        questions = [["관찰할 유산", "눈에 보이는 특징", "모으고 싶은 데이터"]] + [[group["heritage"], "", ""] for group in era["groups"]]
+        flow += [data_table(questions, [width * .28, width * .36, width * .36], st, row_heights=[10 * mm] + [18 * mm] * 6), Spacer(1, 5 * mm)]
+        flow += [ruled_box("우리 모둠 데이터 질문", "예: 유산의 시기와 발견 지역은 어떻게 다를까?\n우리 질문: __________________________________________________________________", width, 48 * mm, st), Spacer(1, 4 * mm)]
+        flow += [ruled_box("나의 첫 생각", "삼국·가야 문화유산과 AI·데이터에 대해 지금 떠오르는 생각을 적으세요.", width, 58 * mm, st)]
+    elif lesson_id == 2:
+        rows = [["공통 항목", "무엇을 알 수 있나요?", "자료 형식", "꼭 필요"]]
+        rows += [[name, prompt, kind, "□"] for name, prompt, kind in [
+            ("유산 이름", "무엇을 조사했나요?", "글자"), ("국가·정치체", "어느 나라와 관련 있나요?", "글자"),
+            ("시기 또는 연도", "언제의 자료인가요?", "범위/숫자"), ("발견·출토 지역", "어디에서 나왔나요?", "글자"),
+            ("자료 종류", "무덤·건축·그림·공예품인가요?", "선택"), ("자료 상태", "확인·주의·보류 중 무엇인가요?", "선택"),
+            ("출처 URL", "다시 확인할 수 있나요?", "주소"),
+        ]]
+        flow += [data_table(rows, [width * .22, width * .44, width * .18, width * .16], st, row_heights=[10 * mm] + [17 * mm] * 7), Spacer(1, 5 * mm)]
+        flow += [sheet_columns([ruled_box("항목 관계", "__________에 따라 __________이/가 어떻게 다른지 비교한다.", width * .47, 72 * mm, st)], [ruled_box("모둠 추가 항목", "항목 이름:\n필요한 까닭:\n입력 방법:", width * .47, 72 * mm, st)], width, st)]
+    elif lesson_id == 3:
+        rows = [["확인 순서", "확인 질문", "연습 자료에서 찾은 것"], ["출처", "누가 만든 자료인가요?", ""], ["원본", "처음 자료의 주소가 있나요?", ""], ["교차", "다른 자료도 같은 말인가요?", ""], ["상태", "확인·주의·보류 중 무엇인가요?", ""]]
+        flow += [data_table(rows, [width * .15, width * .38, width * .47], st, row_heights=[10 * mm] + [25 * mm] * 4), Spacer(1, 5 * mm)]
+        flow += [sheet_columns([ruled_box("확인된 사실", "자료에 직접 나온 내용을 적으세요.", width * .47, 75 * mm, st)], [ruled_box("해석 또는 판단 보류", "내 생각이나 아직 모르는 점을 따로 적으세요.", width * .47, 75 * mm, st)], width, st)]
+    elif lesson_id == 4:
+        rows = [["번호", "자료 제목·기관", "시기·지역", "입력 완료", "출처 확인"]] + [[str(index), "", "", "□", "□"] for index in range(1, 13)]
+        flow += [data_table(rows, [width * .08, width * .36, width * .28, width * .14, width * .14], st, row_heights=[9 * mm] + [11 * mm] * 12), Spacer(1, 5 * mm)]
+        flow += [sheet_columns([ruled_box("수집 현황", "목표 ____건 / 입력 ____건 / 출처 확인 ____건", width * .47, 52 * mm, st)], [ruled_box("더 필요한 자료", "빠진 시기·지역·자료 종류를 적으세요.", width * .47, 52 * mm, st)], width, st)]
+    elif lesson_id == 5:
+        rows = [["행 번호", "찾은 문제", "고친 내용", "고친 까닭"]] + [[str(index), "중복 / 빈칸 / 표기", "", ""] for index in range(1, 9)]
+        flow += [data_table(rows, [width * .1, width * .24, width * .31, width * .35], st, row_heights=[10 * mm] + [18 * mm] * 8), Spacer(1, 5 * mm)]
+        flow += [ruled_box("전처리 마침 확인", "□ 원본 탭을 남겼다   □ 판단 보류를 지우지 않았다   □ 표기를 통일했다   □ CSV로 저장했다\n파일명: _________________________________________________", width, 52 * mm, st)]
+    elif lesson_id == 6:
+        rows = [["그래프 요소", "우리 모둠 선택", "확인"], ["탐구 질문", "", "□"], ["가로축", "", "□"], ["세로축", "", "□"], ["제목", "", "□"], ["단위", "", "□"]]
+        flow += [data_table(rows, [width * .2, width * .65, width * .15], st, row_heights=[10 * mm] + [21 * mm] * 5), Spacer(1, 5 * mm)]
+        flow += [ruled_box("그래프에서 가장 먼저 보이는 점", "가장 큰 값·작은 값·반복되는 모습을 한 문장으로 적으세요.", width, 60 * mm, st), Spacer(1, 4 * mm)]
+        flow += [ruled_box("저장 확인", "□ 축 이름   □ 제목   □ 단위   □ PNG 저장   파일명: ______________________________", width, 42 * mm, st)]
+    elif lesson_id == 7:
+        flow += [sheet_columns([ruled_box("그래프에서 보이는 점", "값과 항목을 가리키며 관찰한 내용을 2가지 적으세요.", width * .47, 82 * mm, st)], [ruled_box("그래프만으로 모르는 점", "자료 수·지역·시기·사람의 범위를 살펴 2가지 적으세요.", width * .47, 82 * mm, st)], width, st), Spacer(1, 4 * mm)]
+        flow += [ruled_box("1분 발표 문장", "이 그래프는 __________________을 비교했습니다. __________________ 경향이 보이지만, __________________까지는 알 수 없습니다.", width, 56 * mm, st)]
+    elif lesson_id == 8:
+        rows = [["구분", "자료에서 찾은 내용", "출처·그래프 위치"], ["근거 1", "", ""], ["근거 2", "", ""], ["두 근거의 관계", "", ""]]
+        flow += [data_table(rows, [width * .2, width * .52, width * .28], st, row_heights=[10 * mm] + [25 * mm] * 3), Spacer(1, 4 * mm)]
+        flow += [ruled_box("과거 유추", "위 근거를 함께 보면, 옛사람들은 ____________________________________________했을 가능성이 있습니다.", width, 55 * mm, st), Spacer(1, 3 * mm)]
+        flow += [ruled_box("유추의 한계", "확인된 사실처럼 단정하지 않기 위해 더 필요한 자료를 적으세요.", width, 36 * mm, st)]
+    elif lesson_id == 9:
+        rows = [["시나리오", "예측 값·방향", "그렇게 보는 조건", "달라질 수 있는 까닭"], ["기본", "", "", ""], ["좋은 조건", "", "", ""], ["나쁜 조건", "", "", ""]]
+        flow += [data_table(rows, [width * .16, width * .22, width * .31, width * .31], st, row_heights=[10 * mm] + [36 * mm] * 3), Spacer(1, 5 * mm)]
+        flow += [sheet_columns([ruled_box("사용한 데이터", "□ 실제 데이터  □ 수업용 모의 데이터\n기간: ______년~______년", width * .47, 70 * mm, st)], [ruled_box("예측의 한계", "정책·날씨·관람 환경 등 그래프 밖 조건을 적으세요.", width * .47, 70 * mm, st)], width, st)]
+    else:
+        stamp_rows = [["부스", "문화유산", "그래프", "AR", "질문"]] + [[f"{group['id']}모둠", group["heritage"], "□", "□", "□"] for group in era["groups"]]
+        flow += [data_table(stamp_rows, [width * .14, width * .42, width * .14, width * .14, width * .16], st, row_heights=[8 * mm] + [10 * mm] * 6), Spacer(1, 3 * mm)]
+        flow += [sheet_columns([ruled_box("1차시의 나", "처음에는 역사 데이터와 AI를 어떻게 생각했나요?", width * .47, 36 * mm, st)], [ruled_box("지금의 나", "지금은 자료를 어떤 순서로 확인하나요?", width * .47, 36 * mm, st)], width, st), Spacer(1, 3 * mm)]
+        flow += [ruled_box("나의 AI·데이터 활용 다짐", "나는 먼저 __________________을 확인하고, 그래프의 __________________까지 함께 말하겠습니다.", width, 28 * mm, st)]
+
+    return flow
+
+
 def student_lesson_sheet(era, lesson, width, st):
+    if era["id"] == "three-kingdoms":
+        return three_kingdoms_data_sheet(era, lesson, width, st)
+
     flow = student_sheet_header(era, lesson, width, st)
     lesson_id = lesson["id"]
 
@@ -389,6 +449,21 @@ def student_lesson_sheet(era, lesson, width, st):
 def activity_answer_examples(era, lesson):
     is_three = era["id"] == "three-kingdoms"
     first_heritage = era["groups"][0]["heritage"]
+    if is_three:
+        data_examples = {
+            1: [("데이터 질문", "예: 여섯 문화유산의 시기와 발견 지역은 어떻게 다를까?"), ("좋은 질문 기준", "시기·지역·자료 종류처럼 실제 자료로 모으고 비교할 수 있어야 합니다."), ("첫 생각", "정해진 답은 없으며 학생의 처음 생각을 그대로 보관합니다.")],
+            2: [("공통 항목", "유산 이름, 국가·정치체, 시기, 지역, 자료 종류, 자료 상태, 출처 URL"), ("항목 관계", "예: 지역에 따라 발견되는 자료 종류가 어떻게 다른지 비교한다."), ("연도 기록", "정확한 연도가 없으면 6세기·5~6세기처럼 확인된 범위를 유지합니다.")],
+            3: [("출처 확인", "국가기관·박물관·유네스코처럼 자료를 관리하는 기관과 원주소를 기록합니다."), ("사실과 해석", "자료에 직접 나온 내용과 학생의 해석을 다른 칸에 씁니다."), ("판단 보류", "첨성대의 정확한 관측 방법처럼 확정하기 어려운 내용은 보류합니다.")],
+            4: [("수집량", "모둠당 12~20건을 목표로 하되 중복보다 자료의 출처와 항목 완성도를 우선합니다."), ("모둠 코드", "학생 이름 대신 1모둠~6모둠 코드만 사용합니다."), ("자료 품질", "출처 URL과 확인 날짜가 없거나 같은 내용이 반복되면 보완합니다.")],
+            5: [("중복", "같은 원자료를 두 번 입력한 행은 원본과 비교한 뒤 사본에서 정리합니다."), ("표기 통일", "경주·경주시처럼 같은 뜻의 표기는 학급 약속에 맞춰 하나로 통일합니다."), ("판단 보류", "분석하기 어렵다는 이유로 삭제하지 않고 자료 상태를 유지합니다.")],
+            6: [("그래프 선택", "탐구 질문이 지역 비교라면 지역과 자료 종류처럼 질문에 직접 연결되는 축을 고릅니다."), ("필수 요소", "가로축·세로축 이름, 제목, 단위를 확인합니다."), ("정확한 연도", "발견·발굴·지정 연도처럼 실제 연도가 있는 자료만 연도축에 사용합니다.")],
+            7: [("보이는 점", "예: 이 자료에서는 경주 지역의 건축·장신구 자료가 다른 종류보다 많이 보입니다."), ("모르는 점", "자료 수가 적거나 왕족·귀족 자료가 중심이면 전체 사람의 생활로 일반화할 수 없습니다."), ("발표", "그래프의 값 → 경향 → 자료의 한계 순서로 말합니다.")],
+            8: [("근거 1·2", "예: 여러 지역에 고분군이 있고 지역별 껴묻거리 차이가 함께 나타납니다."), ("과거 유추", "가야의 여러 정치체가 서로 교류하면서도 지역 특징을 유지했을 가능성이 있습니다."), ("표현", "확인된 사실처럼 단정하지 않고 ‘가능성이 있다’고 씁니다.")],
+            9: [("세 시나리오", "현재 흐름 유지, 좋은 조건, 나쁜 조건을 나누고 각 조건을 적습니다."), ("모의 데이터", "실제 통계가 아니면 반드시 ‘수업용 모의 데이터’라고 표시합니다."), ("한계", "정책·날씨·관람 환경처럼 그래프 밖 조건 때문에 예측이 달라질 수 있습니다.")],
+            10: [("전시 해설", "그래프의 경향 → 과거 유추 → AR로 확인한 사실 → 미래 예측의 한계 순서로 설명합니다."), ("AR 실패", "그래프 PNG와 QR 대체 자료로 설명을 계속합니다."), ("성장 비교", "1차시 첫 생각과 지금의 자료 확인 방법이 어떻게 달라졌는지 근거를 들어 씁니다.")],
+        }
+        return data_examples[lesson["id"]]
+
     examples = {
         1: [
             ("나의 첫 생각", "정해진 답은 없습니다. " + ("예: 금관, 고분, 벽화, 여러 나라" if is_three else "예: 한글, 궁궐, 기록, 과학 기구")),
@@ -514,7 +589,7 @@ def build_answer_pdf(era, lesson, destination):
     st["tableHeader"] = ParagraphStyle("answerTableHeader", parent=st["tableHeader"], fontSize=8.2, leading=11)
     width = A4[0] - doc.leftMargin - doc.rightMargin
     story = answer_guide_sheet(era, lesson, width, st)
-    if lesson["id"] == 6:
+    if lesson["id"] == 6 and era["id"] != "three-kingdoms":
         story += [PageBreak(), para("검증 공방 30문항 정답·해설", st["h1"]), Spacer(1, 3 * mm)]
         story += quiz_operation_pages(era, width, st, include_answers=True)
     doc.build(
@@ -785,10 +860,12 @@ def main():
     payload = json.loads(DATA_PATH.read_text(encoding="utf-8"))
     if OUTPUT_ROOT.exists():
         shutil.rmtree(OUTPUT_ROOT)
-    if PUBLIC_ROOT.exists():
-        shutil.rmtree(PUBLIC_ROOT)
     OUTPUT_ROOT.mkdir(parents=True)
-    PUBLIC_ROOT.mkdir(parents=True)
+    PUBLIC_ROOT.mkdir(parents=True, exist_ok=True)
+    for era in payload["eras"]:
+        public_era = PUBLIC_ROOT / era["id"]
+        if public_era.exists():
+            shutil.rmtree(public_era)
     manifest = {"eras": {}}
     pdf_count = 0
     for era in payload["eras"]:

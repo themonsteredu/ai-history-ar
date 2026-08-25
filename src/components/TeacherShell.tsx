@@ -24,6 +24,7 @@ export function TeacherShell({ onLock }: TeacherShellProps) {
           </Link>
           <nav aria-label="교사용 메뉴" className="teacher-nav">
             <NavLink className={teacherNavClassName} end to="/teacher">지도안</NavLink>
+            <NavLink className={teacherNavClassName} to="/teacher/three-kingdoms/tools">외부 도구</NavLink>
             <NavLink className={teacherNavClassName} to="/teacher/three-kingdoms/downloads">삼국 활동지</NavLink>
             <NavLink className={teacherNavClassName} to="/teacher/joseon/downloads">조선 활동지</NavLink>
           </nav>

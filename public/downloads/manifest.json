@@ -4,226 +4,226 @@
       "title": "삼국시대",
       "bundle": {
         "path": "/downloads/three-kingdoms/three-kingdoms-all-materials.zip",
-        "size": 1136053
+        "size": 1056566
       },
       "lessons": [
         {
           "lessonId": 1,
-          "title": "1500년 전에는 무엇이 있었을까",
+          "title": "역사 데이터 질문 찾기",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-01-student.pdf",
-              "size": 30705
+              "size": 30561
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-01-teacher.pdf",
-              "size": 58706
+              "size": 59182
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-01-answer.pdf",
-              "size": 32952
+              "size": 32417
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-01-all.zip",
-              "size": 111486
+              "size": 111249
             }
           }
         },
         {
           "lessonId": 2,
-          "title": "AI에게 물어보았습니다",
+          "title": "데이터 항목과 관계 정하기",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-02-student.pdf",
-              "size": 29313
+              "size": 32476
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-02-teacher.pdf",
-              "size": 56952
+              "size": 46887
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-02-answer.pdf",
-              "size": 33644
+              "size": 32790
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-02-all.zip",
-              "size": 109528
+              "size": 102459
             }
           }
         },
         {
           "lessonId": 3,
-          "title": "진짜인지 확인하는 방법",
+          "title": "믿을 수 있는 자료 수집 방법",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-03-student.pdf",
-              "size": 30676
+              "size": 29572
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-03-teacher.pdf",
-              "size": 51571
+              "size": 48169
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-03-answer.pdf",
-              "size": 32532
+              "size": 32659
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-03-all.zip",
-              "size": 104857
+              "size": 100770
             }
           }
         },
         {
           "lessonId": 4,
-          "title": "우리 모둠 유산 파헤치기",
+          "title": "우리 모둠 역사 데이터 모으기",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-04-student.pdf",
-              "size": 29592
+              "size": 28726
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-04-teacher.pdf",
-              "size": 54917
+              "size": 49958
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-04-answer.pdf",
-              "size": 39683
+              "size": 39628
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-04-all.zip",
-              "size": 112767
+              "size": 107401
             }
           }
         },
         {
           "lessonId": 5,
-          "title": "AR로 만나는 문화유산",
+          "title": "데이터 깨끗하게 다듬기",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-05-student.pdf",
-              "size": 29655
+              "size": 28331
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-05-teacher.pdf",
-              "size": 49269
+              "size": 48492
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-05-answer.pdf",
-              "size": 41133
+              "size": 40697
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-05-all.zip",
-              "size": 109762
+              "size": 106974
             }
           }
         },
         {
           "lessonId": 6,
-          "title": "헤리티지 검증 공방",
+          "title": "역사 데이터를 그림으로 보기",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-06-student.pdf",
-              "size": 28675
+              "size": 28123
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-06-teacher.pdf",
-              "size": 84153
+              "size": 47986
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-06-answer.pdf",
-              "size": 68287
+              "size": 32142
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-06-all.zip",
-              "size": 147328
+              "size": 98647
             }
           }
         },
         {
           "lessonId": 7,
-          "title": "AR 카드 만들기",
+          "title": "그래프를 읽고 설명하기",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-07-student.pdf",
-              "size": 28180
+              "size": 28083
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-07-teacher.pdf",
-              "size": 52407
+              "size": 46278
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-07-answer.pdf",
-              "size": 40340
+              "size": 40099
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-07-all.zip",
-              "size": 109986
+              "size": 103762
             }
           }
         },
         {
           "lessonId": 8,
-          "title": "30초 해설사",
+          "title": "데이터로 과거 유추하기",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-08-student.pdf",
-              "size": 29177
+              "size": 29289
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-08-teacher.pdf",
-              "size": 51450
+              "size": 47794
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-08-answer.pdf",
-              "size": 40365
+              "size": 40068
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-08-all.zip",
-              "size": 110128
+              "size": 106357
             }
           }
         },
         {
           "lessonId": 9,
-          "title": "카드에 생명 불어넣기",
+          "title": "데이터로 미래 변화 예측하기",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-09-student.pdf",
-              "size": 28754
+              "size": 29923
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-09-teacher.pdf",
-              "size": 51766
+              "size": 48563
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-09-answer.pdf",
-              "size": 33365
+              "size": 33478
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-09-all.zip",
-              "size": 103941
+              "size": 102315
             }
           }
         },
         {
           "lessonId": 10,
-          "title": "삼국시대 유산 박물관 개관",
+          "title": "AR 데이터 박물관 열기",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-10-student.pdf",
-              "size": 32311
+              "size": 30712
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-10-teacher.pdf",
-              "size": 57850
+              "size": 56613
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-10-answer.pdf",
-              "size": 36713
+              "size": 40492
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-10-all.zip",
-              "size": 115688
+              "size": 116050
             }
           }
         }
@@ -233,7 +233,7 @@
       "title": "조선시대",
       "bundle": {
         "path": "/downloads/joseon/joseon-all-materials.zip",
-        "size": 1145067
+        "size": 1145051
       },
       "lessons": [
         {
@@ -254,7 +254,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-01-all.zip",
-              "size": 112196
+              "size": 112193
             }
           }
         },
@@ -276,7 +276,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-02-all.zip",
-              "size": 110859
+              "size": 110858
             }
           }
         },
@@ -298,7 +298,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-03-all.zip",
-              "size": 104735
+              "size": 104733
             }
           }
         },
@@ -320,7 +320,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-04-all.zip",
-              "size": 112485
+              "size": 112480
             }
           }
         },
@@ -342,7 +342,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-05-all.zip",
-              "size": 110691
+              "size": 110689
             }
           }
         },
@@ -364,7 +364,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-06-all.zip",
-              "size": 149015
+              "size": 149013
             }
           }
         },
@@ -408,7 +408,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-08-all.zip",
-              "size": 111411
+              "size": 111410
             }
           }
         },
@@ -430,7 +430,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-09-all.zip",
-              "size": 105287
+              "size": 105286
             }
           }
         },
@@ -452,7 +452,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-10-all.zip",
-              "size": 116333
+              "size": 116334
             }
           }
         }

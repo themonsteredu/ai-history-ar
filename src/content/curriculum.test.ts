@@ -57,4 +57,19 @@ describe("curriculum catalog", () => {
       ).toBe(true);
     }
   });
+
+  it("uses the revised data inquiry sequence for the Three Kingdoms course", () => {
+    expect(eras[0].lessons.map((lesson) => lesson.title)).toEqual([
+      "역사 데이터 질문 찾기",
+      "데이터 항목과 관계 정하기",
+      "믿을 수 있는 자료 수집 방법",
+      "우리 모둠 역사 데이터 모으기",
+      "데이터 깨끗하게 다듬기",
+      "역사 데이터를 그림으로 보기",
+      "그래프를 읽고 설명하기",
+      "데이터로 과거 유추하기",
+      "데이터로 미래 변화 예측하기",
+      "AR 데이터 박물관 열기",
+    ]);
+  });
 });

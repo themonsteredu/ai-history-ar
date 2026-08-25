@@ -7,6 +7,7 @@ import { HomePage } from "./pages/HomePage";
 import { LessonPage } from "./pages/LessonPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { TeacherDashboardPage } from "./pages/TeacherDashboardPage";
+import { TeacherToolSettingsPage } from "./pages/TeacherToolSettingsPage";
 
 export function App() {
   return (
@@ -23,6 +24,7 @@ export function App() {
         <Route index element={<TeacherDashboardPage />} />
         <Route path=":eraSlug/lesson/:lessonId" element={<LessonPage mode="teacher" />} />
         <Route path=":eraSlug/downloads" element={<DownloadCenterPage />} />
+        <Route path="three-kingdoms/tools" element={<TeacherToolSettingsPage />} />
       </Route>
     </Routes>
   );

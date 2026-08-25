@@ -72,9 +72,16 @@ export function TeacherDashboardPage() {
             <h2>{selectedEra.shortName} 교사 지도안</h2>
             <p>“{selectedEra.coreQuestion}”</p>
           </div>
-          <Link className="button button--primary" to={`/teacher/${selectedEra.id}/downloads`}>
-            <Icon name="download" size={18} />활동지·카드·답안
-          </Link>
+          <div className="dashboard-heading__actions">
+            {selectedEra.id === "three-kingdoms" ? (
+              <Link className="button button--outline" to="/teacher/three-kingdoms/tools">
+                <Icon name="spark" size={18} />외부 도구 설정
+              </Link>
+            ) : null}
+            <Link className="button button--primary" to={`/teacher/${selectedEra.id}/downloads`}>
+              <Icon name="download" size={18} />활동지·카드·답안
+            </Link>
+          </div>
         </div>
 
         {visibleLessons.length > 0 ? (
