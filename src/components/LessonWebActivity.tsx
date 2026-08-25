@@ -13,6 +13,8 @@ const threeKingdomsImages = [
   "gaya-tombs.jpg",
 ] as const;
 
+const threeKingdomsImageRoot = `${import.meta.env.BASE_URL}images/heritage/three-kingdoms`;
+
 const joseonImagePositions = ["50% 50%", "61% 46%", "20% 50%", "88% 48%", "50% 22%", "74% 58%"] as const;
 
 const sourceLinks = {
@@ -30,12 +32,42 @@ const sourceLinks = {
 
 const lessonTwoChallenges = {
   "three-kingdoms": [
-    { statement: "무령왕릉은 누구의 무덤인지 아직 모른다.", answer: "확인 필요", feedback: "무덤에서 나온 지석으로 무령왕과 왕비의 무덤임을 확인했습니다." },
-    { statement: "백제 금동대향로에 새겨진 모든 동물의 뜻은 하나로 확정되었다.", answer: "확인 필요", feedback: "사진에서 동물 형상은 확인할 수 있지만 모든 무늬의 의미를 하나로 단정할 수는 없습니다." },
-    { statement: "첨성대에서는 망원경으로 별을 관찰했다.", answer: "확인 필요", feedback: "당시 망원경을 사용했다는 근거가 없습니다." },
-    { statement: "신라 금관은 왕이 살아 있을 때 매일 쓴 관이다.", answer: "확인 필요", feedback: "금관의 출토 위치와 구조만으로 실제 착용 방법을 확정하기 어렵습니다." },
-    { statement: "무령왕릉에서는 무덤 주인을 알려 주는 지석이 발견되었다.", answer: "자료와 맞음", feedback: "지석은 무덤 주인을 확인하게 해 준 중요한 기록입니다." },
-    { statement: "고구려 고분벽화에는 사냥과 생활 모습이 그려져 있다.", answer: "자료와 맞음", feedback: "벽화에서 인물·사냥·행렬과 생활 장면을 확인할 수 있습니다." },
+    {
+      statement: "무령왕릉은 누구의 무덤인지 아직 모른다.", answer: "확인 필요", feedback: "무덤에서 나온 지석으로 무령왕과 왕비의 무덤임을 확인했습니다.",
+      heritage: "무령왕릉", image: `${threeKingdomsImageRoot}/muryeong-tomb.jpg`, imageAlt: "공주 무령왕릉 내부 재현 공간",
+      observation: "사진에 보이지 않는 기록 유물이 무덤의 주인을 알려 줄 수도 있습니다.", credit: "Bernard Gagnon · CC0",
+      creditHref: "https://commons.wikimedia.org/wiki/File:King_Muryeong_Tomb_01.jpg",
+    },
+    {
+      statement: "백제 금동대향로에 새겨진 모든 동물의 뜻은 하나로 확정되었다.", answer: "확인 필요", feedback: "사진에서 동물 형상은 확인할 수 있지만 모든 무늬의 의미를 하나로 단정할 수는 없습니다.",
+      heritage: "백제 금동대향로", image: `${threeKingdomsImageRoot}/baekje-incense-burner.jpg`, imageAlt: "백제 금동대향로",
+      observation: "향로에 표현된 산·동물·인물을 찾아보고, 사진만으로 뜻까지 확정할 수 있는지 생각합니다.", credit: "Gary Todd · CC0",
+      creditHref: "https://commons.wikimedia.org/wiki/File:Baekje_Gilt_Bronze_Incense_Burner,_6th-7th_Cent._(30165906226).jpg",
+    },
+    {
+      statement: "첨성대에서는 망원경으로 별을 관찰했다.", answer: "확인 필요", feedback: "당시 망원경을 사용했다는 근거가 없습니다.",
+      heritage: "첨성대", image: `${threeKingdomsImageRoot}/cheomseongdae.jpg`, imageAlt: "경주 첨성대",
+      observation: "남아 있는 돌 구조와 AI가 말한 ‘망원경’ 사이에 근거가 있는지 살펴봅니다.", credit: "Matt & Nayoung Wilson · CC BY 2.0",
+      creditHref: "https://commons.wikimedia.org/wiki/File:Korea-Gyeongju-Cheomseongdae-02.jpg",
+    },
+    {
+      statement: "신라 금관은 왕이 살아 있을 때 매일 쓴 관이다.", answer: "확인 필요", feedback: "금관의 출토 위치와 구조만으로 실제 착용 방법을 확정하기 어렵습니다.",
+      heritage: "신라 금관", image: `${threeKingdomsImageRoot}/silla-crown.jpg`, imageAlt: "국립중앙박물관의 신라 금관",
+      observation: "금관의 얇은 장식과 출토 상황만으로 일상적인 착용 모습을 확정할 수 있는지 생각합니다.", credit: "Ismoon · CC BY-SA 4.0",
+      creditHref: "https://commons.wikimedia.org/wiki/File:Royal_Crown_of_Silla._National_Museum_of_Korea.jpg",
+    },
+    {
+      statement: "무령왕릉에서는 무덤 주인을 알려 주는 지석이 발견되었다.", answer: "자료와 맞음", feedback: "지석은 무덤 주인을 확인하게 해 준 중요한 기록입니다.",
+      heritage: "무령왕릉", image: `${threeKingdomsImageRoot}/muryeong-tomb.jpg`, imageAlt: "공주 무령왕릉 내부 재현 공간",
+      observation: "무덤의 모습과 함께 출토 기록을 확인해야 주인을 판단할 수 있습니다.", credit: "Bernard Gagnon · CC0",
+      creditHref: "https://commons.wikimedia.org/wiki/File:King_Muryeong_Tomb_01.jpg",
+    },
+    {
+      statement: "고구려 고분벽화에는 사냥과 생활 모습이 그려져 있다.", answer: "자료와 맞음", feedback: "벽화에서 인물·사냥·행렬과 생활 장면을 확인할 수 있습니다.",
+      heritage: "고구려 고분벽화", image: `${threeKingdomsImageRoot}/goguryeo-mural.jpg`, imageAlt: "고구려 무용총 수렵도 벽화",
+      observation: "말을 탄 인물과 동물, 활을 쏘는 장면처럼 눈으로 확인할 수 있는 사실을 찾습니다.", credit: "작자 미상 · Public domain",
+      creditHref: "https://commons.wikimedia.org/wiki/File:Goguryeo_tomb_mural.jpg",
+    },
   ],
   joseon: [
     { statement: "훈민정음은 세종 혼자 아무 도움 없이 만들었다.", answer: "확인 필요", feedback: "창제와 해설서 편찬 과정을 나누어 자료로 확인해야 합니다." },
@@ -128,6 +160,89 @@ interface Challenge {
   statement: string;
   answer: string;
   feedback: string;
+  heritage?: string;
+  image?: string;
+  imageAlt?: string;
+  observation?: string;
+  credit?: string;
+  creditHref?: string;
+}
+
+function ChallengeImageViewer({ challenge }: { challenge: Challenge }) {
+  const [open, setOpen] = useState(false);
+  const [zoom, setZoom] = useState(1);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
+
+  if (!challenge.image || !challenge.heritage) return null;
+
+  function openViewer() {
+    setZoom(1);
+    setOpen(true);
+  }
+
+  return (
+    <div className="choice-tool__image">
+      <button
+        aria-haspopup="dialog"
+        aria-label={`${challenge.heritage} 사진 크게 보기`}
+        className="question-workshop__image-preview"
+        onClick={openViewer}
+        type="button"
+      >
+        <img alt={challenge.imageAlt ?? challenge.heritage} src={challenge.image} />
+        <span><Icon name="eye" size={17} />사진 크게 보기</span>
+      </button>
+      <div className="choice-tool__image-caption">
+        <p><strong>사진 관찰</strong>{challenge.observation}</p>
+        {challenge.creditHref && challenge.credit ? <a href={challenge.creditHref} rel="noreferrer" target="_blank">사진: {challenge.credit} ↗</a> : null}
+      </div>
+
+      {open ? (
+        <div
+          aria-label={`${challenge.heritage} 사진 확대 보기`}
+          aria-modal="true"
+          className="heritage-image-viewer"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setOpen(false);
+          }}
+          role="dialog"
+        >
+          <div className="heritage-image-viewer__panel">
+            <header>
+              <div><span>사진 자세히 관찰하기</span><strong>{challenge.heritage}</strong></div>
+              <div className="heritage-image-viewer__controls" role="group" aria-label="사진 확대 조절">
+                <button aria-label="사진 축소" disabled={zoom <= 1} onClick={() => setZoom((current) => Math.max(1, current - 0.25))} type="button">−</button>
+                <output aria-live="polite">{Math.round(zoom * 100)}%</output>
+                <button aria-label="사진 확대" disabled={zoom >= 3} onClick={() => setZoom((current) => Math.min(3, current + 0.25))} type="button">＋</button>
+                <button onClick={() => setZoom(1)} type="button">원래 크기</button>
+                <button className="heritage-image-viewer__close" onClick={() => setOpen(false)} type="button">닫기 ×</button>
+              </div>
+            </header>
+            <div className="heritage-image-viewer__canvas">
+              <div className="heritage-image-viewer__stage" style={{ height: `${zoom * 100}%`, width: `${zoom * 100}%` }}>
+                <img alt={`${challenge.heritage} 확대 사진`} draggable="false" src={challenge.image} />
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 function QuickChoiceTool({ challenges, choices }: { challenges: readonly Challenge[]; choices: readonly string[] }) {
@@ -142,8 +257,14 @@ function QuickChoiceTool({ challenges, choices }: { challenges: readonly Challen
 
   return (
     <div className="web-tool web-tool--choice">
-      <div className="choice-tool__counter">문장 {index + 1} / {challenges.length}</div>
-      <blockquote>“{challenge.statement}”</blockquote>
+      <div className={challenge.image ? "choice-tool__stage has-image" : "choice-tool__stage"}>
+        <ChallengeImageViewer challenge={challenge} key={challenge.statement} />
+        <div className="choice-tool__question">
+          <div className="choice-tool__counter">문장 {index + 1} / {challenges.length}</div>
+          {challenge.heritage ? <span className="choice-tool__heritage">{challenge.heritage}</span> : null}
+          <blockquote>“{challenge.statement}”</blockquote>
+        </div>
+      </div>
       <div className="choice-tool__buttons">
         {choices.map((item) => <button key={item} onClick={() => setChoice(item)} type="button">{item}</button>)}
       </div>
