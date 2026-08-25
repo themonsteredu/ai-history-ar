@@ -3943,6 +3943,10 @@ input:focus-visible {
   font-size: 12px;
 }
 
+.worksheet-classroom__research {
+  padding: 26px 28px 4px;
+}
+
 .web-tool {
   padding: 30px;
 }
@@ -5494,7 +5498,8 @@ input:focus-visible {
   .web-activity-shell > header,
   .web-tool,
   .worksheet-classroom > header,
-  .worksheet-classroom__grid {
+  .worksheet-classroom__grid,
+  .worksheet-classroom__research {
     padding: 20px;
   }
 
@@ -5854,6 +5859,7 @@ input:focus-visible {
 
 .research-case-hero ul {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin: 22px 0 0;
   padding: 0;
@@ -6982,6 +6988,20 @@ input:focus-visible {
   font-size: 10px;
   font-weight: 800;
   cursor: pointer;
+}
+
+.research-fact-list--readonly article {
+  min-height: 112px;
+  padding: 15px;
+  border: 1px solid #dedad1;
+  border-radius: 11px;
+  color: #26332f;
+  background: #f8f6f1;
+}
+
+.research-fact-list--readonly article.is-caution {
+  border-color: #ddc9aa;
+  background: #f7f0e1;
 }
 
 .choice-tool__buttons button.is-selected,

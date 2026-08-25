@@ -43,22 +43,22 @@ describe("external tool settings", () => {
   it("stores complete settings and restores missing lessons from defaults", () => {
     const storage = new MemoryStorage();
     const defaults = createDefaultExternalToolSettings();
-    defaults.lessons[2].studentUrl = "https://docs.google.com/forms/d/example/viewform";
+    defaults.lessons[4].studentUrl = "https://docs.google.com/spreadsheets/d/example/edit";
     writeExternalToolSettings(storage, defaults);
 
     const restored = readExternalToolSettings(storage);
     expect(restored.lessons).toHaveLength(10);
-    expect(restored.lessons[2].studentUrl).toContain("docs.google.com");
-    expect(getResolvedExternalTool(2, restored).toolName).toBe("학급 데이터 약속 만들기");
-    expect(getResolvedExternalTool(2, restored).launchMode).toBe("internal");
+    expect(restored.lessons[4].studentUrl).toContain("docs.google.com");
+    expect(getResolvedExternalTool(5, restored).toolName).toBe("Google Sheets · 데이터 전처리");
+    expect(getResolvedExternalTool(5, restored).launchMode).toBe("new-tab");
   });
 
   it("drops unsafe imported URLs and reports required setup", () => {
     const normalized = normalizeExternalToolSettings({
       version: 1,
-      lessons: [{ lessonId: 3, enabled: true, launchMode: "embed", studentUrl: "https://example.com", embedUrl: "", teacherSourceUrl: "", submissionUrl: "", resultBoardUrl: "" }],
+      lessons: [{ lessonId: 5, enabled: true, launchMode: "new-tab", studentUrl: "https://example.com", embedUrl: "", teacherSourceUrl: "", submissionUrl: "", resultBoardUrl: "" }],
     });
-    expect(normalized.lessons[2].studentUrl).toBe("");
-    expect(validateExternalToolSetting(normalized.lessons[2])).toContain("학생 실행 URL이 필요합니다.");
+    expect(normalized.lessons[4].studentUrl).toBe("");
+    expect(validateExternalToolSetting(normalized.lessons[4])).toContain("학생 실행 URL이 필요합니다.");
   });
 });

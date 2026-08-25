@@ -1,84 +1,29 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import {
   heritageResearchCases,
   verificationCases,
-  type EvidenceFact,
   type QuizVerdict,
 } from "../content/three-kingdoms/webActivities";
 
 const TrackedHeritageAr = lazy(() => import("./TrackedHeritageAr"));
 const imageRoot = `${import.meta.env.BASE_URL}images/heritage/three-kingdoms`;
-const researchStorageKey = "moa-history-ar:three-kingdoms:lesson-4:v1";
 const verificationStorageKey = "moa-history-ar:three-kingdoms:lesson-6:v1";
 
-type ResearchProgress = Record<string, { evidenceIds: string[]; completed: boolean }>;
+const researchChecklist = ["제작 시기", "주체·목적", "유산의 가치", "현재 상태", "AI 오류 바로잡기", "아직 모름", "출처"] as const;
 
-function readResearchProgress(): ResearchProgress {
-  try {
-    return JSON.parse(window.localStorage.getItem(researchStorageKey) ?? "{}") as ResearchProgress;
-  } catch {
-    return {};
-  }
-}
-
-function ResearchEvidenceExplorer() {
+export function LessonFourResearchHub() {
   const [selectedCaseId, setSelectedCaseId] = useState(1);
   const [openedSourceId, setOpenedSourceId] = useState("m1-record");
-  const [progress, setProgress] = useState<ResearchProgress>(readResearchProgress);
-  const [savedMessage, setSavedMessage] = useState("");
   const selectedCase = heritageResearchCases[selectedCaseId - 1];
-  const selectedProgress = progress[String(selectedCaseId)] ?? { evidenceIds: [], completed: false };
-  const allFacts = selectedCase.sources.flatMap((source) => source.facts);
-  const collectedFacts = allFacts.filter((fact) => selectedProgress.evidenceIds.includes(fact.id));
-  const confirmedCount = collectedFacts.filter((fact) => fact.kind === "confirmed").length;
-  const cautionCount = collectedFacts.filter((fact) => fact.kind === "caution").length;
-  const ready = confirmedCount >= 2 && cautionCount >= 1;
-
-  useEffect(() => {
-    window.localStorage.setItem(researchStorageKey, JSON.stringify(progress));
-  }, [progress]);
 
   function selectCase(caseId: number) {
     const nextCase = heritageResearchCases[caseId - 1];
     setSelectedCaseId(caseId);
     setOpenedSourceId(nextCase.sources[0].id);
-    setSavedMessage("");
-  }
-
-  function toggleEvidence(fact: EvidenceFact) {
-    setProgress((current) => {
-      const caseProgress = current[String(selectedCaseId)] ?? { evidenceIds: [], completed: false };
-      const exists = caseProgress.evidenceIds.includes(fact.id);
-      return {
-        ...current,
-        [String(selectedCaseId)]: {
-          evidenceIds: exists
-            ? caseProgress.evidenceIds.filter((id) => id !== fact.id)
-            : [...caseProgress.evidenceIds, fact.id],
-          completed: false,
-        },
-      };
-    });
-    setSavedMessage("");
-  }
-
-  function saveResearch() {
-    if (!ready) return;
-    setProgress((current) => ({
-      ...current,
-      [String(selectedCaseId)]: { ...selectedProgress, completed: true },
-    }));
-    setSavedMessage(`${selectedCase.heritage} 근거 꾸러미를 이 기기에 저장했습니다.`);
   }
 
   return (
-    <div className="web-tool project-activity research-lab" data-testid="lesson-4-research">
-      <section className="core-mission" aria-label="활동 방법">
-        <span>웹앱이 하는 일</span>
-        <strong>공식 자료를 비교하고 필요한 근거만 모읍니다.</strong>
-        <p>근거를 자기 말로 바꾸어 쓰는 일은 학생 활동지에서 합니다.</p>
-      </section>
-
+    <div className="project-activity research-lab" data-testid="lesson-4-research">
       <nav aria-label="조사할 문화유산" className="project-case-tabs">
         {heritageResearchCases.map((item) => (
           <button
@@ -89,7 +34,7 @@ function ResearchEvidenceExplorer() {
           >
             <span>{item.category}</span>
             <strong>{item.heritage}</strong>
-            <small>{progress[String(item.id)]?.completed ? "조사 완료" : "자료 3개"}</small>
+            <small>{item.id}모둠 · 공식 자료 3개</small>
           </button>
         ))}
       </nav>
@@ -97,13 +42,10 @@ function ResearchEvidenceExplorer() {
       <section className="research-case-hero">
         <img alt={`${selectedCase.heritage} 조사 사진`} src={`${imageRoot}/${selectedCase.image}`} />
         <div>
-          <span>{selectedCase.category} · 모둠 조사실</span>
+          <span>{selectedCase.category} · {selectedCaseId}모둠 조사실</span>
           <h3>{selectedCase.heritage}</h3>
           <p>{selectedCase.question}</p>
-          <ul>
-            <li className={confirmedCount >= 2 ? "is-complete" : ""}>확인된 사실 {confirmedCount} / 2</li>
-            <li className={cautionCount >= 1 ? "is-complete" : ""}>단정하면 안 되는 점 {cautionCount} / 1</li>
-          </ul>
+          <ul>{researchChecklist.map((item) => <li key={item}>{item}</li>)}</ul>
         </div>
       </section>
 
@@ -120,23 +62,13 @@ function ResearchEvidenceExplorer() {
               {isOpen ? (
                 <div className="research-source-card__body">
                   <p className="research-read-guide"><strong>읽기 임무</strong>{source.readGuide}</p>
-                  <div className="research-fact-list">
-                    {source.facts.map((fact) => {
-                      const selected = selectedProgress.evidenceIds.includes(fact.id);
-                      return (
-                        <button
-                          aria-pressed={selected}
-                          className={fact.kind === "caution" ? "is-caution" : ""}
-                          key={fact.id}
-                          onClick={() => toggleEvidence(fact)}
-                          type="button"
-                        >
-                          <span>{fact.kind === "confirmed" ? "확인된 사실" : "판단 보류"}</span>
-                          <strong>{fact.text}</strong>
-                          <small>{selected ? "근거 꾸러미에서 빼기" : "+ 근거 꾸러미에 담기"}</small>
-                        </button>
-                      );
-                    })}
+                  <div className="research-fact-list research-fact-list--readonly">
+                    {source.facts.map((fact) => (
+                      <article className={fact.kind === "caution" ? "is-caution" : ""} key={fact.id}>
+                        <span>{fact.kind === "confirmed" ? "확인할 근거" : "아직 모름에 남길 점"}</span>
+                        <strong>{fact.text}</strong>
+                      </article>
+                    ))}
                   </div>
                   <a href={source.href} rel="noreferrer" target="_blank">{source.institution} 원문 확인 ↗</a>
                 </div>
@@ -145,17 +77,6 @@ function ResearchEvidenceExplorer() {
           );
         })}
       </div>
-
-      <aside className="evidence-tray" aria-live="polite">
-        <header>
-          <div><span>우리 모둠 근거 꾸러미</span><h3>{collectedFacts.length > 0 ? `${collectedFacts.length}개를 골랐습니다` : "자료에서 근거를 골라 주세요"}</h3></div>
-          <button className="button button--primary" disabled={!ready} onClick={saveResearch} type="button">조사 완료 저장</button>
-        </header>
-        {collectedFacts.length > 0 ? (
-          <ol>{collectedFacts.map((fact) => <li className={fact.kind === "caution" ? "is-caution" : ""} key={fact.id}><span>{fact.kind === "confirmed" ? "확인" : "보류"}</span>{fact.text}</li>)}</ol>
-        ) : <p>자료 카드의 문장을 눌러 담으세요. 확인 2개와 보류 1개가 필요합니다.</p>}
-        {savedMessage ? <strong className="project-save-message">{savedMessage}</strong> : null}
-      </aside>
     </div>
   );
 }
@@ -326,7 +247,7 @@ function VerificationArena() {
 }
 
 export function ThreeKingdomsProjectActivity({ lessonId }: { lessonId: number }) {
-  if (lessonId === 4) return <ResearchEvidenceExplorer />;
+  if (lessonId === 4) return <LessonFourResearchHub />;
   if (lessonId === 5) return <CameraArActivity />;
   return <VerificationArena />;
 }

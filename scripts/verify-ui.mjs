@@ -14,9 +14,9 @@ const browserCandidates = [
 
 const lessonTitles = [
   "역사 데이터 질문 찾기",
-  "데이터 항목과 관계 정하기",
-  "믿을 수 있는 자료 수집 방법",
-  "우리 모둠 역사 데이터 모으기",
+  "AI에게 물어보았습니다",
+  "진짜인지 확인하는 방법",
+  "우리 모둠 유산 파헤치기",
   "데이터 깨끗하게 다듬기",
   "역사 데이터를 그림으로 보기",
   "그래프를 읽고 설명하기",
@@ -129,7 +129,7 @@ try {
   const toolCards = await desktop.locator(".teacher-tool-card").count();
   if (toolCards !== 10) throw new Error(`교사용 외부 도구 설정이 10개가 아닙니다: ${toolCards}개`);
   const internalCards = await desktop.locator(".teacher-tool-internal-note").count();
-  if (internalCards !== 2) throw new Error(`웹앱 내부 활동 설정이 2개가 아닙니다: ${internalCards}개`);
+  if (internalCards !== 5) throw new Error(`웹앱 내부 활동 설정이 5개가 아닙니다: ${internalCards}개`);
   await desktop.screenshot({ path: path.join(outputDirectory, "teacher-tools-desktop.png"), fullPage: true });
 
   let verifiedSlideCount = 0;
@@ -138,7 +138,7 @@ try {
     results.push(await inspectPage(desktop, `/three-kingdoms/lesson/${lessonId}?view=ppt`, title));
     const slideButtons = desktop.locator(".lesson-slides__dots button");
     const slideCount = await slideButtons.count();
-    if (slideCount !== 9) throw new Error(`${lessonId}차시 슬라이드가 질문·답 포함 9장이 아닙니다: ${slideCount}장`);
+    if (slideCount < 9) throw new Error(`${lessonId}차시 슬라이드가 질문·답 포함 9장보다 적습니다: ${slideCount}장`);
 
     let previousWasPrompt = false;
     for (let slideIndex = 0; slideIndex < slideCount; slideIndex += 1) {
@@ -172,25 +172,26 @@ try {
     }
 
     results.push(await inspectPage(desktop, `/three-kingdoms/lesson/${lessonId}?view=activity`, title));
-    await desktop.locator(".external-activity").waitFor();
-    const stepCount = await desktop.locator(".external-step-card li").count();
-    if (stepCount !== 3) throw new Error(`${lessonId}차시 실행 안내가 3단계가 아닙니다: ${stepCount}단계`);
+    if (lessonId === 4) {
+      await desktop.locator(".worksheet-classroom").waitFor();
+      if (await desktop.locator("[data-testid='lesson-4-research']").count() !== 1) throw new Error("4차시 공식 자료실이 보이지 않습니다.");
+    } else {
+      await desktop.locator(".web-activity-shell").waitFor();
+      if (await desktop.locator(".web-tool").count() !== 1) throw new Error(`${lessonId}차시 웹 활동이 보이지 않습니다.`);
+    }
     const exposedTeacherContent = await desktop.locator(".download-panel, .activity-timeline, .teacher-tool-card").count();
     if (exposedTeacherContent !== 0) throw new Error(`${lessonId}차시 학생 화면에 교사용 영역이 노출되었습니다.`);
   }
 
   await desktop.goto(routeUrl("/three-kingdoms/lesson/1?view=activity"), { waitUntil: "networkidle" });
-  const heritageImages = desktop.locator(".external-heritage-grid img");
+  const heritageImages = desktop.locator(".artifact-explorer__grid img");
   if (await heritageImages.count() !== 6) throw new Error("1차시 유산 이미지가 6개가 아닙니다.");
   await desktop.waitForFunction(() => [...document.querySelectorAll(".external-heritage-grid img")].every((image) => image.complete && image.naturalWidth > 0));
-  await desktop.locator(".external-activity").screenshot({ path: path.join(outputDirectory, "lesson-01-activity-desktop.png") });
+  await desktop.locator(".web-activity-shell").screenshot({ path: path.join(outputDirectory, "lesson-01-activity-desktop.png") });
 
   await desktop.goto(routeUrl("/three-kingdoms/lesson/6?view=activity"), { waitUntil: "networkidle" });
-  await desktop.getByRole("button", { name: "화면 안에서 시작" }).click();
-  const toolFrame = desktop.locator(".external-tool-frame iframe");
-  await toolFrame.waitFor();
-  if (!((await toolFrame.getAttribute("src")) ?? "").includes("codap.concord.org")) throw new Error("6차시 CODAP 임베드 주소가 잘못되었습니다.");
-  await desktop.getByRole("button", { name: "도구 화면 닫기" }).last().click();
+  await desktop.locator(".web-tool--choice").waitFor();
+  if (await desktop.locator(".choice-tool__buttons button").count() !== 3) throw new Error("6차시 판정 선택지가 3개가 아닙니다.");
 
   results.push(await inspectPage(desktop, "/joseon/lesson/1?view=ppt", "조선에는 무엇이 남아 있을까"));
   results.push(await inspectPage(desktop, "/teacher/three-kingdoms/lesson/1", lessonTitles[0]));

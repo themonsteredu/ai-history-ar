@@ -57,6 +57,40 @@ SOURCES = {
 }
 
 
+LESSON_FOUR_NOTES = {
+    "무령왕릉": (
+        "1971년 송산리 고분 배수로 공사 중 발견되었고 지석으로 무덤 주인을 확인했다.",
+        "유물이 놓인 까닭과 장례의 모든 순간은 지석만으로 확정할 수 없다.",
+        "발견 상황 → 지석의 역할 → 발굴 기록의 한계",
+    ),
+    "백제 금동대향로": (
+        "1993년 부여 능산리 절터에서 출토된 금동 유물로, 봉황·산·연꽃·용 등이 표현되어 있다.",
+        "향로의 모든 인물과 동물 무늬가 각각 뜻하는 바를 하나로 단정할 수 없다.",
+        "출토 장소·재료 → 사진 속 형상 → 무늬 해석의 한계",
+    ),
+    "첨성대": (
+        "신라 선덕여왕 때 세운 것으로 보는 석조 건축물이며 천문 관측과 관련된 시설로 설명된다.",
+        "누가 어떤 자세와 도구로 관측했는지는 하나로 확정되지 않았다.",
+        "제작 시기·재료 → 천문 관측 관련 설명 → 구체적 사용법의 한계",
+    ),
+    "신라 금관": (
+        "왕릉급 무덤의 부장품으로 발견되었고 얇은 금판·세움 장식·굽은옥 등이 보인다.",
+        "살아 있을 때 직접 썼는지 장례를 위해 만들었는지는 한 가지 결론으로 확정하기 어렵다.",
+        "출토 위치 → 실제로 보이는 장식 → 착용 여부의 한계",
+    ),
+    "고구려 고분벽화": (
+        "왕족과 귀족의 무덤에 남은 벽화로 생활·사냥·행렬과 믿음을 살펴볼 수 있다.",
+        "왕족·귀족 무덤의 장면을 모든 고구려 사람의 일상으로 일반화해서는 안 된다.",
+        "무덤의 주인 → 벽화 장면 → 자료를 일반화할 때의 한계",
+    ),
+    "가야 고분군": (
+        "여러 지역의 일곱 고분군으로 이루어져 가야 정치체의 공통점과 지역 차이를 보여 준다.",
+        "가야를 처음부터 한 왕이 다스린 하나의 나라로 단정해서는 안 된다.",
+        "고분군의 분포 → 공통점·지역 차이 → 단일 국가라는 오해",
+    ),
+}
+
+
 QUIZ_BANK = {
     "무령왕릉": [
         ("무령왕릉은 1971년 배수로 공사 중 우연히 발견되었다.", "참", "1971년 7월 송산리 6호분 배수로 공사 중 발견되었다."),
@@ -342,9 +376,26 @@ def three_kingdoms_data_sheet(era, lesson, width, st):
             ruled_box("최종 판단", "가장 믿을 만한 자료와 그 까닭을 적으세요. 아직 확인할 수 없는 내용은 '아직 모름'으로 남기세요.", width, 50 * mm, st),
         ]
     elif lesson_id == 4:
-        rows = [["번호", "자료 제목·기관", "시기·지역", "입력 완료", "출처 확인"]] + [[str(index), "", "", "□", "□"] for index in range(1, 13)]
-        flow += [data_table(rows, [width * .08, width * .36, width * .28, width * .14, width * .14], st, row_heights=[9 * mm] + [11 * mm] * 12), Spacer(1, 5 * mm)]
-        flow += [sheet_columns([ruled_box("수집 현황", "목표 ____건 / 입력 ____건 / 출처 확인 ____건", width * .47, 52 * mm, st)], [ruled_box("더 필요한 자료", "빠진 시기·지역·자료 종류를 적으세요.", width * .47, 52 * mm, st)], width, st)]
+        investigation_rows = [
+            ["조사 항목", "공식 자료에서 확인한 내용을 자기 말로 적기"],
+            ["제작 시기", ""],
+            ["만든 사람·집단과 목적", ""],
+            ["유산의 가치", ""],
+            ["현재 상태", ""],
+        ]
+        left_width = (width - 5 * mm) * .56
+        right_width = width - 5 * mm - left_width
+        flow += [sheet_columns(
+            [data_table(investigation_rows, [left_width * .27, left_width * .73], st, row_heights=[10 * mm] + [25 * mm] * 4)],
+            [
+                ruled_box("AI 오류 바로잡기", "AI가 한 말: __________________________________\n근거로 고친 문장: _____________________________", right_width, 52 * mm, st),
+                Spacer(1, 4 * mm),
+                ruled_box("아직 모름", "자료를 찾아도 확인하지 못했거나 의견이 나뉘는 점을 억지로 채우지 말고 남기세요.", right_width, 54 * mm, st),
+            ],
+            width, st, left_ratio=.56,
+        ), Spacer(1, 5 * mm)]
+        source_rows = [["번호", "기관·자료 제목", "원문 주소 또는 자료집 쪽", "확인한 날짜"]] + [[str(index), "", "", ""] for index in range(1, 4)]
+        flow += [data_table(source_rows, [width * .09, width * .32, width * .43, width * .16], st, row_heights=[10 * mm] + [18 * mm] * 3)]
     elif lesson_id == 5:
         rows = [["행 번호", "찾은 문제", "고친 내용", "고친 까닭"]] + [[str(index), "중복 / 빈칸 / 표기", "", ""] for index in range(1, 9)]
         flow += [data_table(rows, [width * .1, width * .24, width * .31, width * .35], st, row_heights=[10 * mm] + [18 * mm] * 8), Spacer(1, 5 * mm)]
@@ -475,7 +526,13 @@ def activity_answer_examples(era, lesson):
                 ("보류", "첨성대의 정확한 관측 방법처럼 근거가 부족하거나 의견이 나뉘는 내용은 '아직 모름'으로 남깁니다."),
                 ("최종 판단", "예: 국가기관 자료를 출발점으로 사용하되 확인된 범위만 기록하고, 정확한 관측 방법은 보류한다."),
             ],
-            4: [("수집량", "모둠당 12~20건을 목표로 하되 중복보다 자료의 출처와 항목 완성도를 우선합니다."), ("모둠 코드", "학생 이름 대신 1모둠~6모둠 코드만 사용합니다."), ("자료 품질", "출처 URL과 확인 날짜가 없거나 같은 내용이 반복되면 보완합니다.")],
+            4: [
+                ("조사 예시", "백제 금동대향로는 1993년 부여 능산리 절터에서 발견되었으며, 청동으로 만든 뒤 표면에 금을 입힌 유물입니다."),
+                ("AI 오류 바로잡기", "‘향로의 모든 동물은 정확한 뜻이 밝혀졌다’는 설명은 과장입니다. 사진에서 모양은 확인할 수 있지만 모든 상징의 뜻을 하나로 단정할 수 없습니다."),
+                ("아직 모름", "향로의 모든 인물·동물 무늬가 각각 무엇을 뜻하는지는 확인된 범위와 해석을 구분해 남깁니다."),
+                ("출처", "국립부여박물관 백제금동대향로 소장품 설명처럼 기관명·자료 제목·원문 주소·확인 날짜를 함께 기록합니다."),
+                ("평가 기준", "시기·목적·가치·현재 상태를 자기 말로 쓰고, AI 오류와 아직 모르는 점을 출처 근거에 맞게 구분하면 됩니다."),
+            ],
             5: [("중복", "같은 원자료를 두 번 입력한 행은 원본과 비교한 뒤 사본에서 정리합니다."), ("표기 통일", "경주·경주시처럼 같은 뜻의 표기는 학급 약속에 맞춰 하나로 통일합니다."), ("판단 보류", "분석하기 어렵다는 이유로 삭제하지 않고 자료 상태를 유지합니다.")],
             6: [("그래프 선택", "탐구 질문이 지역 비교라면 지역과 자료 종류처럼 질문에 직접 연결되는 축을 고릅니다."), ("필수 요소", "가로축·세로축 이름, 제목, 단위를 확인합니다."), ("정확한 연도", "발견·발굴·지정 연도처럼 실제 연도가 있는 자료만 연도축에 사용합니다.")],
             7: [("보이는 점", "예: 이 자료에서는 경주 지역의 건축·장신구 자료가 다른 종류보다 많이 보입니다."), ("모르는 점", "자료 수가 적거나 왕족·귀족 자료가 중심이면 전체 사람의 생활로 일반화할 수 없습니다."), ("발표", "그래프의 값 → 경향 → 자료의 한계 순서로 말합니다.")],
@@ -582,7 +639,18 @@ def answer_guide_sheet(era, lesson, width, st):
         data_table(rows, [width * .22, width * .78], st, row_heights=[10 * mm] + [27 * mm] * (len(rows) - 1)),
         Spacer(1, 5 * mm),
     ]
-    if lesson["id"] in (4, 5, 7, 8, 10):
+    if lesson["id"] == 4 and era["id"] == "three-kingdoms":
+        flow += [PageBreak(), para("모둠별 확인 내용과 판단 보류", st["h1"]), Spacer(1, 3 * mm)]
+        references = [["모둠·문화유산", "공식 자료로 확인할 핵심", "아직 모름에 남길 점"]]
+        for group in era["groups"]:
+            confirmed, unknown, _ = LESSON_FOUR_NOTES[group["heritage"]]
+            references.append([f"{group['id']}모둠\n{group['heritage']}", confirmed, unknown])
+        flow += [
+            data_table(references, [width * .19, width * .42, width * .39], st, row_heights=[10 * mm] + [22 * mm] * 6),
+            Spacer(1, 5 * mm),
+            ruled_box("교사 확인 질문", "어느 자료에서 확인했나요? / 자료가 말한 범위를 넘어서 단정하지 않았나요? / 아직 모르는 점을 질문으로 남겼나요?", width, 34 * mm, st),
+        ]
+    elif lesson["id"] in (5, 7, 8, 10):
         references = [["모둠", "문화유산", "교사가 확인할 핵심 사실"]]
         for group in era["groups"]:
             fact, verdict, reason = QUIZ_BANK[group["heritage"]][0]
@@ -782,6 +850,47 @@ def teacher_resource(era, lesson, name, width, st):
     elif "목차" in name:
         rows = [["번호", "자료 제목", "기관·저자", "발행·수정일", "수업에서 볼 쪽"]] + [[str(i), "", "", "", ""] for i in range(1, 7)]
         flow += [data_table(rows, [width * .08, width * .3, width * .23, width * .18, width * .21], st), Spacer(1, 5 * mm), ruled_box("자료집 검토", "출처 표시 □  제작 시기 확인 □  중복 내용 교차 확인 □  원본 링크 확인 □", width, 35 * mm, st)]
+    elif "공식 자료 모음" in name:
+        rows = [["모둠", "문화유산", "공식 원문", "세 번 나누어 읽기"]]
+        for group in era["groups"]:
+            source_title, source_url = SOURCES[group["heritage"]]
+            _, _, reading_path = LESSON_FOUR_NOTES[group["heritage"]]
+            source_link = Paragraph(
+                f"{escape(source_title)}<br/><link href={quoteattr(source_url)} color='#333333'><u>원문 바로가기</u></link>",
+                st["small"],
+            )
+            rows.append([f"{group['id']}모둠", group["heritage"], source_link, reading_path])
+        flow += [
+            data_table(rows, [width * .1, width * .2, width * .31, width * .39], st, row_heights=[10 * mm] + [23 * mm] * 6),
+            Spacer(1, 5 * mm),
+            ruled_box("인쇄 자료집으로 바꿀 때", "각 원문의 핵심 부분을 1~2쪽으로 인쇄하고 기관명·자료 제목·원문 주소·인쇄 날짜를 첫 장에 표시하세요. 모둠별로 같은 원문을 세 가지 읽기 임무로 나누어 사용합니다.", width, 37 * mm, st),
+        ]
+    elif "조사 항목 안내표" in name:
+        rows = [
+            ["조사 항목", "학생에게 던질 확인 질문", "완료 기준"],
+            ["제작 시기", "언제 만들었으며 그 근거는 무엇인가?", "시대 범위와 출처 번호"],
+            ["주체·목적", "누가 무엇을 위해 만들었는가?", "확인된 범위까지만 기록"],
+            ["유산의 가치", "이 유산으로 무엇을 알 수 있는가?", "모양 설명이 아닌 역사적 의미"],
+            ["현재 상태", "지금 어디에 어떻게 남아 있는가?", "유적·유물·세계유산 범위 구분"],
+            ["AI 오류", "AI 문장의 어느 낱말이 과장되었는가?", "근거 있는 새 문장과 출처"],
+            ["아직 모름", "자료로 확인되지 않거나 의견이 나뉘는 점은?", "추측 대신 남은 질문 기록"],
+            ["출처", "친구가 같은 내용을 다시 찾을 수 있는가?", "기관·제목·주소·확인 날짜"],
+        ]
+        flow += [
+            data_table(rows, [width * .17, width * .48, width * .35], st, row_heights=[10 * mm] + [20 * mm] * 7),
+            Spacer(1, 5 * mm),
+            ruled_box("빠른 순회 점검", "① 출처 번호가 있는가  ② 자기 말로 바꾸었는가  ③ 확인한 사실과 해석을 구분했는가  ④ 아직 모르는 점을 억지로 채우지 않았는가", width, 34 * mm, st),
+        ]
+    elif "교사용 예시 답안" in name and era["id"] == "three-kingdoms" and lesson["id"] == 4:
+        rows = [["모둠·유산", "확인된 내용 예시", "판단 보류 예시"]]
+        for group in era["groups"]:
+            confirmed, unknown, _ = LESSON_FOUR_NOTES[group["heritage"]]
+            rows.append([f"{group['id']}모둠\n{group['heritage']}", confirmed, unknown])
+        flow += [
+            data_table(rows, [width * .19, width * .42, width * .39], st, row_heights=[10 * mm] + [23 * mm] * 6),
+            Spacer(1, 5 * mm),
+            ruled_box("인정할 수 있는 다른 답", "문장이 예시와 달라도 공식 자료의 근거 범위를 지키고 출처를 다시 찾을 수 있으면 인정합니다. ‘아직 모름’은 빈칸이 아니라 근거의 한계를 정확히 적은 답입니다.", width, 36 * mm, st),
+        ]
     elif "구현 가능성" in name:
         rows = [["검토 항목", "바로 가능", "수정 후 가능", "이번에는 보류", "피드백"], ["카드 인식", "□", "□", "□", ""], ["3D·영상", "□", "□", "□", ""], ["움직임·미션", "□", "□", "□", ""], ["음성·대본", "□", "□", "□", ""], ["QR 대체", "□", "□", "□", ""]]
         flow += [data_table(rows, [width * .2, width * .13, width * .16, width * .17, width * .34], st)]

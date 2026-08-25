@@ -4,7 +4,7 @@
       "title": "삼국시대",
       "bundle": {
         "path": "/downloads/three-kingdoms/three-kingdoms-all-materials.zip",
-        "size": 1078755
+        "size": 1106334
       },
       "lessons": [
         {
@@ -75,23 +75,23 @@
         },
         {
           "lessonId": 4,
-          "title": "우리 모둠 역사 데이터 모으기",
+          "title": "우리 모둠 유산 파헤치기",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-04-student.pdf",
-              "size": 28783
+              "size": 31702
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-04-teacher.pdf",
-              "size": 49990
+              "size": 68690
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-04-answer.pdf",
-              "size": 39824
+              "size": 50080
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-04-all.zip",
-              "size": 107928
+              "size": 135552
             }
           }
         },

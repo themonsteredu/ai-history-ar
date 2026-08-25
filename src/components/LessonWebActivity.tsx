@@ -3,6 +3,7 @@ import { lessonDownloadPath } from "../content/downloads";
 import { classroomModeInfo } from "../content/lesson-helpers";
 import type { Era, HeritageGroup, Lesson } from "../types/curriculum";
 import { Icon } from "./Icon";
+import { LessonFourResearchHub } from "./ThreeKingdomsProjectActivities";
 
 const threeKingdomsImages = [
   "muryeong-tomb.jpg",
@@ -654,28 +655,32 @@ function LessonTool({ era, lesson }: { era: Era; lesson: Lesson }) {
 }
 
 function WorksheetLessonView({ era, lesson }: { era: Era; lesson: Lesson }) {
+  const isThreeKingdomsResearch = era.id === "three-kingdoms" && lesson.id === 4;
   return (
-    <section className="worksheet-classroom" aria-labelledby="worksheet-classroom-title">
+    <section className={isThreeKingdomsResearch ? "worksheet-classroom worksheet-classroom--research" : "worksheet-classroom"} aria-labelledby="worksheet-classroom-title">
       <header>
-        <span>학생 개인기기 사용 없음</span>
-        <h2 id="worksheet-classroom-title">활동지에 조사 과정과 근거를 남깁니다</h2>
+        <span>{era.shortName} {lesson.id}차시 · 활동지 중심</span>
+        <h2 id="worksheet-classroom-title">{isThreeKingdomsResearch ? "모둠별 공식 자료실" : "활동지에 조사 과정과 근거를 남깁니다"}</h2>
         <p>{lesson.objective}</p>
       </header>
-      <div className="worksheet-classroom__grid">
-        <div>
-          <strong>활동 순서</strong>
-          <ol>
-            {lesson.activities.flatMap((activity) => activity.details).map((detail) => <li key={detail}>{detail}</li>)}
-          </ol>
+      {isThreeKingdomsResearch ? (
+        <div className="worksheet-classroom__research"><LessonFourResearchHub /></div>
+      ) : (
+        <div className="worksheet-classroom__grid">
+          <div>
+            <strong>활동 순서</strong>
+            <ol>
+              {lesson.activities.flatMap((activity) => activity.details).map((detail) => <li key={detail}>{detail}</li>)}
+            </ol>
+          </div>
+          <div>
+            <strong>오늘 남길 결과</strong>
+            <ul>{lesson.outputs.map((output) => <li key={output}>{output}</li>)}</ul>
+          </div>
         </div>
-        <div>
-          <strong>오늘 남길 결과</strong>
-          <ul>{lesson.outputs.map((output) => <li key={output}>{output}</li>)}</ul>
-        </div>
-      </div>
+      )}
       <div className="worksheet-classroom__actions">
         <a className="button button--primary" download href={lessonDownloadPath(era.id, lesson.id, "student")}><Icon name="download" size={18} />학생 활동지 PDF</a>
-        <p>교사는 수업 PPT와 인쇄 자료를 안내하고, 학생은 웹에 다시 입력하지 않습니다.</p>
       </div>
     </section>
   );
