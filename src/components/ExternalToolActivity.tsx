@@ -9,6 +9,9 @@ import {
 import { Icon } from "./Icon";
 import { ExternalToolFrame } from "./ExternalToolFrame";
 import { LessonFiveCleaningLab } from "./LessonFiveCleaningLab";
+import { LessonSixChartStudio } from "./LessonSixChartStudio";
+import { LessonSevenInterpretationLab } from "./LessonSevenInterpretationLab";
+import { LessonEightInferenceLab } from "./LessonEightInferenceLab";
 
 const COMPLETION_STORAGE_KEY = "moa-history-ar:external-tool-completion:v1";
 
@@ -560,6 +563,9 @@ export function ExternalToolActivity({ lesson }: { lesson: Lesson }) {
       {tool.launchMode === "internal" && tool.enabled ? <InternalLessonPanel lessonId={lesson.id} onSaved={markCompleted} resultBoardUrl={tool.resultBoardUrl} /> : null}
 
       {lesson.id === 5 && tool.enabled ? <div className="external-tool-internal"><LessonFiveCleaningLab onSaved={markCompleted} /></div> : null}
+      {lesson.id === 6 && tool.enabled ? <div className="external-tool-internal"><LessonSixChartStudio onSaved={markCompleted} /></div> : null}
+      {lesson.id === 7 && tool.enabled ? <div className="external-tool-internal"><LessonSevenInterpretationLab onSaved={markCompleted} /></div> : null}
+      {lesson.id === 8 && tool.enabled ? <div className="external-tool-internal"><LessonEightInferenceLab onSaved={markCompleted} /></div> : null}
 
       {tool.launchMode !== "internal" && tool.enabled ? (
         <section className="external-launch-panel">
