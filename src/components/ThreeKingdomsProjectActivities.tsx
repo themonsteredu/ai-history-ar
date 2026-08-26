@@ -129,16 +129,16 @@ export function LessonFourResearchHub() {
 const arExperiencePoints = [
   ["등장 요소", "카드를 찾은 뒤 무엇이 가장 먼저 나타나는가"],
   ["움직임", "시선이 유산의 핵심 특징으로 자연스럽게 이동하는가"],
-  ["한 문장 해설", "4차시에서 확인한 사실을 짧고 정확하게 말하는가"],
+  ["한 문장 해설", "그래프 경향과 4차시에서 확인한 사실을 짧고 정확하게 연결하는가"],
   ["관람객 행동", "고르기·찾기·확대처럼 직접 할 일이 있는가"],
 ] as const;
 
-export function LessonFiveArStudio() {
+export function LessonNineArStudio() {
   return (
-    <div className="web-tool project-activity ar-lesson-studio" data-testid="lesson-5-ar">
+    <div className="web-tool project-activity ar-lesson-studio" data-testid="lesson-9-ar">
       <section className="core-mission" aria-label="활동 방법">
-        <span>5차시 AR 체험</span>
-        <strong>담당 유산을 비추고, 어떤 표현이 역사를 더 잘 이해하게 하는지 살펴보세요.</strong>
+        <span>9차시 AR 데이터 해설 체험</span>
+        <strong>담당 유산을 비추고, 그래프와 역사 사실을 어떤 장면으로 연결할지 살펴보세요.</strong>
         <p>카메라가 어려우면 ‘카메라 없이 체험’을 눌러 같은 장면을 확인할 수 있습니다.</p>
       </section>
       <Suspense fallback={<div className="ar-loading" role="status">카메라 AR 도구를 준비하고 있습니다…</div>}>
@@ -304,6 +304,6 @@ function VerificationArena() {
 
 export function ThreeKingdomsProjectActivity({ lessonId }: { lessonId: number }) {
   if (lessonId === 4) return <LessonFourResearchHub />;
-  if (lessonId === 5) return <LessonFiveArStudio />;
+  if (lessonId === 9) return <LessonNineArStudio />;
   return <VerificationArena />;
 }

@@ -487,7 +487,7 @@ function InternalLessonPanel({ lessonId, onSaved, resultBoardUrl }: { lessonId: 
   return (
     <div className="external-tool-internal external-tool-internal--museum">
       <div className="museum-flow" aria-label="AR 데이터 박물관 설명 순서">
-        {["수집", "전처리", "그래프", "과거 유추", "미래 예측", "AR 해설"].map((step, index) => (
+        {["수집", "정제", "그래프", "해석", "과거 유추", "AR 해설"].map((step, index) => (
           <div key={step}><span>{index + 1}</span><strong>{step}</strong></div>
         ))}
       </div>

@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { lessonDownloadPath } from "../content/downloads";
 import { classroomModeInfo } from "../content/lesson-helpers";
 import type { Era, HeritageGroup, Lesson } from "../types/curriculum";
+import { ExternalToolActivity } from "./ExternalToolActivity";
 import { Icon } from "./Icon";
-import { LessonFiveArStudio, LessonFourResearchHub } from "./ThreeKingdomsProjectActivities";
+import { LessonFourResearchHub, LessonNineArStudio } from "./ThreeKingdomsProjectActivities";
 
 const threeKingdomsImages = [
   "muryeong-tomb.jpg",
@@ -647,7 +648,7 @@ function LessonTool({ era, lesson }: { era: Era; lesson: Lesson }) {
   if (lesson.id === 2) return <StudentResponseTool challenges={lessonTwoChallenges[era.id]} choices={["확인 필요", "자료와 맞음"]} storageKey={`ai-history-${era.id}-lesson-02-responses`} />;
   if (lesson.id === 3) return <SourceVerificationTool era={era} />;
   if (lesson.id === 4) return <SourcePortal era={era} />;
-  if (era.id === "three-kingdoms" && lesson.id === 5) return <LessonFiveArStudio />;
+  if (era.id === "three-kingdoms" && lesson.id === 9) return <LessonNineArStudio />;
   if (lesson.id === 5) return <ArPreviewTool era={era} />;
   if (lesson.id === 6) return <QuickChoiceTool challenges={lessonSixChallenges[era.id]} choices={["진짜", "가짜", "판단 보류"]} />;
   if (lesson.id === 7) return <CardCameraPreview era={era} />;
@@ -702,8 +703,13 @@ const toolNames = [
 
 export function LessonWebActivity({ era, lesson }: { era: Era; lesson: Lesson }) {
   if (lesson.classroomMode === "worksheet") return <WorksheetLessonView era={era} lesson={lesson} />;
+  if (era.id === "three-kingdoms" && ((lesson.id >= 5 && lesson.id <= 8) || lesson.id === 10)) return <ExternalToolActivity lesson={lesson} />;
 
-  const toolName = lesson.id === 3 ? `${era.verificationLabel} 공동 연습` : toolNames[lesson.id - 1];
+  const toolName = lesson.id === 3
+    ? `${era.verificationLabel} 공동 연습`
+    : era.id === "three-kingdoms" && lesson.id === 9
+      ? "AR 데이터 해설 체험실"
+      : toolNames[lesson.id - 1];
   const activityMode = classroomModeInfo[lesson.classroomMode];
 
   return (

@@ -24,8 +24,29 @@ const lessonFourResearchModeInfo = {
   description: "담당 유산의 공식 자료를 웹에서 조사하기",
 } as const;
 
+const externalDataToolModeInfo = {
+  label: "외부 데이터 도구",
+  shortLabel: "외부 도구 실습",
+  description: "Google Sheets·CODAP에서 직접 정제하고 분석하기",
+} as const;
+
+const arDataExplanationModeInfo = {
+  label: "AR 데이터 해설",
+  shortLabel: "AR 해설 체험",
+  description: "그래프 결과를 문화유산 AR 설명으로 연결하기",
+} as const;
+
+const arMuseumModeInfo = {
+  label: "AR 데이터 박물관",
+  shortLabel: "박물관 운영",
+  description: "그래프·AR·도슨트 해설을 한 부스에서 운영하기",
+} as const;
+
 export function getLessonActivityModeInfo(lesson: Lesson, eraId: EraId) {
   if (eraId === "three-kingdoms" && lesson.id === 4) return lessonFourResearchModeInfo;
+  if (eraId === "three-kingdoms" && lesson.id >= 5 && lesson.id <= 8) return externalDataToolModeInfo;
+  if (eraId === "three-kingdoms" && lesson.id === 9) return arDataExplanationModeInfo;
+  if (eraId === "three-kingdoms" && lesson.id === 10) return arMuseumModeInfo;
   return classroomModeInfo[lesson.classroomMode];
 }
 

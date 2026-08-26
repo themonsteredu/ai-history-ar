@@ -65,11 +65,11 @@ describe("curriculum catalog", () => {
       "AI에게 물어보았습니다",
       "진짜인지 확인하는 방법",
       "우리 모둠 유산 파헤치기",
-      "AR로 만나는 문화유산",
+      "역사 데이터 정제하기",
       "역사 데이터를 그림으로 보기",
       "그래프를 읽고 설명하기",
       "데이터로 과거 유추하기",
-      "데이터로 미래 변화 예측하기",
+      "데이터 해석을 AR로 표현하기",
       "AR 데이터 박물관 열기",
     ]);
   });
@@ -82,19 +82,21 @@ describe("curriculum catalog", () => {
   });
 
   it("keeps every Three Kingdoms deck rich, classroom-facing, and Q&A-led", () => {
-    const internalPhrases = /웹앱|다운로드 없음|Google|CODAP|Desmos|CSV|PNG|새 탭/;
+    const internalPhrases = /다운로드 없음|새 탭/;
 
     for (let lessonId = 1; lessonId <= 10; lessonId += 1) {
       const slides = getThreeKingdomsSlides(lessonId);
       const lastSlide = slides.at(-1);
       const visibleCopy = JSON.stringify(slides);
-      expect(slides.length, `${lessonId}차시 기본 슬라이드`).toBeGreaterThanOrEqual(7);
+      expect(slides.length, `${lessonId}차시 충분한 수업 슬라이드`).toBeGreaterThanOrEqual(13);
       expect(slides.filter((slide) => slide.kind === "fact").length, `${lessonId}차시 내용 슬라이드`).toBeGreaterThanOrEqual(3);
-      if (lessonId <= 5) {
+      if ([1, 2, 3, 4, 9].includes(lessonId)) {
         expect(slides.length, `${lessonId}차시 확장 슬라이드`).toBeGreaterThanOrEqual(14);
         expect(slides.some((slide) => slide.kind === "gallery"), `${lessonId}차시 문화유산 관찰 슬라이드`).toBe(true);
         expect(slides.some((slide) => slide.kind === "quiz"), `${lessonId}차시 판단 퀴즈`).toBe(true);
       }
+      expect(slides.some((slide) => slide.kind === "activity"), `${lessonId}차시 따라 하기 활동`).toBe(true);
+      expect(slides.some((slide) => slide.kind === "quiz"), `${lessonId}차시 중간 확인 퀴즈`).toBe(true);
       expect(lastSlide?.kind, `${lessonId}차시 마지막 슬라이드`).toBe("closing");
       expect(internalPhrases.test(visibleCopy), `${lessonId}차시 운영 문구`).toBe(false);
       if (lastSlide?.kind === "closing") {

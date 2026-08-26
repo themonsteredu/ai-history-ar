@@ -17,11 +17,11 @@ const lessonTitles = [
   "AI에게 물어보았습니다",
   "진짜인지 확인하는 방법",
   "우리 모둠 유산 파헤치기",
-  "AR로 만나는 문화유산",
+  "역사 데이터 정제하기",
   "역사 데이터를 그림으로 보기",
   "그래프를 읽고 설명하기",
   "데이터로 과거 유추하기",
-  "데이터로 미래 변화 예측하기",
+  "데이터 해석을 AR로 표현하기",
   "AR 데이터 박물관 열기",
 ];
 
@@ -142,7 +142,7 @@ try {
     results.push(await inspectPage(desktop, `/three-kingdoms/lesson/${lessonId}?view=ppt`, title));
     const slideButtons = desktop.locator(".lesson-slides__dots button");
     const slideCount = await slideButtons.count();
-    if (slideCount < 9) throw new Error(`${lessonId}차시 슬라이드가 질문·답 포함 9장보다 적습니다: ${slideCount}장`);
+    if (slideCount < 15) throw new Error(`${lessonId}차시 슬라이드가 따라 하기·질문·답 포함 15장보다 적습니다: ${slideCount}장`);
 
     let previousWasPrompt = false;
     for (let slideIndex = 0; slideIndex < slideCount; slideIndex += 1) {
@@ -184,6 +184,14 @@ try {
       if (await desktop.getByRole("heading", { name: "첨성대", exact: true }).count() !== 1) throw new Error("3모둠 공유 주소에서 첨성대 자료실이 열리지 않습니다.");
       if (await desktop.locator(".research-source-card").count() !== 3) throw new Error("3모둠 공식 자료가 3개가 아닙니다.");
       if (await desktop.getByRole("button", { name: "모둠 링크 공유·복사" }).count() !== 1) throw new Error("모둠 자료실 공유 버튼이 보이지 않습니다.");
+    } else if ((lessonId >= 5 && lessonId <= 8) || lessonId === 10) {
+      await desktop.locator(".external-activity").waitFor();
+      if (lessonId === 5) {
+        if (await desktop.getByRole("heading", { name: "Google Sheets · 역사 데이터 정제" }).count() !== 1) throw new Error("5차시 Google Sheets 정제 도구가 보이지 않습니다.");
+        if (await desktop.getByRole("link", { name: /예비 데이터 받기/ }).count() !== 1) throw new Error("5차시 정제용 시작 CSV가 보이지 않습니다.");
+      }
+      if (lessonId === 6 && await desktop.getByRole("heading", { name: "CODAP · 역사 데이터 시각화" }).count() !== 1) throw new Error("6차시 CODAP 시각화 도구가 보이지 않습니다.");
+      if (lessonId === 10 && await desktop.locator(".museum-flow").count() !== 1) throw new Error("10차시 AR 데이터 박물관 운영 순서가 보이지 않습니다.");
     } else {
       await desktop.locator(".web-activity-shell").waitFor();
       if (await desktop.locator(".web-tool").count() !== 1) throw new Error(`${lessonId}차시 웹 활동이 보이지 않습니다.`);
@@ -198,9 +206,14 @@ try {
   await desktop.waitForFunction(() => [...document.querySelectorAll(".external-heritage-grid img")].every((image) => image.complete && image.naturalWidth > 0));
   await desktop.locator(".web-activity-shell").screenshot({ path: path.join(outputDirectory, "lesson-01-activity-desktop.png") });
 
+  await desktop.goto(routeUrl("/three-kingdoms/lesson/5?view=activity"), { waitUntil: "networkidle" });
+  await desktop.locator(".external-activity").waitFor();
+  if (await desktop.getByRole("link", { name: "새 탭에서 시작 ↗" }).count() !== 1) throw new Error("5차시 Google Sheets 실행 버튼이 보이지 않습니다.");
+  if (await desktop.getByRole("link", { name: "예비 데이터 받기" }).count() !== 1) throw new Error("5차시 정제용 시작 CSV가 보이지 않습니다.");
+
   await desktop.goto(routeUrl("/three-kingdoms/lesson/6?view=activity"), { waitUntil: "networkidle" });
-  await desktop.locator(".web-tool--choice").waitFor();
-  if (await desktop.locator(".choice-tool__buttons button").count() !== 3) throw new Error("6차시 판정 선택지가 3개가 아닙니다.");
+  await desktop.locator(".external-activity").waitFor();
+  if (await desktop.getByRole("button", { name: "화면 안에서 시작" }).count() !== 1) throw new Error("6차시 CODAP 실행 버튼이 보이지 않습니다.");
 
   results.push(await inspectPage(desktop, "/joseon/lesson/1?view=ppt", "조선에는 무엇이 남아 있을까"));
   results.push(await inspectPage(desktop, "/teacher/three-kingdoms/lesson/1", lessonTitles[0]));
