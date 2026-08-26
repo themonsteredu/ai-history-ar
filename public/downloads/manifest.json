@@ -4,7 +4,7 @@
       "title": "삼국시대",
       "bundle": {
         "path": "/downloads/three-kingdoms/three-kingdoms-all-materials.zip",
-        "size": 1106334
+        "size": 1115408
       },
       "lessons": [
         {
@@ -97,23 +97,23 @@
         },
         {
           "lessonId": 5,
-          "title": "데이터 깨끗하게 다듬기",
+          "title": "AR로 만나는 문화유산",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-05-student.pdf",
-              "size": 28505
+              "size": 31974
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-05-teacher.pdf",
-              "size": 48566
+              "size": 51610
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-05-answer.pdf",
-              "size": 40891
+              "size": 43792
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-05-all.zip",
-              "size": 107488
+              "size": 116537
             }
           }
         },

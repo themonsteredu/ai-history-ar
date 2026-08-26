@@ -17,7 +17,7 @@ const lessonTitles = [
   "AI에게 물어보았습니다",
   "진짜인지 확인하는 방법",
   "우리 모둠 유산 파헤치기",
-  "데이터 깨끗하게 다듬기",
+  "AR로 만나는 문화유산",
   "역사 데이터를 그림으로 보기",
   "그래프를 읽고 설명하기",
   "데이터로 과거 유추하기",
@@ -129,7 +129,7 @@ try {
   const toolCards = await desktop.locator(".teacher-tool-card").count();
   if (toolCards !== 10) throw new Error(`교사용 외부 도구 설정이 10개가 아닙니다: ${toolCards}개`);
   const internalCards = await desktop.locator(".teacher-tool-internal-note").count();
-  if (internalCards !== 5) throw new Error(`웹앱 내부 활동 설정이 5개가 아닙니다: ${internalCards}개`);
+  if (internalCards !== 6) throw new Error(`웹앱 내부 활동 설정이 6개가 아닙니다: ${internalCards}개`);
   await desktop.screenshot({ path: path.join(outputDirectory, "teacher-tools-desktop.png"), fullPage: true });
 
   let verifiedSlideCount = 0;

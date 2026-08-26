@@ -3,7 +3,7 @@ import { lessonDownloadPath } from "../content/downloads";
 import { classroomModeInfo } from "../content/lesson-helpers";
 import type { Era, HeritageGroup, Lesson } from "../types/curriculum";
 import { Icon } from "./Icon";
-import { LessonFourResearchHub } from "./ThreeKingdomsProjectActivities";
+import { LessonFiveArStudio, LessonFourResearchHub } from "./ThreeKingdomsProjectActivities";
 
 const threeKingdomsImages = [
   "muryeong-tomb.jpg",
@@ -647,6 +647,7 @@ function LessonTool({ era, lesson }: { era: Era; lesson: Lesson }) {
   if (lesson.id === 2) return <StudentResponseTool challenges={lessonTwoChallenges[era.id]} choices={["확인 필요", "자료와 맞음"]} storageKey={`ai-history-${era.id}-lesson-02-responses`} />;
   if (lesson.id === 3) return <SourceVerificationTool era={era} />;
   if (lesson.id === 4) return <SourcePortal era={era} />;
+  if (era.id === "three-kingdoms" && lesson.id === 5) return <LessonFiveArStudio />;
   if (lesson.id === 5) return <ArPreviewTool era={era} />;
   if (lesson.id === 6) return <QuickChoiceTool challenges={lessonSixChallenges[era.id]} choices={["진짜", "가짜", "판단 보류"]} />;
   if (lesson.id === 7) return <CardCameraPreview era={era} />;

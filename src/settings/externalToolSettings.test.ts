@@ -43,22 +43,23 @@ describe("external tool settings", () => {
   it("stores complete settings and restores missing lessons from defaults", () => {
     const storage = new MemoryStorage();
     const defaults = createDefaultExternalToolSettings();
-    defaults.lessons[4].studentUrl = "https://docs.google.com/spreadsheets/d/example/edit";
+    defaults.lessons[5].teacherSourceUrl = "https://docs.google.com/document/d/example/edit";
     writeExternalToolSettings(storage, defaults);
 
     const restored = readExternalToolSettings(storage);
     expect(restored.lessons).toHaveLength(10);
-    expect(restored.lessons[4].studentUrl).toContain("docs.google.com");
-    expect(getResolvedExternalTool(5, restored).toolName).toBe("Google Sheets · 데이터 전처리");
-    expect(getResolvedExternalTool(5, restored).launchMode).toBe("new-tab");
+    expect(restored.lessons[5].teacherSourceUrl).toContain("docs.google.com");
+    expect(getResolvedExternalTool(6, restored).toolName).toBe("CODAP · 역사 데이터 시각화");
+    expect(getResolvedExternalTool(6, restored).launchMode).toBe("embed");
   });
 
   it("drops unsafe imported URLs and reports required setup", () => {
     const normalized = normalizeExternalToolSettings({
       version: 1,
-      lessons: [{ lessonId: 5, enabled: true, launchMode: "new-tab", studentUrl: "https://example.com", embedUrl: "", teacherSourceUrl: "", submissionUrl: "", resultBoardUrl: "" }],
+      lessons: [{ lessonId: 6, enabled: true, launchMode: "embed", studentUrl: "https://example.com", embedUrl: "https://example.com", teacherSourceUrl: "", submissionUrl: "", resultBoardUrl: "" }],
     });
-    expect(normalized.lessons[4].studentUrl).toBe("");
-    expect(validateExternalToolSetting(normalized.lessons[4])).toContain("학생 실행 URL이 필요합니다.");
+    expect(normalized.lessons[5].studentUrl).toBe("");
+    expect(normalized.lessons[5].embedUrl).toBe("");
+    expect(validateExternalToolSetting(normalized.lessons[5])).toContain("임베드 URL을 입력하거나 새 탭 방식으로 바꾸세요.");
   });
 });

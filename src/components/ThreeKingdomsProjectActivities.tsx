@@ -81,17 +81,28 @@ export function LessonFourResearchHub() {
   );
 }
 
-function CameraArActivity() {
+const arExperiencePoints = [
+  ["등장 요소", "카드를 찾은 뒤 무엇이 가장 먼저 나타나는가"],
+  ["움직임", "시선이 유산의 핵심 특징으로 자연스럽게 이동하는가"],
+  ["한 문장 해설", "4차시에서 확인한 사실을 짧고 정확하게 말하는가"],
+  ["관람객 행동", "고르기·찾기·확대처럼 직접 할 일이 있는가"],
+] as const;
+
+export function LessonFiveArStudio() {
   return (
-    <div className="web-tool project-activity" data-testid="lesson-5-ar">
+    <div className="web-tool project-activity ar-lesson-studio" data-testid="lesson-5-ar">
       <section className="core-mission" aria-label="활동 방법">
-        <span>웹앱이 하는 일</span>
-        <strong>카메라가 유물 카드를 찾으면 화면에 AR 표시와 핵심 설명을 띄웁니다.</strong>
-        <p>카메라 영상은 이 기기에서만 처리하며 저장하거나 전송하지 않습니다.</p>
+        <span>5차시 AR 체험</span>
+        <strong>담당 유산을 비추고, 어떤 표현이 역사를 더 잘 이해하게 하는지 살펴보세요.</strong>
+        <p>카메라가 어려우면 ‘카메라 없이 체험’을 눌러 같은 장면을 확인할 수 있습니다.</p>
       </section>
       <Suspense fallback={<div className="ar-loading" role="status">카메라 AR 도구를 준비하고 있습니다…</div>}>
         <TrackedHeritageAr />
       </Suspense>
+      <section className="ar-experience-brief" aria-labelledby="ar-experience-brief-title">
+        <div><span>체험 뒤 활동지에 기록</span><h3 id="ar-experience-brief-title">우리 모둠 AR은 네 가지를 정합니다</h3></div>
+        <ol>{arExperiencePoints.map(([title, description]) => <li key={title}><strong>{title}</strong><span>{description}</span></li>)}</ol>
+      </section>
     </div>
   );
 }
@@ -248,6 +259,6 @@ function VerificationArena() {
 
 export function ThreeKingdomsProjectActivity({ lessonId }: { lessonId: number }) {
   if (lessonId === 4) return <LessonFourResearchHub />;
-  if (lessonId === 5) return <CameraArActivity />;
+  if (lessonId === 5) return <LessonFiveArStudio />;
   return <VerificationArena />;
 }
