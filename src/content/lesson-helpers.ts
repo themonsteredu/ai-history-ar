@@ -1,4 +1,4 @@
-import type { ClassroomActivityMode, Lesson, LessonPhase } from "../types/curriculum";
+import type { ClassroomActivityMode, EraId, Lesson, LessonPhase } from "../types/curriculum";
 
 export const classroomModeInfo = {
   "teacher-led": {
@@ -17,6 +17,17 @@ export const classroomModeInfo = {
     description: "각자 체험하고 결과를 수업에서 활용하기",
   },
 } as const satisfies Record<ClassroomActivityMode, { label: string; shortLabel: string; description: string }>;
+
+const lessonFourResearchModeInfo = {
+  label: "모둠 공식 자료실",
+  shortLabel: "모둠 자료실",
+  description: "담당 유산의 공식 자료를 웹에서 조사하기",
+} as const;
+
+export function getLessonActivityModeInfo(lesson: Lesson, eraId: EraId) {
+  if (eraId === "three-kingdoms" && lesson.id === 4) return lessonFourResearchModeInfo;
+  return classroomModeInfo[lesson.classroomMode];
+}
 
 export function getLessonPhase(lessonId: number): LessonPhase {
   if (lessonId <= 3) return "의심하기";

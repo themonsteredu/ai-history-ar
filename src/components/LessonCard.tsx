@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import type { Era, Lesson } from "../types/curriculum";
-import { classroomModeInfo } from "../content/lesson-helpers";
+import { getLessonActivityModeInfo } from "../content/lesson-helpers";
 import { Icon } from "./Icon";
 import { PhaseBadge } from "./PhaseBadge";
 
@@ -11,7 +11,7 @@ interface LessonCardProps {
 }
 
 export function LessonCard({ era, lesson, mode = "student" }: LessonCardProps) {
-  const activityMode = classroomModeInfo[lesson.classroomMode];
+  const activityMode = getLessonActivityModeInfo(lesson, era.id);
 
   if (mode === "student") {
     const path = `${era.route}/lesson/${lesson.id}`;

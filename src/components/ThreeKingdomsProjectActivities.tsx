@@ -1,4 +1,5 @@
 import { lazy, Suspense, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   heritageResearchCases,
   verificationCases,
@@ -12,14 +13,48 @@ const verificationStorageKey = "moa-history-ar:three-kingdoms:lesson-6:v1";
 const researchChecklist = ["제작 시기", "주체·목적", "유산의 가치", "현재 상태", "AI 오류 바로잡기", "아직 모름", "출처"] as const;
 
 export function LessonFourResearchHub() {
-  const [selectedCaseId, setSelectedCaseId] = useState(1);
-  const [openedSourceId, setOpenedSourceId] = useState("m1-record");
-  const selectedCase = heritageResearchCases[selectedCaseId - 1];
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedCaseId = Number(searchParams.get("group"));
+  const selectedCase = heritageResearchCases.find((item) => item.id === requestedCaseId) ?? heritageResearchCases[0];
+  const selectedCaseId = selectedCase.id;
+  const [openedSources, setOpenedSources] = useState<Record<number, string>>({});
+  const [shareStatus, setShareStatus] = useState("");
+  const openedSourceId = openedSources[selectedCaseId] ?? selectedCase.sources[0].id;
 
   function selectCase(caseId: number) {
-    const nextCase = heritageResearchCases[caseId - 1];
-    setSelectedCaseId(caseId);
-    setOpenedSourceId(nextCase.sources[0].id);
+    const nextSearchParams = new URLSearchParams(searchParams);
+    nextSearchParams.set("view", "activity");
+    nextSearchParams.set("group", String(caseId));
+    setSearchParams(nextSearchParams);
+    setShareStatus("");
+  }
+
+  function toggleSource(sourceId: string, isOpen: boolean) {
+    setOpenedSources((current) => ({ ...current, [selectedCaseId]: isOpen ? "" : sourceId }));
+  }
+
+  async function shareResearchRoom() {
+    const shareUrl = new URL(window.location.href);
+    shareUrl.searchParams.set("view", "activity");
+    shareUrl.searchParams.set("group", String(selectedCaseId));
+    shareUrl.hash = "";
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `${selectedCaseId}모둠 ${selectedCase.heritage} 공식 자료실`,
+          text: `${selectedCase.heritage} 조사 활동지에 기록할 공식 자료를 확인하세요.`,
+          url: shareUrl.toString(),
+        });
+        setShareStatus("모둠 조사실을 공유했습니다.");
+        return;
+      }
+      await navigator.clipboard.writeText(shareUrl.toString());
+      setShareStatus("모둠 조사실 링크를 복사했습니다.");
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      setShareStatus("공유하지 못했습니다. 주소창의 링크를 복사해 주세요.");
+    }
   }
 
   return (
@@ -39,6 +74,16 @@ export function LessonFourResearchHub() {
         ))}
       </nav>
 
+      <section className="research-share-bar" aria-label="모둠 조사실 공유">
+        <div>
+          <span>{selectedCaseId}모둠 바로가기 링크</span>
+          <strong>{selectedCase.heritage} 공식 자료실</strong>
+          <small>이 주소로 담당 유산이 먼저 열리며, 들어온 뒤에는 다른 유산 자료도 자유롭게 볼 수 있습니다.</small>
+        </div>
+        <button onClick={shareResearchRoom} type="button">모둠 링크 공유·복사</button>
+        <p aria-live="polite" role="status">{shareStatus}</p>
+      </section>
+
       <section className="research-case-hero">
         <img alt={`${selectedCase.heritage} 조사 사진`} src={`${imageRoot}/${selectedCase.image}`} />
         <div>
@@ -54,7 +99,7 @@ export function LessonFourResearchHub() {
           const isOpen = openedSourceId === source.id;
           return (
             <article className={isOpen ? "research-source-card is-open" : "research-source-card"} key={source.id}>
-              <button className="research-source-card__title" onClick={() => setOpenedSourceId(isOpen ? "" : source.id)} type="button">
+              <button className="research-source-card__title" onClick={() => toggleSource(source.id, isOpen)} type="button">
                 <span>{source.label}</span>
                 <strong>{source.title}</strong>
                 <small>{source.institution} · {isOpen ? "자료 접기" : "자료 읽기"}</small>

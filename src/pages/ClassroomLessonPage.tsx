@@ -2,7 +2,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { LessonSlides } from "../components/LessonSlides";
 import { LessonWebActivity } from "../components/LessonWebActivity";
 import { SimpleLessonSlides } from "../components/SimpleLessonSlides";
-import { classroomModeInfo } from "../content/lesson-helpers";
+import { getLessonActivityModeInfo } from "../content/lesson-helpers";
 import type { Era, Lesson } from "../types/curriculum";
 
 export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson }) {
@@ -12,7 +12,7 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
   const previousLesson = era.lessons.find((candidate) => candidate.id === lesson.id - 1);
   const nextLesson = era.lessons.find((candidate) => candidate.id === lesson.id + 1);
   const basePath = `${era.route}/lesson`;
-  const activityTab = classroomModeInfo[lesson.classroomMode];
+  const activityTab = getLessonActivityModeInfo(lesson, era.id);
 
   return (
     <div className="classroom-page" style={{ "--era-accent": era.accent, "--era-soft": era.accentSoft } as React.CSSProperties}>

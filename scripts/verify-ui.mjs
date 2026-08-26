@@ -179,6 +179,11 @@ try {
     if (lessonId === 4) {
       await desktop.locator(".worksheet-classroom").waitFor();
       if (await desktop.locator("[data-testid='lesson-4-research']").count() !== 1) throw new Error("4차시 공식 자료실이 보이지 않습니다.");
+      if (await desktop.getByRole("link", { name: /모둠 공식 자료실/ }).count() !== 1) throw new Error("4차시 학생용 모둠 자료실 탭이 보이지 않습니다.");
+      await desktop.goto(routeUrl("/three-kingdoms/lesson/4?view=activity&group=3"), { waitUntil: "networkidle" });
+      if (await desktop.getByRole("heading", { name: "첨성대", exact: true }).count() !== 1) throw new Error("3모둠 공유 주소에서 첨성대 자료실이 열리지 않습니다.");
+      if (await desktop.locator(".research-source-card").count() !== 3) throw new Error("3모둠 공식 자료가 3개가 아닙니다.");
+      if (await desktop.getByRole("button", { name: "모둠 링크 공유·복사" }).count() !== 1) throw new Error("모둠 자료실 공유 버튼이 보이지 않습니다.");
     } else {
       await desktop.locator(".web-activity-shell").waitFor();
       if (await desktop.locator(".web-tool").count() !== 1) throw new Error(`${lessonId}차시 웹 활동이 보이지 않습니다.`);

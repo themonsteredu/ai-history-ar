@@ -5817,6 +5817,62 @@ input:focus-visible {
   color: rgba(255, 255, 255, 0.74);
 }
 
+.research-share-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px 22px;
+  padding: 18px 20px;
+  border: 1px solid #cddbd5;
+  border-radius: 14px;
+  background: #edf4f1;
+}
+
+.research-share-bar span,
+.research-share-bar strong,
+.research-share-bar small {
+  display: block;
+}
+
+.research-share-bar span {
+  color: #9a4437;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.research-share-bar strong {
+  margin-top: 4px;
+  color: #173f35;
+  font-size: 17px;
+}
+
+.research-share-bar small {
+  margin-top: 5px;
+  color: #62716b;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.research-share-bar button {
+  min-height: 44px;
+  padding: 0 17px;
+  border: 0;
+  border-radius: 10px;
+  color: #fff;
+  background: #1f5144;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.research-share-bar > p {
+  min-height: 14px;
+  margin: -7px 0 0;
+  color: #1f5144;
+  font-size: 9px;
+  font-weight: 800;
+  grid-column: 1 / -1;
+}
+
 .research-case-hero {
   display: grid;
   grid-template-columns: minmax(280px, 0.76fr) minmax(0, 1.24fr);
@@ -6739,9 +6795,14 @@ input:focus-visible {
   }
 
   .ar-control-bar,
-  .evidence-tray > header {
+  .evidence-tray > header,
+  .research-share-bar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .research-share-bar {
+    display: flex;
   }
 
   .verification-answer {
