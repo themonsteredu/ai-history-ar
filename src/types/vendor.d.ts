@@ -1,5 +1,12 @@
 declare module "three";
 
+declare module "mind-ar/dist/mindar-image.prod.js" {
+  export class Compiler {
+    compileImageTargets(images: HTMLImageElement[], onProgress: (progress: number) => void): Promise<unknown>;
+    exportData(): Uint8Array;
+  }
+}
+
 declare module "mind-ar/dist/mindar-image-three.prod.js" {
   export class MindARThree {
     constructor(options: Record<string, unknown>);

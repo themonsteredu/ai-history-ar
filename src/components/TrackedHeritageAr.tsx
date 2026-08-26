@@ -1,10 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import { heritageResearchCases } from "../content/three-kingdoms/webActivities";
+import {
+  CLASS_CARDS_UPDATED_EVENT,
+  loadClassArBundle,
+  mindBytesToObjectUrl,
+  type ClassArBundle,
+} from "../ar/classCards";
+import { ClassArCardStudio } from "./ClassArCardStudio";
 
 const imageRoot = `${import.meta.env.BASE_URL}images/heritage/three-kingdoms`;
-const targetFile = `${import.meta.env.BASE_URL}ar/three-kingdoms-targets.mind`;
+const defaultTargetFile = `${import.meta.env.BASE_URL}ar/three-kingdoms-targets.mind`;
 
 type ArStatus = "idle" | "loading" | "scanning" | "found" | "lost" | "error" | "fallback";
+type TargetSource = "default" | "class";
+
+interface ArTarget {
+  key: string;
+  name: string;
+  category: string;
+  imageSrc: string;
+  confirmed: string;
+  caution: string;
+}
 
 interface RunningAr {
   started: boolean;
@@ -14,6 +31,27 @@ interface RunningAr {
     dispose: () => void;
     setAnimationLoop: (callback: (() => void) | null) => void;
   };
+  objectUrl: string;
+}
+
+const defaultTargets: readonly ArTarget[] = heritageResearchCases.map((item) => ({
+  key: `default-${item.id}`,
+  name: item.heritage,
+  category: item.category,
+  imageSrc: `${imageRoot}/${item.image}`,
+  confirmed: item.sources.flatMap((source) => source.facts).find((fact) => fact.kind === "confirmed")?.text ?? "",
+  caution: item.sources.flatMap((source) => source.facts).find((fact) => fact.kind === "caution")?.text ?? "",
+}));
+
+function classTargets(bundle: ClassArBundle): ArTarget[] {
+  return bundle.cards.map((card) => ({
+    key: `class-${card.id}`,
+    name: card.name,
+    category: "우리 반 카드",
+    imageSrc: card.imageDataUrl,
+    confirmed: card.caption || "우리 모둠이 확인한 사실을 해설로 말해 주세요.",
+    caution: card.unknownNote || "아직 모르는 점도 함께 말해 주세요.",
+  }));
 }
 
 function cameraErrorMessage(error: unknown) {
@@ -24,14 +62,33 @@ function cameraErrorMessage(error: unknown) {
 }
 
 export default function TrackedHeritageAr() {
-  const [selectedId, setSelectedId] = useState(1);
+  const [source, setSource] = useState<TargetSource>("default");
+  const [classBundle, setClassBundle] = useState<ClassArBundle | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [status, setStatus] = useState<ArStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const stageRef = useRef<HTMLDivElement>(null);
   const runningRef = useRef<RunningAr | null>(null);
-  const selectedCase = heritageResearchCases[selectedId - 1];
-  const confirmedFact = selectedCase.sources.flatMap((source) => source.facts).find((fact) => fact.kind === "confirmed");
-  const cautionFact = selectedCase.sources.flatMap((source) => source.facts).find((fact) => fact.kind === "caution");
+
+  const targets = source === "class" && classBundle ? classTargets(classBundle) : defaultTargets;
+  const selectedTarget = targets[Math.min(selectedIndex, targets.length - 1)];
+
+  useEffect(() => {
+    let cancelled = false;
+    const syncBundle = () => {
+      loadClassArBundle().then((stored) => {
+        if (cancelled) return;
+        setClassBundle(stored);
+        if (!stored) setSource("default");
+      });
+    };
+    syncBundle();
+    window.addEventListener(CLASS_CARDS_UPDATED_EVENT, syncBundle);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(CLASS_CARDS_UPDATED_EVENT, syncBundle);
+    };
+  }, []);
 
   function stopAr(nextStatus: ArStatus = "idle", updateStatus = true) {
     const running = runningRef.current;
@@ -46,6 +103,7 @@ export default function TrackedHeritageAr() {
       }
       running.dispose();
       running.renderer.dispose();
+      if (running.objectUrl) URL.revokeObjectURL(running.objectUrl);
       runningRef.current = null;
     }
     stageRef.current?.replaceChildren();
@@ -54,9 +112,17 @@ export default function TrackedHeritageAr() {
 
   useEffect(() => () => stopAr("idle", false), []);
 
-  function chooseTarget(id: number) {
+  function chooseTarget(index: number) {
     if (runningRef.current) stopAr("idle");
-    setSelectedId(id);
+    setSelectedIndex(index);
+    setErrorMessage("");
+    setStatus("idle");
+  }
+
+  function chooseSource(nextSource: TargetSource) {
+    if (runningRef.current) stopAr("idle");
+    setSource(nextSource);
+    setSelectedIndex(0);
     setErrorMessage("");
     setStatus("idle");
   }
@@ -72,9 +138,10 @@ export default function TrackedHeritageAr() {
         import("mind-ar/dist/mindar-image-three.prod.js"),
         import("three"),
       ]);
+      const objectUrl = source === "class" && classBundle ? mindBytesToObjectUrl(classBundle) : "";
       const mindarThree = new MindARThree({
         container,
-        imageTargetSrc: targetFile,
+        imageTargetSrc: objectUrl || defaultTargetFile,
         maxTrack: 1,
         uiLoading: "no",
         uiScanning: "no",
@@ -87,10 +154,11 @@ export default function TrackedHeritageAr() {
         stop: () => mindarThree.stop(),
         dispose: () => disposables.forEach((item) => item.dispose()),
         renderer,
+        objectUrl,
       };
       runningRef.current = running;
 
-      const anchor = mindarThree.addAnchor(selectedId - 1);
+      const anchor = mindarThree.addAnchor(selectedIndex);
       const accentMaterial = new THREE.MeshBasicMaterial({ color: 0xe9c36d, transparent: true, opacity: 0.88 });
       const brickMaterial = new THREE.MeshBasicMaterial({ color: 0xa84a3b, transparent: true, opacity: 0.96 });
       disposables.push(accentMaterial, brickMaterial);
@@ -138,14 +206,14 @@ export default function TrackedHeritageAr() {
         context.fillStyle = "#ffffff";
         context.font = '900 78px "S-Core Dream", sans-serif';
         context.textAlign = "center";
-        context.fillText(String(selectedId).padStart(2, "0"), 102, 240);
+        context.fillText(String(selectedIndex + 1).padStart(2, "0"), 102, 240);
         context.textAlign = "left";
         context.fillStyle = "#e9c36d";
         context.font = '700 36px "S-Core Dream", sans-serif';
-        context.fillText(`유물 인식 완료  ·  ${selectedCase.category}`, 230, 115);
+        context.fillText(`카드 인식 완료  ·  ${selectedTarget.category}`, 230, 115);
         context.fillStyle = "#ffffff";
         context.font = '900 86px "S-Core Dream", sans-serif';
-        context.fillText(selectedCase.heritage, 230, 245);
+        context.fillText(selectedTarget.name, 230, 245);
         context.fillStyle = "rgba(255, 255, 255, 0.7)";
         context.font = '500 30px "S-Core Dream", sans-serif';
         context.fillText("AI & HISTORY · 근거로 확인하는 문화유산", 230, 322);
@@ -179,10 +247,10 @@ export default function TrackedHeritageAr() {
   }
 
   const statusCopy = {
-    idle: "유산을 고른 뒤 카메라 AR을 시작하세요.",
+    idle: "카드를 고른 뒤 카메라 AR을 시작하세요.",
     loading: "카메라와 인식 자료를 준비하고 있습니다…",
-    scanning: `${selectedCase.heritage} 카드 전체가 네모 안에 들어오게 비춰 주세요.`,
-    found: `${selectedCase.heritage} 카드를 찾았습니다!`,
+    scanning: `${selectedTarget.name} 카드 전체가 네모 안에 들어오게 비춰 주세요.`,
+    found: `${selectedTarget.name} 카드를 찾았습니다!`,
     lost: "카드를 놓쳤습니다. 다시 네모 안에 맞춰 주세요.",
     error: errorMessage,
     fallback: "대체 체험 중입니다. 실제 수업에서는 카메라 인식 결과가 같은 위치에 나타납니다.",
@@ -190,17 +258,24 @@ export default function TrackedHeritageAr() {
 
   return (
     <div className="tracked-ar">
-      <div aria-label="AR로 볼 문화유산 선택" className="ar-target-picker" role="group">
-        {heritageResearchCases.map((item) => (
-          <button aria-pressed={selectedId === item.id} key={item.id} onClick={() => chooseTarget(item.id)} type="button">
-            <img alt="" src={`${imageRoot}/${item.image}`} />
-            <span>{item.heritage}</span>
+      {classBundle ? (
+        <div aria-label="인식할 카드 종류" className="ar-source-toggle" role="group">
+          <button aria-pressed={source === "default"} onClick={() => chooseSource("default")} type="button">기본 문화유산 카드</button>
+          <button aria-pressed={source === "class"} data-testid="use-class-cards" onClick={() => chooseSource("class")} type="button">우리 반 카드 ({classBundle.cards.length})</button>
+        </div>
+      ) : null}
+
+      <div aria-label="AR로 볼 카드 선택" className="ar-target-picker" role="group">
+        {targets.map((item, index) => (
+          <button aria-pressed={selectedIndex === index} key={item.key} onClick={() => chooseTarget(index)} type="button">
+            <img alt="" src={item.imageSrc} />
+            <span>{item.name}</span>
           </button>
         ))}
       </div>
 
       <section className="ar-control-bar">
-        <div><span>선택한 표적 카드</span><strong>{selectedCase.heritage}</strong></div>
+        <div><span>선택한 표적 카드</span><strong>{selectedTarget.name}</strong></div>
         <div>
           {status === "idle" || status === "error" || status === "fallback" ? <button className="button button--primary" onClick={startAr} type="button">카메라 AR 시작</button> : <button className="button button--outline" onClick={() => stopAr("idle")} type="button">카메라 끄기</button>}
           <button className="button button--outline" onClick={openFallback} type="button">카메라 없이 체험</button>
@@ -211,20 +286,20 @@ export default function TrackedHeritageAr() {
         <div aria-label="카메라 AR 화면" className="ar-render-surface" ref={stageRef} />
         {status === "fallback" ? (
           <div className="ar-fallback-scene">
-            <img alt={`${selectedCase.heritage} 대체 AR 체험`} src={`${imageRoot}/${selectedCase.image}`} />
+            <img alt={`${selectedTarget.name} 대체 AR 체험`} src={selectedTarget.imageSrc} />
             <div className="ar-fallback-marker">
-              <span className="ar-fallback-marker__number">{String(selectedId).padStart(2, "0")}</span>
+              <span className="ar-fallback-marker__number">{String(selectedIndex + 1).padStart(2, "0")}</span>
               <div>
-                <span>유물 인식 완료 · {selectedCase.category}</span>
-                <strong>{selectedCase.heritage}</strong>
+                <span>카드 인식 완료 · {selectedTarget.category}</span>
+                <strong>{selectedTarget.name}</strong>
                 <small>AI &amp; HISTORY · 근거로 확인하는 문화유산</small>
               </div>
             </div>
           </div>
         ) : status === "idle" || status === "error" ? (
           <div className="ar-camera-placeholder">
-            <img alt={`${selectedCase.heritage} 표적 카드`} src={`${imageRoot}/${selectedCase.image}`} />
-            <div><span>인식할 카드</span><strong>{selectedCase.heritage}</strong><small>다른 화면이나 인쇄된 카드를 카메라에 비추세요.</small></div>
+            <img alt={`${selectedTarget.name} 표적 카드`} src={selectedTarget.imageSrc} />
+            <div><span>인식할 카드</span><strong>{selectedTarget.name}</strong><small>다른 화면이나 인쇄된 카드를 카메라에 비추세요.</small></div>
           </div>
         ) : null}
         <div className="ar-scan-frame" aria-hidden="true"><i /><i /><i /><i /></div>
@@ -234,14 +309,16 @@ export default function TrackedHeritageAr() {
       {status === "found" || status === "fallback" ? (
         <section className="ar-learning-card" aria-live="polite">
           <span>카드 인식 뒤 확인하는 역사 정보</span>
-          <h3>{selectedCase.heritage}</h3>
-          <div><strong>자료로 확인</strong><p>{confirmedFact?.text}</p></div>
-          <div className="is-caution"><strong>아직 단정하지 않기</strong><p>{cautionFact?.text}</p></div>
+          <h3>{selectedTarget.name}</h3>
+          <div><strong>자료로 확인</strong><p>{selectedTarget.confirmed}</p></div>
+          <div className="is-caution"><strong>아직 단정하지 않기</strong><p>{selectedTarget.caution}</p></div>
           <p className="ar-talk-prompt">모둠 질문: 확인된 사실과 아직 모르는 점은 무엇이 다른가요?</p>
         </section>
       ) : null}
 
       <p className="ar-privacy-note">카메라 권한은 ‘AR 시작’을 눌렀을 때만 요청합니다. 영상과 사진은 서버에 저장되지 않습니다.</p>
+
+      <ClassArCardStudio />
     </div>
   );
 }
