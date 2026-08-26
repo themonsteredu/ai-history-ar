@@ -12,6 +12,7 @@ import { LessonFiveCleaningLab } from "./LessonFiveCleaningLab";
 import { LessonSixChartStudio } from "./LessonSixChartStudio";
 import { LessonSevenInterpretationLab } from "./LessonSevenInterpretationLab";
 import { LessonEightInferenceLab } from "./LessonEightInferenceLab";
+import { LessonTenMuseumRehearsal } from "./LessonTenMuseumRehearsal";
 
 const COMPLETION_STORAGE_KEY = "moa-history-ar:external-tool-completion:v1";
 
@@ -499,6 +500,7 @@ function InternalLessonPanel({ lessonId, onSaved, resultBoardUrl }: { lessonId: 
         <div><span>10차시 운영</span><strong>근거를 먼저 보여 주는 AR 박물관</strong><p>그래프 PNG와 QR 대체 자료를 준비하면 AR이 멈춰도 해설을 계속할 수 있습니다.</p></div>
         {resultBoardUrl ? <a className="button button--primary" href={resultBoardUrl} rel="noreferrer" target="_blank">모둠 결과 모아보기 ↗</a> : <span className="external-tool-muted">결과 모아보기 주소는 교사 설정에서 연결합니다.</span>}
       </div>
+      <LessonTenMuseumRehearsal onSaved={onSaved} />
     </div>
   );
 }

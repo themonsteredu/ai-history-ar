@@ -9680,3 +9680,212 @@ input:focus-visible {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.forecast-lab,
+.museum-rehearsal {
+  display: grid;
+  gap: 18px;
+}
+
+.ar-lesson-studio .forecast-lab {
+  margin-top: 4px;
+}
+
+.trend-chart__line {
+  fill: none;
+  stroke: #1f7a55;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.trend-chart__dot {
+  fill: #1f7a55;
+  stroke: #fffdf8;
+  stroke-width: 2;
+}
+
+.trend-chart__forecast-line {
+  stroke: #b98a2e;
+  stroke-width: 2;
+  stroke-dasharray: 5 5;
+  stroke-linecap: round;
+}
+
+.trend-chart__forecast-dot {
+  fill: #b98a2e;
+  stroke: #fffdf8;
+  stroke-width: 2;
+}
+
+.trend-chart__forecast-label {
+  fill: #8a6f3c;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.museum-rehearsal__checklist {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.museum-rehearsal__checklist button {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px 13px;
+  border: 1px solid #d5cdc0;
+  border-radius: 12px;
+  background: #f8f5ee;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.museum-rehearsal__checklist button[aria-pressed="true"] {
+  border-color: #7ba392;
+  background: #eaf3ed;
+}
+
+.museum-rehearsal__checklist button > span {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: 2px solid #cfc7b8;
+  border-radius: 7px;
+  background: #fffdf7;
+  color: #22574a;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.museum-rehearsal__checklist button[aria-pressed="true"] > span {
+  border-color: #2c6e5d;
+  background: #2c6e5d;
+  color: #f4f1e6;
+}
+
+.museum-rehearsal__checklist button strong {
+  display: block;
+  color: #2e3b36;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.museum-rehearsal__checklist button small {
+  display: block;
+  margin-top: 4px;
+  color: #7a807d;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.museum-rehearsal__practice {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 11px;
+}
+
+.visitor-question-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #d4ccbe;
+  border-radius: 12px;
+  background: #f7f3ea;
+}
+
+.visitor-question-card > div > span {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: #7d4337;
+  background: #f0dfda;
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.visitor-question-card strong {
+  display: block;
+  margin-top: 7px;
+  color: #24322c;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.45;
+}
+
+.visitor-question-card small {
+  display: block;
+  margin-top: 4px;
+  color: #7a807d;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.visitor-question-card > button {
+  flex-shrink: 0;
+}
+
+.rehearsal-timer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid #d4ccbe;
+  border-radius: 12px;
+  background: #fffdf8;
+}
+
+.rehearsal-timer.is-finished {
+  border-color: #c98a76;
+  background: #f8ece7;
+}
+
+.rehearsal-timer > div:first-child > span {
+  display: block;
+  color: #56615d;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.rehearsal-timer > div:first-child > strong {
+  display: block;
+  margin-top: 4px;
+  color: #173f38;
+  font-size: 21px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.rehearsal-timer.is-finished > div:first-child > strong {
+  color: #8c4a37;
+  font-size: 13px;
+}
+
+.rehearsal-timer > div:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 720px) {
+  .museum-rehearsal__checklist {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .museum-rehearsal__practice {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .visitor-question-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -7,6 +7,7 @@ import {
 } from "../content/three-kingdoms/webActivities";
 
 const TrackedHeritageAr = lazy(() => import("./TrackedHeritageAr"));
+import { TrendForecastLab } from "./TrendForecastLab";
 const imageRoot = `${import.meta.env.BASE_URL}images/heritage/three-kingdoms`;
 const verificationStorageKey = "moa-history-ar:three-kingdoms:lesson-6:v1";
 
@@ -148,6 +149,7 @@ export function LessonNineArStudio() {
         <div><span>체험 뒤 활동지에 기록</span><h3 id="ar-experience-brief-title">우리 모둠 AR은 네 가지를 정합니다</h3></div>
         <ol>{arExperiencePoints.map(([title, description]) => <li key={title}><strong>{title}</strong><span>{description}</span></li>)}</ol>
       </section>
+      <TrendForecastLab />
     </div>
   );
 }
