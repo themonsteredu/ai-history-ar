@@ -1,5 +1,4 @@
 import { Link, useSearchParams } from "react-router-dom";
-import { readTeacherAccess } from "../auth/teacherAccess";
 import { LessonSlides } from "../components/LessonSlides";
 import { LessonWebActivity } from "../components/LessonWebActivity";
 import { SimpleLessonSlides } from "../components/SimpleLessonSlides";
@@ -8,10 +7,8 @@ import type { Era, Lesson } from "../types/curriculum";
 
 export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson }) {
   const [searchParams] = useSearchParams();
-  const hasTeacherAccess = typeof window !== "undefined" && readTeacherAccess(window.sessionStorage);
-  const pptAvailable = lesson.id !== 2 || hasTeacherAccess;
   const requestedView = searchParams.get("view") === "activity" ? "activity" : "ppt";
-  const view = requestedView === "ppt" && !pptAvailable ? "activity" : requestedView;
+  const view = requestedView;
   const previousLesson = era.lessons.find((candidate) => candidate.id === lesson.id - 1);
   const nextLesson = era.lessons.find((candidate) => candidate.id === lesson.id + 1);
   const basePath = `${era.route}/lesson`;
@@ -27,11 +24,11 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
             <div><p>{era.grade} · {era.shortName}</p><h1>{lesson.title}</h1></div>
           </div>
           <nav aria-label="수업 화면 선택" className="classroom-tabs">
-            {pptAvailable ? <Link aria-current={view === "ppt" ? "page" : undefined} className={view === "ppt" ? "is-active" : ""} to={`${basePath}/${lesson.id}?view=ppt`}>
+            <Link aria-current={view === "ppt" ? "page" : undefined} className={view === "ppt" ? "is-active" : ""} to={`${basePath}/${lesson.id}?view=ppt`}>
               <span>01</span><strong>수업 PPT</strong><small>교실 화면으로 설명하기</small>
-            </Link> : null}
+            </Link>
             <Link aria-current={view === "activity" ? "page" : undefined} className={view === "activity" ? "is-active" : ""} to={`${basePath}/${lesson.id}?view=activity`}>
-              <span>{pptAvailable ? "02" : "01"}</span><strong>{activityTab.label}</strong><small>{activityTab.description}</small>
+              <span>02</span><strong>{activityTab.label}</strong><small>{activityTab.description}</small>
             </Link>
           </nav>
         </div>

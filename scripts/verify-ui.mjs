@@ -119,6 +119,10 @@ try {
   await desktop.locator(".home-hero__visual img").waitFor();
   await desktop.screenshot({ path: path.join(outputDirectory, "home-desktop.png"), fullPage: true });
 
+  results.push(await inspectPage(desktop, "/three-kingdoms/lesson/2?view=ppt", lessonTitles[1]));
+  if (await desktop.locator(".lesson-slides-section").count() !== 1) throw new Error("2차시 수업 PPT가 학생 화면에서 열리지 않습니다.");
+  if (await desktop.getByRole("link", { name: /수업 PPT/ }).count() !== 1) throw new Error("2차시 수업 PPT 탭이 보이지 않습니다.");
+
   results.push(await inspectPage(desktop, "/teacher", "교사 설정 잠금"));
   await desktop.getByLabel("교사용 PIN").fill("0000");
   await desktop.getByRole("button", { name: "설정 열기" }).click();
