@@ -8,6 +8,7 @@ import {
 } from "../settings/externalToolSettings";
 import { Icon } from "./Icon";
 import { ExternalToolFrame } from "./ExternalToolFrame";
+import { LessonFiveCleaningLab } from "./LessonFiveCleaningLab";
 
 const COMPLETION_STORAGE_KEY = "moa-history-ar:external-tool-completion:v1";
 
@@ -557,6 +558,8 @@ export function ExternalToolActivity({ lesson }: { lesson: Lesson }) {
       ) : null}
 
       {tool.launchMode === "internal" && tool.enabled ? <InternalLessonPanel lessonId={lesson.id} onSaved={markCompleted} resultBoardUrl={tool.resultBoardUrl} /> : null}
+
+      {lesson.id === 5 && tool.enabled ? <div className="external-tool-internal"><LessonFiveCleaningLab onSaved={markCompleted} /></div> : null}
 
       {tool.launchMode !== "internal" && tool.enabled ? (
         <section className="external-launch-panel">
