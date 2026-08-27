@@ -57,6 +57,20 @@ SOURCES = {
 }
 
 
+# 2차시 수업 슬라이드에 나오는 두 문장(활동지·답안이 같은 문장을 사용합니다).
+LESSON_TWO_COMPARE = [
+    (
+        "첨성대는 돌을 층층이 쌓은 건축물이다",
+        "바로 확인할 수 있다",
+        "사진과 공식 설명에서 구조를 직접 확인할 수 있고, 자료를 만든 기관과 원문 주소도 다시 찾을 수 있습니다.",
+    ),
+    (
+        "첨성대 안에서 망원경으로 별을 관찰했다",
+        "더 확인해야 한다",
+        "그 시대에 망원경을 사용했다는 근거가 없고, 관측 방법을 하나의 장면으로 확정할 수 없습니다.",
+    ),
+]
+
 # 1차시 답안: 학생 활동지의 표와 같은 세 칸 구성으로 채워 인쇄합니다.
 LESSON_ONE_ANSWER_ROWS = [
     ("무령왕릉", "벽돌로 쌓은 아치 모양 입구\n연꽃무늬가 반복되는 벽돌\n무덤 주인을 알려 준 지석", "만든 연도, 발견 연도\n나온 유물 개수, 무덤 크기"),
@@ -355,10 +369,22 @@ def three_kingdoms_data_sheet(era, lesson, width, st):
         questions = [["관찰할 유산", "눈에 보이는 특징", "모으고 싶은 데이터"]] + [[group["heritage"], "", ""] for group in era["groups"]]
         flow += [data_table(questions, [width * .28, width * .36, width * .36], st, row_heights=[10 * mm] + [32 * mm] * 6)]
     elif lesson_id == 2:
-        flow += [ruled_box("AI 답변에서 의심되는 문장", "교사가 보여 준 답변에서 틀렸거나 더 확인해야 할 문장을 옮겨 쓰고, 단정 표현에 밑줄을 그으세요.", width, 130 * mm, st), Spacer(1, 4 * mm)]
+        compare_rows = [["AI가 말한 문장", "내 생각에 동그라미", "그렇게 생각한 까닭"]]
+        for index, (statement, _verdict, _reason) in enumerate(LESSON_TWO_COMPARE, start=1):
+            compare_rows.append([f"문장 {index}\n{statement}", "바로 확인할 수 있다\n\n더 확인해야 한다", ""])
+        flow += [
+            para("1. 화면에 나온 두 문장에 대한 내 생각을 먼저 쓰세요", st["h2"]),
+            data_table(compare_rows, [width * .34, width * .22, width * .44], st, row_heights=[10 * mm] + [40 * mm] * len(LESSON_TWO_COMPARE)),
+            Spacer(1, 4 * mm),
+        ]
+        flow += [
+            para("2. 답을 확인한 뒤, 다른 AI 답변에서도 의심할 문장을 찾으세요", st["h2"]),
+            ruled_box("AI 답변에서 의심되는 문장", "교사가 보여 준 답변에서 틀렸거나 더 확인해야 할 문장을 옮겨 쓰고, 단정 표현에 밑줄을 그으세요.", width, 62 * mm, st),
+            Spacer(1, 4 * mm),
+        ]
         flow += [sheet_columns(
-            [ruled_box("왜 의심했나요?", "출처가 없나요? 너무 구체적인가요? 여러 의견 중 하나를 사실처럼 말했나요?", width * .47, 100 * mm, st)],
-            [ruled_box("어떻게 확인할까요?", "찾아볼 공식 자료와 다음 시간에 확인할 질문을 적으세요.", width * .47, 100 * mm, st)],
+            [ruled_box("왜 의심했나요?", "출처가 없나요? 너무 확실하게 말했나요?", width * .47, 52 * mm, st)],
+            [ruled_box("어떻게 확인할까요?", "찾아볼 공식 자료를 적으세요.", width * .47, 52 * mm, st)],
             width, st,
         )]
     elif lesson_id == 3:
@@ -553,7 +579,14 @@ def activity_answer_examples(era, lesson):
     if is_three:
         data_examples = {
             1: LESSON_ONE_ANSWER_ROWS,
-            2: [("의심되는 문장", "예: 신라 금관은 왕이 살아 있을 때 매일 머리에 쓰던 관이다."), ("왜 의심하는가", "출토 상황과 구조만으로 실제 착용 여부를 확정하기 어렵고, 확인할 출처가 제시되지 않았습니다."), ("확인 방법", "국가유산청·국립박물관 자료에서 출토 위치와 연구 설명을 비교하고, 결론이 나지 않으면 판단을 보류합니다.")],
+            2: [
+                (f"문장 1 · {LESSON_TWO_COMPARE[0][0]}", f"판단: {LESSON_TWO_COMPARE[0][1]}\n까닭: {LESSON_TWO_COMPARE[0][2]}"),
+                (f"문장 2 · {LESSON_TWO_COMPARE[1][0]}", f"판단: {LESSON_TWO_COMPARE[1][1]}\n까닭: {LESSON_TWO_COMPARE[1][2]}"),
+                ("두 문장의 차이", "눈이나 공식 자료로 곧바로 확인되는 문장과, 근거를 더 찾아야 하는 문장을 나누는 것이 오늘의 기준입니다."),
+                ("의심되는 다른 문장", "예: 신라 금관은 왕이 살아 있을 때 매일 머리에 쓰던 관이다."),
+                ("왜 의심하는가", "출토 상황과 구조만으로 실제 착용 여부를 확정하기 어렵고, 확인할 출처가 제시되지 않았습니다."),
+                ("확인 방법", "국가유산청·국립박물관 자료에서 출토 위치와 연구 설명을 비교하고, 결론이 나지 않으면 판단을 보류합니다."),
+            ],
             3: [
                 ("자료 3종 비교", "국가기관 자료·여행 블로그·AI 요약문이 무엇을 근거로 설명하는지 같은 표에서 비교합니다."),
                 ("출처·시기", "누가 왜 만든 자료인지 확인하고, 유산의 시대와 설명문이 작성된 시기를 구분합니다."),

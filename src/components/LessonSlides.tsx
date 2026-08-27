@@ -82,6 +82,7 @@ interface PromptSlide {
   title: string;
   question: string;
   instruction: string;
+  statements?: readonly string[];
 }
 
 type PresentationSlide = LessonSlide | PromptSlide;
@@ -125,8 +126,9 @@ function expandPresentationSlides(slides: readonly LessonSlide[]): readonly Pres
           source: slide.source,
           eyebrow: slide.eyebrow,
           title: slide.title,
-          question: `‘${slide.left.label}’과 ‘${slide.right.label}’은 무엇이 다를까요?`,
-          instruction: "사진과 앞에서 배운 내용을 떠올려 차이점을 먼저 말해 봅시다.",
+          question: slide.title,
+          instruction: "두 문장을 읽고 활동지에 내 생각과 그렇게 생각한 까닭을 먼저 쓴 뒤 답을 확인합니다.",
+          statements: [slide.left.title, slide.right.title],
         },
         slide,
       ];
@@ -183,17 +185,22 @@ function CompareSlide({ slide, revealStep }: { slide: Extract<LessonSlide, { kin
     <section className="class-slide class-slide--lesson-compare">
       <ZoomableImage alt={artifact.alt} caption={`${artifact.kingdom} 문화유산`} className="class-slide__compare-photo" src={artifact.image} title={artifact.name} />
       <div className="class-slide__compare-body">
-        <p className="class-slide__kicker">답 확인 · {slide.eyebrow}</p>
+        <p className="class-slide__kicker">{revealStep === 0 ? `먼저 생각하기 · ${slide.eyebrow}` : `답 확인 · ${slide.eyebrow}`}</p>
         <h3>{slide.title}</h3>
         <div className="class-slide__comparison">
           {[slide.left, slide.right].map((column, index) => (
-            <article aria-hidden={revealStep < index + 1} className={revealClass(revealStep >= index + 1)} key={column.label}>
-              <span>{column.label}</span>
+            // 두 문장을 먼저 보여 주고, 어느 쪽이 답인지는 눌렀을 때만 밝힙니다.
+            <article className={revealStep >= index + 1 ? "is-answered" : ""} key={column.title}>
+              <span className="class-slide__comparison-number">문장 {index + 1}</span>
               <h4>{column.title}</h4>
-              <ul>{column.items.map((item) => <li key={item}>{item}</li>)}</ul>
+              <div aria-hidden={revealStep < index + 1} className={revealClass(revealStep >= index + 1)}>
+                <span className="class-slide__comparison-verdict">{column.label}</span>
+                <ul>{column.items.map((item) => <li key={item}>{item}</li>)}</ul>
+              </div>
             </article>
           ))}
         </div>
+        {revealStep === 0 ? <p className="class-slide__compare-hint">두 문장을 읽고 활동지에 내 생각을 먼저 쓴 뒤, 화면을 눌러 답을 확인합니다.</p> : null}
       </div>
       <SlideSources slide={slide} />
     </section>
@@ -242,7 +249,14 @@ function PromptSlideView({ slide }: { slide: PromptSlide }) {
       <div className="class-slide__prompt-copy">
         <p>{slide.eyebrow} · 먼저 생각하기</p>
         <h3>{slide.title}</h3>
-        <blockquote>“{slide.question}”</blockquote>
+        {slide.statements ? null : <blockquote>“{slide.question}”</blockquote>}
+        {slide.statements ? (
+          <ol className="class-slide__prompt-statements">
+            {slide.statements.map((statement, index) => (
+              <li key={statement}><span>문장 {index + 1}</span><strong>{statement}</strong></li>
+            ))}
+          </ol>
+        ) : null}
         <span>{slide.instruction}</span>
         <strong>답과 근거는 다음 장에서 확인합니다 →</strong>
       </div>
