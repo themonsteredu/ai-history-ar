@@ -4,7 +4,7 @@
       "title": "삼국시대",
       "bundle": {
         "path": "/downloads/three-kingdoms/three-kingdoms-all-materials.zip",
-        "size": 1115174
+        "size": 1117680
       },
       "lessons": [
         {
@@ -13,7 +13,7 @@
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-01-student.pdf",
-              "size": 30701
+              "size": 27531
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-01-teacher.pdf",
@@ -21,11 +21,11 @@
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-01-answer.pdf",
-              "size": 32578
+              "size": 39614
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-01-all.zip",
-              "size": 111474
+              "size": 114005
             }
           }
         },
@@ -47,7 +47,7 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-02-all.zip",
-              "size": 111706
+              "size": 111705
             }
           }
         },
@@ -69,7 +69,7 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-03-all.zip",
-              "size": 109859
+              "size": 109856
             }
           }
         },
@@ -113,7 +113,7 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-05-all.zip",
-              "size": 114609
+              "size": 114605
             }
           }
         },
@@ -135,7 +135,7 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-06-all.zip",
-              "size": 99253
+              "size": 99251
             }
           }
         },
@@ -157,7 +157,7 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-07-all.zip",
-              "size": 104322
+              "size": 104321
             }
           }
         },
@@ -179,7 +179,7 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-08-all.zip",
-              "size": 106594
+              "size": 106590
             }
           }
         },
@@ -201,7 +201,7 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-09-all.zip",
-              "size": 104746
+              "size": 104741
             }
           }
         },
@@ -223,7 +223,7 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-10-all.zip",
-              "size": 116561
+              "size": 116556
             }
           }
         }
@@ -233,7 +233,7 @@
       "title": "조선시대",
       "bundle": {
         "path": "/downloads/joseon/joseon-all-materials.zip",
-        "size": 1147087
+        "size": 1147056
       },
       "lessons": [
         {
@@ -254,7 +254,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-01-all.zip",
-              "size": 112543
+              "size": 112542
             }
           }
         },
@@ -298,7 +298,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-03-all.zip",
-              "size": 104988
+              "size": 104979
             }
           }
         },
@@ -320,7 +320,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-04-all.zip",
-              "size": 110174
+              "size": 110171
             }
           }
         },
@@ -342,7 +342,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-05-all.zip",
-              "size": 111192
+              "size": 111188
             }
           }
         },
@@ -386,7 +386,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-07-all.zip",
-              "size": 111925
+              "size": 111919
             }
           }
         },
@@ -408,7 +408,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-08-all.zip",
-              "size": 111908
+              "size": 111904
             }
           }
         },
@@ -430,7 +430,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-09-all.zip",
-              "size": 105835
+              "size": 105832
             }
           }
         },
@@ -452,7 +452,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-10-all.zip",
-              "size": 116686
+              "size": 116685
             }
           }
         }

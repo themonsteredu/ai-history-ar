@@ -124,36 +124,42 @@ const lessonTwoChallenges = {
       heritage: "무령왕릉", image: `${threeKingdomsImageRoot}/muryeong-tomb.jpg`, imageAlt: "공주 무령왕릉 내부 재현 공간",
       observation: "사진에 보이지 않는 기록 유물이 무덤의 주인을 알려 줄 수도 있습니다.", credit: "Bernard Gagnon · CC0",
       creditHref: "https://commons.wikimedia.org/wiki/File:King_Muryeong_Tomb_01.jpg",
+      aiQuestion: "무령왕릉은 어떻게 발견되었고 누구의 무덤인가요?", aiAnswer: ["무령왕릉은 1971년 공주에서 배수로 공사를 하다가 우연히 발견되었습니다.", "무령왕릉은 누구의 무덤인지 아직 모른다.", "무덤 안에서는 금으로 만든 장식과 여러 껴묻거리가 함께 나왔습니다."],
     },
     {
       statement: "백제 금동대향로에 새겨진 모든 동물의 뜻은 하나로 확정되었다.", answer: "확인 필요", feedback: "사진에서 동물 형상은 확인할 수 있지만 모든 무늬의 의미를 하나로 단정할 수는 없습니다.",
       heritage: "백제 금동대향로", image: `${threeKingdomsImageRoot}/baekje-incense-burner.jpg`, imageAlt: "백제 금동대향로",
       observation: "향로에 표현된 산·동물·인물을 찾아보고, 사진만으로 뜻까지 확정할 수 있는지 생각합니다.", credit: "Gary Todd · CC0",
       creditHref: "https://commons.wikimedia.org/wiki/File:Baekje_Gilt_Bronze_Incense_Burner,_6th-7th_Cent._(30165906226).jpg",
+      aiQuestion: "백제 금동대향로에는 무엇이 표현되어 있나요?", aiAnswer: ["향로에는 용 모양 받침과 산봉우리, 여러 동물과 사람이 표현되어 있습니다.", "백제 금동대향로에 새겨진 모든 동물의 뜻은 하나로 확정되었다.", "꼭대기에는 봉황이 앉아 있는 모습이 있습니다."],
     },
     {
       statement: "첨성대에서는 망원경으로 별을 관찰했다.", answer: "확인 필요", feedback: "당시 망원경을 사용했다는 근거가 없습니다.",
       heritage: "첨성대", image: `${threeKingdomsImageRoot}/cheomseongdae.jpg`, imageAlt: "경주 첨성대",
       observation: "남아 있는 돌 구조와 AI가 말한 ‘망원경’ 사이에 근거가 있는지 살펴봅니다.", credit: "Matt & Nayoung Wilson · CC BY 2.0",
       creditHref: "https://commons.wikimedia.org/wiki/File:Korea-Gyeongju-Cheomseongdae-02.jpg",
+      aiQuestion: "첨성대에서는 어떻게 별을 관찰했나요?", aiAnswer: ["첨성대는 신라의 천문 관측과 관련된 건축물로 봅니다.", "첨성대에서는 망원경으로 별을 관찰했다.", "몸통 가운데에는 네모난 창이 나 있습니다."],
     },
     {
       statement: "신라 금관은 왕이 살아 있을 때 매일 쓴 관이다.", answer: "확인 필요", feedback: "금관의 출토 위치와 구조만으로 실제 착용 방법을 확정하기 어렵습니다.",
       heritage: "신라 금관", image: `${threeKingdomsImageRoot}/silla-crown.jpg`, imageAlt: "국립중앙박물관의 신라 금관",
       observation: "금관의 얇은 장식과 출토 상황만으로 일상적인 착용 모습을 확정할 수 있는지 생각합니다.", credit: "Ismoon · CC BY-SA 4.0",
       creditHref: "https://commons.wikimedia.org/wiki/File:Royal_Crown_of_Silla._National_Museum_of_Korea.jpg",
+      aiQuestion: "신라 금관은 언제 어떻게 사용했나요?", aiAnswer: ["신라 금관에는 나뭇가지와 사슴뿔을 닮은 세움 장식이 있습니다.", "신라 금관은 왕이 살아 있을 때 매일 쓴 관이다.", "금관은 왕릉급 큰 무덤에서 발견되었습니다."],
     },
     {
       statement: "무령왕릉에서는 무덤 주인을 알려 주는 지석이 발견되었다.", answer: "자료와 맞음", feedback: "지석은 무덤 주인을 확인하게 해 준 중요한 기록입니다.",
       heritage: "무령왕릉", image: `${threeKingdomsImageRoot}/muryeong-tomb.jpg`, imageAlt: "공주 무령왕릉 내부 재현 공간",
       observation: "무덤의 모습과 함께 출토 기록을 확인해야 주인을 판단할 수 있습니다.", credit: "Bernard Gagnon · CC0",
       creditHref: "https://commons.wikimedia.org/wiki/File:King_Muryeong_Tomb_01.jpg",
+      aiQuestion: "무령왕릉에서 나온 기록 유물은 무엇인가요?", aiAnswer: ["무령왕릉은 벽돌을 쌓아 만든 무덤입니다.", "무령왕릉에서는 무덤 주인을 알려 주는 지석이 발견되었다.", "지석에는 왕과 왕비의 장례에 대한 기록이 남아 있습니다."],
     },
     {
       statement: "고구려 고분벽화에는 사냥과 생활 모습이 그려져 있다.", answer: "자료와 맞음", feedback: "벽화에서 인물·사냥·행렬과 생활 장면을 확인할 수 있습니다.",
       heritage: "고구려 고분벽화", image: `${threeKingdomsImageRoot}/goguryeo-mural.jpg`, imageAlt: "고구려 무용총 수렵도 벽화",
       observation: "말을 탄 인물과 동물, 활을 쏘는 장면처럼 눈으로 확인할 수 있는 사실을 찾습니다.", credit: "작자 미상 · Public domain",
       creditHref: "https://commons.wikimedia.org/wiki/File:Goguryeo_tomb_mural.jpg",
+      aiQuestion: "고구려 고분벽화로 무엇을 알 수 있나요?", aiAnswer: ["고구려 사람들은 무덤 안 벽에 그림을 그렸습니다.", "고구려 고분벽화에는 사냥과 생활 모습이 그려져 있다.", "벽화는 당시 사람들의 옷차림과 생활을 살펴보는 자료입니다."],
     },
   ],
   joseon: [
@@ -253,6 +259,8 @@ interface Challenge {
   observation?: string;
   credit?: string;
   creditHref?: string;
+  aiQuestion?: string;
+  aiAnswer?: readonly string[];
 }
 
 function ChallengeImageViewer({ challenge }: { challenge: Challenge }) {
@@ -427,6 +435,23 @@ function StudentResponseTool({ challenges, choices, storageKey }: { challenges: 
           <blockquote>“{challenge.statement}”</blockquote>
         </div>
       </div>
+      {challenge.aiQuestion && challenge.aiAnswer ? (
+        <section className="ai-answer-view" aria-label="AI가 답한 내용">
+          <header>
+            <span>우리가 AI에게 물어본 질문</span>
+            <strong>{challenge.aiQuestion}</strong>
+          </header>
+          <div className="ai-answer-view__body">
+            <span>AI가 답한 내용</span>
+            <p>
+              {challenge.aiAnswer.map((sentence) => (
+                <em className={sentence === challenge.statement ? "is-target" : ""} key={sentence}>{sentence} </em>
+              ))}
+            </p>
+          </div>
+          <small>진하게 표시된 문장이 지금 판단할 문장입니다. 앞뒤 문장과 사진을 함께 보고 판단하세요.</small>
+        </section>
+      ) : null}
       <div className="choice-tool__buttons" role="group" aria-label={`${index + 1}번 문장 판단`}>
         {choices.map((item) => <button aria-pressed={choice === item} className={choice === item ? "is-selected" : ""} key={item} onClick={() => choose(item)} type="button">{item}</button>)}
       </div>

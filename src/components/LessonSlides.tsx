@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type TouchEvent } from "react";
+import { ZoomableImage } from "./ZoomableImage";
 import {
   getThreeKingdomsSlides,
   type HeritageImageKey,
@@ -164,7 +165,7 @@ function FactSlide({ slide, revealStep }: { slide: Extract<LessonSlide, { kind: 
   const artifact = artifactByKey[slide.image];
   return (
     <section className="class-slide class-slide--lesson-fact">
-      <figure><img src={artifact.image} alt={artifact.alt} /></figure>
+      <figure><ZoomableImage alt={artifact.alt} caption={`${artifact.kingdom} 문화유산`} src={artifact.image} title={artifact.name} /></figure>
       <div className="class-slide__lesson-copy">
         <p className="class-slide__kicker">{slide.eyebrow}</p>
         <h3>{slide.title}</h3>
@@ -180,7 +181,7 @@ function CompareSlide({ slide, revealStep }: { slide: Extract<LessonSlide, { kin
   const artifact = artifactByKey[slide.image];
   return (
     <section className="class-slide class-slide--lesson-compare">
-      <img className="class-slide__compare-photo" src={artifact.image} alt={artifact.alt} />
+      <ZoomableImage alt={artifact.alt} caption={`${artifact.kingdom} 문화유산`} className="class-slide__compare-photo" src={artifact.image} title={artifact.name} />
       <div className="class-slide__compare-body">
         <p className="class-slide__kicker">답 확인 · {slide.eyebrow}</p>
         <h3>{slide.title}</h3>
@@ -209,7 +210,7 @@ function ActivitySlide({ slide, revealStep }: { slide: Extract<LessonSlide, { ki
         <p className="class-slide__activity-instruction">{slide.instruction}</p>
         <ol>{slide.steps.map((step, index) => <li aria-hidden={revealStep < index + 1} className={revealClass(revealStep >= index + 1)} key={step}><span>{index + 1}</span>{step}</li>)}</ol>
       </div>
-      <figure><img src={artifact.image} alt={artifact.alt} /></figure>
+      <figure><ZoomableImage alt={artifact.alt} caption={`${artifact.kingdom} 문화유산`} src={artifact.image} title={artifact.name} /></figure>
       <SlideSources slide={slide} />
     </section>
   );
@@ -260,7 +261,7 @@ function GallerySlide({ slide, revealStep }: { slide: Extract<LessonSlide, { kin
       <div className="artifact-choice-grid">
         {artifacts.map((artifact, index) => (
           <article aria-hidden={revealStep < Math.floor(index / 2) + 1} className={`artifact-choice-card ${revealClass(revealStep >= Math.floor(index / 2) + 1)}`} key={artifact.name}>
-            <img src={artifact.image} alt={artifact.alt} />
+            <ZoomableImage alt={artifact.alt} caption={`${artifact.kingdom} 문화유산`} src={artifact.image} title={artifact.name} />
             <div><span>{artifact.kingdom}</span><h4>{artifact.name}</h4><p>{artifact.question}</p></div>
           </article>
         ))}
@@ -314,48 +315,94 @@ export function LessonSlides({ lessonId }: { lessonId: number }) {
   const slides = expandPresentationSlides(getThreeKingdomsSlides(lessonId));
   const [current, setCurrent] = useState(0);
   const [revealStep, setRevealStep] = useState(0);
+  const [viewerVisible, setViewerVisible] = useState(false);
   const viewerRef = useRef<HTMLDivElement>(null);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const slide = slides[current];
   const revealTotal = getRevealCount(slide);
 
-  const goTo = (index: number) => {
-    setCurrent(Math.min(slides.length - 1, Math.max(0, index)));
-    setRevealStep(0);
+  const goTo = (index: number, showAll = false) => {
+    const nextIndex = Math.min(slides.length - 1, Math.max(0, index));
+    setCurrent(nextIndex);
+    setRevealStep(showAll ? getRevealCount(slides[nextIndex]) : 0);
   };
 
-  const advance = () => {
+  // 화살표와 스와이프는 슬라이드를 한 장씩 넘기고, ‘다음 내용 공개’만 한 줄씩 보여 줍니다.
+  const nextSlide = () => {
+    if (current < slides.length - 1) goTo(current + 1);
+  };
+
+  const previousSlide = () => {
+    if (current > 0) goTo(current - 1, true);
+  };
+
+  const revealNext = () => {
     if (revealStep < revealTotal) {
       setRevealStep((step) => Math.min(revealTotal, step + 1));
       return;
     }
-    if (current < slides.length - 1) goTo(current + 1);
+    nextSlide();
   };
 
-  const retreat = () => {
+  const revealPrevious = () => {
     if (revealStep > 0) {
       setRevealStep((step) => Math.max(0, step - 1));
       return;
     }
-    if (current > 0) goTo(current - 1);
+    previousSlide();
   };
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (!viewerRef.current?.contains(document.activeElement) && document.fullscreenElement !== viewerRef.current) return;
-      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+      const activeElement = document.activeElement;
+      const typingInField = activeElement instanceof HTMLElement
+        && (activeElement.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(activeElement.tagName));
+      if (typingInField) return;
+      const insideViewer = viewerRef.current?.contains(activeElement) || document.fullscreenElement === viewerRef.current;
+      if (!insideViewer && !viewerVisible) return;
+      if (event.key === "ArrowRight" || event.key === "PageDown") {
         event.preventDefault();
-        advance();
+        nextSlide();
+      }
+      if (event.key === " ") {
+        event.preventDefault();
+        revealNext();
       }
       if (event.key === "ArrowLeft" || event.key === "PageUp") {
         event.preventDefault();
-        retreat();
+        previousSlide();
       }
       if (event.key === "Home") goTo(0);
       if (event.key === "End") goTo(slides.length - 1);
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [current, revealStep, revealTotal, slides.length]);
+  }, [current, revealStep, revealTotal, slides.length, viewerVisible]);
+
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!viewer || typeof IntersectionObserver !== "function") return;
+    const observer = new IntersectionObserver((entries) => setViewerVisible(entries.some((entry) => entry.isIntersecting)), { threshold: 0.4 });
+    observer.observe(viewer);
+    return () => observer.disconnect();
+  }, []);
+
+  function handleTouchStart(event: TouchEvent<HTMLDivElement>) {
+    const touch = event.touches[0];
+    touchStartRef.current = touch ? { x: touch.clientX, y: touch.clientY } : null;
+  }
+
+  function handleTouchEnd(event: TouchEvent<HTMLDivElement>) {
+    const start = touchStartRef.current;
+    const touch = event.changedTouches[0];
+    touchStartRef.current = null;
+    if (!start || !touch) return;
+    const deltaX = touch.clientX - start.x;
+    const deltaY = touch.clientY - start.y;
+    if (Math.abs(deltaX) < 45 || Math.abs(deltaX) < Math.abs(deltaY)) return;
+    if (deltaX < 0) nextSlide();
+    else previousSlide();
+  }
 
   const enterFullscreen = async () => {
     await viewerRef.current?.requestFullscreen();
@@ -373,17 +420,20 @@ export function LessonSlides({ lessonId }: { lessonId: number }) {
       </div>
 
       <div className="lesson-slides" ref={viewerRef} tabIndex={0} aria-label={`삼국시대 ${lessonId}차시 수업 슬라이드`}>
-        <div className="lesson-slides__stage" aria-live="polite">
+        <div className="lesson-slides__stage" aria-live="polite" onTouchEnd={handleTouchEnd} onTouchStart={handleTouchStart}>
           <ClassSlide key={current} revealStep={revealStep} slide={slide} />
+          {revealTotal > 0 && revealStep < revealTotal ? (
+            <button className="lesson-slides__stage-reveal" onClick={revealNext} type="button">화면을 눌러 다음 내용 공개 ({revealStep} / {revealTotal})</button>
+          ) : null}
         </div>
         <div className="lesson-slides__controls">
-          <button type="button" onClick={retreat} disabled={current === 0 && revealStep === 0} aria-label="이전 내용">←</button>
+          <button type="button" onClick={previousSlide} disabled={current === 0} aria-label="이전 슬라이드">←</button>
           <div className="lesson-slides__dots" aria-label="슬라이드 선택">
             {slides.map((_, index) => (
               <button
                 type="button"
                 className={index === current ? "is-active" : ""}
-                onClick={() => goTo(index)}
+                onClick={() => goTo(index, index < current)}
                 aria-label={`${index + 1}번 슬라이드`}
                 aria-current={index === current ? "step" : undefined}
                 key={index}
@@ -391,13 +441,13 @@ export function LessonSlides({ lessonId }: { lessonId: number }) {
             ))}
           </div>
           <div className="lesson-slides__counter"><span>{current + 1} / {slides.length}</span>{revealTotal > 0 ? <small>내용 {revealStep} / {revealTotal}</small> : null}</div>
-          <button className="lesson-slides__reveal-button" disabled={current === slides.length - 1 && revealStep === revealTotal} onClick={advance} type="button">
+          <button className="lesson-slides__reveal-button" disabled={current === slides.length - 1 && revealStep === revealTotal} onClick={revealNext} type="button">
             {revealStep < revealTotal ? "다음 내용 공개" : "다음 슬라이드"}
           </button>
-          <button type="button" onClick={advance} disabled={current === slides.length - 1 && revealStep === revealTotal} aria-label={revealStep < revealTotal ? "다음 내용 공개" : "다음 슬라이드"}>→</button>
+          <button type="button" onClick={nextSlide} disabled={current === slides.length - 1} aria-label="다음 슬라이드">→</button>
         </div>
       </div>
-      <p className="lesson-slides-section__hint">질문을 먼저 보여 준 뒤 ‘다음 내용 공개’를 누르세요. 키보드 → 또는 Space로도 한 단계씩 진행됩니다.</p>
+      <p className="lesson-slides-section__hint">←·→ 화살표와 좌우 밀기(스와이프)는 슬라이드를 한 장씩 넘깁니다. 화면이나 ‘다음 내용 공개’를 누르면 내용이 한 줄씩 나타나고, Space 키도 같은 역할을 합니다.</p>
     </section>
   );
 }

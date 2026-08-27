@@ -1585,6 +1585,7 @@ input:focus-visible {
 }
 
 .lesson-slides__stage {
+  position: relative;
   container-type: inline-size;
   aspect-ratio: 16 / 9;
   overflow: hidden;
@@ -1806,7 +1807,7 @@ input:focus-visible {
 .artifact-choice-card img {
   width: 100%;
   height: 10.8cqw;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .artifact-choice-card > div {
@@ -2033,7 +2034,7 @@ input:focus-visible {
   position: absolute;
   width: 22cqw;
   height: 23cqw;
-  object-fit: cover;
+  object-fit: contain;
   border: 0.55cqw solid #fff;
   box-shadow: 0 1.4cqw 3cqw rgba(27, 36, 32, 0.18);
 }
@@ -2149,7 +2150,7 @@ input:focus-visible {
 .class-slide--lesson-fact > figure img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .class-slide__lesson-copy {
@@ -2210,7 +2211,7 @@ input:focus-visible {
 .class-slide__compare-photo {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .class-slide__compare-body {
@@ -2319,7 +2320,7 @@ input:focus-visible {
 .class-slide--lesson-activity > figure img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .class-slide--lesson-quiz > img {
@@ -4826,7 +4827,7 @@ input:focus-visible {
 .heritage-choice-card img {
   width: 100%;
   aspect-ratio: 1 / 0.78;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .heritage-choice-card span,
@@ -5887,7 +5888,7 @@ input:focus-visible {
   width: 100%;
   height: 100%;
   min-height: 310px;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .research-case-hero > div {
@@ -6197,7 +6198,7 @@ input:focus-visible {
 .ar-target-picker img {
   width: 100%;
   aspect-ratio: 1 / 0.7;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .ar-target-picker span {
@@ -10282,4 +10283,135 @@ input:focus-visible {
   color: #7a807d;
   font-size: 10px;
   font-weight: 700;
+}
+
+.zoomable-image {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: #efe9db;
+  cursor: zoom-in;
+}
+
+.zoomable-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: inherit;
+}
+
+.zoomable-image > span {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(14, 38, 31, 0.82);
+  color: #f4f1e6;
+  font-size: 9px;
+  font-weight: 900;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  pointer-events: none;
+}
+
+.zoomable-image:hover > span,
+.zoomable-image:focus-visible > span {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .zoomable-image > span {
+    opacity: 0.9;
+  }
+}
+
+.lesson-slides__stage-reveal {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  z-index: 3;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(14, 38, 31, 0.86);
+  color: #f4f1e6;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.ai-answer-view {
+  margin: 14px 0 0;
+  padding: 14px 16px;
+  border: 1px solid #d4ccbe;
+  border-radius: 12px;
+  background: #f7f3ea;
+}
+
+.ai-answer-view header > span {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: #7d4337;
+  background: #f0dfda;
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.ai-answer-view header > strong {
+  display: block;
+  margin-top: 7px;
+  color: #24322c;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.45;
+}
+
+.ai-answer-view__body {
+  margin-top: 11px;
+  padding: 12px 13px;
+  border-radius: 10px;
+  background: #fffdf8;
+}
+
+.ai-answer-view__body > span {
+  display: block;
+  color: #56615d;
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.ai-answer-view__body p {
+  margin: 6px 0 0;
+  color: #4c554f;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.75;
+}
+
+.ai-answer-view__body em {
+  font-style: normal;
+}
+
+.ai-answer-view__body em.is-target {
+  padding: 2px 4px;
+  border-bottom: 2px solid #a84a3b;
+  background: #f8ece7;
+  color: #2e3b36;
+  font-weight: 900;
+}
+
+.ai-answer-view > small {
+  display: block;
+  margin-top: 9px;
+  color: #7a807d;
+  font-size: 9px;
+  line-height: 1.5;
 }
