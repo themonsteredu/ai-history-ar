@@ -13,6 +13,7 @@ import { LessonSixChartStudio } from "./LessonSixChartStudio";
 import { LessonSevenInterpretationLab } from "./LessonSevenInterpretationLab";
 import { LessonEightInferenceLab } from "./LessonEightInferenceLab";
 import { LessonTenMuseumRehearsal } from "./LessonTenMuseumRehearsal";
+import { GroupRecordPanel } from "./GroupRecordPanel";
 
 const COMPLETION_STORAGE_KEY = "moa-history-ar:external-tool-completion:v1";
 
@@ -480,7 +481,7 @@ function saveCompletion(lessonId: number, completed: boolean) {
   }
 }
 
-function InternalLessonPanel({ lessonId, onSaved, resultBoardUrl }: { lessonId: number; onSaved: () => void; resultBoardUrl: string }) {
+function InternalLessonPanel({ lessonId, onSaved, resultBoardUrl, submissionUrl }: { lessonId: number; onSaved: () => void; resultBoardUrl: string; submissionUrl: string }) {
   if (lessonId === 1) {
     return <div className="external-tool-internal"><LessonOneQuestionWorkshop onSaved={onSaved} /></div>;
   }
@@ -501,6 +502,7 @@ function InternalLessonPanel({ lessonId, onSaved, resultBoardUrl }: { lessonId: 
         {resultBoardUrl ? <a className="button button--primary" href={resultBoardUrl} rel="noreferrer" target="_blank">모둠 결과 모아보기 ↗</a> : <span className="external-tool-muted">결과 모아보기 주소는 교사 설정에서 연결합니다.</span>}
       </div>
       <LessonTenMuseumRehearsal onSaved={onSaved} />
+      <GroupRecordPanel submissionUrl={submissionUrl} />
     </div>
   );
 }
@@ -562,7 +564,7 @@ export function ExternalToolActivity({ lesson }: { lesson: Lesson }) {
         <div className="external-activity__notice"><strong>이 차시의 외부 도구가 꺼져 있습니다.</strong><span>교사가 대체 활동을 안내할 때까지 기다리세요.</span></div>
       ) : null}
 
-      {tool.launchMode === "internal" && tool.enabled ? <InternalLessonPanel lessonId={lesson.id} onSaved={markCompleted} resultBoardUrl={tool.resultBoardUrl} /> : null}
+      {tool.launchMode === "internal" && tool.enabled ? <InternalLessonPanel lessonId={lesson.id} onSaved={markCompleted} resultBoardUrl={tool.resultBoardUrl} submissionUrl={tool.submissionUrl} /> : null}
 
       {lesson.id === 5 && tool.enabled ? <div className="external-tool-internal"><LessonFiveCleaningLab onSaved={markCompleted} /></div> : null}
       {lesson.id === 6 && tool.enabled ? <div className="external-tool-internal"><LessonSixChartStudio onSaved={markCompleted} /></div> : null}

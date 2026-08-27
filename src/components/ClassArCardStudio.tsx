@@ -111,7 +111,9 @@ export function ClassArCardStudio() {
     const anchor = document.createElement("a");
     anchor.href = url;
     anchor.download = "our-class-ar-cards.json";
+    document.body.appendChild(anchor);
     anchor.click();
+    anchor.remove();
     URL.revokeObjectURL(url);
   }
 
