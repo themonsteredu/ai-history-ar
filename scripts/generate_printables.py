@@ -57,6 +57,16 @@ SOURCES = {
 }
 
 
+# 1차시 답안: 학생 활동지의 표와 같은 세 칸 구성으로 채워 인쇄합니다.
+LESSON_ONE_ANSWER_ROWS = [
+    ("무령왕릉", "벽돌로 쌓은 아치 모양 입구\n연꽃무늬가 반복되는 벽돌\n무덤 주인을 알려 준 지석", "만든 연도, 발견 연도\n나온 유물 개수, 무덤 크기"),
+    ("백제 금동대향로", "꼭대기에 앉은 봉황\n산봉우리와 여러 동물·사람\n용 모양 받침", "동물 마리 수, 향로 높이\n발견 장소, 만든 재료"),
+    ("첨성대", "돌을 층층이 쌓은 몸통\n가운데 난 네모난 창\n위로 갈수록 좁아지는 모양", "쌓은 돌 개수, 높이\n만든 연도, 지은 나라"),
+    ("신라 금관", "나뭇가지 모양 세움 장식\n굽은옥과 둥근 달개\n얇은 금판", "무게, 굽은옥 개수\n나온 무덤 이름, 만든 시기"),
+    ("고구려 고분벽화", "말을 타고 활을 쏘는 사람\n사냥하는 장면\n힘차게 이어지는 선", "그림 종류, 등장 인물 수\n사용한 색깔, 그린 시기"),
+    ("가야 고분군", "능선을 따라 이어진 봉분\n무덤마다 다른 크기\n여러 지역에 나뉜 위치", "무덤 개수, 무덤 크기\n있는 지역, 나온 껴묻거리"),
+]
+
 LESSON_FOUR_NOTES = {
     "무령왕릉": (
         "1971년 송산리 고분 배수로 공사 중 발견되었고 지석으로 무덤 주인을 확인했다.",
@@ -542,14 +552,7 @@ def activity_answer_examples(era, lesson):
     first_heritage = era["groups"][0]["heritage"]
     if is_three:
         data_examples = {
-            1: [
-                ("무령왕릉", "특징: 벽돌로 쌓은 아치 모양 입구, 연꽃무늬 벽돌 · 모으고 싶은 데이터: 만든 연도, 유물 개수, 크기"),
-                ("백제 금동대향로", "특징: 꼭대기의 봉황, 연꽃무늬, 용 모양 받침 · 모으고 싶은 데이터: 동물 마리 수, 높이, 용도, 발견 위치"),
-                ("첨성대", "특징: 돌을 층층이 쌓은 몸통, 가운데 네모난 창 · 모으고 싶은 데이터: 돌 개수, 높이, 만든 연도"),
-                ("신라 금관", "특징: 나뭇가지 모양 장식, 굽은옥과 달개 · 모으고 싶은 데이터: 무게, 굽은옥 수, 만든 시기"),
-                ("고구려 고분벽화", "특징: 벽에 그린 사냥 그림, 말을 탄 사람 · 모으고 싶은 데이터: 그림 종류, 사람 수, 색깔"),
-                ("가야 고분군", "특징: 능선을 따라 늘어선 크고 작은 무덤 · 모으고 싶은 데이터: 무덤 수, 크기, 위치"),
-            ],
+            1: LESSON_ONE_ANSWER_ROWS,
             2: [("의심되는 문장", "예: 신라 금관은 왕이 살아 있을 때 매일 머리에 쓰던 관이다."), ("왜 의심하는가", "출토 상황과 구조만으로 실제 착용 여부를 확정하기 어렵고, 확인할 출처가 제시되지 않았습니다."), ("확인 방법", "국가유산청·국립박물관 자료에서 출토 위치와 연구 설명을 비교하고, 결론이 나지 않으면 판단을 보류합니다.")],
             3: [
                 ("자료 3종 비교", "국가기관 자료·여행 블로그·AI 요약문이 무엇을 근거로 설명하는지 같은 표에서 비교합니다."),
@@ -568,7 +571,7 @@ def activity_answer_examples(era, lesson):
             5: [
                 ("중복 행", "같은 유산·같은 출처가 반복된 행은 원자료를 확인한 뒤 하나만 남기고, 삭제 이유를 기록합니다."),
                 ("빈칸", "모르는 값을 추측해 채우지 않고 ‘확인 필요’로 표시하거나 분석에서 제외한 까닭을 남깁니다."),
-                ("표기 차이", "‘고구려’, ‘高句麗’, ‘고구려 시대’처럼 같은 뜻의 값은 학급 표준표에 따라 하나의 표현으로 통일합니다."),
+                ("표기 차이", "‘고구려’, ‘고구려국’, ‘고구려 시대’처럼 같은 뜻의 값은 학급 표준표에 따라 하나의 표현으로 통일합니다."),
                 ("시기·연도", "정확한 연도가 확인되지 않으면 임의의 숫자를 만들지 않고 확인된 시대 범위를 기록합니다."),
                 ("정제 기록", "무엇을 어떻게 바꾸었는지와 출처를 함께 남기고, 정제된 표를 CSV로 내려받습니다."),
             ],
@@ -666,7 +669,20 @@ def answer_guide_sheet(era, lesson, width, st):
         ("TOPPADDING", (0, 0), (-1, -1), 5),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
     ]))
-    rows = [["활동", "예시 답안·확인 기준"]] + [[label, answer] for label, answer in activity_answer_examples(era, lesson)]
+    examples = activity_answer_examples(era, lesson)
+    if era["id"] == "three-kingdoms" and lesson["id"] == 1:
+        # 학생 활동지와 같은 세 칸 표에 답을 채워 그대로 대조할 수 있게 합니다.
+        answer_rows = [["관찰할 유산", "눈에 보이는 특징", "모으고 싶은 데이터"]]
+        answer_rows += [
+            [para(heritage, st["answerKey"]), para(features, st["small"]), para(data_points, st["small"])]
+            for heritage, features, data_points in examples
+        ]
+        answer_table = data_table(answer_rows, [width * .24, width * .40, width * .36], st, row_heights=[12 * mm] + [26 * mm] * len(examples))
+    else:
+        answer_rows = [["활동", "예시 답안·확인 기준"]] + [
+            [para(label, st["answerKey"]), para(answer, st["small"])] for label, answer in examples
+        ]
+        answer_table = data_table(answer_rows, [width * .24, width * .76], st, row_heights=[12 * mm] + [30 * mm] * len(examples))
     flow = [
         title,
         Spacer(1, 4 * mm),
@@ -674,7 +690,7 @@ def answer_guide_sheet(era, lesson, width, st):
         Spacer(1, 4 * mm),
         ruled_box("답안 사용 안내", "아래 내용은 예시입니다. 학생이 다른 답을 써도 역사 자료에 맞는 근거를 말하면 정답으로 인정합니다.", width, 24 * mm, st),
         Spacer(1, 4 * mm),
-        data_table(rows, [width * .22, width * .78], st, row_heights=[10 * mm] + [27 * mm] * (len(rows) - 1)),
+        answer_table,
         Spacer(1, 5 * mm),
     ]
     if lesson["id"] == 4 and era["id"] == "three-kingdoms":
@@ -711,9 +727,11 @@ def build_answer_pdf(era, lesson, destination):
         author="인공지능과 역사",
     )
     st = styles_for(A4)
-    st["small"] = ParagraphStyle("answerSmall", parent=st["small"], fontSize=8.7, leading=12)
-    st["label"] = ParagraphStyle("answerLabel", parent=st["label"], fontSize=9.2, leading=12)
-    st["tableHeader"] = ParagraphStyle("answerTableHeader", parent=st["tableHeader"], fontSize=8.2, leading=11)
+    # 답안은 교사가 수업 중 한눈에 읽는 자료이므로 학생 활동지보다 크게 인쇄합니다.
+    st["small"] = ParagraphStyle("answerSmall", parent=st["small"], fontSize=11.5, leading=17, textColor=INK)
+    st["label"] = ParagraphStyle("answerLabel", parent=st["label"], fontSize=11.5, leading=16)
+    st["tableHeader"] = ParagraphStyle("answerTableHeader", parent=st["tableHeader"], fontSize=11, leading=15)
+    st["answerKey"] = ParagraphStyle("answerKeyCell", parent=st["small"], fontName="SCoreBold", fontSize=11.5, leading=17, textColor=INK)
     width = A4[0] - doc.leftMargin - doc.rightMargin
     story = answer_guide_sheet(era, lesson, width, st)
     if lesson["id"] == 6 and era["id"] != "three-kingdoms":
