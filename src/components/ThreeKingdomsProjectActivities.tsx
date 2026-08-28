@@ -129,7 +129,7 @@ export function LessonFourResearchHub() {
 const arExperiencePoints = [
   ["등장 요소", "카드를 찾은 뒤 무엇이 가장 먼저 나타나는가"],
   ["움직임", "시선이 유산의 핵심 특징으로 자연스럽게 이동하는가"],
-  ["한 문장 해설", "그래프 경향과 4차시에서 확인한 사실을 짧고 정확하게 연결하는가"],
+  ["역사 사실 카드", "그래프 카드와 공식 자료 카드를 함께 고르는가"],
   ["관람객 행동", "고르기·찾기·확대처럼 직접 할 일이 있는가"],
 ] as const;
 
@@ -145,7 +145,7 @@ export function LessonNineArStudio() {
         <TrackedHeritageAr />
       </Suspense>
       <section className="ar-experience-brief" aria-labelledby="ar-experience-brief-title">
-        <div><span>체험 뒤 활동지에 기록</span><h3 id="ar-experience-brief-title">우리 모둠 AR은 네 가지를 정합니다</h3></div>
+        <div><span>체험 뒤 활동지에서 고르기</span><h3 id="ar-experience-brief-title">우리 모둠 AR은 네 가지를 고릅니다</h3></div>
         <ol>{arExperiencePoints.map(([title, description]) => <li key={title}><strong>{title}</strong><span>{description}</span></li>)}</ol>
       </section>
     </div>

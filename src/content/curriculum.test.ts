@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { eras } from "./catalog";
 import { getLessonMinutes } from "./lesson-helpers";
 import { getThreeKingdomsSlides } from "./three-kingdoms/slides";
+import { threeKingdomsExternalTools } from "./three-kingdoms/externalTools";
 
 describe("curriculum catalog", () => {
   it("contains two complete 10-lesson courses", () => {
@@ -79,6 +80,13 @@ describe("curriculum catalog", () => {
     for (const era of eras) {
       expect(era.lessons.map((lesson) => lesson.classroomMode), era.shortName).toEqual(expectedModes);
     }
+  });
+
+  it("keeps grade-five student results choice-led and short", () => {
+    const studentCopy = JSON.stringify(threeKingdomsExternalTools);
+    expect(studentCopy).not.toMatch(/두 가지 적|수정 이유를.*기록|30초 도슨트 대본을 완성/);
+    expect(threeKingdomsExternalTools[6].resultGuide).toContain("하나");
+    expect(threeKingdomsExternalTools[9].resultGuide).toContain("체크");
   });
 
   it("keeps every Three Kingdoms deck rich, classroom-facing, and Q&A-led", () => {
