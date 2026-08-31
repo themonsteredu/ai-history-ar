@@ -43,14 +43,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
 
       - name: Install document dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends libreoffice-impress poppler-utils fontconfig
           python -m pip install --upgrade pip
-          python -m pip install reportlab python-pptx pypdf fonttools
+          python -m pip install reportlab python-pptx pypdf pillow fonttools
 
       - name: Install S-Core Dream for rendering
         run: |
