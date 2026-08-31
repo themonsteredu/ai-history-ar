@@ -1,5 +1,6 @@
 import { joseonGroups } from "./joseon/groups";
 import { joseonLessons } from "./joseon/lessons";
+import { applyLesson2Override } from "./lesson2Overrides";
 import { threeKingdomsGroups } from "./three-kingdoms/groups";
 import { threeKingdomsLessons } from "./three-kingdoms/lessons";
 import type { Era, EraId, Lesson } from "../types/curriculum";
@@ -24,7 +25,7 @@ export const eras = [
         description: "역사 기록이나 유적과 유물에 나타난 고대 사람들의 생각과 생활을 추론한다.",
       },
     ],
-    lessons: threeKingdomsLessons,
+    lessons: applyLesson2Override("three-kingdoms", threeKingdomsLessons),
     groups: threeKingdomsGroups,
   },
   {
@@ -50,7 +51,7 @@ export const eras = [
         description: "조선 후기 사회·문화적 변화와 개항기 근대 문물 수용 과정에서 달라진 사람들의 생활을 이해한다.",
       },
     ],
-    lessons: joseonLessons,
+    lessons: applyLesson2Override("joseon", joseonLessons),
     groups: joseonGroups,
   },
 ] as const satisfies readonly Era[];
