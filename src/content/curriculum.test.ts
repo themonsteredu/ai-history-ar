@@ -22,16 +22,9 @@ describe("curriculum catalog", () => {
   it("uses the agreed three-act phase structure", () => {
     for (const era of eras) {
       expect(era.lessons.map((lesson) => lesson.phase)).toEqual([
-        "의심하기",
-        "의심하기",
-        "의심하기",
-        "확인하고 만들기",
-        "확인하고 만들기",
-        "확인하고 만들기",
-        "확인하고 만들기",
-        "해설사 되기",
-        "해설사 되기",
-        "해설사 되기",
+        "의심하기", "의심하기", "의심하기",
+        "확인하고 만들기", "확인하고 만들기", "확인하고 만들기", "확인하고 만들기",
+        "해설사 되기", "해설사 되기", "해설사 되기",
       ]);
     }
   });
@@ -52,33 +45,24 @@ describe("curriculum catalog", () => {
     for (const era of eras) {
       expect(era.groups).toHaveLength(6);
       expect(new Set(era.groups.map((group) => group.heritage)).size).toBe(6);
-      expect(
-        era.lessons.every(
-          (lesson) => lesson.downloads.student.length > 0 && lesson.downloads.teacher.length > 0,
-        ),
-      ).toBe(true);
+      expect(era.lessons.every((lesson) => lesson.downloads.student.length > 0 && lesson.downloads.teacher.length > 0)).toBe(true);
     }
   });
 
   it("restores AI doubt and source verification in the early Three Kingdoms sequence", () => {
     expect(eras[0].lessons.map((lesson) => lesson.title)).toEqual([
-      "역사 데이터 질문 찾기",
-      "AI에게 물어보았습니다",
-      "진짜인지 확인하는 방법",
-      "우리 모둠 유산 파헤치기",
-      "역사 데이터 정제하기",
-      "역사 데이터를 그림으로 보기",
-      "그래프를 읽고 설명하기",
-      "데이터로 과거 유추하기",
-      "데이터 해석을 AR로 표현하기",
-      "AR 데이터 박물관 열기",
+      "역사 데이터 질문 찾기", "AI에게 물어보았습니다", "진짜인지 확인하는 방법",
+      "우리 모둠 유산 파헤치기", "역사 데이터 정제하기", "역사 데이터를 그림으로 보기",
+      "그래프를 읽고 설명하기", "데이터로 과거 유추하기", "데이터 해석을 AR로 표현하기", "AR 데이터 박물관 열기",
     ]);
   });
 
-  it("uses individual web responses in lesson two and reserves other web apps for needed interactions", () => {
-    const expectedModes = ["teacher-led", "student", "teacher-led", "worksheet", "student", "student", "student", "student", "student", "student"];
+  it("uses one-page worksheets in lesson two and reserves web apps for needed interactions", () => {
+    const expectedModes = ["teacher-led", "worksheet", "teacher-led", "worksheet", "student", "student", "student", "student", "student", "student"];
     for (const era of eras) {
       expect(era.lessons.map((lesson) => lesson.classroomMode), era.shortName).toEqual(expectedModes);
+      expect(era.lessons[1].downloads.student.join(" ")).toContain("A4 한 장");
+      expect(era.lessons[1].outputs.join(" ")).toContain("A4 한 장");
     }
   });
 
@@ -91,7 +75,6 @@ describe("curriculum catalog", () => {
 
   it("keeps every Three Kingdoms deck rich, classroom-facing, and Q&A-led", () => {
     const internalPhrases = /다운로드 없음|새 탭/;
-
     for (let lessonId = 1; lessonId <= 10; lessonId += 1) {
       const slides = getThreeKingdomsSlides(lessonId);
       const lastSlide = slides.at(-1);
