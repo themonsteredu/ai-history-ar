@@ -35,20 +35,74 @@
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-02-student.pdf",
-              "size": 28632
+              "size": 271245
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-02-teacher.pdf",
-              "size": 57491
+              "size": 76972
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-02-answer.pdf",
-              "size": 32723
+              "size": 70042
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-02-all.zip",
-              "size": 108459
-            }
+              "size": 700688
+            },
+            "ppt": {
+              "path": "/downloads/three-kingdoms/lesson-02-teaching.pptx",
+              "size": 80398
+            },
+            "groups": [
+              {
+                "groupId": 1,
+                "heritage": "무령왕릉",
+                "path": "/downloads/three-kingdoms/lesson-02-group-01-muryeongwangneung.pdf",
+                "size": 46606,
+                "pages": 1,
+                "format": "A4"
+              },
+              {
+                "groupId": 2,
+                "heritage": "백제 금동대향로",
+                "path": "/downloads/three-kingdoms/lesson-02-group-02-baekje-incense-burner.pdf",
+                "size": 46419,
+                "pages": 1,
+                "format": "A4"
+              },
+              {
+                "groupId": 3,
+                "heritage": "첨성대",
+                "path": "/downloads/three-kingdoms/lesson-02-group-03-cheomseongdae.pdf",
+                "size": 46406,
+                "pages": 1,
+                "format": "A4"
+              },
+              {
+                "groupId": 4,
+                "heritage": "신라 금관",
+                "path": "/downloads/three-kingdoms/lesson-02-group-04-silla-gold-crown.pdf",
+                "size": 46287,
+                "pages": 1,
+                "format": "A4"
+              },
+              {
+                "groupId": 5,
+                "heritage": "고구려 고분벽화",
+                "path": "/downloads/three-kingdoms/lesson-02-group-05-goguryeo-murals.pdf",
+                "size": 45468,
+                "pages": 1,
+                "format": "A4"
+              },
+              {
+                "groupId": 6,
+                "heritage": "가야 고분군",
+                "path": "/downloads/three-kingdoms/lesson-02-group-06-gaya-tumuli.pdf",
+                "size": 45837,
+                "pages": 1,
+                "format": "A4"
+              }
+            ]
           }
         },
         {
@@ -264,20 +318,74 @@
           "files": {
             "student": {
               "path": "/downloads/joseon/lesson-02-student.pdf",
-              "size": 29384
+              "size": 263594
             },
             "teacher": {
               "path": "/downloads/joseon/lesson-02-teacher.pdf",
-              "size": 58478
+              "size": 77772
             },
             "answer": {
               "path": "/downloads/joseon/lesson-02-answer.pdf",
-              "size": 34621
+              "size": 71196
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-02-all.zip",
-              "size": 111929
-            }
+              "size": 688041
+            },
+            "ppt": {
+              "path": "/downloads/joseon/lesson-02-teaching.pptx",
+              "size": 80129
+            },
+            "groups": [
+              {
+                "groupId": 1,
+                "heritage": "훈민정음 해례본",
+                "path": "/downloads/joseon/lesson-02-group-01-hunminjeongeum.pdf",
+                "size": 41270,
+                "pages": 1,
+                "format": "A4"
+              },
+              {
+                "groupId": 2,
+                "heritage": "조선왕조실록",
+                "path": "/downloads/joseon/lesson-02-group-02-annals.pdf",
+                "size": 45736,
+                "pages": 1,
+                "format": "A4"
+              },
+              {
+                "groupId": 3,
+                "heritage": "수원 화성",
+                "path": "/downloads/joseon/lesson-02-group-03-hwaseong.pdf",
+                "size": 44751,
+                "pages": 1,
+                "format": "A4"
+              },
+              {
+                "groupId": 4,
+                "heritage": "자격루·앙부일구",
+                "path": "/downloads/joseon/lesson-02-group-04-jagyeongnu-angbuilgu.pdf",
+                "size": 46074,
+                "pages": 1,
+                "format": "A4"
+              },
+              {
+                "groupId": 5,
+                "heritage": "종묘와 종묘제례악",
+                "path": "/downloads/joseon/lesson-02-group-05-jongmyo.pdf",
+                "size": 46237,
+                "pages": 1,
+                "format": "A4"
+              },
+              {
+                "groupId": 6,
+                "heritage": "난중일기",
+                "path": "/downloads/joseon/lesson-02-group-06-nanjung-ilgi.pdf",
+                "size": 45304,
+                "pages": 1,
+                "format": "A4"
+              }
+            ]
           }
         },
         {

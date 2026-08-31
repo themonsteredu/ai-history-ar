@@ -1,0 +1,17 @@
+{
+  "format": "A4 portrait",
+  "student_pages_per_group": 1,
+  "font": "S-Core Dream",
+  "eras": {
+    "three-kingdoms": {
+      "groups": 6,
+      "student_pages": 6,
+      "ppt": "/three-kingdoms/lesson-02-teaching.pptx"
+    },
+    "joseon": {
+      "groups": 6,
+      "student_pages": 6,
+      "ppt": "/joseon/lesson-02-teaching.pptx"
+    }
+  }
+}
