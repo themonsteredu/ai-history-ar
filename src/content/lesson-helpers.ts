@@ -57,7 +57,7 @@ export function getLessonPhase(lessonId: number): LessonPhase {
 }
 
 export function getClassroomActivityMode(lessonId: number): ClassroomActivityMode {
-  if (lessonId === 2) return "student";
+  if (lessonId === 2) return "worksheet";
   if (lessonId <= 3) return "teacher-led";
   if (lessonId === 4) return "worksheet";
   return "student";
