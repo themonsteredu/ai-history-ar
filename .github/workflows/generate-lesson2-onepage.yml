@@ -1,0 +1,143 @@
+name: Generate lesson 2 one-page materials
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/generate_lesson2_onepage.py
+      - scripts/generator_parts/**
+      - .github/workflows/generate-lesson2-onepage.yml
+      - src/content/lesson2Overrides.ts
+      - src/content/catalog.ts
+      - src/content/downloads.ts
+      - src/content/lesson-helpers.ts
+      - src/content/curriculum.test.ts
+      - src/pages/DownloadCenterPage.tsx
+      - docs/LESSON2_A4_ONEPAGE_SPEC.md
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore generator source
+        shell: bash
+        run: |
+          mkdir -p scripts
+          cat scripts/generator_parts/part-*.txt | tr -d '\n' | base64 --decode | gzip --decompress > scripts/generate_lesson2_onepage.py
+          python -m py_compile scripts/generate_lesson2_onepage.py
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install document dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libreoffice-impress poppler-utils fontconfig
+          python -m pip install --upgrade pip
+          python -m pip install reportlab python-pptx pypdf fonttools
+
+      - name: Install S-Core Dream for rendering
+        run: |
+          sudo mkdir -p /usr/local/share/fonts/truetype/s-core-dream
+          sudo cp public/fonts/SCDream5.ttf public/fonts/SCDream9.ttf /usr/local/share/fonts/truetype/s-core-dream/
+          sudo fc-cache -f -v
+          fc-list | grep -i 'S-Core' | head
+
+      - name: Generate lesson 2 materials
+        run: python scripts/generate_lesson2_onepage.py
+
+      - name: Verify A4 one-page worksheets and fonts
+        shell: bash
+        run: |
+          set -euo pipefail
+          verify_pages() {
+            local file="$1"
+            local expected="$2"
+            local actual
+            actual="$(pdfinfo "$file" | awk '/^Pages:/ {print $2}')"
+            test "$actual" = "$expected"
+          }
+          verify_a4_one_page() {
+            local file="$1"
+            verify_pages "$file" 1
+            local actual_size
+            actual_size="$(pdfinfo "$file" | awk -F': +' '/^Page size:/ {print $2}')"
+            case "$actual_size" in
+              *"595.276 x 841.89 pts"*) ;;
+              *) echo "Not A4 portrait: $file ($actual_size)"; exit 1 ;;
+            esac
+            pdffonts "$file" | grep -Fq 'S-CoreDream'
+          }
+
+          for file in public/downloads/three-kingdoms/lesson-02-group-*.pdf; do verify_a4_one_page "$file"; done
+          for file in public/downloads/joseon/lesson-02-group-*.pdf; do verify_a4_one_page "$file"; done
+
+          verify_pages public/downloads/three-kingdoms/lesson-02-student.pdf 6
+          verify_pages public/downloads/joseon/lesson-02-student.pdf 6
+          verify_pages public/downloads/three-kingdoms/lesson-02-teacher.pdf 7
+          verify_pages public/downloads/joseon/lesson-02-teacher.pdf 7
+          verify_pages public/downloads/three-kingdoms/lesson-02-answer.pdf 6
+          verify_pages public/downloads/joseon/lesson-02-answer.pdf 6
+          pdffonts public/downloads/three-kingdoms/lesson-02-student.pdf | grep -Fq 'S-CoreDream'
+          pdffonts public/downloads/joseon/lesson-02-student.pdf | grep -Fq 'S-CoreDream'
+
+          mkdir -p tmp/lesson2-verify/ppt tmp/lesson2-verify/render
+          libreoffice --headless --convert-to pdf --outdir tmp/lesson2-verify/ppt public/downloads/three-kingdoms/lesson-02-teaching.pptx
+          mv tmp/lesson2-verify/ppt/lesson-02-teaching.pdf tmp/lesson2-verify/ppt/three-kingdoms-teaching.pdf
+          libreoffice --headless --convert-to pdf --outdir tmp/lesson2-verify/ppt public/downloads/joseon/lesson-02-teaching.pptx
+          mv tmp/lesson2-verify/ppt/lesson-02-teaching.pdf tmp/lesson2-verify/ppt/joseon-teaching.pdf
+          verify_pages tmp/lesson2-verify/ppt/three-kingdoms-teaching.pdf 24
+          verify_pages tmp/lesson2-verify/ppt/joseon-teaching.pdf 24
+          pdffonts tmp/lesson2-verify/ppt/three-kingdoms-teaching.pdf | grep -Fq 'S-CoreDream'
+          pdffonts tmp/lesson2-verify/ppt/joseon-teaching.pdf | grep -Fq 'S-CoreDream'
+
+          pdftoppm -f 1 -singlefile -png -r 120 public/downloads/three-kingdoms/lesson-02-group-01-muryeongwangneung.pdf tmp/lesson2-verify/render/samguk-group01
+          pdftoppm -f 1 -singlefile -png -r 120 public/downloads/joseon/lesson-02-group-04-jagyeongnu-angbuilgu.pdf tmp/lesson2-verify/render/joseon-group04
+          pdftoppm -f 1 -singlefile -png -r 90 tmp/lesson2-verify/ppt/three-kingdoms-teaching.pdf tmp/lesson2-verify/render/samguk-ppt-title
+
+      - name: Upload final lesson 2 package
+        uses: actions/upload-artifact@v4
+        with:
+          name: lesson-02-a4-onepage-score-dream
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            public/downloads/lesson-02-samguk-joseon-complete.zip
+            public/downloads/lesson-02-materials.json
+            public/downloads/three-kingdoms/lesson-02-*
+            public/downloads/joseon/lesson-02-*
+            tmp/lesson2-verify/ppt/*.pdf
+            tmp/lesson2-verify/render/*.png
+
+      - name: Commit generated downloads
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scripts/generate_lesson2_onepage.py
+          git add public/downloads/manifest.json public/downloads/lesson-02-materials.json public/downloads/lesson-02-samguk-joseon-complete.zip
+          git add public/downloads/three-kingdoms/lesson-02-* public/downloads/three-kingdoms/three-kingdoms-all-materials.zip
+          git add public/downloads/joseon/lesson-02-* public/downloads/joseon/joseon-all-materials.zip
+          if git diff --cached --quiet; then
+            echo "Generated materials are already current."
+            exit 0
+          fi
+          git commit -m "Generate A4 one-page lesson 2 materials"
+          git push origin HEAD:main
