@@ -52,7 +52,7 @@ describe("curriculum catalog", () => {
   it("restores AI doubt and source verification in the early Three Kingdoms sequence", () => {
     expect(eras[0].lessons.map((lesson) => lesson.title)).toEqual([
       "역사 데이터 질문 찾기", "AI에게 물어보았습니다", "진짜인지 확인하는 방법",
-      "우리 모둠 유산 파헤치기", "역사 데이터 정제하기", "역사 데이터를 그림으로 보기",
+      "우리 모둠 데이터 만들기", "역사 데이터 정제하기", "역사 데이터를 그림으로 보기",
       "그래프를 읽고 설명하기", "데이터로 과거 유추하기", "데이터 해석을 AR로 표현하기", "AR 데이터 박물관 열기",
     ]);
   });

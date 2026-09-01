@@ -35,11 +35,11 @@
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-02-student.pdf",
-              "size": 271245
+              "size": 251832
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-02-teacher.pdf",
-              "size": 76972
+              "size": 77499
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-02-answer.pdf",
@@ -47,18 +47,18 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-02-all.zip",
-              "size": 700688
+              "size": 651156
             },
             "ppt": {
               "path": "/downloads/three-kingdoms/lesson-02-teaching.pptx",
-              "size": 80398
+              "size": 62674
             },
             "groups": [
               {
                 "groupId": 1,
                 "heritage": "무령왕릉",
                 "path": "/downloads/three-kingdoms/lesson-02-group-01-muryeongwangneung.pdf",
-                "size": 46606,
+                "size": 43494,
                 "pages": 1,
                 "format": "A4"
               },
@@ -66,7 +66,7 @@
                 "groupId": 2,
                 "heritage": "백제 금동대향로",
                 "path": "/downloads/three-kingdoms/lesson-02-group-02-baekje-incense-burner.pdf",
-                "size": 46419,
+                "size": 43035,
                 "pages": 1,
                 "format": "A4"
               },
@@ -74,7 +74,7 @@
                 "groupId": 3,
                 "heritage": "첨성대",
                 "path": "/downloads/three-kingdoms/lesson-02-group-03-cheomseongdae.pdf",
-                "size": 46406,
+                "size": 43010,
                 "pages": 1,
                 "format": "A4"
               },
@@ -82,7 +82,7 @@
                 "groupId": 4,
                 "heritage": "신라 금관",
                 "path": "/downloads/three-kingdoms/lesson-02-group-04-silla-gold-crown.pdf",
-                "size": 46287,
+                "size": 43192,
                 "pages": 1,
                 "format": "A4"
               },
@@ -90,7 +90,7 @@
                 "groupId": 5,
                 "heritage": "고구려 고분벽화",
                 "path": "/downloads/three-kingdoms/lesson-02-group-05-goguryeo-murals.pdf",
-                "size": 45468,
+                "size": 42236,
                 "pages": 1,
                 "format": "A4"
               },
@@ -98,7 +98,7 @@
                 "groupId": 6,
                 "heritage": "가야 고분군",
                 "path": "/downloads/three-kingdoms/lesson-02-group-06-gaya-tumuli.pdf",
-                "size": 45837,
+                "size": 42586,
                 "pages": 1,
                 "format": "A4"
               }
@@ -129,24 +129,78 @@
         },
         {
           "lessonId": 4,
-          "title": "우리 모둠 유산 파헤치기",
+          "title": "우리 모둠 데이터 만들기",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-04-student.pdf",
-              "size": 29453
+              "size": 220409
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-04-teacher.pdf",
-              "size": 68722
+              "size": 69730
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-04-answer.pdf",
-              "size": 48664
+              "size": 62966
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-04-all.zip",
-              "size": 132018
-            }
+              "size": 581319
+            },
+            "ppt": {
+              "path": "/downloads/three-kingdoms/lesson-04-teaching.pptx",
+              "size": 58931
+            },
+            "groups": [
+              {
+                "groupId": 1,
+                "heritage": "무령왕릉",
+                "path": "/downloads/three-kingdoms/lesson-04-group-01-muryeongwangneung.pdf",
+                "size": 37692,
+                "pages": 1,
+                "format": "A4"
+              },
+              {
+                "groupId": 2,
+                "heritage": "백제 금동대향로",
+                "path": "/downloads/three-kingdoms/lesson-04-group-02-baekje-incense-burner.pdf",
+                "size": 37800,
+                "pages": 1,
+                "format": "A4"
+              },
+              {
+                "groupId": 3,
+                "heritage": "첨성대",
+                "path": "/downloads/three-kingdoms/lesson-04-group-03-cheomseongdae.pdf",
+                "size": 37492,
+                "pages": 1,
+                "format": "A4"
+              },
+              {
+                "groupId": 4,
+                "heritage": "신라 금관",
+                "path": "/downloads/three-kingdoms/lesson-04-group-04-silla-gold-crown.pdf",
+                "size": 37424,
+                "pages": 1,
+                "format": "A4"
+              },
+              {
+                "groupId": 5,
+                "heritage": "고구려 고분벽화",
+                "path": "/downloads/three-kingdoms/lesson-04-group-05-goguryeo-murals.pdf",
+                "size": 37917,
+                "pages": 1,
+                "format": "A4"
+              },
+              {
+                "groupId": 6,
+                "heritage": "가야 고분군",
+                "path": "/downloads/three-kingdoms/lesson-04-group-06-gaya-tumuli.pdf",
+                "size": 37801,
+                "pages": 1,
+                "format": "A4"
+              }
+            ]
           }
         },
         {

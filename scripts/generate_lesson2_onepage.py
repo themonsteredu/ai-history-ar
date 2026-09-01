@@ -52,6 +52,10 @@ DATA: dict[str, dict[str, Any]] = {
         "course": "삼국시대 문화유산 해설사",
         "core": "1500년 전 이야기, AI는 어떻게 알고 있을까?",
         "next": "출처 · 시기 · 교차 · 원본 · 보류",
+        "delta": "의견 나뉨·근거 부족",
+        "appTab": "활동지 수업",
+        "appPath": "/three-kingdoms/lesson/2?view=activity",
+        "sourceRanks": ["1순위  국가유산청 국가유산포털", "2순위  국립중앙박물관·국립부여박물관", "3순위  유네스코 세계유산센터·우리역사넷", "비교용  블로그·영상·AI 답변"],
         "groups": [
             {
                 "id": 1, "slug": "muryeongwangneung", "heritage": "무령왕릉", "color": "#7A5AA6",
@@ -144,6 +148,10 @@ DATA: dict[str, dict[str, Any]] = {
         "course": "조선시대 문화유산 해설사",
         "core": "우리가 아는 조선, 정말 그랬을까?",
         "next": "출처 · 시기 · 교차 · 원본",
+        "delta": "근거 부족·과장됨",
+        "appTab": "활동지 수업",
+        "appPath": "/joseon/lesson/2?view=activity",
+        "sourceRanks": ["1순위  국가유산청 국가유산포털", "2순위  국립고궁박물관·국립중앙박물관", "3순위  국사편찬위원회·조선왕조실록", "비교용  블로그·영상·AI 답변"],
         "groups": [
             {
                 "id": 1, "slug": "hunminjeongeum", "heritage": "훈민정음 해례본", "color": "#345D8C",
@@ -238,6 +246,9 @@ def args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-root", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--font-dir", type=Path, default=DEFAULT_FONTS)
+    # The 2025 classroom revision applies to three-kingdoms only; joseon materials are on
+    # hold until that course is revised, so it is never re-rendered unless asked for.
+    parser.add_argument("--eras", nargs="+", choices=sorted(DATA), default=["three-kingdoms"])
     return parser.parse_args()
 
 
@@ -372,6 +383,11 @@ def section(c: canvas.Canvas, number: str, title: str, y_top: float) -> float:
     return y_top - 9.5 * mm
 
 
+def legend_row(era: dict[str, Any]) -> list[str]:
+    """The four judgement symbols. PPT, web app and worksheet must show this exact wording."""
+    return ["○ 자료로 확인", "× 자료와 다름", f'△ {era["delta"]}', "? 더 찾아봐야 함"]
+
+
 def student_page(path: Path, era: dict[str, Any], group: dict[str, Any]) -> None:
     st = styles()
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -383,16 +399,16 @@ def student_page(path: Path, era: dict[str, Any], group: dict[str, Any]) -> None
     w = width - 26 * mm
     y = header(c, era, "학생용 A4 1쪽")
     y = group_box(c, era, group, y, st)
-    y = section(c, "1", "검색하지 말고 먼저 의심하기", y)
+    y = section(c, "1", "AI가 한 말 6문장을 판단하고 확인한 출처를 적기", y)
     c.setFillColor(MUTED)
     c.setFont("SchoolRegular", 6.0)
-    c.drawString(x + 11 * mm, y + 1 * mm, "문장을 한 줄씩 읽고 표시하세요. AI가 자신 있게 말해도 바로 믿지 않습니다.")
+    c.drawString(x + 11 * mm, y + 1 * mm, "먼저 ○×△?로 판단한 뒤, 공식 자료에서 확인한 곳(기관 이름)을 오른쪽 칸에 적으세요.")
     y -= 2.5 * mm
-    rows = [[p("번호", st["white"]), p("AI가 한 말", st["white"]), p("내 판단", st["white"])]]
+    rows = [[p(h, st["white"]) for h in ["번호", "AI가 한 말", "내 판단 (○×△?)", "확인한 출처"]]]
     for i, item in enumerate(group["items"], 1):
-        rows.append([p(str(i), st["center_bold"]), p(item[0], st["body"]), p("○  ×  △  ?", st["center_bold"])])
-    heights = [8 * mm] + [12 * mm] * 6
-    table = Table(rows, colWidths=[9 * mm, w - 36 * mm, 27 * mm], rowHeights=heights)
+        rows.append([p(str(i), st["center_bold"]), p(item[0], st["body"]), p("○   ×   △   ?", st["center_bold"]), p("", st["small"])])
+    heights = [9 * mm] + [25 * mm] * 6
+    table = Table(rows, colWidths=[9 * mm, w - 75 * mm, 24 * mm, 42 * mm], rowHeights=heights)
     table.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, 0), PRIMARY_DARK), ("GRID", (0, 0), (-1, -1), 0.45, GRID),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("LEFTPADDING", (0, 0), (-1, -1), 4),
@@ -403,36 +419,18 @@ def student_page(path: Path, era: dict[str, Any], group: dict[str, Any]) -> None
     th = sum(heights)
     table.wrapOn(c, w, th)
     table.drawOn(c, x, y - th)
-    y -= th + 2 * mm
-    delta = "학자 의견이 나뉘거나 근거 부족" if era["short"] == "삼국시대" else "근거가 부족하거나 과장됨"
-    legend = Table([[p("○ 자료로 확인", st["center"]), p("× 자료와 다름", st["center"]), p(f"△ {delta}", st["center"]), p("? 더 찾아봐야 함", st["center"])]], colWidths=[w / 4] * 4, rowHeights=[8.2 * mm])
+    y -= th + 3 * mm
+    legend = Table([[p(label, st["center"]) for label in legend_row(era)]], colWidths=[w / 4] * 4, rowHeights=[9 * mm])
     legend.setStyle(TableStyle([("GRID", (0, 0), (-1, -1), 0.4, GRID), ("BACKGROUND", (0, 0), (-1, -1), MINT), ("VALIGN", (0, 0), (-1, -1), "MIDDLE")]))
-    legend.wrapOn(c, w, 8.2 * mm); legend.drawOn(c, x, y - 8.2 * mm)
-    y -= 10.2 * mm
-    c.setFillColor(BEIGE); c.roundRect(x, y - 11 * mm, w, 11 * mm, 2 * mm, stroke=0, fill=1)
-    c.setFillColor(PRIMARY_DARK); c.setFont("SchoolHeavy", 7.1)
-    c.drawString(x + 3 * mm, y - 4.5 * mm, "가장 의심한 문장")
-    c.setFillColor(TEXT); c.setFont("SchoolRegular", 6.8); c.drawString(x + 32 * mm, y - 4.5 * mm, "번호 ____")
-    c.setFillColor(PRIMARY_DARK); c.setFont("SchoolHeavy", 6.9); c.drawString(x + 50 * mm, y - 4.5 * mm, "의심한 까닭")
-    draw_para(c, "□ 출처 없음  □ 너무 확실함  □ 시대·나라 불일치  □ 숫자 수상  □ 한 사람의 공로로만 말함", st["tiny"], x + 73 * mm, y - 2 * mm, w - 76 * mm, 8 * mm)
-    y -= 14 * mm
-    y = section(c, "2", "의심 문장 1~2개를 믿을 만한 자료로 확인하기", y)
-    c.setFillColor(MUTED); c.setFont("SchoolRegular", 5.8)
-    c.drawString(x + 11 * mm, y + 1 * mm, "AI 문장 전체 대신 핵심 낱말 2~4개로 검색하고, 출처까지 적으세요.")
-    y -= 2.3 * mm
-    rows = [[p(h, st["white"]) for h in ["문장 번호", "검색어 2~4개", "찾은 자료·출처", "최종 판단", "바르게 고친 문장"]]]
-    for _ in range(2):
-        rows.append([p("번호 ____", st["center"]), p("", st["small"]), p("", st["small"]), p("○ × △ ?", st["center_bold"]), p("", st["small"])])
-    heights = [8 * mm, 17 * mm, 17 * mm]
-    table = Table(rows, colWidths=[17 * mm, 37 * mm, 42 * mm, 24 * mm, w - 120 * mm], rowHeights=heights)
-    table.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, 0), PRIMARY_DARK), ("GRID", (0, 0), (-1, -1), 0.45, GRID), ("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("LEFTPADDING", (0, 0), (-1, -1), 4), ("RIGHTPADDING", (0, 0), (-1, -1), 4), ("BACKGROUND", (0, 2), (-1, 2), MINT_LIGHT)]))
-    th = sum(heights); table.wrapOn(c, w, th); table.drawOn(c, x, y - th); y -= th + 3 * mm
-    c.setFillColor(MINT_LIGHT); c.setStrokeColor(GRID); c.roundRect(x, y - 21 * mm, w, 21 * mm, 2 * mm, stroke=1, fill=1)
-    c.setFillColor(PRIMARY_DARK); c.setFont("SchoolHeavy", 7.3); c.drawString(x + 3 * mm, y - 6 * mm, "우리 모둠 결론")
-    c.setStrokeColor(GRID); c.line(x + 31 * mm, y - 7 * mm, x + w - 4 * mm, y - 7 * mm)
-    c.setFillColor(TEXT); c.setFont("SchoolHeavy", 7.1); c.drawString(x + 3 * mm, y - 14.5 * mm, "오늘의 한 문장")
-    c.setFont("SchoolRegular", 7); c.drawString(x + 32 * mm, y - 14.5 * mm, "AI의 말은 ________________________________ 때문에 확인해야 한다.")
-    c.setFont("SchoolRegular", 5.5); c.setFillColor(MUTED); c.drawRightString(x + w - 3 * mm, y - 19 * mm, f'다음 차시 검증 기준: {era["next"]}')
+    legend.wrapOn(c, w, 9 * mm); legend.drawOn(c, x, y - 9 * mm)
+    y -= 12 * mm
+    c.setFillColor(BEIGE); c.roundRect(x, y - 19 * mm, w, 19 * mm, 2 * mm, stroke=0, fill=1)
+    c.setFillColor(PRIMARY_DARK); c.setFont("SchoolHeavy", 8.4); c.drawString(x + 4 * mm, y - 7 * mm, "오늘의 한 문장")
+    c.setFillColor(TEXT); c.setFont("SchoolRegular", 8)
+    c.drawString(x + 34 * mm, y - 7 * mm, "AI의 말은 ______________________________________________ 때문에 확인해야 한다.")
+    c.setFont("SchoolRegular", 5.5); c.setFillColor(MUTED)
+    c.drawString(x + 4 * mm, y - 14.5 * mm, "확인한 출처가 없으면 판단을 ?로 남깁니다. 억지로 채우지 않습니다.")
+    c.drawRightString(x + w - 4 * mm, y - 14.5 * mm, f'다음 차시 검증 기준: {era["next"]}')
     c.setFont("SchoolRegular", 5.5); c.drawString(x, 7 * mm, "AI의 말투가 아니라 출처와 근거를 확인합니다.")
     c.drawRightString(width - x, 7 * mm, f'{era["short"]} · {group["id"]}모둠 · 학생용 · S-Core Dream')
     c.showPage(); c.save()
@@ -453,14 +451,14 @@ def teacher_pdf(path: Path, era: dict[str, Any], answers_only: bool = False) -> 
     if not answers_only:
         y = header(c, era, "교사용 운영안")
         c.setFillColor(TEXT); c.setFont("SchoolHeavy", 17); c.drawString(x, y - 7 * mm, f'{era["short"]} 2차시 운영안')
-        c.setFillColor(MUTED); c.setFont("SchoolRegular", 7.5); c.drawString(x, y - 14 * mm, "사실·오류·근거 없는 단정이 섞인 동일한 답변을 모둠별 A4 한 장으로 제공합니다.")
+        c.setFillColor(MUTED); c.setFont("SchoolRegular", 7.5); c.drawString(x, y - 14 * mm, "PPT·웹앱·활동지가 같은 항목명(내 판단 ○×△? · 확인한 출처 · 오늘의 한 문장)을 사용합니다.")
         rows = [[p(h, st["white"]) for h in ["시간", "교수·학습 활동", "교사 포인트"]]]
         schedule = [
-            ("5분", "AI 신뢰도 손들기와 오늘의 미션 안내", "정답을 먼저 공개하지 않습니다."),
-            ("8분", "모둠별 A4 한 장에서 AI 문장 6개를 ○·×·△·?로 판단", "맞는 말과 틀린 말이 섞여 있음을 강조합니다."),
-            ("12분", "의심 문장 1~2개를 공식 자료로 검색하고 출처·근거 기록", "핵심 낱말 2~4개로 검색하게 합니다."),
-            ("7분", "모둠별 오류 또는 보류 문장 한 개 발표", "판정과 함께 근거·출처를 말합니다."),
-            ("8분", "교사 정답 공개와 AI 오류 원인 정리", "그럴듯한 말투보다 확인 과정이 중요합니다."),
+            ("5분", "AI 신뢰도 손들기(PPT 2)와 오늘의 미션 안내(PPT 3~4)", "정답 슬라이드를 먼저 열지 않습니다."),
+            ("8분", "활동지 ‘내 판단’ 칸에 6문장을 ○×△?로 표시", "맞는 말과 틀린 말이 섞여 있음을 강조합니다."),
+            ("12분", "모둠별로 공식 자료를 확인하고 ‘확인한 출처’ 칸을 채움", "핵심 낱말 2~4개로 검색하게 합니다(PPT 7)."),
+            ("7분", "모둠 발표: 문장 번호 → 내 판단 → 확인한 출처", "판단과 함께 확인한 기관 이름을 말하게 합니다."),
+            ("8분", "발표한 모둠부터 정답 슬라이드 공개, ‘오늘의 한 문장’ 쓰기", "PPT 8~13은 해당 모둠 발표 뒤에만 엽니다."),
         ]
         for row in schedule:
             rows.append([p(row[0], st["center_bold"]), p(row[1], st["body"]), p(row[2], st["small"])])
@@ -471,7 +469,7 @@ def teacher_pdf(path: Path, era: dict[str, Any], answers_only: bool = False) -> 
         ny = y - 29 * mm - th
         c.setFillColor(BEIGE); c.roundRect(x, ny - 40 * mm, w, 40 * mm, 2 * mm, stroke=0, fill=1)
         c.setFillColor(PRIMARY_DARK); c.setFont("SchoolHeavy", 8); c.drawString(x + 4 * mm, ny - 7 * mm, "학교 양식 적용 기준")
-        bullets = ["학생 활동지는 모둠별 A4 한 장, 한 페이지로만 인쇄합니다.", "1차 판단과 1~2개 문장 검증을 같은 면에서 끝냅니다.", "삼국시대는 ‘보류’를 인정하고, 조선시대는 드라마·통념과 기록을 구분합니다.", "완성한 기록지는 10차시 교실 박물관의 검증 증거물로 전시합니다."]
+        bullets = ["학생 활동지는 모둠별 A4 한 장, 한 페이지로만 인쇄합니다.", "활동지는 6문장 판단과 확인한 출처, 오늘의 한 문장까지만 기록합니다.", "PPT·웹앱·활동지의 항목명은 ‘내 판단 (○×△?)’과 ‘확인한 출처’로 같습니다.", "완성한 기록지는 10차시 교실 박물관의 검증 증거물로 전시합니다."]
         for i, text in enumerate(bullets):
             c.setFillColor(TEXT); c.setFont("SchoolRegular", 7); c.drawString(x + 5 * mm, ny - (14 + i * 6) * mm, f"• {text}")
         c.setFillColor(MUTED); c.setFont("SchoolRegular", 5.5); c.drawRightString(width - x, 7 * mm, f'{era["short"]} · 교사용 · S-Core Dream')
@@ -535,60 +533,115 @@ def ppt(path: Path, era: dict[str, Any], regular: str, heavy: str) -> None:
         add_text(slide, 0.72, 1.18, 11.9, 0.62, title, heavy, 28, PPT_TEXT, True)
         if subtitle: add_text(slide, 0.75, 1.77, 11.8, 0.38, subtitle, regular, 12, PPT_MUTED)
         return slide
+    white = RGBColor(255, 255, 255)
+
+    # 1 · 표지
     slide = prs.slides.add_slide(blank); rect(slide, 0, 0, 13.333, 7.5, RGBColor(248,251,249)); rect(slide, 0, 0, 13.333, 0.2, PPT_PRIMARY)
     add_text(slide, 0.82, 0.75, 6, 0.36, "AI혁신학교 공개수업 · 2차시", regular, 12, PPT_DARK, True)
     add_text(slide, 0.82, 1.38, 10.8, 1.18, "AI에게 물어보았습니다", heavy, 42, PPT_TEXT, True)
     rect(slide, 0.82, 3.05, 11.55, 1.38, PPT_MINT); rect(slide, 0.82, 3.05, 0.1, 1.38, PPT_PRIMARY)
     add_text(slide, 1.18, 3.28, 10.7, 0.35, "핵심 질문", heavy, 13, PPT_DARK, True)
     add_text(slide, 1.18, 3.68, 10.7, 0.55, f'“{era["core"]}”', heavy, 22, PPT_DARK, True)
-    add_text(slide, 0.82, 5.05, 11.5, 0.95, "사실과 오류, 근거 없는 단정이 섞인 AI 답변을\n모둠별 A4 한 장에서 찾아냅니다.", regular, 21)
-    slide = new("오늘의 학습 목표")
-    rect(slide, 0.82, 2.18, 11.68, 2.05, PPT_MINT); rect(slide, 0.82, 2.18, 0.12, 2.05, PPT_PRIMARY)
-    add_text(slide, 1.25, 2.55, 10.7, 1.25, "AI 설명에서 사실과 다른 부분이나\n더 확인해야 할 부분을 찾고 이유를 설명할 수 있다.", heavy, 26, PPT_DARK, True)
-    slide = new("오늘의 미션", "그럴듯한 AI 답변 속에서 이상한 문장 1~2개를 찾아라.")
-    for i, text in enumerate(["검색하기 전에 먼저 판단한다.", "맞는 말과 틀린 말이 섞여 있음을 기억한다.", "핵심 낱말 2~4개로 검색한다.", "최종 판단에는 출처와 근거를 붙인다."]):
-        rect(slide, 1.0, 2.15 + i * 1.0, 0.58, 0.58, PPT_PRIMARY, True); add_text(slide, 1.0, 2.15 + i * 1.0, 0.58, 0.58, str(i+1), heavy, 17, RGBColor(255,255,255), True, PP_ALIGN.CENTER); add_text(slide, 1.85, 2.12 + i * 1.0, 10, 0.65, text, regular, 20)
-    slide = new("판정 기호 네 가지")
-    labels = [("○", "자료로 확인"), ("×", "자료와 다름"), ("△", "근거 부족·의견이 나뉨" if era["short"] == "삼국시대" else "근거 부족·과장됨"), ("?", "더 찾아봐야 함")]
-    for i, (symbol, label) in enumerate(labels):
-        x = 0.85 + i * 3.05; rect(slide, x, 2.18, 2.65, 2.55, PPT_MINT if i % 2 == 0 else RGBColor(247,249,248), True); add_text(slide, x, 2.35, 2.65, 1.0, symbol, heavy, 38, PPT_DARK, True, PP_ALIGN.CENTER); add_text(slide, x+0.12, 3.55, 2.4, 0.72, label, regular, 15, PPT_TEXT, False, PP_ALIGN.CENTER)
-    rect(slide, 1.2, 5.25, 10.95, 0.75, PPT_BEIGE, True); add_text(slide, 1.35, 5.25, 10.65, 0.75, "△와 ?도 정답이 될 수 있습니다. 모르는 것을 억지로 채우지 않습니다.", heavy, 17, PPT_DARK, True, PP_ALIGN.CENTER)
-    slide = new("활동지는 A4 한 장입니다", "읽기 → 의심 → 검색 → 수정 → 결론을 같은 면에서 끝냅니다.")
-    for i, text in enumerate(["AI 문장 6개에 ○·×·△·? 표시", "가장 의심한 문장과 까닭 선택", "1~2개 문장을 공식 자료로 검증", "바르게 고쳐 쓰고 모둠 결론 작성"]):
-        rect(slide, 1.1, 2.15 + i * 1.0, 0.58, 0.58, PPT_PRIMARY, True); add_text(slide, 1.1, 2.15 + i * 1.0, 0.58, 0.58, str(i+1), heavy, 17, RGBColor(255,255,255), True, PP_ALIGN.CENTER); add_text(slide, 1.95, 2.12 + i * 1.0, 9.8, 0.65, text, regular, 20)
-    slide = new("여섯 모둠의 탐구 대상")
-    for i, group in enumerate(era["groups"]):
-        row, col = divmod(i, 2); x = 0.85 + col * 6.15; y = 2.05 + row * 1.48; color = RGBColor(*tuple(int(group["color"][j:j+2], 16) for j in (1,3,5)))
-        rect(slide, x, y, 0.86, 0.86, color, True); add_text(slide, x, y, 0.86, 0.86, str(group["id"]), heavy, 20, RGBColor(255,255,255), True, PP_ALIGN.CENTER); add_text(slide, x+1.05, y-0.02, 4.75, 0.42, group["heritage"], heavy, 17, PPT_TEXT, True); add_text(slide, x+1.05, y+0.41, 4.75, 0.45, group["focus"], regular, 12, PPT_MUTED)
+    add_text(slide, 0.82, 5.05, 11.5, 0.95, "우리 모둠 유산에 대한 AI 문장 6개에서\n의심할 문장을 찾아 출처로 확인합니다.", regular, 21)
+
+    # 2 · 도입
+    slide = new("AI의 역사 설명을 얼마나 믿나요?", "손을 들어 봅시다. 정답은 없습니다.")
+    for i, text in enumerate(["거의 다 맞을 것 같다", "반쯤은 맞을 것 같다", "그대로 믿기는 어렵다"]):
+        x = 0.85 + i * 4.08
+        rect(slide, x, 2.35, 3.75, 2.15, PPT_MINT if i != 2 else PPT_BEIGE, True)
+        add_text(slide, x, 2.35, 3.75, 2.15, text, heavy, 21, PPT_DARK, True, PP_ALIGN.CENTER)
+    add_text(slide, 0.85, 5.15, 11.6, 1.0, "오늘은 AI가 우리 모둠 유산을 설명한 6문장을 직접 확인합니다.", heavy, 22, PPT_TEXT, True, PP_ALIGN.CENTER)
+
+    # 3 · 오늘의 미션
+    slide = new("오늘의 미션", "우리 모둠 유산 6문장에서 의심 문장 찾기")
+    rect(slide, 0.85, 2.25, 11.6, 1.5, PPT_PRIMARY, True)
+    add_text(slide, 1.1, 2.25, 11.1, 1.5, "우리 모둠 유산 6문장에서 의심 문장을 찾아라", heavy, 30, white, True, PP_ALIGN.CENTER)
+    for i, text in enumerate(["검색하기 전에 먼저 내 판단을 표시한다.", "맞는 말과 틀린 말이 섞여 있음을 기억한다.", "판단한 뒤에는 확인한 출처를 꼭 적는다."]):
+        rect(slide, 1.0, 4.15 + i * 0.92, 0.58, 0.58, PPT_PRIMARY, True)
+        add_text(slide, 1.0, 4.15 + i * 0.92, 0.58, 0.58, str(i+1), heavy, 17, white, True, PP_ALIGN.CENTER)
+        add_text(slide, 1.85, 4.12 + i * 0.92, 10.3, 0.65, text, regular, 20)
+
+    # 4 · 판단 기호 (활동지·웹앱과 같은 표현)
+    slide = new("내 판단 (○×△?)", "활동지의 ‘내 판단’ 칸에 그대로 표시합니다.")
+    for i, label in enumerate(legend_row(era)):
+        symbol, meaning = label.split(" ", 1)
+        x = 0.85 + i * 3.05
+        rect(slide, x, 2.18, 2.65, 2.55, PPT_MINT if i % 2 == 0 else RGBColor(247,249,248), True)
+        add_text(slide, x, 2.35, 2.65, 1.0, symbol, heavy, 38, PPT_DARK, True, PP_ALIGN.CENTER)
+        add_text(slide, x+0.12, 3.5, 2.4, 0.85, meaning, regular, 15, PPT_TEXT, False, PP_ALIGN.CENTER)
+    rect(slide, 1.2, 5.25, 10.95, 0.75, PPT_BEIGE, True)
+    add_text(slide, 1.35, 5.25, 10.65, 0.75, "△와 ?도 정답이 될 수 있습니다. 모르는 것을 억지로 채우지 않습니다.", heavy, 17, PPT_DARK, True, PP_ALIGN.CENTER)
+
+    # 5 · 웹앱 접속 안내
+    slide = new("웹앱 접속 안내", "로그인 없이 우리 모둠만 고르면 바로 시작합니다.")
+    rect(slide, 0.85, 2.2, 11.6, 1.35, PPT_MINT, True); rect(slide, 0.85, 2.2, 0.12, 1.35, PPT_PRIMARY)
+    add_text(slide, 1.2, 2.2, 11.1, 1.35, f'수업 사이트 → {era["short"]} → 2차시 → ‘{era["appTab"]}’ 탭', heavy, 24, PPT_DARK, True)
+    add_text(slide, 1.2, 3.62, 11.1, 0.45, f'주소 뒤에 {era["appPath"]} 를 붙여도 바로 열립니다.', regular, 14, PPT_MUTED)
+    for i, text in enumerate(["학생 로그인이 없습니다. 우리 모둠만 고르면 됩니다.", "웹앱은 내 판단만 저장하고 정답·점수는 보여 주지 않습니다.", "종이 활동지와 웹앱의 문장 번호는 똑같습니다."]):
+        rect(slide, 1.0, 4.35 + i * 0.82, 0.12, 0.12, PPT_PRIMARY, True)
+        add_text(slide, 1.3, 4.25 + i * 0.82, 10.9, 0.65, text, regular, 19)
+
+    # 6 · 활동 시간 안내
+    slide = new("활동 시간 안내", "35분을 네 덩어리로 나눕니다.")
+    steps = [
+        ("8분", "혼자 판단", "6문장을 ○×△?로 표시합니다."),
+        ("12분", "모둠 조사", "공식 자료로 확인하고 ‘확인한 출처’ 칸을 채웁니다."),
+        ("7분", "모둠 발표", "문장 번호 → 내 판단 → 확인한 출처 순서로 말합니다."),
+        ("8분", "정답 확인·정리", "발표한 모둠부터 정답을 보고 ‘오늘의 한 문장’을 씁니다."),
+    ]
+    for i, (minutes, title, detail) in enumerate(steps):
+        y = 2.2 + i * 1.12
+        rect(slide, 0.85, y, 1.5, 0.88, PPT_PRIMARY, True)
+        add_text(slide, 0.85, y, 1.5, 0.88, minutes, heavy, 22, white, True, PP_ALIGN.CENTER)
+        add_text(slide, 2.6, y - 0.04, 3.0, 0.5, title, heavy, 20, PPT_TEXT, True)
+        add_text(slide, 2.6, y + 0.42, 9.6, 0.48, detail, regular, 15, PPT_MUTED)
+
+    # 7 · 좋은 검색어 + 어디에서 확인할까
+    slide = new("좋은 검색어 만들기 · 어디에서 확인할까?")
+    add_text(slide, 0.85, 2.12, 5.7, 0.4, "좋은 검색어 만들기", heavy, 18, PPT_DARK, True)
+    rect(slide, 0.85, 2.62, 5.7, 1.15, RGBColor(252,239,239), True)
+    add_text(slide, 1.05, 2.62, 5.3, 1.15, "✕  AI 문장 전체를 그대로 붙여넣기", regular, 16, RGBColor(154,62,62))
+    rect(slide, 0.85, 3.92, 5.7, 1.15, PPT_MINT, True)
+    add_text(slide, 1.05, 3.92, 5.3, 1.15, "○  핵심 낱말 2~4개 + 확인할 쟁점", heavy, 16, PPT_DARK, True)
+    add_text(slide, 0.85, 5.22, 5.7, 0.9, "문장 전체가 아니라 확인할 핵심만 남깁니다.", regular, 14, PPT_MUTED)
+    add_text(slide, 6.95, 2.12, 5.5, 0.4, "어디에서 확인할까? (공식 자료 순위)", heavy, 18, PPT_DARK, True)
+    for i, text in enumerate(era["sourceRanks"]):
+        rect(slide, 6.95, 2.62 + i * 0.78, 5.5, 0.62, PPT_PRIMARY if i < 3 else PPT_BEIGE, True)
+        add_text(slide, 7.15, 2.62 + i * 0.78, 5.1, 0.62, text, heavy if i < 3 else regular, 14, white if i < 3 else PPT_TEXT, i < 3)
+    add_text(slide, 6.95, 5.72, 5.5, 0.5, "확인한 곳의 기관 이름을 활동지 ‘확인한 출처’ 칸에 적습니다.", regular, 13, PPT_MUTED)
+
+    # 8~13 · 모둠별 정답 (발표 뒤에만 공개)
     for group in era["groups"]:
-        slide = new(f'{group["id"]}모둠 · {group["heritage"]}', group["question"]); color = RGBColor(*tuple(int(group["color"][j:j+2], 16) for j in (1,3,5))); rect(slide, 0.85, 2.1, 0.12, 4.55, color)
+        slide = new(f'{group["id"]}모둠 정답 · {group["heritage"]}', "이 모둠의 발표를 들은 뒤에 공개하세요.")
+        rect(slide, 10.75, 0.3, 1.95, 0.52, RGBColor(161,73,73), True)
+        add_text(slide, 10.75, 0.3, 1.95, 0.52, "발표 후 공개", heavy, 12, white, True, PP_ALIGN.CENTER)
+        add_text(slide, 1.82, 2.16, 4.3, 0.3, "AI가 한 말", heavy, 11, PPT_MUTED)
+        add_text(slide, 6.32, 2.16, 3.85, 0.3, "왜 그렇게 판단하나요", heavy, 11, PPT_MUTED)
+        add_text(slide, 10.35, 2.16, 2.55, 0.3, "추천 검색어", heavy, 11, PPT_MUTED)
+        color = RGBColor(*tuple(int(group["color"][j:j+2], 16) for j in (1,3,5)))
+        rect(slide, 0.82, 2.52, 12.05, 0.02, color)
         for i, item in enumerate(group["items"], 1):
-            y = 2.05 + (i-1) * 0.72; rect(slide, 1.12, y, 0.46, 0.46, color, True); add_text(slide, 1.12, y, 0.46, 0.46, str(i), heavy, 12, RGBColor(255,255,255), True, PP_ALIGN.CENTER); add_text(slide, 1.78, y-0.05, 10.5, 0.58, item[0], regular, 13.2)
-    slide = new("좋은 검색어 만들기")
-    rect(slide, 0.9, 2.12, 5.65, 2.4, RGBColor(252,239,239), True); add_text(slide, 1.15, 2.35, 5.1, 0.42, "좋지 않은 검색", heavy, 18, RGBColor(154,62,62), True); add_text(slide, 1.15, 2.95, 5.05, 1.15, "AI 문장 전체를\n그대로 붙여넣기", regular, 20, PPT_TEXT, False, PP_ALIGN.CENTER)
-    rect(slide, 6.78, 2.12, 5.65, 2.4, PPT_MINT, True); add_text(slide, 7.03, 2.35, 5.1, 0.42, "좋은 검색", heavy, 18, PPT_DARK, True); add_text(slide, 7.03, 2.95, 5.05, 1.15, "핵심 낱말 2~4개\n+ 확인할 쟁점", regular, 20, PPT_TEXT, False, PP_ALIGN.CENTER)
-    add_text(slide, 1.2, 5.25, 10.9, 0.85, "문장 전체가 아니라 확인할 핵심만 남깁니다.", heavy, 19, PPT_DARK, True, PP_ALIGN.CENTER)
-    slide = new("어디에서 먼저 확인할까?")
-    for i, text in enumerate(["1순위  국가유산청 국가유산포털", "2순위  국립박물관·국립고궁박물관", "3순위  국사편찬위원회·조선왕조실록", "비교용  블로그·영상·AI 답변"]):
-        rect(slide, 1.1, 2.18 + i * 0.92, 10.95, 0.67, PPT_PRIMARY if i < 3 else PPT_BEIGE, True); add_text(slide, 1.35, 2.18 + i * 0.92, 10.45, 0.67, text, heavy if i < 3 else regular, 18, RGBColor(255,255,255) if i < 3 else PPT_TEXT, i < 3)
-    slide = new("모둠 발표는 30초")
-    rect(slide, 1.0, 2.05, 11.3, 3.15, PPT_MINT, True)
-    for i, text in enumerate(["우리 모둠은 ___번 문장을 의심했습니다.", "처음에는 ___ 때문에 이상하다고 생각했습니다.", "___ 자료에서 ___라는 근거를 확인했습니다.", "그래서 최종 판단은 ○ / × / △ / ? 입니다."]):
-        add_text(slide, 1.45, 2.35 + i * 0.66, 10.4, 0.5, text, heavy if i == 3 else regular, 19 if i == 3 else 17, PPT_DARK if i == 3 else PPT_TEXT, i == 3)
-    slide = new("AI는 왜 틀릴까?")
-    for i, text in enumerate(["AI는 여러 글의 표현과 패턴을 조합해 답합니다.", "자료에 빈칸이 있어도 그럴듯하게 이어 말할 수 있습니다.", "자신 있는 말투가 사실을 보장하지 않습니다.", "출처·근거·원본을 사람이 다시 확인해야 합니다."]):
-        rect(slide, 1.0, 2.15 + i * 1.0, 0.12, 0.12, PPT_PRIMARY, True); add_text(slide, 1.3, 2.05 + i * 1.0, 10.7, 0.7, text, regular, 20)
-    slide = new("다음 시간 예고", "그럼 진짜는 어떻게 확인할까?")
-    steps = era["next"].split(" · ")
-    for i, step in enumerate(steps):
-        width = 11.3 / len(steps); x = 0.8 + i * (11.7 / len(steps)); special = i == len(steps)-1 and era["short"] == "삼국시대"; rect(slide, x, 2.55, width, 1.35, PPT_PRIMARY if special else PPT_MINT, True); add_text(slide, x, 2.55, width, 1.35, step, heavy, 20, RGBColor(255,255,255) if special else PPT_DARK, True, PP_ALIGN.CENTER)
-    add_text(slide, 1.0, 4.75, 11.3, 0.95, "오늘의 오류 발견 기록지는 10차시 교실 박물관에 전시됩니다.", heavy, 21, PPT_DARK, True, PP_ALIGN.CENTER)
-    slide = new("교사용 정답 부록", "학생 발표 뒤에만 공개합니다.")
-    rect(slide, 1.0, 2.25, 11.3, 2.6, PPT_BEIGE, True); add_text(slide, 1.45, 2.62, 10.4, 1.8, "정답을 먼저 보여 주지 않습니다.\n학생이 왜 의심했는지 말한 뒤\n판정·근거·검색어를 확인합니다.", heavy, 24, PPT_DARK, True, PP_ALIGN.CENTER)
-    for group in era["groups"]:
-        slide = new(f'교사용 정답 · {group["id"]}모둠 {group["heritage"]}', group["focus"])
-        for i, item in enumerate(group["items"], 1):
-            y = 2.02 + (i-1) * 0.74; verdict_color = PPT_PRIMARY if item[1].startswith("○") else RGBColor(161,73,73) if item[1].startswith("×") else RGBColor(161,122,47); rect(slide, 0.82, y, 0.86, 0.5, verdict_color, True); add_text(slide, 0.82, y, 0.86, 0.5, f'{i} {item[1].split()[0]}', heavy, 12, RGBColor(255,255,255), True, PP_ALIGN.CENTER); add_text(slide, 1.85, y-0.03, 4.7, 0.58, item[0], regular, 11.1); add_text(slide, 6.7, y-0.03, 5.65, 0.58, item[2], regular, 10.8, PPT_MUTED)
+            y = 2.62 + (i-1) * 0.74
+            verdict_color = PPT_PRIMARY if item[1].startswith("○") else RGBColor(161,73,73) if item[1].startswith("×") else RGBColor(161,122,47)
+            rect(slide, 0.82, y, 0.86, 0.5, verdict_color, True)
+            add_text(slide, 0.82, y, 0.86, 0.5, f'{i} {item[1].split()[0]}', heavy, 12, white, True, PP_ALIGN.CENTER)
+            add_text(slide, 1.82, y-0.03, 4.3, 0.58, item[0], regular, 10.4)
+            add_text(slide, 6.32, y-0.03, 3.85, 0.58, item[2], regular, 10.2, PPT_MUTED)
+            add_text(slide, 10.35, y-0.03, 2.55, 0.58, item[3], regular, 9.8, PPT_DARK)
+        add_text(slide, 0.82, 7.06, 12.05, 0.34, f'우선 확인처: {group["source"]}', regular, 10, PPT_MUTED)
+
+    # 14 · 정리 + 다음 차시 예고
+    slide = new("AI는 왜 틀릴까?", "그리고 다음 시간에는 무엇을 할까요?")
+    for i, text in enumerate(["AI는 여러 글의 표현과 패턴을 조합해 답합니다.", "자료에 빈칸이 있어도 그럴듯하게 이어 말합니다.", "자신 있는 말투가 사실을 보장하지 않습니다.", "출처·근거·원본은 사람이 다시 확인해야 합니다."]):
+        rect(slide, 1.0, 2.28 + i * 0.72, 0.12, 0.12, PPT_PRIMARY, True)
+        add_text(slide, 1.3, 2.18 + i * 0.72, 10.9, 0.6, text, regular, 19)
+    add_text(slide, 0.85, 5.15, 11.6, 0.4, "다음 시간 · 오늘 우리가 한 확인에 이름 붙이기", heavy, 16, PPT_DARK, True)
+    ranks = era["next"].split(" · ")
+    for i, step in enumerate(ranks):
+        width = 11.3 / len(ranks); x = 0.85 + i * (11.7 / len(ranks))
+        special = i == len(ranks) - 1 and era["short"] == "삼국시대"
+        rect(slide, x, 5.62, width, 1.0, PPT_PRIMARY if special else PPT_MINT, True)
+        add_text(slide, x, 5.62, width, 1.0, step, heavy, 19, white if special else PPT_DARK, True, PP_ALIGN.CENTER)
     path.parent.mkdir(parents=True, exist_ok=True); prs.save(str(path))
 
 
@@ -623,10 +676,16 @@ def update_manifest(output: Path) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def lesson_two_files(directory: Path, era: dict[str, Any]) -> list[Path]:
+    names = ["lesson-02-student.pdf", "lesson-02-teacher.pdf", "lesson-02-answer.pdf", "lesson-02-teaching.pptx", "lesson-02-all.zip"]
+    names += [f'lesson-02-group-{group["id"]:02d}-{group["slug"]}.pdf' for group in era["groups"]]
+    return [directory / name for name in names]
+
+
 def main() -> None:
     options = args(); output = options.output_root; regular_name, heavy_name = setup_fonts(options.font_dir); output.mkdir(parents=True, exist_ok=True)
-    complete: list[Path] = []
-    for era_id, era in DATA.items():
+    for era_id in options.eras:
+        era = DATA[era_id]
         directory = output / era_id; directory.mkdir(parents=True, exist_ok=True); groups: list[Path] = []
         for group in era["groups"]:
             file = directory / f'lesson-02-group-{group["id"]:02d}-{group["slug"]}.pdf'; student_page(file, era, group); groups.append(file)
@@ -636,8 +695,9 @@ def main() -> None:
         deck = directory / "lesson-02-teaching.pptx"; ppt(deck, era, regular_name, heavy_name)
         lesson_zip = directory / "lesson-02-all.zip"; rebuild(lesson_zip, [student, teacher, answer, deck, *groups], directory)
         era_zip = directory / f"{era_id}-all-materials.zip"; rebuild(era_zip, [f for f in directory.iterdir() if f.is_file() and f.name != era_zip.name], directory)
-        complete.extend([student, teacher, answer, deck, lesson_zip, *groups])
     update_manifest(output)
+    # The cross-era bundle always ships every era's current files, including the ones this run left alone.
+    complete = [file for era_id, era in DATA.items() for file in lesson_two_files(output / era_id, era)]
     rebuild(output / "lesson-02-samguk-joseon-complete.zip", complete, output)
     (output / "lesson-02-materials.json").write_text(json.dumps({"format": "A4 portrait", "student_pages_per_group": 1, "font": "S-Core Dream" if "S-Core" in regular_name else regular_name, "eras": {era_id: {"groups": 6, "student_pages": 6, "ppt": f"/{era_id}/lesson-02-teaching.pptx"} for era_id in DATA}}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Generated one-page lesson 2 materials in {output}")

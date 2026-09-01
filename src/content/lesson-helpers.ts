@@ -18,10 +18,10 @@ export const classroomModeInfo = {
   },
 } as const satisfies Record<ClassroomActivityMode, { label: string; shortLabel: string; description: string }>;
 
-const lessonFourResearchModeInfo = {
-  label: "모둠 공식 자료실",
-  shortLabel: "모둠 자료실",
-  description: "담당 유산의 공식 자료를 웹에서 조사하기",
+const lessonFourDataModeInfo = {
+  label: "데이터 만들기",
+  shortLabel: "학급 데이터 표",
+  description: "일곱 항목을 채워 학급 데이터 표 만들기",
 } as const;
 
 const externalDataToolModeInfo = {
@@ -43,7 +43,7 @@ const arMuseumModeInfo = {
 } as const;
 
 export function getLessonActivityModeInfo(lesson: Lesson, eraId: EraId) {
-  if (eraId === "three-kingdoms" && lesson.id === 4) return lessonFourResearchModeInfo;
+  if (eraId === "three-kingdoms" && lesson.id === 4) return lessonFourDataModeInfo;
   if (eraId === "three-kingdoms" && lesson.id >= 5 && lesson.id <= 8) return externalDataToolModeInfo;
   if (eraId === "three-kingdoms" && lesson.id === 9) return arDataExplanationModeInfo;
   if (eraId === "three-kingdoms" && lesson.id === 10) return arMuseumModeInfo;
