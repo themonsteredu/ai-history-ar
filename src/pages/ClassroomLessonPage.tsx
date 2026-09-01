@@ -18,7 +18,7 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
     <div className="classroom-page" style={{ "--era-accent": era.accent, "--era-soft": era.accentSoft } as React.CSSProperties}>
       <header className="classroom-header">
         <div className="page-width classroom-header__inner">
-          <Link className="back-link" to={era.route}><span aria-hidden="true">←</span>{era.shortName} 10차시</Link>
+          <Link className="back-link" to={era.route}><span aria-hidden="true">←</span>{era.shortName} {era.lessons.length}차시</Link>
           <div className="classroom-header__title">
             <span>{String(lesson.id).padStart(2, "0")}</span>
             <div><p>{era.grade} · {era.shortName}</p><h1>{lesson.title}</h1></div>
@@ -45,7 +45,7 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
           {previousLesson ? <Link to={`${basePath}/${previousLesson.id}?view=${view}`}><span>이전</span><strong>← {previousLesson.id}차시</strong></Link> : <span />}
           {nextLesson
             ? <Link to={`${basePath}/${nextLesson.id}?view=${view}`}><span>다음</span><strong>{nextLesson.id}차시 →</strong></Link>
-            : <Link to={era.route}><span>수업 완료</span><strong>10차시 목록 →</strong></Link>}
+            : <Link to={era.route}><span>수업 완료</span><strong>{era.lessons.length}차시 목록 →</strong></Link>}
         </nav>
       </main>
     </div>

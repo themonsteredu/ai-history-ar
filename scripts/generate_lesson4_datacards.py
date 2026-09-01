@@ -1,7 +1,7 @@
 """4차시 ‘데이터 만들기’ 인쇄 자료 생성기.
 
 여섯 모둠이 똑같은 일곱 항목을 채워야 학급 데이터 표가 만들어집니다.
-PPT · 웹앱(src/content/three-kingdoms/webActivities.ts) · 활동지가 아래 FIELDS의
+PPT · 활동 화면(src/content/three-kingdoms/webActivities.ts) · 활동지가 아래 FIELDS의
 항목 이름을 토씨 하나 다르지 않게 함께 사용합니다.
 
 2차시 자료와 같은 학교 양식(초록·민트·베이지 + S-Core Dream)을 씁니다.
@@ -54,7 +54,14 @@ PPT_TEXT = RGBColor(31, 41, 37)
 PPT_MUTED = RGBColor(100, 113, 108)
 PPT_WHITE = RGBColor(255, 255, 255)
 
-# 활동지·PPT·웹앱이 함께 쓰는 일곱 항목. 순서까지 같아야 학급 표의 열이 맞습니다.
+# 학생 활동지는 학교에 제출하는 흑백 양식을 씁니다(1·2차시 활동지와 같은 팔레트).
+FORM_INK = HexColor("#111111")
+FORM_HEAD = HexColor("#222222")
+FORM_BAND = HexColor("#F0F0F0")
+FORM_LINE = HexColor("#B8B8B8")
+FORM_SOFT = HexColor("#444444")
+
+# 활동지·PPT·활동 화면이 함께 쓰는 일곱 항목. 순서까지 같아야 학급 표의 열이 맞습니다.
 FIELDS: list[tuple[str, str]] = [
     ("시기", "언제 만들었는지 (세기·왕 이름)"),
     ("만든 까닭", "무엇을 위해 만들었는지"),
@@ -317,60 +324,100 @@ def section(c: canvas.Canvas, number: str, title: str, y_top: float) -> float:
     return y_top - 9.5 * mm
 
 
+def form_styles() -> dict[str, ParagraphStyle]:
+    """학교 제출 양식용. 작은 설명 글씨 없이 크게 읽히는 크기만 사용합니다."""
+    return {
+        "cell": ParagraphStyle("cell", fontName="SchoolRegular", fontSize=11, leading=15.5, textColor=FORM_INK, wordWrap="CJK"),
+        "head": ParagraphStyle("head", fontName="SchoolHeavy", fontSize=11, leading=14, textColor=WHITE, alignment=1, wordWrap="CJK"),
+        "field": ParagraphStyle("field", fontName="SchoolHeavy", fontSize=12, leading=16, textColor=FORM_INK, wordWrap="CJK"),
+        "label": ParagraphStyle("label", fontName="SchoolHeavy", fontSize=10.5, leading=14, textColor=FORM_INK, wordWrap="CJK"),
+    }
+
+
+def form_header(c: canvas.Canvas, lesson_no: str, title: str, objective: str) -> float:
+    """‘삼국시대 N차시 + 이름란 + 학습 주제·목표’ 머리글. 2차시 활동지와 같은 모양입니다."""
+    width, height = A4
+    x = 14 * mm
+    w = width - 28 * mm
+    y = height - 26 * mm
+    c.setFillColor(FORM_HEAD)
+    c.setFont("SchoolHeavy", 24)
+    c.drawString(x, y, f'{ERA["short"]} {lesson_no}')
+    c.setFillColor(FORM_INK)
+    c.setFont("SchoolRegular", 11)
+    c.drawRightString(x + w, y + 2 * mm, "5학년 ______반   이름 ____________________")
+    c.setStrokeColor(FORM_HEAD)
+    c.setLineWidth(1.1)
+    c.line(x, y - 4 * mm, x + w, y - 4 * mm)
+
+    band_y = y - 26 * mm
+    c.setFillColor(FORM_BAND)
+    c.rect(x, band_y, w, 20 * mm, stroke=0, fill=1)
+    c.setStrokeColor(FORM_LINE)
+    c.setLineWidth(0.6)
+    c.rect(x, band_y, w, 20 * mm, stroke=1, fill=0)
+    c.line(x, band_y + 10 * mm, x + w, band_y + 10 * mm)
+    c.line(x + 26 * mm, band_y, x + 26 * mm, band_y + 20 * mm)
+    c.setFillColor(FORM_INK)
+    c.setFont("SchoolHeavy", 10.5)
+    c.drawString(x + 5 * mm, band_y + 13.5 * mm, "학습 주제")
+    c.drawString(x + 5 * mm, band_y + 3.5 * mm, "학습 목표")
+    c.setFont("SchoolHeavy", 13)
+    c.drawString(x + 32 * mm, band_y + 13.2 * mm, title)
+    c.setFont("SchoolRegular", 10.5)
+    c.drawString(x + 32 * mm, band_y + 3.4 * mm, objective)
+    return band_y - 7 * mm
+
+
+def form_footer(c: canvas.Canvas) -> None:
+    width, _ = A4
+    x = 14 * mm
+    c.setFillColor(FORM_SOFT)
+    c.setFont("SchoolRegular", 8)
+    c.drawString(x, 8 * mm, "인공지능과 역사")
+    c.drawRightString(width - x, 8 * mm, "S-Core Dream")
+
+
 def student_page(path: Path, group: dict[str, Any]) -> None:
     """모둠별 A4 한 장 조사 카드. 다른 모둠을 적는 칸은 넣지 않습니다."""
-    st = styles()
+    st = form_styles()
     path.parent.mkdir(parents=True, exist_ok=True)
     c = canvas.Canvas(str(path), pagesize=A4)
     c.setTitle(f'{ERA["short"]} 4차시 {group["id"]}모둠 {group["heritage"]} 조사 카드')
     c.setAuthor("MOAKIT")
     width, _ = A4
-    x = 13 * mm
-    w = width - 26 * mm
-    y = header(c, "학생용 A4 1쪽")
-    y = group_box(c, group, y, st)
-    y = section(c, "1", "우리 모둠 유산의 일곱 항목 채우기", y)
-    c.setFillColor(MUTED)
-    c.setFont("SchoolRegular", 6.0)
-    c.drawString(x + 11 * mm, y + 1 * mm, "여섯 모둠이 모두 같은 항목을 채워야 학급 데이터 표가 됩니다. 문장 대신 핵심 낱말만 적으세요.")
-    y -= 2.5 * mm
+    x = 14 * mm
+    w = width - 28 * mm
+    y = form_header(c, "4차시", "우리 모둠 데이터 만들기", "여섯 모둠이 같은 일곱 항목으로 조사해 학급 데이터 표의 한 줄을 만들 수 있다.")
 
-    rows = [[p(h, st["white"]) for h in ["조사 항목", "무엇을 찾나요", "핵심 낱말만 적기", "확인한 출처"]]]
-    for label, hint in FIELDS:
-        rows.append([p(label, st["label"]), p(hint, st["hint"]), p("", st["small"]), p("", st["small"])])
-    heights = [9 * mm] + [24.5 * mm] * len(FIELDS)
-    table = Table(rows, colWidths=[30 * mm, 38 * mm, w - 108 * mm, 40 * mm], rowHeights=heights)
+    group_row = Table(
+        [[p("모둠·유산", st["label"]), p(f'{group["id"]}모둠 · {group["heritage"]}', st["cell"]),
+          p("역할", st["label"]), p("□ 자료   □ 기록   □ 기기   □ 발표", st["cell"])]],
+        colWidths=[22 * mm, 62 * mm, 16 * mm, w - 100 * mm],
+        rowHeights=[13 * mm],
+    )
+    group_row.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 0.6, FORM_LINE), ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 6), ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+    ]))
+    group_row.wrapOn(c, w, 13 * mm); group_row.drawOn(c, x, y - 13 * mm)
+    y -= 19 * mm
+
+    rows = [[p(h, st["head"]) for h in ["조사 항목", "핵심 낱말만 적기", "확인한 출처"]]]
+    for label, _hint in FIELDS:
+        rows.append([p(label, st["field"]), p("", st["cell"]), p("", st["cell"])])
+    heights = [11 * mm] + [28 * mm] * len(FIELDS)
+    table = Table(rows, colWidths=[38 * mm, w - 83 * mm, 45 * mm], rowHeights=heights)
     table.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), PRIMARY_DARK), ("GRID", (0, 0), (-1, -1), 0.45, GRID),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("LEFTPADDING", (0, 0), (-1, -1), 4),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 4), ("TOPPADDING", (0, 0), (-1, -1), 2),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
-        ("BACKGROUND", (0, 1), (1, -1), MINT_LIGHT),
-        ("BACKGROUND", (0, 7), (-1, 7), BEIGE),
+        ("BACKGROUND", (0, 0), (-1, 0), FORM_HEAD), ("GRID", (0, 0), (-1, -1), 0.5, FORM_LINE),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("LEFTPADDING", (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 6), ("BACKGROUND", (0, 1), (0, -1), FORM_BAND),
     ]))
     th = sum(heights)
-    table.wrapOn(c, w, th)
-    table.drawOn(c, x, y - th)
-    y -= th + 3 * mm
+    table.wrapOn(c, w, th); table.drawOn(c, x, y - th)
 
-    c.setFillColor(BEIGE)
-    c.roundRect(x, y - 16 * mm, w, 16 * mm, 2 * mm, stroke=0, fill=1)
-    c.setFillColor(PRIMARY_DARK)
-    c.setFont("SchoolHeavy", 8)
-    c.drawString(x + 4 * mm, y - 6.5 * mm, "우리 모둠 카드가 학급 표의 한 줄이 됩니다")
-    c.setFillColor(TEXT)
-    c.setFont("SchoolRegular", 6.8)
-    c.drawString(x + 4 * mm, y - 11.5 * mm, "확인하지 못한 항목은 비워 두거나 ‘아직 모름’이라고 적습니다. 추측으로 채우지 않습니다.")
-    c.setFillColor(MUTED)
-    c.setFont("SchoolRegular", 5.5)
-    c.drawRightString(x + w - 4 * mm, y - 11.5 * mm, "다음 차시: 여섯 모둠 데이터를 한 표로 모아 정제하기")
-
-    c.setFont("SchoolRegular", 5.5)
-    c.setFillColor(MUTED)
-    c.drawString(x, 7 * mm, "같은 항목으로 모아야 여섯 유산을 비교할 수 있습니다.")
-    c.drawRightString(width - x, 7 * mm, f'{ERA["short"]} · {group["id"]}모둠 · 학생용 · S-Core Dream')
-    c.showPage()
-    c.save()
+    form_footer(c)
+    c.showPage(); c.save()
 
 
 def merge(paths: Iterable[Path], output: Path) -> None:
@@ -394,12 +441,12 @@ def teacher_pdf(path: Path, answers_only: bool = False) -> None:
         y = header(c, "교사용 운영안")
         c.setFillColor(TEXT); c.setFont("SchoolHeavy", 17); c.drawString(x, y - 7 * mm, f'{ERA["short"]} 4차시 운영안')
         c.setFillColor(MUTED); c.setFont("SchoolRegular", 7.5)
-        c.drawString(x, y - 14 * mm, "PPT·웹앱·활동지가 같은 일곱 항목 이름을 사용합니다. 조사가 아니라 ‘같은 항목으로 데이터 모으기’ 수업입니다.")
+        c.drawString(x, y - 14 * mm, "PPT·활동 화면·활동지가 같은 일곱 항목 이름을 사용합니다. 조사가 아니라 ‘같은 항목으로 데이터 모으기’ 수업입니다.")
         rows = [[p(h, st["white"]) for h in ["시간", "교수·학습 활동", "교사 포인트"]]]
         schedule = [
             ("5분", "지난 시간 우리가 한 확인에 이름 붙이기(출처·시기·교차·원본·보류)", "2차시에 이미 한 일에 이름만 붙입니다."),
             ("5분", "오늘의 미션 안내: 자유 조사가 아니라 같은 항목으로 모으기", "모둠마다 다르게 적으면 비교표가 되지 않음을 보입니다."),
-            ("20분", "모둠별로 일곱 항목을 조사하고 웹앱 학급 표에 올리기", "핵심 낱말만 적게 하고 빈칸은 ‘아직 모름’으로 둡니다."),
+            ("20분", "모둠별로 일곱 항목을 조사하고 학급 데이터 표에 올리기", "핵심 낱말만 적게 하고 빈칸은 ‘아직 모름’으로 둡니다."),
             ("7분", "모둠 발표: 일곱 항목을 순서대로 읽기", "발표한 모둠부터 정답 슬라이드를 공개합니다."),
             ("3분", "학급 표 확인과 다음 차시 예고", "표를 CSV로 내보내 5차시 시작 파일로 씁니다."),
         ]
@@ -416,7 +463,7 @@ def teacher_pdf(path: Path, answers_only: bool = False) -> None:
             "학생 활동지는 모둠별 A4 한 장이며 다른 모둠을 적는 칸이 없습니다.",
             f'일곱 항목 이름은 {" · ".join(label for label, _ in FIELDS)} 로 고정합니다.',
             "학생 화면에는 정답·모범 답안을 표시하지 않고 발표 뒤에 PPT로 공개합니다.",
-            "웹앱의 학급 표를 CSV로 내보내 5차시 정제 수업의 시작 파일로 사용합니다.",
+            "학급 데이터 표를 CSV로 내보내 5차시 정제 수업의 시작 파일로 사용합니다.",
         ]
         for i, text in enumerate(bullets):
             c.setFillColor(TEXT); c.setFont("SchoolRegular", 7); c.drawString(x + 5 * mm, ny - (14 + i * 6) * mm, f"• {text}")
@@ -539,7 +586,7 @@ def ppt(path: Path, regular: str, heavy: str) -> None:
     add_text(slide, 8.35, 2.35, 3.85, 0.4, "이렇게 적습니다", heavy, 15, PPT_DARK, True)
     add_text(slide, 8.35, 2.8, 3.85, 2.2, "• 문장 말고 핵심 낱말만\n• 항목마다 확인한 출처도 함께\n• 확인 못 한 항목은\n   ‘아직 모름’으로 남기기", regular, 14, PPT_TEXT)
     rect(slide, 0.85, 5.45, 11.6, 1.0, RGBColor(247,249,248), True)
-    add_text(slide, 1.1, 5.45, 11.1, 1.0, f'웹앱: 수업 사이트 → {ERA["short"]} → 4차시 → ‘{ERA["appTab"]}’ 탭 (로그인 없이 모둠만 선택)', heavy, 17, PPT_DARK, True, PP_ALIGN.CENTER)
+    add_text(slide, 1.1, 5.45, 11.1, 1.0, f'활동 화면: 수업 사이트 → {ERA["short"]} → 4차시 → ‘{ERA["appTab"]}’ 탭 (로그인 없이 모둠만 선택)', heavy, 17, PPT_DARK, True, PP_ALIGN.CENTER)
 
     # 6 · 발표 안내
     slide = new("모둠 발표 안내", "일곱 항목을 순서대로 읽으면 그대로 발표가 됩니다.")

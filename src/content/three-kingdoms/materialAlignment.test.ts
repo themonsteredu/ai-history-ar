@@ -15,11 +15,11 @@ import { threeKingdomsLessons } from "./lessons";
 
 /**
  * 실제 수업 피드백에서 나온 최우선 원칙:
- * PPT · 웹앱 · 활동지가 완전히 같은 용어, 같은 항목명, 같은 흐름을 써야 합니다.
+ * PPT · 활동 화면 · 활동지가 완전히 같은 용어, 같은 항목명, 같은 흐름을 써야 합니다.
  * PPT와 활동지는 생성 스크립트가 만들므로 스크립트 원문을 그대로 읽어 대조합니다.
  */
 describe("2차시 자료 용어 일치", () => {
-  it("웹앱의 판단 기호가 활동지·PPT와 같은 네 가지 표현이다", () => {
+  it("활동 화면의 판단 기호가 활동지·PPT와 같은 네 가지 표현이다", () => {
     expect(judgementMarks.map((mark) => `${mark.symbol} ${mark.meaning}`)).toEqual([
       "○ 자료로 확인",
       "× 자료와 다름",
@@ -31,7 +31,7 @@ describe("2차시 자료 용어 일치", () => {
     }
   });
 
-  it("활동지의 표 항목명을 PPT·웹앱이 그대로 쓴다", () => {
+  it("활동지의 표 항목명을 PPT·활동 화면이 그대로 쓴다", () => {
     for (const column of ["번호", "AI가 한 말", "내 판단 (○×△?)", "확인한 출처", "오늘의 한 문장"]) {
       expect(lessonTwoScript, `활동지 항목 ${column}`).toContain(column);
     }
@@ -40,7 +40,7 @@ describe("2차시 자료 용어 일치", () => {
     expect(deck).toContain("확인한 출처");
   });
 
-  it("웹앱 문장이 모둠별 활동지 6문장과 글자까지 같다", () => {
+  it("활동 화면 문장이 모둠별 활동지 6문장과 글자까지 같다", () => {
     expect(lessonTwoStatementSets).toHaveLength(6);
     for (const set of lessonTwoStatementSets) {
       expect(set.statements, `${set.groupId}모둠 문장 수`).toHaveLength(6);
@@ -53,7 +53,7 @@ describe("2차시 자료 용어 일치", () => {
   });
 
   it("2차시 PPT가 실제 수업 흐름 14장으로 구성된다", () => {
-    for (const heading of ["AI의 역사 설명을 얼마나 믿나요?", "오늘의 미션", "내 판단 (○×△?)", "웹앱 접속 안내", "활동 시간 안내", "좋은 검색어 만들기 · 어디에서 확인할까?", "AI는 왜 틀릴까?"]) {
+    for (const heading of ["AI의 역사 설명을 얼마나 믿나요?", "오늘의 미션", "내 판단 (○×△?)", "활동 화면 여는 방법", "활동 시간 안내", "좋은 검색어 만들기 · 어디에서 확인할까?", "AI는 왜 틀릴까?"]) {
       expect(lessonTwoScript, `PPT 슬라이드 ${heading}`).toContain(heading);
     }
     // 모둠별 정답은 그 모둠이 발표한 뒤에만 엽니다.

@@ -50,7 +50,7 @@ export function TeacherDashboardPage() {
                 onClick={() => setSelectedEraId(era.id)}
                 type="button"
               >
-                {era.shortName} 10차시
+                {era.shortName} {era.lessons.length}차시
               </button>
             ))}
           </div>

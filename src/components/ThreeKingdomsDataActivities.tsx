@@ -73,7 +73,7 @@ interface LessonTwoRecord {
 }
 
 /**
- * 2차시 학생 웹앱.
+ * 2차시 학생 활동 화면.
  * 활동지·PPT와 같은 항목 이름(내 판단 (○×△?) · 확인한 출처)만 사용하고 정답은 표시하지 않습니다.
  */
 export function LessonTwoJudgementTool() {
@@ -178,7 +178,7 @@ function mergeRow(rows: readonly ClassDataRow[], row: ClassDataRow) {
 }
 
 /**
- * 4차시 학생 웹앱.
+ * 4차시 학생 활동 화면.
  * 모든 모둠이 같은 일곱 항목을 채우면 우리 모둠 카드가 학급 데이터 표의 한 줄이 됩니다.
  * 정답·모범 답안은 표시하지 않고, 교사만 완성된 표를 5차시 시작 CSV로 내보냅니다.
  */

@@ -61,12 +61,12 @@ export function DownloadCenterPage() {
           <h1>활동지·활동카드·답안</h1>
           <p>학생 공개 화면에는 나오지 않는 교사용 인쇄 자료입니다. 차시별 PDF·PPT와 ZIP으로 내려받을 수 있습니다.</p>
           <div className="downloads-hero__stats">
-            <span><strong>10</strong>차시</span>
+            <span><strong>{era.lessons.length}</strong>차시</span>
             <span><strong>6</strong>모둠별 활동지</span>
             <span><strong>{totalFiles}</strong>종 기본 수업자료</span>
           </div>
           <a className="button button--light downloads-hero__download" download href={eraBundlePath(era.id)}>
-            <Icon name="download" size={19} />{era.shortName} 10차시 전체 ZIP
+            <Icon name="download" size={19} />{era.shortName} {era.lessons.length}차시 전체 ZIP
           </a>
         </div>
       </section>

@@ -38,7 +38,7 @@ export function HomePage() {
               </button>
               <Link className="home-hero__teacher" to="/teacher"><Icon name="lock" size={15} />설정</Link>
             </div>
-            <p className="home-hero__meta">삼국시대 10차시 · 조선시대 10차시 · 6모둠 문화유산 탐구</p>
+            <p className="home-hero__meta">{eras.map((era) => `${era.shortName} ${era.lessons.length}차시`).join(" · ")} · 6모둠 문화유산 탐구</p>
           </div>
         </div>
       </section>

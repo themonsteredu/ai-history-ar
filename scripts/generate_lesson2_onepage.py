@@ -38,6 +38,13 @@ TEXT = HexColor("#1F2925")
 MUTED = HexColor("#64716C")
 WHITE = colors.white
 
+# 학생 활동지는 학교에 제출하는 흑백 양식을 씁니다(1차시 활동지와 같은 팔레트).
+FORM_INK = HexColor("#111111")
+FORM_HEAD = HexColor("#222222")
+FORM_BAND = HexColor("#F0F0F0")
+FORM_LINE = HexColor("#B8B8B8")
+FORM_SOFT = HexColor("#444444")
+
 PPT_PRIMARY = RGBColor(47, 113, 91)
 PPT_DARK = RGBColor(31, 79, 64)
 PPT_MINT = RGBColor(234, 243, 239)
@@ -388,51 +395,117 @@ def legend_row(era: dict[str, Any]) -> list[str]:
     return ["○ 자료로 확인", "× 자료와 다름", f'△ {era["delta"]}', "? 더 찾아봐야 함"]
 
 
+def form_styles() -> dict[str, ParagraphStyle]:
+    """학교 제출 양식용. 작은 설명 글씨 없이 크게 읽히는 크기만 사용합니다."""
+    return {
+        "cell": ParagraphStyle("cell", fontName="SchoolRegular", fontSize=11, leading=15.5, textColor=FORM_INK, wordWrap="CJK"),
+        "head": ParagraphStyle("head", fontName="SchoolHeavy", fontSize=11, leading=14, textColor=WHITE, alignment=TA_CENTER, wordWrap="CJK"),
+        "mark": ParagraphStyle("mark", fontName="SchoolHeavy", fontSize=14, leading=18, textColor=FORM_INK, alignment=TA_CENTER, wordWrap="CJK"),
+        "num": ParagraphStyle("num", fontName="SchoolHeavy", fontSize=12, leading=15, textColor=FORM_INK, alignment=TA_CENTER, wordWrap="CJK"),
+        "legend": ParagraphStyle("legend", fontName="SchoolRegular", fontSize=10.5, leading=14, textColor=FORM_INK, alignment=TA_CENTER, wordWrap="CJK"),
+        "label": ParagraphStyle("label", fontName="SchoolHeavy", fontSize=10.5, leading=14, textColor=FORM_INK, wordWrap="CJK"),
+    }
+
+
+def form_header(c: canvas.Canvas, era: dict[str, Any], lesson_no: str, title: str, objective: str) -> float:
+    """‘삼국시대 N차시 + 이름란 + 학습 주제·목표’ 머리글. 1차시 활동지와 같은 모양입니다."""
+    width, height = A4
+    x = 14 * mm
+    w = width - 28 * mm
+    y = height - 26 * mm
+    c.setFillColor(FORM_HEAD)
+    c.setFont("SchoolHeavy", 24)
+    c.drawString(x, y, f'{era["short"]} {lesson_no}')
+    c.setFillColor(FORM_INK)
+    c.setFont("SchoolRegular", 11)
+    c.drawRightString(x + w, y + 2 * mm, "5학년 ______반   이름 ____________________")
+    c.setStrokeColor(FORM_HEAD)
+    c.setLineWidth(1.1)
+    c.line(x, y - 4 * mm, x + w, y - 4 * mm)
+
+    band_y = y - 26 * mm
+    c.setFillColor(FORM_BAND)
+    c.rect(x, band_y, w, 20 * mm, stroke=0, fill=1)
+    c.setStrokeColor(FORM_LINE)
+    c.setLineWidth(0.6)
+    c.rect(x, band_y, w, 20 * mm, stroke=1, fill=0)
+    c.line(x, band_y + 10 * mm, x + w, band_y + 10 * mm)
+    c.line(x + 26 * mm, band_y, x + 26 * mm, band_y + 20 * mm)
+    c.setFillColor(FORM_INK)
+    c.setFont("SchoolHeavy", 10.5)
+    c.drawString(x + 5 * mm, band_y + 13.5 * mm, "학습 주제")
+    c.drawString(x + 5 * mm, band_y + 3.5 * mm, "학습 목표")
+    c.setFont("SchoolHeavy", 13)
+    c.drawString(x + 32 * mm, band_y + 13.2 * mm, title)
+    c.setFont("SchoolRegular", 10.5)
+    c.drawString(x + 32 * mm, band_y + 3.4 * mm, objective)
+    return band_y - 7 * mm
+
+
+def form_footer(c: canvas.Canvas) -> None:
+    width, _ = A4
+    x = 14 * mm
+    c.setFillColor(FORM_SOFT)
+    c.setFont("SchoolRegular", 8)
+    c.drawString(x, 8 * mm, "인공지능과 역사")
+    c.drawRightString(width - x, 8 * mm, "S-Core Dream")
+
+
 def student_page(path: Path, era: dict[str, Any], group: dict[str, Any]) -> None:
-    st = styles()
+    st = form_styles()
     path.parent.mkdir(parents=True, exist_ok=True)
     c = canvas.Canvas(str(path), pagesize=A4)
     c.setTitle(f'{era["short"]} 2차시 {group["id"]}모둠 {group["heritage"]} 활동지')
     c.setAuthor("MOAKIT")
     width, _ = A4
-    x = 13 * mm
-    w = width - 26 * mm
-    y = header(c, era, "학생용 A4 1쪽")
-    y = group_box(c, era, group, y, st)
-    y = section(c, "1", "AI가 한 말 6문장을 판단하고 확인한 출처를 적기", y)
-    c.setFillColor(MUTED)
-    c.setFont("SchoolRegular", 6.0)
-    c.drawString(x + 11 * mm, y + 1 * mm, "먼저 ○×△?로 판단한 뒤, 공식 자료에서 확인한 곳(기관 이름)을 오른쪽 칸에 적으세요.")
-    y -= 2.5 * mm
-    rows = [[p(h, st["white"]) for h in ["번호", "AI가 한 말", "내 판단 (○×△?)", "확인한 출처"]]]
+    x = 14 * mm
+    w = width - 28 * mm
+    y = form_header(c, era, "2차시", "AI에게 물어보았습니다", "AI 설명을 ○×△?로 판단하고 공식 자료의 출처로 확인할 수 있다.")
+
+    group_row = Table(
+        [[p("모둠·유산", st["label"]), p(f'{group["id"]}모둠 · {group["heritage"]}', st["cell"]),
+          p("역할", st["label"]), p("□ 자료   □ 기록   □ 기기   □ 발표", st["cell"])]],
+        colWidths=[22 * mm, 62 * mm, 16 * mm, w - 100 * mm],
+        rowHeights=[13 * mm],
+    )
+    group_row.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 0.6, FORM_LINE), ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 6), ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+    ]))
+    group_row.wrapOn(c, w, 13 * mm); group_row.drawOn(c, x, y - 13 * mm)
+    y -= 19 * mm
+
+    rows = [[p(h, st["head"]) for h in ["번호", "AI가 한 말", "내 판단 (○×△?)", "확인한 출처"]]]
     for i, item in enumerate(group["items"], 1):
-        rows.append([p(str(i), st["center_bold"]), p(item[0], st["body"]), p("○   ×   △   ?", st["center_bold"]), p("", st["small"])])
-    heights = [9 * mm] + [25 * mm] * 6
-    table = Table(rows, colWidths=[9 * mm, w - 75 * mm, 24 * mm, 42 * mm], rowHeights=heights)
+        rows.append([p(str(i), st["num"]), p(item[0], st["cell"]), p("○   ×   △   ?", st["mark"]), p("", st["cell"])])
+    heights = [11 * mm] + [24 * mm] * 6
+    table = Table(rows, colWidths=[12 * mm, w - 88 * mm, 36 * mm, 40 * mm], rowHeights=heights)
     table.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), PRIMARY_DARK), ("GRID", (0, 0), (-1, -1), 0.45, GRID),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("LEFTPADDING", (0, 0), (-1, -1), 4),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 4), ("TOPPADDING", (0, 0), (-1, -1), 2),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 2), ("BACKGROUND", (0, 2), (-1, 2), MINT_LIGHT),
-        ("BACKGROUND", (0, 4), (-1, 4), MINT_LIGHT), ("BACKGROUND", (0, 6), (-1, 6), MINT_LIGHT),
+        ("BACKGROUND", (0, 0), (-1, 0), FORM_HEAD), ("GRID", (0, 0), (-1, -1), 0.5, FORM_LINE),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("LEFTPADDING", (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
     ]))
     th = sum(heights)
-    table.wrapOn(c, w, th)
-    table.drawOn(c, x, y - th)
-    y -= th + 3 * mm
-    legend = Table([[p(label, st["center"]) for label in legend_row(era)]], colWidths=[w / 4] * 4, rowHeights=[9 * mm])
-    legend.setStyle(TableStyle([("GRID", (0, 0), (-1, -1), 0.4, GRID), ("BACKGROUND", (0, 0), (-1, -1), MINT), ("VALIGN", (0, 0), (-1, -1), "MIDDLE")]))
-    legend.wrapOn(c, w, 9 * mm); legend.drawOn(c, x, y - 9 * mm)
-    y -= 12 * mm
-    c.setFillColor(BEIGE); c.roundRect(x, y - 19 * mm, w, 19 * mm, 2 * mm, stroke=0, fill=1)
-    c.setFillColor(PRIMARY_DARK); c.setFont("SchoolHeavy", 8.4); c.drawString(x + 4 * mm, y - 7 * mm, "오늘의 한 문장")
-    c.setFillColor(TEXT); c.setFont("SchoolRegular", 8)
-    c.drawString(x + 34 * mm, y - 7 * mm, "AI의 말은 ______________________________________________ 때문에 확인해야 한다.")
-    c.setFont("SchoolRegular", 5.5); c.setFillColor(MUTED)
-    c.drawString(x + 4 * mm, y - 14.5 * mm, "확인한 출처가 없으면 판단을 ?로 남깁니다. 억지로 채우지 않습니다.")
-    c.drawRightString(x + w - 4 * mm, y - 14.5 * mm, f'다음 차시 검증 기준: {era["next"]}')
-    c.setFont("SchoolRegular", 5.5); c.drawString(x, 7 * mm, "AI의 말투가 아니라 출처와 근거를 확인합니다.")
-    c.drawRightString(width - x, 7 * mm, f'{era["short"]} · {group["id"]}모둠 · 학생용 · S-Core Dream')
+    table.wrapOn(c, w, th); table.drawOn(c, x, y - th)
+    y -= th + 5 * mm
+
+    legend = Table([[p(label, st["legend"]) for label in legend_row(era)]], colWidths=[w / 4] * 4, rowHeights=[12 * mm])
+    legend.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 0.5, FORM_LINE), ("BACKGROUND", (0, 0), (-1, -1), FORM_BAND),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+    ]))
+    legend.wrapOn(c, w, 12 * mm); legend.drawOn(c, x, y - 12 * mm)
+    y -= 17 * mm
+
+    c.setStrokeColor(FORM_LINE); c.setLineWidth(0.6)
+    c.rect(x, y - 18 * mm, w, 18 * mm, stroke=1, fill=0)
+    c.setFillColor(FORM_INK)
+    c.setFont("SchoolHeavy", 11)
+    c.drawString(x + 6 * mm, y - 11 * mm, "오늘의 한 문장")
+    c.setFont("SchoolRegular", 11)
+    c.drawString(x + 40 * mm, y - 11 * mm, "AI의 말은 ____________________________________ 때문에 확인해야 한다.")
+
+    form_footer(c)
     c.showPage(); c.save()
 
 
@@ -451,7 +524,7 @@ def teacher_pdf(path: Path, era: dict[str, Any], answers_only: bool = False) -> 
     if not answers_only:
         y = header(c, era, "교사용 운영안")
         c.setFillColor(TEXT); c.setFont("SchoolHeavy", 17); c.drawString(x, y - 7 * mm, f'{era["short"]} 2차시 운영안')
-        c.setFillColor(MUTED); c.setFont("SchoolRegular", 7.5); c.drawString(x, y - 14 * mm, "PPT·웹앱·활동지가 같은 항목명(내 판단 ○×△? · 확인한 출처 · 오늘의 한 문장)을 사용합니다.")
+        c.setFillColor(MUTED); c.setFont("SchoolRegular", 7.5); c.drawString(x, y - 14 * mm, "PPT·활동 화면·활동지가 같은 항목명(내 판단 ○×△? · 확인한 출처 · 오늘의 한 문장)을 사용합니다.")
         rows = [[p(h, st["white"]) for h in ["시간", "교수·학습 활동", "교사 포인트"]]]
         schedule = [
             ("5분", "AI 신뢰도 손들기(PPT 2)와 오늘의 미션 안내(PPT 3~4)", "정답 슬라이드를 먼저 열지 않습니다."),
@@ -469,7 +542,7 @@ def teacher_pdf(path: Path, era: dict[str, Any], answers_only: bool = False) -> 
         ny = y - 29 * mm - th
         c.setFillColor(BEIGE); c.roundRect(x, ny - 40 * mm, w, 40 * mm, 2 * mm, stroke=0, fill=1)
         c.setFillColor(PRIMARY_DARK); c.setFont("SchoolHeavy", 8); c.drawString(x + 4 * mm, ny - 7 * mm, "학교 양식 적용 기준")
-        bullets = ["학생 활동지는 모둠별 A4 한 장, 한 페이지로만 인쇄합니다.", "활동지는 6문장 판단과 확인한 출처, 오늘의 한 문장까지만 기록합니다.", "PPT·웹앱·활동지의 항목명은 ‘내 판단 (○×△?)’과 ‘확인한 출처’로 같습니다.", "완성한 기록지는 10차시 교실 박물관의 검증 증거물로 전시합니다."]
+        bullets = ["학생 활동지는 모둠별 A4 한 장, 한 페이지로만 인쇄합니다.", "활동지는 6문장 판단과 확인한 출처, 오늘의 한 문장까지만 기록합니다.", "PPT·활동 화면·활동지의 항목명은 ‘내 판단 (○×△?)’과 ‘확인한 출처’로 같습니다.", "완성한 기록지는 10차시 교실 박물관의 검증 증거물로 전시합니다."]
         for i, text in enumerate(bullets):
             c.setFillColor(TEXT); c.setFont("SchoolRegular", 7); c.drawString(x + 5 * mm, ny - (14 + i * 6) * mm, f"• {text}")
         c.setFillColor(MUTED); c.setFont("SchoolRegular", 5.5); c.drawRightString(width - x, 7 * mm, f'{era["short"]} · 교사용 · S-Core Dream')
@@ -561,7 +634,7 @@ def ppt(path: Path, era: dict[str, Any], regular: str, heavy: str) -> None:
         add_text(slide, 1.0, 4.15 + i * 0.92, 0.58, 0.58, str(i+1), heavy, 17, white, True, PP_ALIGN.CENTER)
         add_text(slide, 1.85, 4.12 + i * 0.92, 10.3, 0.65, text, regular, 20)
 
-    # 4 · 판단 기호 (활동지·웹앱과 같은 표현)
+    # 4 · 판단 기호 (활동지·활동 화면과 같은 표현)
     slide = new("내 판단 (○×△?)", "활동지의 ‘내 판단’ 칸에 그대로 표시합니다.")
     for i, label in enumerate(legend_row(era)):
         symbol, meaning = label.split(" ", 1)
@@ -572,12 +645,12 @@ def ppt(path: Path, era: dict[str, Any], regular: str, heavy: str) -> None:
     rect(slide, 1.2, 5.25, 10.95, 0.75, PPT_BEIGE, True)
     add_text(slide, 1.35, 5.25, 10.65, 0.75, "△와 ?도 정답이 될 수 있습니다. 모르는 것을 억지로 채우지 않습니다.", heavy, 17, PPT_DARK, True, PP_ALIGN.CENTER)
 
-    # 5 · 웹앱 접속 안내
-    slide = new("웹앱 접속 안내", "로그인 없이 우리 모둠만 고르면 바로 시작합니다.")
+    # 5 · 활동 화면 안내
+    slide = new("활동 화면 여는 방법", "로그인 없이 우리 모둠만 고르면 바로 시작합니다.")
     rect(slide, 0.85, 2.2, 11.6, 1.35, PPT_MINT, True); rect(slide, 0.85, 2.2, 0.12, 1.35, PPT_PRIMARY)
     add_text(slide, 1.2, 2.2, 11.1, 1.35, f'수업 사이트 → {era["short"]} → 2차시 → ‘{era["appTab"]}’ 탭', heavy, 24, PPT_DARK, True)
     add_text(slide, 1.2, 3.62, 11.1, 0.45, f'주소 뒤에 {era["appPath"]} 를 붙여도 바로 열립니다.', regular, 14, PPT_MUTED)
-    for i, text in enumerate(["학생 로그인이 없습니다. 우리 모둠만 고르면 됩니다.", "웹앱은 내 판단만 저장하고 정답·점수는 보여 주지 않습니다.", "종이 활동지와 웹앱의 문장 번호는 똑같습니다."]):
+    for i, text in enumerate(["학생 로그인이 없습니다. 우리 모둠만 고르면 됩니다.", "이 화면은 내 판단만 저장하고 정답·점수는 보여 주지 않습니다.", "종이 활동지와 화면의 문장 번호는 똑같습니다."]):
         rect(slide, 1.0, 4.35 + i * 0.82, 0.12, 0.12, PPT_PRIMARY, True)
         add_text(slide, 1.3, 4.25 + i * 0.82, 10.9, 0.65, text, regular, 19)
 

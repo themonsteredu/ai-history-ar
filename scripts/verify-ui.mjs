@@ -12,18 +12,22 @@ const browserCandidates = [
   "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
 ].filter(Boolean);
 
-const lessonTitles = [
-  "역사 데이터 질문 찾기",
-  "AI에게 물어보았습니다",
-  "진짜인지 확인하는 방법",
-  "우리 모둠 데이터 만들기",
-  "역사 데이터 정제하기",
-  "역사 데이터를 그림으로 보기",
-  "그래프를 읽고 설명하기",
-  "데이터로 과거 유추하기",
-  "데이터 해석을 AR로 표현하기",
-  "AR 데이터 박물관 열기",
+// 삼국시대는 2·3차시를 한 차시로 합쳐 3차시가 없습니다. 차시 번호와 배열 위치가 다릅니다.
+const lessons = [
+  { id: 1, title: "역사 데이터 질문 찾기" },
+  { id: 2, title: "AI에게 물어보았습니다" },
+  { id: 4, title: "우리 모둠 데이터 만들기" },
+  { id: 5, title: "역사 데이터 정제하기" },
+  { id: 6, title: "역사 데이터를 그림으로 보기" },
+  { id: 7, title: "그래프를 읽고 설명하기" },
+  { id: 8, title: "데이터로 과거 유추하기" },
+  { id: 9, title: "데이터 해석을 AR로 표현하기" },
+  { id: 10, title: "AR 데이터 박물관 열기" },
 ];
+
+function lessonTitle(lessonId) {
+  return lessons.find((lesson) => lesson.id === lessonId).title;
+}
 
 function routeUrl(pathname) {
   return `${baseUrl}${usesHashRouter ? "/#" : ""}${pathname}`;
@@ -119,7 +123,7 @@ try {
   await desktop.locator(".home-hero__visual img").waitFor();
   await desktop.screenshot({ path: path.join(outputDirectory, "home-desktop.png"), fullPage: true });
 
-  results.push(await inspectPage(desktop, "/three-kingdoms/lesson/2?view=ppt", lessonTitles[1]));
+  results.push(await inspectPage(desktop, "/three-kingdoms/lesson/2?view=ppt", lessonTitle(2)));
   if (await desktop.locator(".lesson-slides-section").count() !== 1) throw new Error("2차시 수업 PPT가 학생 화면에서 열리지 않습니다.");
   if (await desktop.getByRole("link", { name: /수업 PPT/ }).count() !== 1) throw new Error("2차시 수업 PPT 탭이 보이지 않습니다.");
 
@@ -133,12 +137,11 @@ try {
   const toolCards = await desktop.locator(".teacher-tool-card").count();
   if (toolCards !== 10) throw new Error(`교사용 외부 도구 설정이 10개가 아닙니다: ${toolCards}개`);
   const internalCards = await desktop.locator(".teacher-tool-internal-note").count();
-  if (internalCards !== 6) throw new Error(`웹앱 내부 활동 설정이 6개가 아닙니다: ${internalCards}개`);
+  if (internalCards !== 5) throw new Error(`앱 내부 활동 설정이 5개가 아닙니다: ${internalCards}개`);
   await desktop.screenshot({ path: path.join(outputDirectory, "teacher-tools-desktop.png"), fullPage: true });
 
   let verifiedSlideCount = 0;
-  for (const [index, title] of lessonTitles.entries()) {
-    const lessonId = index + 1;
+  for (const { id: lessonId, title } of lessons) {
     results.push(await inspectPage(desktop, `/three-kingdoms/lesson/${lessonId}?view=ppt`, title));
     const slideButtons = desktop.locator(".lesson-slides__dots button");
     const slideCount = await slideButtons.count();
@@ -216,7 +219,7 @@ try {
   if (await desktop.getByRole("button", { name: "화면 안에서 시작" }).count() !== 1) throw new Error("6차시 CODAP 실행 버튼이 보이지 않습니다.");
 
   results.push(await inspectPage(desktop, "/joseon/lesson/1?view=ppt", "조선에는 무엇이 남아 있을까"));
-  results.push(await inspectPage(desktop, "/teacher/three-kingdoms/lesson/1", lessonTitles[0]));
+  results.push(await inspectPage(desktop, "/teacher/three-kingdoms/lesson/1", lessonTitle(1)));
   const teacherSections = await desktop.locator(".download-panel, .activity-timeline, .output-grid, .prep-grid").count();
   if (teacherSections !== 4) throw new Error("교사 화면에 지도안 또는 인쇄 자료가 빠졌습니다.");
 
@@ -228,9 +231,9 @@ try {
   ];
 
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true });
-  results.push(await inspectPage(mobile, "/three-kingdoms/lesson/1?view=activity", lessonTitles[0]));
+  results.push(await inspectPage(mobile, "/three-kingdoms/lesson/1?view=activity", lessonTitle(1)));
   await mobile.screenshot({ path: path.join(outputDirectory, "lesson-01-activity-mobile.png"), fullPage: true });
-  results.push(await inspectPage(mobile, "/three-kingdoms/lesson/6?view=activity", lessonTitles[5]));
+  results.push(await inspectPage(mobile, "/three-kingdoms/lesson/6?view=activity", lessonTitle(6)));
   await mobile.screenshot({ path: path.join(outputDirectory, "lesson-06-activity-mobile.png"), fullPage: true });
   results.push(await inspectPage(mobile, "/teacher", "교사 설정 잠금"));
   await unlockTeacher(mobile);
@@ -238,7 +241,7 @@ try {
   if (await mobile.locator(".teacher-tool-card").count() !== 10) throw new Error("모바일 교사 설정에 10개 차시가 보이지 않습니다.");
   await mobile.screenshot({ path: path.join(outputDirectory, "teacher-tools-mobile.png"), fullPage: true });
 
-  console.log(JSON.stringify({ ok: true, lessons: lessonTitles.length, verifiedSlideCount, toolCards, files, results }, null, 2));
+  console.log(JSON.stringify({ ok: true, lessons: lessons.length, verifiedSlideCount, toolCards, files, results }, null, 2));
 } finally {
   await browser.close();
 }

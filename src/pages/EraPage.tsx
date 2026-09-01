@@ -15,7 +15,7 @@ export function EraPage({ eraId }: { eraId: EraId }) {
         <div className="page-width era-hero__grid">
           <div>
             <Link className="back-link" to="/"><span aria-hidden="true">←</span> 시대 선택</Link>
-            <p className="eyebrow">초등학교 5학년 · {era.shortName} · 10차시</p>
+            <p className="eyebrow">초등학교 5학년 · {era.shortName} · {era.lessons.length}차시</p>
             <h1>{era.shortName} 수업</h1>
             <p>차시를 고른 뒤 수업 PPT를 띄우거나 웹앱 활동을 바로 실행하세요.</p>
           </div>
