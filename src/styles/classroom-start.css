@@ -1,0 +1,308 @@
+.classroom-tabs.classroom-tabs--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.classroom-start {
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--era-accent) 20%, #d7ddd9);
+  border-radius: 26px;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--era-soft) 56%, #ffffff) 0%, #fffef9 48%, #ffffff 100%);
+  box-shadow: 0 24px 70px rgba(29, 48, 40, 0.11);
+}
+
+.classroom-start__heading {
+  padding: clamp(28px, 5vw, 52px) clamp(24px, 5vw, 56px) 26px;
+}
+
+.classroom-start__heading > p {
+  margin: 0 0 9px;
+  color: var(--era-accent);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.classroom-start__heading h2 {
+  max-width: 900px;
+  margin: 0;
+  color: #18231f;
+  font-size: clamp(30px, 5vw, 54px);
+  line-height: 1.14;
+  letter-spacing: -0.045em;
+  word-break: keep-all;
+}
+
+.classroom-start__heading > span {
+  display: block;
+  max-width: 820px;
+  margin-top: 15px;
+  color: #5d6863;
+  font-size: clamp(14px, 1.8vw, 17px);
+  line-height: 1.7;
+  word-break: keep-all;
+}
+
+.classroom-start__cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(14px, 2.5vw, 24px);
+  padding: 8px clamp(20px, 4vw, 46px) 34px;
+}
+
+.classroom-start-card {
+  position: relative;
+  display: flex;
+  min-height: 318px;
+  padding: clamp(24px, 3.4vw, 38px);
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  border-radius: 23px;
+  text-decoration: none;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.classroom-start-card::after {
+  position: absolute;
+  right: -42px;
+  bottom: -68px;
+  width: 190px;
+  height: 190px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  content: "";
+  opacity: 0.1;
+}
+
+.classroom-start-card:hover,
+.classroom-start-card:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 50px rgba(26, 43, 36, 0.17);
+}
+
+.classroom-start-card:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--era-accent) 50%, white);
+  outline-offset: 3px;
+}
+
+.classroom-start-card--ppt {
+  border: 1px solid color-mix(in srgb, var(--era-accent) 35%, #c8d0cc);
+  background: #fffef9;
+  color: #1c2924;
+}
+
+.classroom-start-card--activity {
+  border: 1px solid var(--era-accent);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--era-accent) 91%, #193a30), var(--era-accent));
+  color: #ffffff;
+}
+
+.classroom-start-card__top {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.classroom-start-card__number {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.classroom-start-card--ppt .classroom-start-card__number {
+  color: var(--era-accent);
+}
+
+.classroom-start-card__icon {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border-radius: 18px;
+}
+
+.classroom-start-card--ppt .classroom-start-card__icon {
+  background: var(--era-soft);
+  color: var(--era-accent);
+}
+
+.classroom-start-card--activity .classroom-start-card__icon {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.classroom-start-card > div:nth-child(2) {
+  position: relative;
+  z-index: 1;
+  margin: 28px 0;
+}
+
+.classroom-start-card > div:nth-child(2) > p {
+  margin: 0 0 7px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.classroom-start-card--ppt > div:nth-child(2) > p {
+  color: var(--era-accent);
+}
+
+.classroom-start-card--activity > div:nth-child(2) > p {
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.classroom-start-card h3 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 43px);
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+}
+
+.classroom-start-card > div:nth-child(2) > span {
+  display: block;
+  max-width: 470px;
+  margin-top: 13px;
+  font-size: 14px;
+  line-height: 1.65;
+  word-break: keep-all;
+}
+
+.classroom-start-card--ppt > div:nth-child(2) > span {
+  color: #65706b;
+}
+
+.classroom-start-card--activity > div:nth-child(2) > span {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.classroom-start-card > strong {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+}
+
+.classroom-start__flow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 25px clamp(22px, 4vw, 46px) 30px;
+  border-top: 1px solid color-mix(in srgb, var(--era-accent) 18%, #d8dedb);
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.classroom-start__flow > div {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.classroom-start__flow b {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--era-accent);
+  color: #ffffff;
+  font-size: 12px;
+}
+
+.classroom-start__flow span,
+.classroom-start__flow strong,
+.classroom-start__flow small {
+  display: block;
+  min-width: 0;
+}
+
+.classroom-start__flow strong {
+  color: #25312c;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.classroom-start__flow small {
+  margin-top: 3px;
+  color: #707a75;
+  font-size: 11px;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+.classroom-start__flow > i {
+  color: color-mix(in srgb, var(--era-accent) 55%, #8d9993);
+  font-style: normal;
+  font-weight: 800;
+}
+
+.lesson-card__classroom-actions.lesson-card__classroom-actions--single {
+  grid-template-columns: minmax(150px, 1fr);
+}
+
+.lesson-card__classroom-actions--single a {
+  justify-content: center;
+}
+
+.lesson-card__classroom-actions--single a small {
+  margin-left: auto;
+  color: currentColor;
+  font-size: 10px;
+  font-weight: 700;
+  opacity: 0.62;
+}
+
+@media (max-width: 900px) {
+  .classroom-tabs.classroom-tabs--three {
+    grid-template-columns: 1fr;
+  }
+
+  .classroom-start__cards {
+    grid-template-columns: 1fr;
+  }
+
+  .classroom-start-card {
+    min-height: 270px;
+  }
+
+  .classroom-start__flow {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .classroom-start__flow > i {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .classroom-start {
+    border-radius: 18px;
+  }
+
+  .classroom-start__heading {
+    padding-inline: 20px;
+  }
+
+  .classroom-start__cards {
+    padding-inline: 14px;
+  }
+
+  .classroom-start-card {
+    min-height: 244px;
+    border-radius: 18px;
+  }
+
+  .classroom-start__flow {
+    padding-inline: 20px;
+  }
+}
