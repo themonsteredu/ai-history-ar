@@ -49,7 +49,7 @@ export function HomePage() {
             <p className="eyebrow">수업 시작</p>
             <h2>시대를 선택하세요</h2>
           </div>
-          <p>시대를 고르면 차시별 수업 PPT와 웹앱 활동이 바로 열립니다.</p>
+          <p>시대를 고르면 차시별 수업 PPT와 활동 화면이 바로 열립니다.</p>
         </div>
         <div className="era-card-grid">
           {eras.map((era, index) => (
@@ -61,7 +61,7 @@ export function HomePage() {
               <div className="era-card__body">
                 <p className="era-card__eyebrow">{era.eyebrow}</p>
                 <h3>{era.shortName}</h3>
-                <p>수업 PPT · 웹앱 활동 · 10차시</p>
+                <p>수업 PPT · 활동 화면 · {era.lessons.length}차시</p>
                 <Link className="era-card__link" to={era.route}>수업 열기 <Icon name="arrow" size={19} /></Link>
               </div>
             </article>

@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, HashRouter } from "react-router-dom";
 import { App } from "./App";
 import "./styles/global.css";
+import "./styles/classroom-start.css";
 
 const rootElement = document.getElementById("root");
 const Router = import.meta.env.BASE_URL === "/" ? BrowserRouter : HashRouter;

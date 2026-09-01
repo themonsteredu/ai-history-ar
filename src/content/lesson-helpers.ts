@@ -12,7 +12,7 @@ export const classroomModeInfo = {
     description: "인쇄 자료에 생각을 기록하기",
   },
   student: {
-    label: "학생 체험 웹앱",
+    label: "학생 활동 화면",
     shortLabel: "학생 직접 체험",
     description: "각자 체험하고 결과를 수업에서 활용하기",
   },

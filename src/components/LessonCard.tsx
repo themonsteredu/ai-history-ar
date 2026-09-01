@@ -18,10 +18,15 @@ export function LessonCard({ era, lesson, mode = "student" }: LessonCardProps) {
     return (
       <article className="lesson-card lesson-card--classroom" style={{ "--era-accent": era.accent } as React.CSSProperties}>
         <div className="lesson-card__number" aria-label={`${lesson.id}차시`}>{String(lesson.id).padStart(2, "0")}</div>
-        <div className="lesson-card__body"><PhaseBadge phase={lesson.phase} /><h3>{lesson.title}</h3></div>
-        <div className="lesson-card__classroom-actions">
-          <Link aria-label={`${lesson.id}차시 수업 PPT 열기`} to={`${path}?view=ppt`}><Icon name="book" size={19} /><span>수업 PPT</span></Link>
-          <Link aria-label={`${lesson.id}차시 ${activityMode.label} 열기`} to={`${path}?view=activity`}><Icon name={lesson.classroomMode === "worksheet" ? "book" : "spark"} size={19} /><span>{activityMode.label}</span></Link>
+        <div className="lesson-card__body">
+          <PhaseBadge phase={lesson.phase} />
+          <h3>{lesson.title}</h3>
+          <p>첫 화면에서 수업 PPT와 활동 화면을 선택합니다.</p>
+        </div>
+        <div className="lesson-card__classroom-actions lesson-card__classroom-actions--single">
+          <Link aria-label={`${lesson.id}차시 PPT와 활동 화면 선택 화면 열기`} to={path}>
+            <Icon name="arrow" size={19} /><span>수업 시작</span><small>PPT · {activityMode.label}</small>
+          </Link>
         </div>
       </article>
     );
