@@ -390,7 +390,7 @@ export const verificationCases: readonly VerificationCase[] = [
 
 /**
  * 2차시 공통 어휘.
- * PPT(scripts/generate_lesson2_onepage.py)·활동지·웹앱이 모두 이 표현을 그대로 사용합니다.
+ * PPT(scripts/generate_lesson2_onepage.py)·활동지·활동 화면이 모두 이 표현을 그대로 사용합니다.
  */
 export const judgementMarks = [
   { symbol: "○", meaning: "자료로 확인" },
@@ -494,7 +494,7 @@ export const lessonTwoStatementSets: readonly LessonTwoStatementSet[] = [
 
 /**
  * 4차시 공통 항목.
- * PPT(scripts/generate_lesson4_datacards.py)·활동지·웹앱·학급 표가 모두 이 일곱 이름을 그대로 사용합니다.
+ * PPT(scripts/generate_lesson4_datacards.py)·활동지·활동 화면·학급 표가 모두 이 일곱 이름을 그대로 사용합니다.
  * 여섯 모둠이 같은 항목을 채워야 학급 데이터 표의 한 줄이 됩니다.
  */
 export const dataCardFields = [
@@ -530,4 +530,59 @@ export function classTableCsv(rows: readonly ClassDataRow[]) {
     .sort((left, right) => left.groupId - right.groupId)
     .map((row) => [`${row.groupId}모둠`, row.heritage, ...dataCardFields.map((field) => row.values[field.id])]);
   return [classTableColumns, ...body].map((line) => line.map((cell) => escape(String(cell ?? ""))).join(",")).join("\r\n");
+}
+
+/**
+ * 5차시에서 학생이 직접 만드는 비교용 열.
+ * 4차시 일곱 항목은 한 칸에 두 가지 정보가 섞여 있다(예: "백제 무령왕 때, 6세기 초" = 나라 + 세기).
+ * 그 칸을 쪼개 아래 다섯 열을 만들어야 6~8차시에서 그래프를 그릴 수 있다.
+ * PPT(slides.ts)·활동지(generate_printables.py)·지도안이 이 낱말을 그대로 쓴다.
+ */
+export const cleaningColumns = [
+  { id: "country", label: "나라", from: "시기", standards: ["백제", "신라", "고구려", "가야"], rule: "네 나라 가운데 하나로 적습니다." },
+  { id: "century", label: "세기", from: "시기", standards: ["1", "4", "5", "6", "7"], rule: "숫자만 적습니다. 물결(~)이면 앞 숫자, ○○○년대는 그다음 세기입니다(500년대 = 6세기)." },
+  { id: "kind", label: "자료 종류", from: "유산", standards: ["무덤", "건축물", "공예품", "그림"], rule: "네 가지 가운데 하나로 적습니다." },
+  { id: "region", label: "지역", from: "현재 상태", standards: ["충청남도", "경상북도", "북한·중국", "영남 여러 곳"], rule: "지금 남아 있는 시·도로 적습니다. 두 곳에 나뉘어 있으면 ‘확인 필요’." },
+  { id: "institution", label: "확인 기관", from: "출처", standards: ["국가유산청", "국립중앙박물관", "국립공주박물관", "국립부여박물관", "유네스코 세계유산센터"], rule: "기관 하나만 적습니다. 비어 있으면 ‘확인 필요’." },
+] as const;
+
+/**
+ * 2차시 AI 답변에서 옮겨 온 줄.
+ * 사실은 틀리지 않았고 **표기와 빈칸만** 어긋난다.
+ * (정제 수업과 검증 수업을 섞지 않기 위해서다.)
+ */
+export const aiDraftRows: readonly { groupId: number; heritage: string; values: DataCardValues }[] = [
+  { groupId: 1, heritage: "무령왕릉", values: { period: "백 제 6세기", purpose: "왕과 왕비의 무덤", value: "백제 왕릉", condition: "공주", correction: "", unknown: "", source: "" } },
+  { groupId: 2, heritage: "백제 금동대향로", values: { period: "약 1500년 전", purpose: "의례에 쓰려고", value: "백제 공예", condition: "부여", correction: "", unknown: "", source: "" } },
+  { groupId: 3, heritage: "첨성대", values: { period: "신라국 600년대", purpose: "하늘을 보려고", value: "오래된 천문 건축물", condition: "경주시", correction: "", unknown: "", source: "" } },
+  { groupId: 4, heritage: "신라 금관", values: { period: "Silla 500년대", purpose: "권위를 드러내려고", value: "황금 문화", condition: "경주", correction: "", unknown: "", source: "" } },
+  { groupId: 5, heritage: "고구려 고분벽화", values: { period: "고구려 4~7세기", purpose: "무덤 안에 그림", value: "생활 모습", condition: "북한 중국", correction: "", unknown: "", source: "" } },
+  { groupId: 6, heritage: "가야 고분군", values: { period: "가야 1세기~6세기", purpose: "지배층 무덤", value: "세계유산", condition: "영남", correction: "", unknown: "", source: "" } },
+];
+
+/** 5차시 시작 파일의 열. 4차시 일곱 항목을 그대로 이어받는다. */
+export const lessonFiveStartColumns = ["모둠", "기록한 곳", "유산", ...dataCardFields.map((field) => field.label)] as const;
+
+/** 정제한 표의 열 이름. 시작 파일에 다섯 열을 더한 것이며 6~8차시 그래프는 이 표에서 그린다. */
+export const cleanedTableColumns = [...lessonFiveStartColumns, ...cleaningColumns.map((column) => column.label)] as const;
+
+/** 같은 모둠이 두 기기에서 올려 두 번 들어온 줄. 5차시 중복 정리 연습에 쓴다. */
+const duplicatedGroupIds = [1, 4];
+
+/**
+ * 5차시 시작 파일.
+ * 우리 모둠 줄 + 두 번 올라온 줄 + 2차시 AI 답변 줄을 합쳐 정제할 거리가 있는 표를 만든다.
+ */
+export function lessonFiveStartCsv(rows: readonly ClassDataRow[]) {
+  const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
+  const line = (groupId: number, origin: string, heritage: string, values: DataCardValues) =>
+    [`${groupId}모둠`, origin, heritage, ...dataCardFields.map((field) => values[field.id] ?? "")];
+
+  const ours = [...rows].sort((left, right) => left.groupId - right.groupId);
+  const body = [
+    ...ours.map((row) => line(row.groupId, "우리 모둠", row.heritage, row.values)),
+    ...ours.filter((row) => duplicatedGroupIds.includes(row.groupId)).map((row) => line(row.groupId, "우리 모둠", row.heritage, row.values)),
+    ...aiDraftRows.map((row) => line(row.groupId, "AI 답변", row.heritage, row.values)),
+  ];
+  return [lessonFiveStartColumns, ...body].map((cells) => cells.map((cell) => escape(String(cell ?? ""))).join(",")).join("\r\n");
 }

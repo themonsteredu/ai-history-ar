@@ -135,7 +135,7 @@ try {
 
   results.push(await inspectPage(desktop, "/teacher/three-kingdoms/tools", "삼국시대 외부 도구 설정"));
   const toolCards = await desktop.locator(".teacher-tool-card").count();
-  if (toolCards !== 10) throw new Error(`교사용 외부 도구 설정이 10개가 아닙니다: ${toolCards}개`);
+  if (toolCards !== lessons.length) throw new Error(`교사용 외부 도구 설정이 ${lessons.length}개가 아닙니다: ${toolCards}개`);
   const internalCards = await desktop.locator(".teacher-tool-internal-note").count();
   if (internalCards !== 5) throw new Error(`앱 내부 활동 설정이 5개가 아닙니다: ${internalCards}개`);
   await desktop.screenshot({ path: path.join(outputDirectory, "teacher-tools-desktop.png"), fullPage: true });
@@ -238,7 +238,7 @@ try {
   results.push(await inspectPage(mobile, "/teacher", "교사 설정 잠금"));
   await unlockTeacher(mobile);
   results.push(await inspectPage(mobile, "/teacher/three-kingdoms/tools", "삼국시대 외부 도구 설정"));
-  if (await mobile.locator(".teacher-tool-card").count() !== 10) throw new Error("모바일 교사 설정에 10개 차시가 보이지 않습니다.");
+  if (await mobile.locator(".teacher-tool-card").count() !== lessons.length) throw new Error(`모바일 교사 설정에 ${lessons.length}개 차시가 보이지 않습니다.`);
   await mobile.screenshot({ path: path.join(outputDirectory, "teacher-tools-mobile.png"), fullPage: true });
 
   console.log(JSON.stringify({ ok: true, lessons: lessons.length, verifiedSlideCount, toolCards, files, results }, null, 2));

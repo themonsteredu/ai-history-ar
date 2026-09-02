@@ -1,10 +1,16 @@
 import { describe, expect, it } from "vitest";
 import lessonTwoScript from "../../../scripts/generate_lesson2_onepage.py?raw";
 import lessonFourScript from "../../../scripts/generate_lesson4_datacards.py?raw";
+import starterCsv from "../../../public/data/three-kingdoms/heritage-data-starter.csv?raw";
+import cleanedCsv from "../../../public/data/three-kingdoms/heritage-data-cleaned.csv?raw";
 import {
   classTableColumns,
   classTableCsv,
+  cleanedTableColumns,
+  cleaningColumns,
   dataCardFields,
+  lessonFiveStartColumns,
+  lessonFiveStartCsv,
   judgementMarks,
   lessonTwoStatementSets,
   type ClassDataRow,
@@ -109,5 +115,72 @@ describe("4차시 자료 용어 일치", () => {
     values.correction = '‘도굴되었다"’ → 도굴되지 않았다';
     const csv = classTableCsv([{ groupId: 1, heritage: "무령왕릉", values, updatedAt: "" }]);
     expect(csv).toContain('"‘도굴되었다""’ → 도굴되지 않았다"');
+  });
+});
+
+/**
+ * 4차시가 모은 데이터가 5~8차시로 실제로 이어지는지 확인합니다.
+ * 이전에는 4차시를 자기 자신하고만 비교해서, 5차시 시작 파일과 열 이름이
+ * '시기' 하나만 겹치는데도 테스트가 통과했습니다.
+ */
+describe("4차시 → 5~8차시 데이터 연결", () => {
+  /** 따옴표 안의 쉼표까지 다루는 최소 CSV 파서. */
+  const parse = (csv: string) => csv.trim().split(/\r?\n/).map((line) => {
+    const cells: string[] = [];
+    let cell = "";
+    let quoted = false;
+    for (let index = 0; index < line.length; index += 1) {
+      const character = line[index];
+      if (character === '"') {
+        if (quoted && line[index + 1] === '"') { cell += '"'; index += 1; } else { quoted = !quoted; }
+      } else if (character === "," && !quoted) { cells.push(cell); cell = ""; } else { cell += character; }
+    }
+    cells.push(cell);
+    return cells;
+  });
+  const header = (csv: string) => parse(csv)[0];
+
+  it("5차시 시작 파일이 4차시 일곱 항목을 그대로 이어받는다", () => {
+    expect(lessonFiveStartColumns.slice(0, 3)).toEqual(["모둠", "기록한 곳", "유산"]);
+    for (const field of dataCardFields) {
+      expect(lessonFiveStartColumns, `시작 파일 열 ${field.label}`).toContain(field.label);
+    }
+    expect(header(starterCsv)).toEqual([...lessonFiveStartColumns]);
+  });
+
+  it("시작 파일에 정제할 거리(중복·AI 줄·빈 출처)가 들어 있다", () => {
+    const rows = starterCsv.trim().split(/\r?\n/).slice(1);
+    expect(rows.length, "시작 파일 줄 수").toBe(14);
+    expect(rows.length - new Set(rows).size, "완전히 같은 줄").toBeGreaterThanOrEqual(2);
+    expect(rows.filter((row) => row.includes("AI 답변")).length, "AI 답변 줄").toBe(6);
+    expect(rows.filter((row) => row.endsWith('""')).length, "출처가 빈 줄").toBeGreaterThanOrEqual(6);
+  });
+
+  it("웹앱이 만드는 시작 파일과 예비 파일의 열이 같다", () => {
+    const values = Object.fromEntries(dataCardFields.map((field) => [field.id, "값"])) as ClassDataRow["values"];
+    const csv = lessonFiveStartCsv([{ groupId: 1, heritage: "무령왕릉", values, updatedAt: "" }]);
+    expect(header(csv)).toEqual(header(starterCsv));
+  });
+
+  it("5차시가 만드는 다섯 열이 6~8차시 예비 파일에 들어 있다", () => {
+    expect(cleaningColumns.map((column) => column.label)).toEqual(["나라", "세기", "자료 종류", "지역", "확인 기관"]);
+    expect(header(cleanedCsv)).toEqual([...cleanedTableColumns]);
+  });
+
+  it("다섯 열 이름을 지도안·슬라이드·외부 도구가 함께 쓴다", () => {
+    const lesson = JSON.stringify(threeKingdomsLessons.filter((item) => item.id >= 5 && item.id <= 8));
+    const decks = [5, 6, 7, 8].map((id) => JSON.stringify(getThreeKingdomsSlides(id))).join(" ");
+    const tools = JSON.stringify(threeKingdomsExternalTools.filter((item) => item.lessonId >= 5 && item.lessonId <= 8));
+    for (const { label } of cleaningColumns) {
+      expect(`${lesson} ${decks} ${tools}`, `다섯 열 ${label}`).toContain(label);
+    }
+  });
+
+  it("6~8차시 그래프에 쓸 숫자 열과 범주 열이 실제로 있다", () => {
+    const [head, ...rows] = parse(cleanedCsv);
+    const columnAt = (label: string) => rows.map((row) => row[head.indexOf(label)]);
+    expect(columnAt("세기").every((value) => /^\d+$/.test(value)), "세기는 숫자여야 CODAP 가로축에 놓을 수 있다").toBe(true);
+    expect(new Set(columnAt("나라")).size, "나라 범주 수").toBeLessThan(rows.length);
+    expect(new Set(columnAt("자료 종류")).size, "자료 종류 범주 수").toBeLessThan(rows.length);
   });
 });

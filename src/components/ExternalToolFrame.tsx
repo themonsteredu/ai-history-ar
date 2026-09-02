@@ -9,7 +9,7 @@ export function ExternalToolFrame({ title, url, onClose }: ExternalToolFrameProp
     <section aria-label={`${title} 실행 화면`} className="external-tool-frame">
       <header>
         <div>
-          <span>웹앱 안에서 실행 중</span>
+          <span>이 화면 안에서 실행 중</span>
           <strong>{title}</strong>
         </div>
         <div>

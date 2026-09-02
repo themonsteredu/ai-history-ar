@@ -18,6 +18,12 @@ export const classroomModeInfo = {
   },
 } as const satisfies Record<ClassroomActivityMode, { label: string; shortLabel: string; description: string }>;
 
+const lessonTwoJudgementModeInfo = {
+  label: "AI 문장 판단",
+  shortLabel: "○×△? 판단",
+  description: "AI 문장 6개를 판단하고 확인한 출처 적기",
+} as const;
+
 const lessonFourDataModeInfo = {
   label: "데이터 만들기",
   shortLabel: "학급 데이터 표",
@@ -43,6 +49,7 @@ const arMuseumModeInfo = {
 } as const;
 
 export function getLessonActivityModeInfo(lesson: Lesson, eraId: EraId) {
+  if (eraId === "three-kingdoms" && lesson.id === 2) return lessonTwoJudgementModeInfo;
   if (eraId === "three-kingdoms" && lesson.id === 4) return lessonFourDataModeInfo;
   if (eraId === "three-kingdoms" && lesson.id >= 5 && lesson.id <= 8) return externalDataToolModeInfo;
   if (eraId === "three-kingdoms" && lesson.id === 9) return arDataExplanationModeInfo;

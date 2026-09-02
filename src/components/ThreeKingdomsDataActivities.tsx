@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   classTableColumns,
   classTableCsv,
+  lessonFiveStartCsv,
   dataCardFields,
   emptyDataCard,
   heritageResearchCases,
@@ -211,8 +212,10 @@ export function LessonFourDataBuilder() {
     }
   }, []);
 
-  const csv = useMemo(() => classTableCsv(rows), [rows]);
-  const csvHref = useMemo(() => `data:text/csv;charset=utf-8,﻿${encodeURIComponent(csv)}`, [csv]);
+  const csvHref = useMemo(() => `data:text/csv;charset=utf-8,﻿${encodeURIComponent(classTableCsv(rows))}`, [rows]);
+  // 5차시 시작 파일에는 2차시 AI 답변 줄과 두 번 올라온 줄이 함께 들어간다.
+  // 정제할 거리(표기 흔들림·중복·빈 출처)가 있어야 5차시 수업이 성립한다.
+  const startFileHref = useMemo(() => `data:text/csv;charset=utf-8,﻿${encodeURIComponent(lessonFiveStartCsv(rows))}`, [rows]);
 
   function startGroup(nextGroupId: number) {
     const saved = readClassTable().find((row) => row.groupId === nextGroupId);
@@ -337,9 +340,14 @@ export function LessonFourDataBuilder() {
             <span>학급 데이터 표 · 실시간</span>
             <h3 id="class-table-title">여섯 모둠 가운데 {rows.length}모둠이 올렸습니다</h3>
           </div>
-          <a className="button button--gold" download="three-kingdoms-class-data.csv" href={csvHref}>
-            <Icon name="download" size={17} />교사용 · 5차시 시작 CSV 내보내기
-          </a>
+          <div className="data-builder__exports">
+            <a className="button button--outline" download="three-kingdoms-class-data.csv" href={csvHref}>
+              <Icon name="download" size={17} />학급 데이터 표 CSV
+            </a>
+            <a className="button button--gold" download="three-kingdoms-lesson5-start.csv" href={startFileHref}>
+              <Icon name="download" size={17} />교사용 · 5차시 시작 파일
+            </a>
+          </div>
         </header>
         <div className="data-builder__table-scroll">
           <table>
@@ -369,6 +377,7 @@ export function LessonFourDataBuilder() {
         <p aria-live="polite" className="data-builder__status" role="status">{status}</p>
         <p className="data-builder__note">
           학급 표는 이 기기에 저장되며, 같은 브라우저의 다른 탭에는 바로 반영됩니다. 다른 기기의 모둠은 카드 코드를 복사해 교사 화면에서 합칩니다.
+          5차시 시작 파일에는 2차시 AI 답변으로 만든 줄과 두 번 올라온 줄이 함께 들어갑니다.
         </p>
       </section>
     </div>

@@ -30,7 +30,7 @@ export function HomePage() {
             </h1>
             <p className="home-hero__lead">
               문화유산을 살펴보고, 출처를 확인하고, 우리 말로 설명합니다.<br />
-              삼국시대와 조선시대를 만나는 20차시 AR 역사 수업입니다.
+              삼국시대와 조선시대를 만나는 {eras.reduce((total, era) => total + era.lessons.length, 0)}차시 AR 역사 수업입니다.
             </p>
             <div className="home-hero__actions">
               <button className="button home-hero__primary" type="button" onClick={scrollToCourses}>

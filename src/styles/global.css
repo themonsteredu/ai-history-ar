@@ -9462,6 +9462,12 @@ input:focus-visible {
   font-size: 19px;
 }
 
+.data-builder__exports {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .data-builder__table-scroll {
   overflow-x: auto;
 }

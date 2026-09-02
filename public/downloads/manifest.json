@@ -4,7 +4,7 @@
       "title": "삼국시대",
       "bundle": {
         "path": "/downloads/three-kingdoms/three-kingdoms-all-materials.zip",
-        "size": 1091806
+        "size": 3467832
       },
       "lessons": [
         {
@@ -17,7 +17,7 @@
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-01-teacher.pdf",
-              "size": 58989
+              "size": 58847
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-01-answer.pdf",
@@ -25,7 +25,7 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-01-all.zip",
-              "size": 111099
+              "size": 110969
             }
           }
         },
@@ -39,15 +39,15 @@
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-02-teacher.pdf",
-              "size": 77184
+              "size": 78205
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-02-answer.pdf",
-              "size": 70042
+              "size": 70932
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-02-all.zip",
-              "size": 566953
+              "size": 568832
             },
             "ppt": {
               "path": "/downloads/three-kingdoms/lesson-02-teaching.pptx",
@@ -106,28 +106,6 @@
           }
         },
         {
-          "lessonId": 3,
-          "title": "진짜인지 확인하는 방법",
-          "files": {
-            "student": {
-              "path": "/downloads/three-kingdoms/lesson-03-student.pdf",
-              "size": 27838
-            },
-            "teacher": {
-              "path": "/downloads/three-kingdoms/lesson-03-teacher.pdf",
-              "size": 53681
-            },
-            "answer": {
-              "path": "/downloads/three-kingdoms/lesson-03-answer.pdf",
-              "size": 32265
-            },
-            "bundle": {
-              "path": "/downloads/three-kingdoms/lesson-03-all.zip",
-              "size": 103513
-            }
-          }
-        },
-        {
           "lessonId": 4,
           "title": "우리 모둠 데이터 만들기",
           "files": {
@@ -145,7 +123,7 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-04-all.zip",
-              "size": 414746
+              "size": 414737
             },
             "ppt": {
               "path": "/downloads/three-kingdoms/lesson-04-teaching.pptx",
@@ -209,11 +187,11 @@
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-05-student.pdf",
-              "size": 27940
+              "size": 28349
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-05-teacher.pdf",
-              "size": 50453
+              "size": 50702
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-05-answer.pdf",
@@ -221,7 +199,7 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-05-all.zip",
-              "size": 108539
+              "size": 109117
             }
           }
         },
@@ -235,7 +213,7 @@
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-06-teacher.pdf",
-              "size": 48136
+              "size": 49359
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-06-answer.pdf",
@@ -243,7 +221,7 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-06-all.zip",
-              "size": 99019
+              "size": 100219
             }
           }
         },
@@ -257,7 +235,7 @@
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-07-teacher.pdf",
-              "size": 46522
+              "size": 47926
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-07-answer.pdf",
@@ -265,7 +243,7 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-07-all.zip",
-              "size": 101706
+              "size": 103092
             }
           }
         },
@@ -279,7 +257,7 @@
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-08-teacher.pdf",
-              "size": 47950
+              "size": 48167
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-08-answer.pdf",
@@ -287,7 +265,7 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-08-all.zip",
-              "size": 106527
+              "size": 106774
             }
           }
         },
@@ -301,7 +279,7 @@
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-09-teacher.pdf",
-              "size": 52388
+              "size": 52135
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-09-answer.pdf",
@@ -309,7 +287,7 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-09-all.zip",
-              "size": 106157
+              "size": 105897
             }
           }
         },
@@ -323,7 +301,7 @@
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-10-teacher.pdf",
-              "size": 56310
+              "size": 56448
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-10-answer.pdf",
@@ -331,7 +309,7 @@
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-10-all.zip",
-              "size": 114187
+              "size": 114319
             }
           }
         }
@@ -341,7 +319,7 @@
       "title": "조선시대",
       "bundle": {
         "path": "/downloads/joseon/joseon-all-materials.zip",
-        "size": 1147087
+        "size": 3445847
       },
       "lessons": [
         {
@@ -460,7 +438,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-03-all.zip",
-              "size": 104989
+              "size": 104988
             }
           }
         },
@@ -482,7 +460,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-04-all.zip",
-              "size": 110177
+              "size": 110174
             }
           }
         },
@@ -504,7 +482,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-05-all.zip",
-              "size": 111193
+              "size": 111192
             }
           }
         },
@@ -526,7 +504,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-06-all.zip",
-              "size": 149332
+              "size": 149328
             }
           }
         },
@@ -548,7 +526,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-07-all.zip",
-              "size": 111926
+              "size": 111925
             }
           }
         },
@@ -614,7 +592,7 @@
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-10-all.zip",
-              "size": 116689
+              "size": 116686
             }
           }
         }

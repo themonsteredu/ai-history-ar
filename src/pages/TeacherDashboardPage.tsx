@@ -33,7 +33,7 @@ export function TeacherDashboardPage() {
           </div>
           <div className="teacher-hero__summary">
             <div><span>수업 과정</span><strong>2</strong><small>시대</small></div>
-            <div><span>전체 차시</span><strong>20</strong><small>차시</small></div>
+            <div><span>전체 차시</span><strong>{eras.reduce((total, era) => total + era.lessons.length, 0)}</strong><small>차시</small></div>
             <div><span>현재 자료</span><strong>{worksheetCount}</strong><small>종 구성</small></div>
           </div>
         </div>

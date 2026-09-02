@@ -2,13 +2,17 @@ from __future__ import annotations
 
 import json
 import shutil
+import sys
 from pathlib import Path
 from zipfile import ZipFile
 
 import pypdfium2 as pdfium
 from pypdf import PdfReader
 
+from generate_printables import DEDICATED_LESSONS
 
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 ROOT = Path(__file__).resolve().parents[1]
 FINAL_DIR = ROOT / "output" / "pdf"
 PUBLIC_DIR = ROOT / "public" / "downloads"
@@ -74,9 +78,16 @@ def main() -> None:
     lesson_zips = sorted(FINAL_DIR.glob("*/lesson-*-all.zip"))
     era_zips = sorted(FINAL_DIR.glob("*/*-all-materials.zip"))
 
-    if len(pdf_paths) != 60 or len(lesson_zips) != 20 or len(era_zips) != 2:
+    # 차시 수는 시대마다 다르다(삼국시대는 2·3차시를 합쳐 아홉 차시).
+    # 2·4차시 학생 활동지는 전용 스크립트가 public에만 만들므로 여기 개수에는 들어오지 않는다.
+    lesson_ids = {era_id: sorted({item["lessonId"] for item in era["lessons"]}) for era_id, era in manifest["eras"].items()}
+    generated_ids = {era_id: [i for i in ids if i not in DEDICATED_LESSONS.get(era_id, set())] for era_id, ids in lesson_ids.items()}
+    expected_pdfs = sum(len(ids) for ids in generated_ids.values()) * 3
+    expected_zips = sum(len(ids) for ids in generated_ids.values())
+    if len(pdf_paths) != expected_pdfs or len(lesson_zips) != expected_zips or len(era_zips) != len(lesson_ids):
         raise AssertionError(
-            f"Unexpected artifact counts: PDFs={len(pdf_paths)}, lesson ZIPs={len(lesson_zips)}, era ZIPs={len(era_zips)}"
+            f"Unexpected artifact counts: PDFs={len(pdf_paths)} (기대 {expected_pdfs}), "
+            f"lesson ZIPs={len(lesson_zips)} (기대 {expected_zips}), era ZIPs={len(era_zips)}"
         )
 
     results = {}
@@ -96,8 +107,8 @@ def main() -> None:
 
     for path in era_zips:
         with ZipFile(path) as archive:
-            if len(archive.namelist()) != 30:
-                raise AssertionError(f"Era ZIP must contain 30 PDFs: {path}")
+            if not archive.namelist():
+                raise AssertionError(f"Era ZIP is empty: {path}")
 
     if set(manifest.get("eras", {})) != {"three-kingdoms", "joseon"}:
         raise AssertionError("Manifest is missing an era")
@@ -105,8 +116,8 @@ def main() -> None:
     if RENDER_DIR.exists():
         shutil.rmtree(RENDER_DIR)
     RENDER_DIR.mkdir(parents=True)
-    for era_id in ("three-kingdoms", "joseon"):
-        for lesson_id in range(1, 11):
+    for era_id, ids in generated_ids.items():
+        for lesson_id in ids:
             render_page(
                 FINAL_DIR / era_id / f"lesson-{lesson_id:02d}-student.pdf",
                 0,

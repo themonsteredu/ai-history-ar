@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import zipfile
 from pathlib import Path
@@ -55,6 +56,12 @@ SOURCES = {
     "종묘와 종묘제례악": ("국가유산청 종묘", "https://www.heritage.go.kr/heri/html/HtmlPage.do?pageNo=2_1_1_0&pg=%2Funesco%2FHeritage%2FHeritage_03.jsp"),
     "난중일기": ("국가유산청 난중일기", "https://heritage.go.kr/heri/html/HtmlPage.do?amppageNo=1_1_4_0&pg=%2Funesco%2FMemHeritage%2FMemHeritage_10.jsp"),
 }
+
+
+# 삼국시대 2·4차시 학생 활동지·PPT는 전용 스크립트가 만듭니다.
+# (scripts/generate_lesson2_onepage.py, scripts/generate_lesson4_datacards.py)
+# 이 스크립트는 해당 차시 파일을 만들지도 지우지도 않고 목록에만 넣습니다.
+DEDICATED_LESSONS = {"three-kingdoms": {2, 4}}
 
 
 LESSON_FOUR_NOTES = {
@@ -346,21 +353,12 @@ def three_kingdoms_data_sheet(era, lesson, width, st):
         flow += [data_table(questions, [width * .12, width * .34, width * .54], st, row_heights=[10 * mm] + [16 * mm] * 6), Spacer(1, 5 * mm)]
         flow += [ruled_box("1. 궁금한 정보에 동그라미", "시기  ·  지역  ·  재료  ·  발견 장소  ·  쓰임", width, 42 * mm, st), Spacer(1, 4 * mm)]
         flow += [ruled_box("2. 질문을 골라 말하기", "□ 언제 만들었을까?   □ 어디에서 발견됐을까?\n□ 무엇으로 만들었을까?   □ 어디에 썼을까?", width, 62 * mm, st)]
-    elif lesson_id == 2:
-        rows = [["문장", "내 선택", "이유 카드"]] + [[str(index), "□ 자료와 맞음  □ 확인 필요", "□ 출처 없음  □ 너무 확실함  □ 시대 불일치"] for index in range(1, 7)]
-        flow += [data_table(rows, [width * .1, width * .37, width * .53], st, row_heights=[10 * mm] + [24 * mm] * 6), Spacer(1, 5 * mm)]
-        flow += [ruled_box("교사 답과 비교한 뒤", "□ 내 선택과 같음   □ 생각을 바꿈   □ 아직 더 확인하고 싶음", width, 62 * mm, st)]
     elif lesson_id == 3:
         compare_rows = [["자료", "출처", "날짜", "원본", "판단"], ["국가기관", "□", "□", "□", "□ 확인  □ 주의  □ 보류"], ["블로그", "□", "□", "□", "□ 확인  □ 주의  □ 보류"], ["AI 요약", "□", "□", "□", "□ 확인  □ 주의  □ 보류"]]
         flow += [data_table(compare_rows, [width * .18, width * .12, width * .12, width * .12, width * .46], st, row_heights=[10 * mm] + [30 * mm] * 3), Spacer(1, 5 * mm)]
         verify_rows = [["검증 5단계", "출처", "시기", "교차", "원본", "보류"], ["해 보았나요?", "□", "□", "□", "□", "□"]]
         flow += [data_table(verify_rows, [width * .24] + [width * .152] * 5, st, row_heights=[16 * mm, 28 * mm]), Spacer(1, 5 * mm)]
         flow += [ruled_box("마지막 선택", "□ 확인해서 사용   □ 더 확인   □ 아직 모름", width, 62 * mm, st)]
-    elif lesson_id == 4:
-        investigation_rows = [["조사 항목", "찾음", "핵심 낱말만"]] + [[label, "□", ""] for label in ["제작 시기", "만든 사람·집단", "유산의 가치", "현재 상태"]]
-        flow += [data_table(investigation_rows, [width * .28, width * .14, width * .58], st, row_heights=[10 * mm] + [26 * mm] * 4), Spacer(1, 5 * mm)]
-        flow += [sheet_columns([ruled_box("AI 설명 고르기", "□ 틀림  □ 과장  □ 근거 없음  □ 문제 없음", width * .47, 62 * mm, st)], [ruled_box("자료로 확인 안 됨", "□ 아직 모름에 남김", width * .47, 62 * mm, st)], width, st), Spacer(1, 4 * mm)]
-        flow += [ruled_box("출처 번호만 적기", "□ 자료 1   □ 자료 2   □ 자료 3   자료집 쪽: ______", width, 46 * mm, st)]
     elif lesson_id == 5:
         rows = [["번호", "문제 종류", "고침", "확인"]] + [[str(index), "□ 중복  □ 빈칸  □ 표기  □ 출처", "□", "□"] for index in range(1, 7)]
         flow += [data_table(rows, [width * .1, width * .56, width * .17, width * .17], st, row_heights=[10 * mm] + [21 * mm] * 6), Spacer(1, 5 * mm)]
@@ -940,27 +938,53 @@ def build_pdf(era, lesson, audience, destination):
     doc.build(story, onFirstPage=lambda c, d: document_header(c, d, era, lesson, audience), onLaterPages=lambda c, d: document_header(c, d, era, lesson, audience))
 
 
+def lesson_number(filename):
+    """`lesson-04-student.pdf` 같은 이름에서 차시 번호를 뽑는다. 차시 파일이 아니면 None."""
+    match = re.match(r"lesson-(\d{2})-", filename)
+    return int(match.group(1)) if match else None
+
+
+def dedicated_lesson_entry(public_era, era_id, lesson):
+    """전용 스크립트가 만든 차시. 파일을 건드리지 않고 이미 있는 것만 목록에 넣는다."""
+    files = {}
+    for key, name in (
+        ("student", f"lesson-{lesson['id']:02d}-student.pdf"),
+        ("teacher", f"lesson-{lesson['id']:02d}-teacher.pdf"),
+        ("answer", f"lesson-{lesson['id']:02d}-answer.pdf"),
+        ("bundle", f"lesson-{lesson['id']:02d}-all.zip"),
+        ("ppt", f"lesson-{lesson['id']:02d}-teaching.pptx"),
+    ):
+        path = public_era / name
+        if path.exists():
+            files[key] = {"path": f"/downloads/{era_id}/{name}", "size": path.stat().st_size}
+    return {"lessonId": lesson["id"], "title": lesson["title"], "files": files}
+
+
 def main():
     register_fonts()
     payload = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+    # output/pdf는 이 스크립트의 작업 폴더라 비워도 되지만,
+    # public/downloads에는 전용 스크립트가 만든 자료가 함께 있으므로 지우지 않는다.
     if OUTPUT_ROOT.exists():
         shutil.rmtree(OUTPUT_ROOT)
     OUTPUT_ROOT.mkdir(parents=True)
     PUBLIC_ROOT.mkdir(parents=True, exist_ok=True)
-    for era in payload["eras"]:
-        public_era = PUBLIC_ROOT / era["id"]
-        if public_era.exists():
-            shutil.rmtree(public_era)
     manifest = {"eras": {}}
     pdf_count = 0
     for era in payload["eras"]:
         output_era = OUTPUT_ROOT / era["id"]
         public_era = PUBLIC_ROOT / era["id"]
         output_era.mkdir()
-        public_era.mkdir()
+        public_era.mkdir(parents=True, exist_ok=True)
+        dedicated = DEDICATED_LESSONS.get(era["id"], set())
+        # 이번 과정에서 빠진 차시의 옛 파일이 남아 있으면 목록·묶음에서 제외한다.
+        current_ids = {lesson["id"] for lesson in era["lessons"]}
         lesson_entries = []
         era_files = []
         for lesson in era["lessons"]:
+            if lesson["id"] in dedicated:
+                lesson_entries.append(dedicated_lesson_entry(public_era, era["id"], lesson))
+                continue
             files = {}
             for audience_key, audience_label in (("student", "학생용"), ("teacher", "교사용")):
                 filename = f"lesson-{lesson['id']:02d}-{audience_key}.pdf"
@@ -986,16 +1010,24 @@ def main():
             shutil.copy2(lesson_zip_output, public_era / lesson_zip_name)
             files["bundle"] = {"path": f"/downloads/{era['id']}/{lesson_zip_name}", "size": lesson_zip_output.stat().st_size}
             lesson_entries.append({"lessonId": lesson["id"], "title": lesson["title"], "files": files})
+        # 시대 전체 묶음은 실제로 배포되는 public/downloads에서 모은다.
+        # 전용 스크립트가 만든 2·4차시 자료까지 담기고, 과정에서 빠진 차시는 빠진다.
         era_zip_name = f"{era['id']}-all-materials.zip"
         era_zip_output = output_era / era_zip_name
+        bundled = sorted(
+            file
+            for file in public_era.iterdir()
+            if file.is_file() and file.name != era_zip_name and lesson_number(file.name) in current_ids | {None}
+        )
         with zipfile.ZipFile(era_zip_output, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
-            for file_path in era_files:
-                archive.write(file_path, arcname=f"{era['shortName']}/{file_path.name}")
+            for file_path in bundled:
+                archive.write(file_path, arcname=file_path.name)
         shutil.copy2(era_zip_output, public_era / era_zip_name)
         manifest["eras"][era["id"]] = {"title": era["shortName"], "bundle": {"path": f"/downloads/{era['id']}/{era_zip_name}", "size": era_zip_output.stat().st_size}, "lessons": lesson_entries}
     (PUBLIC_ROOT / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     (OUTPUT_ROOT / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"Generated {pdf_count} PDFs, 20 lesson ZIPs and 2 era ZIPs.")
+    lesson_zip_count = sum(len(era["lessons"]) for era in payload["eras"])
+    print(f"Generated {pdf_count} PDFs, {lesson_zip_count} lesson ZIPs and {len(payload['eras'])} era ZIPs.")
 
 
 if __name__ == "__main__":

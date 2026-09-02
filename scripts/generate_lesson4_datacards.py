@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import zipfile
 from pathlib import Path
 from typing import Any, Iterable
@@ -638,6 +639,20 @@ def ppt(path: Path, regular: str, heavy: str) -> None:
     prs.save(str(path))
 
 
+def current_lesson_ids(output: Path, era_id: str) -> set[int]:
+    """manifest에 남아 있는 차시만 시대 묶음에 넣는다. 과정에서 빠진 차시의 옛 파일은 제외."""
+    path = output / "manifest.json"
+    if not path.exists():
+        return set()
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {item["lessonId"] for item in data.get("eras", {}).get(era_id, {}).get("lessons", [])}
+
+
+def in_current_course(filename: str, lesson_ids: set[int]) -> bool:
+    match = re.match(r"lesson-(\d{2})-", filename)
+    return True if not match else int(match.group(1)) in lesson_ids
+
+
 def rebuild(zip_path: Path, files: Iterable[Path], base: Path) -> None:
     temp = zip_path.with_suffix(".tmp.zip")
     with zipfile.ZipFile(temp, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
@@ -698,7 +713,8 @@ def main() -> None:
     deck = directory / "lesson-04-teaching.pptx"; ppt(deck, regular_name, heavy_name)
     rebuild(directory / "lesson-04-all.zip", [student, teacher, answer, deck, *groups], directory)
     era_zip = directory / f'{ERA["id"]}-all-materials.zip'
-    rebuild(era_zip, [f for f in directory.iterdir() if f.is_file() and f.name != era_zip.name], directory)
+    lesson_ids = current_lesson_ids(output, ERA["id"])
+    rebuild(era_zip, [f for f in directory.iterdir() if f.is_file() and f.name != era_zip.name and in_current_course(f.name, lesson_ids)], directory)
     update_manifest(output)
     print(f"Generated lesson 4 data-card materials in {directory}")
 

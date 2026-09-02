@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build && node scripts/build-sites-worker.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "generate:printables": "node scripts/export-curriculum.mjs && python scripts/generate_printables.py",
+    "generate:printables": "node scripts/export-curriculum.mjs && python scripts/generate_printables.py && python scripts/generate_lesson2_onepage.py && python scripts/generate_lesson4_datacards.py",
     "verify:printables": "python scripts/verify_printables.py",
     "verify:ui": "node scripts/verify-ui.mjs",
     "compile:ar-targets": "node scripts/compile-ar-targets.mjs",
