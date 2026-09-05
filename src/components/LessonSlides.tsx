@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { CodapStep } from './CodapTutorial';
 import {
   getThreeKingdomsSlides,
   type HeritageImageKey,
@@ -90,6 +91,7 @@ function revealClass(visible: boolean) {
 }
 
 function getRevealCount(slide: PresentationSlide) {
+  if (slide.kind === "tutorial") return 1;
   if (slide.kind === "fact") return slide.points.length + (slide.takeaway ? 1 : 0);
   if (slide.kind === "compare") return 2;
   if (slide.kind === "activity") return slide.steps.length;
@@ -273,6 +275,7 @@ function GallerySlide({ slide, revealStep }: { slide: Extract<LessonSlide, { kin
 function ClassSlide({ slide, revealStep }: { slide: PresentationSlide; revealStep: number }) {
   const artifact = artifactByKey[slide.image];
 
+  if (slide.kind === "tutorial") return <section className="class-slide class-slide--tutorial"><CodapStep key={slide.tutorial.id} step={slide.tutorial} index={slide.stepIndex} showCheck={revealStep >= 1} /></section>;
   if (slide.kind === "prompt") return <PromptSlideView slide={slide} />;
   if (slide.kind === "fact") return <FactSlide revealStep={revealStep} slide={slide} />;
   if (slide.kind === "compare") return <CompareSlide revealStep={revealStep} slide={slide} />;
@@ -317,6 +320,7 @@ export function LessonSlides({ lessonId }: { lessonId: number }) {
   const viewerRef = useRef<HTMLDivElement>(null);
   const slide = slides[current];
   const revealTotal = getRevealCount(slide);
+  const tutorialStart = slides.findIndex(item => item.kind === 'tutorial');
 
   const goTo = (index: number) => {
     setCurrent(Math.min(slides.length - 1, Math.max(0, index)));
@@ -369,6 +373,7 @@ export function LessonSlides({ lessonId }: { lessonId: number }) {
           <p>교실 화면용 · 질문 → 생각 → 클릭 공개</p>
           <h2 id={`lesson-slides-title-${lessonId}`}>{lessonId}차시 수업 슬라이드</h2>
         </div>
+        {tutorialStart >= 0 && <button className="lesson-slides__tutorial-start" type="button" onClick={() => goTo(tutorialStart)}>CODAP 따라하기부터 보기</button>}
         <button className="lesson-slides__fullscreen" type="button" onClick={enterFullscreen}>전체 화면으로 수업하기</button>
       </div>
 

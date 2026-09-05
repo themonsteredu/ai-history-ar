@@ -1,4 +1,5 @@
 import { getContinuitySlides } from './continuitySlides';
+import type { CodapTutorialStep } from './codapTutorial';
 export type HeritageImageKey = "muryeong" | "incense" | "cheomseongdae" | "crown" | "mural" | "gaya";
 
 export interface SlideSource {
@@ -12,6 +13,7 @@ interface SlideBase {
 }
 
 export type LessonSlide =
+  | (SlideBase & { kind: "tutorial"; title: string; tutorial: CodapTutorialStep; stepIndex: number })
   | (SlideBase & { kind: "cover"; tag: string; title: string; subtitle: string })
   | (SlideBase & { kind: "fact"; eyebrow: string; title: string; points: readonly string[]; takeaway?: string })
   | (SlideBase & {
