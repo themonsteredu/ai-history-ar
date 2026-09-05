@@ -1,4 +1,6 @@
 import { heritageResearchCases } from './webActivities';
+import { cheomseongdaeModel } from './arModels';
+import { arExhibitReady, isArExhibit, MAX_PROJECT_BYTES, type ArExhibit } from '../../lib/ar/exhibit';
 
 export const evidenceCategories = ['시기·발견', '재료·구조', '모양·장면', '사용·생활'] as const;
 export const evidenceStatuses = ['확인됨', '판단 보류', '추가 확인'] as const;
@@ -27,6 +29,7 @@ export interface HeritageProject {
   limitation: string;
   inference: { evidenceIds: string[]; sentence: string; limit: string };
   exhibit: { focusId: string; effect: '표시' | '확대'; action: '특징 찾기' | '근거 고르기'; tested: boolean };
+  ar?: ArExhibit;
   savedAt: string;
 }
 export const PROJECT_STORAGE_KEY = 'moa-history-ar:research-project:v1';
@@ -73,7 +76,7 @@ export function projectReadiness(project: HeritageProject) {
   const interpreted = graphed && !!project.interpretation.trim() && !!project.limitation.trim();
   const evidence = project.records.filter(record => project.inference.evidenceIds.includes(record.id) && record.status === '확인됨');
   const inferred = interpreted && new Set(evidence.map(record => normalized(record.text))).size === 2 && !!project.inference.sentence.trim() && !!project.inference.limit.trim();
-  const planned = inferred && evidence.some(record => record.id === project.exhibit.focusId);
+  const planned = inferred && evidence.some(record => record.id === project.exhibit.focusId) && (!project.ar || arExhibitReady(project.ar));
   return { research, cleaned, graphed, interpreted, inferred, planned, exhibited: planned && project.exhibit.tested };
 }
 export function updateRecords(project: HeritageProject, records: ResearchRecord[]): HeritageProject {
@@ -81,7 +84,7 @@ export function updateRecords(project: HeritageProject, records: ResearchRecord[
     inference: { evidenceIds: [], sentence: '', limit: '' }, exhibit: { ...project.exhibit, focusId: '', tested: false } };
 }
 export function parseProject(text: string): HeritageProject {
-  if (text.length > 2_800_000) throw new Error('파일이 너무 커요. ‘오늘 작업 저장하기’로 받은 파일을 골라 주세요.');
+  if (text.length > MAX_PROJECT_BYTES) throw new Error('파일이 너무 커요. ‘오늘 작업 저장하기’로 받은 파일을 골라 주세요.');
   const value = JSON.parse(text) as HeritageProject;
   const short = (v: unknown, max = 1500): v is string => typeof v === 'string' && v.length <= max;
   if (value?.version !== 1 || !Number.isInteger(value.group) || value.group < 1 || value.group > 6 || !Number.isInteger(value.heritageId) || value.heritageId < 1 || value.heritageId > 6 ||
@@ -94,6 +97,8 @@ export function parseProject(text: string): HeritageProject {
     (value.graph.image !== '' && !/^data:image\/png;base64,[A-Za-z0-9+/]+=*$/.test(value.graph.image)) ||
     !short(value.interpretation) || !short(value.limitation) || !value.inference || !Array.isArray(value.inference.evidenceIds) || value.inference.evidenceIds.length > 2 || value.inference.evidenceIds.some(id => !short(id, 100)) || !short(value.inference.sentence) || !short(value.inference.limit) ||
     !value.exhibit || !short(value.exhibit.focusId) || !['표시', '확대'].includes(value.exhibit.effect) || !['특징 찾기', '근거 고르기'].includes(value.exhibit.action) || typeof value.exhibit.tested !== 'boolean') throw new Error('삼국시대 수업에서 ‘오늘 작업 저장하기’로 받은 파일을 골라 주세요.');
+  if (value.ar !== undefined && !isArExhibit(value.ar)) throw new Error('AR 설명점이나 녹음 자료가 손상되었어요. 저장한 원본 파일을 다시 골라 주세요.');
+  if (value.ar?.model?.asset === 'cheomseongdae-nsm-2015') value.ar.model = { ...cheomseongdaeModel(), rotation: value.ar.model.rotation };
   return value;
 }
 export function csvCell(value: string) { return `"${(/^[\s]*[=+@-]/.test(value) ? "'" : '') + value.replaceAll('"', '""')}"`; }

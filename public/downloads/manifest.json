@@ -4,7 +4,7 @@
       "title": "삼국시대",
       "bundle": {
         "path": "/downloads/three-kingdoms/three-kingdoms-all-materials.zip",
-        "size": 1529860
+        "size": 1531100
       },
       "lessons": [
         {
@@ -217,23 +217,23 @@
         },
         {
           "lessonId": 9,
-          "title": "데이터 해석을 AR로 표현하기",
+          "title": "우리 목소리로 안내하는 AR 전시",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-09-student.pdf",
-              "size": 34469
+              "size": 33916
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-09-teacher.pdf",
-              "size": 45887
+              "size": 46599
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-09-answer.pdf",
-              "size": 39734
+              "size": 40815
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-09-all.zip",
-              "size": 110484
+              "size": 111724
             }
           }
         },

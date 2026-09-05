@@ -1,7 +1,9 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { lessonTwoStorageKey } from '../lib/careerLogKeys';
-import { readResilientStorage, writeResilientStorage } from '../lib/resilientStorage';
+import { readResilientStorage } from '../lib/resilientStorage';
+import { loadProjectDraft, saveProjectDraft } from '../lib/projectDraftStore';
+import { MAX_PROJECT_BYTES, newArExhibit } from '../lib/ar/exhibit';
 import { heritageResearchCases } from '../content/three-kingdoms/webActivities';
 import { downloadProjectFile, evidenceCategories, evidenceStatuses, newProject, parseProject, PROJECT_STORAGE_KEY, projectCsv, projectReadiness, recordProblems, sourceUrl, summarizeRecords, updateRecords, type HeritageProject, type ResearchRecord } from '../content/three-kingdoms/project';
 import { ExternalToolActivity } from './ExternalToolActivity';
@@ -12,6 +14,7 @@ import { projectStages as stages, projectRequirements as requirements, statusLab
 import '../styles/heritage-project.css';
 
 const TrackedHeritageAr = lazy(() => import('./TrackedHeritageAr'));
+const ArExhibitEditor = lazy(() => import('./ArExhibitEditor'));
 
 function readDraft(key: string) {
   try { const value = readResilientStorage(key); return value ? parseProject(value) : newProject(); }
@@ -25,6 +28,10 @@ export function HeritageProjectWorkspace({ lesson }: { lesson: Lesson }) {
 }
 function ProjectWorkspace({ lesson, search, storageKey }: { lesson: Lesson; search: string; storageKey: string }) {
   const [project, setProject] = useState<HeritageProject>(() => readDraft(storageKey));
+  const [draftReady, setDraftReady] = useState(false);
+  const [arBusy, setArBusy] = useState(false);
+  const latestProject = useRef(project); latestProject.current = project;
+  const loaded = useRef(false);
   const [message, setMessage] = useState('');
   const [opened, setOpened] = useState<string[]>([]);
   const [showExhibit, setShowExhibit] = useState(false);
@@ -41,9 +48,21 @@ function ProjectWorkspace({ lesson, search, storageKey }: { lesson: Lesson; sear
   const codapUrl = codap.studentUrl || codap.embedUrl;
 
   useEffect(() => {
-    try { writeResilientStorage(storageKey, JSON.stringify(project)); }
-    catch { setMessage('이 기기에 임시 보관하지 못했습니다. 작업 파일을 내려받아 보관하세요.'); }
-  }, [project, storageKey]);
+    let cancelled = false;
+    void loadProjectDraft(storageKey).then(text => {
+      if (cancelled) return;
+      try { if (text) setProject(parseProject(text)); } catch { setMessage('임시 작업을 읽지 못했어요. 내려받은 작업 파일을 열어 주세요.'); }
+      loaded.current = true; setDraftReady(true);
+    });
+    return () => { cancelled = true; if (loaded.current) void saveProjectDraft(storageKey, JSON.stringify(latestProject.current)).catch(() => {}); };
+  }, [storageKey]);
+  useEffect(() => {
+    if (!draftReady) return;
+    const timer = window.setTimeout(() => {
+      void saveProjectDraft(storageKey, JSON.stringify(project)).catch(() => setMessage('이 기기에 임시 보관하지 못했어요. 오늘 작업 저장하기로 파일을 받아 보관해 주세요.'));
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [project, storageKey, draftReady]);
   useEffect(() => { setShowExhibit(false); setZoom(false); setAnswer(''); }, [lesson.id, project.heritageId]);
   useEffect(() => {
     const sync = () => setSettings(readExternalToolSettings({ getItem: readResilientStorage }));
@@ -60,13 +79,15 @@ function ProjectWorkspace({ lesson, search, storageKey }: { lesson: Lesson; sear
   function changeRecords(records: ResearchRecord[]) { setProject(current => ({ ...updateRecords(current, records), savedAt: new Date().toISOString() })); }
   function editRecord(id: string, patch: Partial<ResearchRecord>) { changeRecords(project.records.map(record => record.id === id ? { ...record, ...patch } : record)); }
   function saveFile() {
+    if (arBusy) { setMessage('녹음이나 파일 준비가 끝나면 오늘 작업을 저장해 주세요.'); return; }
     downloadProjectFile(JSON.stringify(project, null, 2), `삼국시대_${project.group}모둠_${heritage.heritage}_${lesson.id}차시.json`, 'application/json');
-    setMessage('표·그래프·설명을 한 파일에 저장했어요. 다음 시간에 ‘지난 작업 열기’로 이 파일을 열어 주세요.');
+    setMessage(`표·그래프·설명·녹음과 전시 설정을 저장했어요. 다른 기기에서 ‘지난 작업 열기’로 열어 주세요.${project.ar?.model?.asset ? ' 공식 첨성대 모형은 인터넷으로 불러옵니다.' : ''}`);
   }
   async function importFile(file?: File) {
     if (!file) return;
     try {
-      if (file.size > 2_800_000) throw new Error('수업에서 저장한 2.8MB 이하 작업 파일을 선택하세요.');
+      if (arBusy) throw new Error('녹음이나 파일 준비를 마친 뒤 작업을 열어 주세요.');
+      if (file.size > MAX_PROJECT_BYTES) throw new Error('수업에서 저장한 23MB 이하 작업 파일을 선택하세요.');
       const imported = parseProject(await file.text());
       if (project.records.length && !window.confirm('현재 작업 대신 선택한 파일을 열까요? 필요한 작업은 먼저 내려받아 보관하세요.')) return;
       setProject(imported); setOpened([]); setShowExhibit(false); setMessage(`${imported.group}모둠 작업을 불러왔습니다.`);
@@ -83,12 +104,15 @@ function ProjectWorkspace({ lesson, search, storageKey }: { lesson: Lesson; sear
     reader.readAsDataURL(file);
   }
   function selectHeritage(id: number) {
+    if (arBusy) { setMessage('녹음이 끝난 뒤 유산을 바꿔 주세요.'); return; }
     if (id === project.heritageId) return;
     if (project.records.length && !window.confirm('다른 유산을 조사하려면 새 작업이 시작됩니다. 현재 오늘 작업을 저장했나요?')) return;
     setProject(newProject(project.group, id)); setOpened([]);
   }
   const evidence = project.records.filter(record => project.inference.evidenceIds.includes(record.id));
   const focus = evidence.find(record => record.id === project.exhibit.focusId);
+
+  if (!draftReady) return <p role="status">지난 작업과 녹음을 불러오고 있어요…</p>;
 
   return <section className="heritage-project" aria-label={`${lesson.id}차시 모둠 탐구`}>
     <div className="project-toolbar">
@@ -145,11 +169,27 @@ function ProjectWorkspace({ lesson, search, storageKey }: { lesson: Lesson; sear
 
     {lesson.id === 8 && <section className="project-paper"><h3>찾은 문장 두 개로 옛날 모습을 생각해요</h3><p>자료에서 확인한 문장 두 개를 골라요. 두 문장으로 어떤 옛날 모습을 설명할 수 있을까요? 한 자료에서 문장 두 개를 골라도 두 곳에서 따로 확인한 것은 아니에요.</p><fieldset disabled={!ready.interpreted}><div className="project-evidence-options">{project.records.filter(record => record.status === '확인됨').map(record => <label key={record.id}><input type="checkbox" checked={project.inference.evidenceIds.includes(record.id)} onChange={() => { const ids = project.inference.evidenceIds.includes(record.id) ? project.inference.evidenceIds.filter(id => id !== record.id) : [...project.inference.evidenceIds, record.id].slice(-2); update({ inference: { ...project.inference, evidenceIds: ids }, exhibit: { ...project.exhibit, focusId: '', tested: false } }); }} /><span>{record.text}</span></label>)}</div><p>{project.inference.evidenceIds.length} / 2개 선택</p><label>두 문장을 보니 옛날에는 어땠을 것 같나요?<textarea maxLength={500} value={project.inference.sentence} onChange={event => update({ inference: { ...project.inference, sentence: event.target.value }, exhibit: { ...project.exhibit, tested: false } })} placeholder="이 두 문장을 보니, 옛날 사람들은 …했을 것 같아요." /></label><label>아직 알 수 없는 점은 무엇인가요?<textarea maxLength={500} value={project.inference.limit} onChange={event => update({ inference: { ...project.inference, limit: event.target.value }, exhibit: { ...project.exhibit, tested: false } })} placeholder="하지만 이 자료만으로 …은 알 수 없어요." /></label></fieldset><details><summary>무엇을 써야 할지 모르겠다면</summary><p>어떻게 만들었을지, 무엇을 중요하게 생각했을지 떠올려 봐요. 왜 그렇게 생각했는지 고른 두 문장을 가리킬 수 있어야 해요. 자료가 부족하면 4차시에서 더 찾아보고 표와 그래프도 다시 만들어요.</p></details></section>}
 
-    {lesson.id === 9 && <section className="project-paper"><h3>친구에게 보여 줄 사진과 설명을 골라요</h3><fieldset disabled={!ready.inferred}><label>친구에게 꼭 보여 주고 싶은 문장<select value={project.exhibit.focusId} onChange={event => update({ exhibit: { ...project.exhibit, focusId: event.target.value, tested: false } })}><option value="">8차시에 고른 문장 중 하나를 고르세요</option>{evidence.map(record => <option value={record.id} key={record.id}>{record.text}</option>)}</select></label><div className="project-two-columns"><label>사진을 어떻게 보여 줄까요?<select value={project.exhibit.effect} onChange={event => update({ exhibit: { ...project.exhibit, effect: event.target.value as '표시' | '확대', tested: false } })}><option value="표시">그대로 보기</option><option value="확대">눌러서 크게 보기</option></select></label><label>구경하는 친구가 할 일<select value={project.exhibit.action} onChange={event => update({ exhibit: { ...project.exhibit, action: event.target.value as '특징 찾기' | '근거 고르기', tested: false } })}><option>특징 찾기</option><option>근거 고르기</option></select></label></div></fieldset><p>‘그대로 보기’는 사진 옆에 설명을 보여 줘요. ‘눌러서 크게 보기’는 친구가 사진을 눌러 자세히 볼 수 있어요.</p><button className="button button--primary" disabled={!ready.planned} type="button" onClick={() => setShowExhibit(true)}>우리 전시 미리 열어 보기</button></section>}
+    {lesson.id === 9 && <section className="project-paper"><h3>유물에 설명점과 우리 목소리를 붙여요</h3><fieldset disabled={!ready.inferred || arBusy}><label>친구에게 꼭 보여 주고 싶은 문장<select value={project.exhibit.focusId} onChange={event => update({ ar: project.ar ?? newArExhibit(evidence.map(record => record.text)), exhibit: { ...project.exhibit, focusId: event.target.value, tested: false } })}><option value="">8차시에 고른 문장 중 하나를 고르세요</option>{evidence.map(record => <option value={record.id} key={record.id}>{record.text}</option>)}</select></label></fieldset>
+      {ready.inferred && <Suspense fallback={<p>AR 제작 화면을 준비해요…</p>}><ArExhibitEditor key={project.heritageId} heritageId={project.heritageId} heritage={heritage.heritage} image={`${import.meta.env.BASE_URL}images/heritage/three-kingdoms/${heritage.image}`} value={project.ar ?? newArExhibit(evidence.map(record => record.text))} onBusy={setArBusy} onChange={ar => update({ ar, exhibit: { ...project.exhibit, tested: false } })} /></Suspense>}
+      <p>설명 두 곳과 관람 문제를 만들고 친구 화면에서 눌러 보세요. 녹음도 들어 본 뒤 오늘 작업을 저장해요.</p><button className="button button--primary" disabled={!ready.planned || arBusy} type="button" onClick={() => setShowExhibit(true)}>완성한 전시 확인하기</button></section>}
 
-    {lesson.id === 10 && <section className="project-paper"><h3>{project.group}모둠 · {heritage.heritage} 전시</h3><p>9차시 파일을 열면 우리 그래프와 설명이 나와요. 지난 2·3차시 활동지도 전시 자리에 함께 놓아요.</p><button className="button button--primary" disabled={!ready.exhibited} type="button" onClick={() => setShowExhibit(true)}>친구에게 전시 보여 주기</button><details><summary>설명하고 구경하는 순서 · 40분</summary><p>준비 5분 → A팀 설명·B팀 구경 12분 → 역할 바꾸기 2분 → B팀 설명·A팀 구경 12분 → 정리 3분 → 돌아보기 6분. 구경하는 팀은 다른 모둠 세 곳을 4분씩 둘러봐요.</p></details></section>}
+    {lesson.id === 10 && <section className="project-paper"><h3>{project.group}모둠 · {heritage.heritage} 전시</h3><p>9차시 파일을 열면 우리 그래프·설명·녹음과 준비한 입체 유물이 나와요. 지난 2·3차시 활동지도 전시 자리에 함께 놓아요.</p><button className="button button--primary" disabled={!ready.exhibited} type="button" onClick={() => setShowExhibit(true)}>친구에게 전시 보여 주기</button><details><summary>설명하고 구경하는 순서 · 40분</summary><p>준비 5분 → A팀 설명·B팀 구경 12분 → 역할 바꾸기 2분 → B팀 설명·A팀 구경 12분 → 정리 3분 → 돌아보기 6분. 구경하는 팀은 다른 모둠 세 곳을 4분씩 둘러봐요.</p></details></section>}
 
-    {showExhibit && ready.planned && <section className="project-exhibit" aria-label="우리 모둠 전시"><div className="project-section-title"><div><span>{project.group}모둠 · 근거로 설명하는 박물관</span><h3>{heritage.heritage}</h3></div><button type="button" onClick={() => setShowExhibit(false)}>전시 닫기</button></div><p className="project-exhibit-question">{project.question}</p><div className="project-two-columns"><figure><button className="project-photo" type="button" disabled={project.exhibit.effect !== '확대'} aria-label="유산 사진 확대 전환" aria-pressed={zoom} onClick={() => setZoom(value => !value)}><img className={zoom ? 'is-zoomed' : ''} src={`${import.meta.env.BASE_URL}images/heritage/three-kingdoms/${heritage.image}`} alt={heritage.heritage} /></button><figcaption>{project.exhibit.effect === '확대' ? '사진을 눌러 확대하고 특징을 찾으세요.' : '사진과 근거 문장에서 같은 특징을 찾으세요.'}</figcaption></figure><div><h4>자료에서 찾은 문장</h4><p>{focus?.text}</p><h4>문장을 보고 생각한 옛날 모습</h4><p>{project.inference.sentence}</p><h4>아직 알 수 없는 점</h4><p>{project.inference.limit}</p></div></div><figure className="project-graph"><img src={project.graph.image} alt={project.graph.title} /><figcaption>{project.interpretation}<br />{project.limitation}</figcaption></figure><details><summary>AI가 한 말을 어떻게 고쳤나요?</summary><p>처음 의심한 말: {project.previousClaim}</p><p>자료를 읽고 고친 말: {project.correction}</p></details><div className="project-visitor"><h4>함께 해 봐요 · {project.exhibit.action}</h4>{project.exhibit.action === '특징 찾기' ? <><p>사진에서 설명과 같은 부분을 찾아 가리키고 친구에게 말해 보세요.</p><button type="button" onClick={() => setAnswer('사진에서 찾은 부분과 자료의 문장을 함께 보여 주세요.')}>찾았어요</button></> : <><p>우리 모둠이 꼭 보여 주고 싶다고 고른 문장은 무엇일까요?</p>{evidence.map(record => <button key={record.id} type="button" onClick={() => setAnswer(record.id === project.exhibit.focusId ? '맞아요. 이 문장으로 무엇을 알게 됐는지 말해 보세요.' : '이것도 우리가 찾은 문장이에요. 사진 옆에 보여 준 문장을 다시 찾아보세요.')}>{record.text}</button>)}</>}{answer && <p role="status">{answer}</p>}</div><Suspense fallback={<p>AR을 준비하고 있습니다…</p>}><TrackedHeritageAr heritageId={project.heritageId} explanation={focus?.text} caution={project.inference.limit} /></Suspense><details><summary>자료를 어디에서 찾았나요?</summary>{evidence.map(record => <p key={record.id}>{record.text}<br /><a href={sourceUrl(record.url)} target="_blank" rel="noreferrer">{record.source} ↗</a></p>)}</details>{lesson.id === 9 && <button type="button" className="button button--primary" onClick={() => { update({ exhibit: { ...project.exhibit, tested: true } }); setMessage('전시를 확인했어요. 오늘 작업을 저장하고 10차시에 이 파일을 열어요.'); }}>전시 확인 끝!</button>}</section>}
+    {showExhibit && ready.planned && <section className="project-exhibit" aria-label="우리 모둠 전시">
+      <div className="project-section-title"><div><span>{project.group}모둠 · 근거로 설명하는 박물관</span><h3>{heritage.heritage}</h3></div><button type="button" onClick={() => setShowExhibit(false)}>전시 닫기</button></div>
+      <p className="project-exhibit-question">{project.question}</p>
+      <Suspense fallback={<p>AR과 녹음 해설을 준비하고 있어요…</p>}><TrackedHeritageAr heritageId={project.heritageId} explanation={focus?.text} caution={project.inference.limit} ar={project.ar} /></Suspense>
+      {!project.ar && <><div className="project-two-columns"><figure><button className="project-photo" type="button" disabled={project.exhibit.effect !== '확대'} aria-label="유산 사진 확대 전환" aria-pressed={zoom} onClick={() => setZoom(value => !value)}><img className={zoom ? 'is-zoomed' : ''} src={`${import.meta.env.BASE_URL}images/heritage/three-kingdoms/${heritage.image}`} alt={heritage.heritage} /></button><figcaption>사진과 근거 문장에서 같은 특징을 찾으세요.</figcaption></figure><div><h4>자료에서 찾은 문장</h4><p>{focus?.text}</p></div></div>
+        <div className="project-visitor"><h4>함께 해 봐요 · {project.exhibit.action}</h4>{project.exhibit.action === '특징 찾기' ? <><p>사진에서 설명과 같은 부분을 찾아 가리키고 친구에게 말해 보세요.</p><button type="button" onClick={() => setAnswer('사진에서 찾은 부분과 자료의 문장을 함께 보여 주세요.')}>찾았어요</button></> : <><p>우리 모둠이 꼭 보여 주고 싶다고 고른 문장은 무엇일까요?</p>{evidence.map(record => <button key={record.id} type="button" onClick={() => setAnswer(record.id === project.exhibit.focusId ? '맞아요. 이 문장으로 무엇을 알게 됐는지 말해 보세요.' : '사진 옆에 보여 준 문장을 다시 찾아보세요.')}>{record.text}</button>)}</>}{answer && <p role="status">{answer}</p>}</div>
+      </>}
+      <details open={!project.ar}><summary>우리의 근거·그래프·생각 함께 보기</summary>
+        <h4>문장을 보고 생각한 옛날 모습</h4><p>{project.inference.sentence}</p><h4>아직 알 수 없는 점</h4><p>{project.inference.limit}</p>
+        <figure className="project-graph"><img src={project.graph.image} alt={project.graph.title} /><figcaption>{project.interpretation}<br />{project.limitation}</figcaption></figure>
+        <h4>AI가 한 말을 어떻게 고쳤나요?</h4><p>처음 의심한 말: {project.previousClaim}</p><p>자료를 읽고 고친 말: {project.correction}</p>
+        <h4>자료를 어디에서 찾았나요?</h4>{evidence.map(record => <p key={record.id}>{record.text}<br /><a href={sourceUrl(record.url)} target="_blank" rel="noreferrer">{record.source} ↗</a></p>)}
+      </details>
+      {lesson.id === 9 && <button type="button" className="button button--primary" onClick={() => { update({ exhibit: { ...project.exhibit, tested: true } }); setMessage('전시를 확인했어요. 오늘 작업을 저장하고 10차시에 이 파일을 열어요.'); }}>전시 확인 끝!</button>}
+    </section>}
     <footer className="project-footer"><strong>{ready.research ? `${project.group}모둠 탐구가 이어지고 있어요.` : '지난 시간에 고친 말과 자료에서 찾은 문장을 담아 주세요.'}</strong><button type="button" onClick={saveFile}>오늘 작업 저장하기</button></footer>
   </section>;
 }
