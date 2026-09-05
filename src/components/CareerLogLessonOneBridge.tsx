@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 
-const DEFAULT_HUB_INGEST = "https://hub.moakit.ai/api/career-log/ingest";
+const DEFAULT_HUB_INGEST = "https://hub.moakit.ai/api?route=career-log-ingest";
 const STUDENT_KEY = "moakit-career-student-id-v1";
 const EVENT_KEY_PREFIX = "moakit-career-history-ai-01-event:";
 
@@ -95,13 +95,7 @@ export function CareerLogLessonOneBridge() {
       <p style={{ margin: "0 0 14px" }}>위에서 관찰한 문화유산과 데이터 질문이 자동으로 함께 저장됩니다.</p>
       <label style={{ display: "grid", gap: 6 }}>
         <span style={{ fontWeight: 700 }}>오늘의 한 줄 생각 <small>(선택)</small></span>
-        <input
-          maxLength={300}
-          onChange={(event) => setReflection(event.target.value)}
-          placeholder="예: 사진만 보고는 알 수 없는 정보도 있다는 걸 알았다."
-          type="text"
-          value={reflection}
-        />
+        <input maxLength={300} onChange={(event) => setReflection(event.target.value)} placeholder="예: 사진만 보고는 알 수 없는 정보도 있다는 걸 알았다." type="text" value={reflection} />
       </label>
       <button className="button button--primary" disabled={status === "saving" || status === "saved"} onClick={save} style={{ marginTop: 14 }} type="button">
         {status === "saving" ? "저장 중…" : status === "saved" ? "저장 완료" : "질문 카드 저장 완료"}
