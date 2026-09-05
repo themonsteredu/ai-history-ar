@@ -709,7 +709,7 @@ const toolNames = [
 
 export function LessonWebActivity({ era, lesson }: { era: Era; lesson: Lesson }) {
   if (lesson.classroomMode === "worksheet") return <WorksheetLessonView era={era} lesson={lesson} />;
-  if (era.id === "three-kingdoms" && ((lesson.id >= 5 && lesson.id <= 8) || lesson.id === 10)) return <ExternalToolActivity lesson={lesson} />;
+  if (era.id === "three-kingdoms" && (lesson.id === 1 || (lesson.id >= 5 && lesson.id <= 8) || lesson.id === 10)) return <ExternalToolActivity lesson={lesson} />;
 
   const toolName = lesson.id === 3
     ? `${era.verificationLabel} 공동 연습`

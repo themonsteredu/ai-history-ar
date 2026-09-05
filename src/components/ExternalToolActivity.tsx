@@ -8,6 +8,7 @@ import {
 } from "../settings/externalToolSettings";
 import { Icon } from "./Icon";
 import { ExternalToolFrame } from "./ExternalToolFrame";
+import { recordLessonOneCompletion } from "../careerLog";
 
 const COMPLETION_STORAGE_KEY = "moa-history-ar:external-tool-completion:v1";
 
@@ -224,9 +225,10 @@ function HeritageImageViewer({ heritage }: { heritage: HeritageCard }) {
   );
 }
 
-function LessonOneQuestionWorkshop({ onSaved }: { onSaved: () => void }) {
+function LessonOneQuestionWorkshop({ onSaved }: { onSaved: (draft: LessonOneQuestionDraft, heritage: HeritageCard) => Promise<boolean> }) {
   const [draft, setDraft] = useState(readLessonOneQuestion);
   const [message, setMessage] = useState("");
+  const [saving, setSaving] = useState(false);
   const selectedHeritage = heritageCards.find((item) => item.id === draft.heritageId) ?? heritageCards[0];
   const canSave = isLessonOneQuestionComplete(draft);
 
@@ -244,7 +246,7 @@ function LessonOneQuestionWorkshop({ onSaved }: { onSaved: () => void }) {
     updateDraft({ heritageId, clues: [], observation: "", question: "" });
   }
 
-  function saveQuestion(event: FormEvent<HTMLFormElement>) {
+  async function saveQuestion(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!canSave) {
       setMessage("모둠·유산·관찰 단서·데이터 항목을 고르고, 관찰과 질문을 모두 작성해 주세요.");
@@ -253,8 +255,13 @@ function LessonOneQuestionWorkshop({ onSaved }: { onSaved: () => void }) {
     const savedDraft = { ...draft, question: normalizeLessonOneQuestion(draft.question), observation: draft.observation.trim(), savedAt: Date.now() };
     setDraft(savedDraft);
     window.localStorage.setItem(LESSON_ONE_QUESTION_KEY, JSON.stringify(savedDraft));
-    setMessage("우리 모둠 질문 카드가 이 기기에 저장되었습니다.");
-    onSaved();
+    setSaving(true);
+    setMessage("우리 모둠 질문 카드를 저장하고 있습니다.");
+    const recorded = await onSaved(savedDraft, selectedHeritage);
+    setSaving(false);
+    setMessage(recorded
+      ? "우리 모둠 질문 카드가 이 기기와 Career Log에 저장되었습니다."
+      : "질문 카드는 이 기기에 저장되었습니다. 중앙 기록 연결은 잠시 뒤 다시 시도해 주세요.");
   }
 
   function resetQuestion() {
@@ -309,7 +316,7 @@ function LessonOneQuestionWorkshop({ onSaved }: { onSaved: () => void }) {
           <label><span>사진에서 관찰한 사실</span><textarea maxLength={100} onChange={(event) => updateDraft({ observation: event.target.value })} placeholder="예: 둥근 봉분이 능선을 따라 여러 개 이어져 있다." rows={3} value={draft.observation} /><small>{draft.observation.length}/100</small></label>
           <label><span>우리 모둠의 역사 데이터 질문</span><textarea maxLength={140} onChange={(event) => updateDraft({ question: event.target.value })} placeholder="예: 유산의 재료와 발견 지역은 서로 어떤 관계가 있을까?" rows={4} value={draft.question} /><small>{draft.question.length}/140</small></label>
           {message ? <p className={draft.savedAt > 0 ? "question-workshop__message is-saved" : "question-workshop__message"} role="status">{message}</p> : null}
-          <div className="question-workshop__actions"><button className="button button--primary" type="submit">질문 카드 저장</button><button className="button button--outline" onClick={resetQuestion} type="button">처음부터 다시</button></div>
+          <div className="question-workshop__actions"><button className="button button--primary" disabled={saving} type="submit">{saving ? "저장 중…" : "질문 카드 저장"}</button><button className="button button--outline" disabled={saving} onClick={resetQuestion} type="button">처음부터 다시</button></div>
         </form>
       </div>
 
@@ -475,13 +482,18 @@ function saveCompletion(lessonId: number, completed: boolean) {
   }
 }
 
-function InternalLessonPanel({ lessonId, onSaved, resultBoardUrl }: { lessonId: number; onSaved: () => void; resultBoardUrl: string }) {
+function InternalLessonPanel({ lessonId, onCompleted, onLessonOneSaved, resultBoardUrl }: {
+  lessonId: number;
+  onCompleted: () => void;
+  onLessonOneSaved: (draft: LessonOneQuestionDraft, heritage: HeritageCard) => Promise<boolean>;
+  resultBoardUrl: string;
+}) {
   if (lessonId === 1) {
-    return <div className="external-tool-internal"><LessonOneQuestionWorkshop onSaved={onSaved} /></div>;
+    return <div className="external-tool-internal"><LessonOneQuestionWorkshop onSaved={onLessonOneSaved} /></div>;
   }
 
   if (lessonId === 2) {
-    return <div className="external-tool-internal"><LessonTwoSchemaWorkshop onSaved={onSaved} /></div>;
+    return <div className="external-tool-internal"><LessonTwoSchemaWorkshop onSaved={onCompleted} /></div>;
   }
 
   return (
@@ -529,9 +541,24 @@ export function ExternalToolActivity({ lesson }: { lesson: Lesson }) {
     saveCompletion(lesson.id, next);
   }
 
-  function markCompleted() {
+  async function markCompleted(draft: LessonOneQuestionDraft, heritage: HeritageCard) {
     setCompleted(true);
     saveCompletion(lesson.id, true);
+    try {
+      await recordLessonOneCompletion({
+        group: draft.group,
+        heritageId: heritage.id,
+        heritage: heritage.name,
+        observation: draft.observation,
+        question: draft.question,
+        clues: draft.clues,
+        dataFields: draft.dataFields,
+      });
+      return true;
+    } catch (error) {
+      console.error("Career Log save failed", error);
+      return false;
+    }
   }
 
   return (
@@ -556,7 +583,7 @@ export function ExternalToolActivity({ lesson }: { lesson: Lesson }) {
         <div className="external-activity__notice"><strong>이 차시의 외부 도구가 꺼져 있습니다.</strong><span>교사가 대체 활동을 안내할 때까지 기다리세요.</span></div>
       ) : null}
 
-      {tool.launchMode === "internal" && tool.enabled ? <InternalLessonPanel lessonId={lesson.id} onSaved={markCompleted} resultBoardUrl={tool.resultBoardUrl} /> : null}
+      {tool.launchMode === "internal" && tool.enabled ? <InternalLessonPanel lessonId={lesson.id} onCompleted={() => { setCompleted(true); saveCompletion(lesson.id, true); }} onLessonOneSaved={markCompleted} resultBoardUrl={tool.resultBoardUrl} /> : null}
 
       {tool.launchMode !== "internal" && tool.enabled ? (
         <section className="external-launch-panel">
