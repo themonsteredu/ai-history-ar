@@ -6,6 +6,8 @@ const DEFAULT_HUB_INGEST = "https://hub.moakit.ai/api/career-log/ingest";
 const STUDENT_KEY = "moakit-career-student-id-v1";
 const EVENT_KEY_PREFIX = "moakit-career-history-ai-01-event:";
 const LESSON_TWO_STORAGE_KEY = "moa-history-ar:three-kingdoms:lesson-2:judgement:v1";
+const UUID_V4_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+let memoryStudentId = "";
 
 interface LessonTwoRecord {
   groupId: number;
@@ -13,11 +15,36 @@ interface LessonTwoRecord {
   sources: Record<string, string>;
 }
 
-function getOrCreateStudentId() {
-  const current = window.localStorage.getItem(STUDENT_KEY);
-  if (current && /^[0-9a-f-]{36}$/i.test(current)) return current;
-  const created = window.crypto.randomUUID();
-  window.localStorage.setItem(STUDENT_KEY, created);
+function browserStorage(kind: "localStorage" | "sessionStorage") {
+  try { return window[kind]; } catch { return null; }
+}
+
+function storageGet(storage: Storage | null, key: string) {
+  try { return storage?.getItem(key) ?? null; } catch { return null; }
+}
+
+function storageSet(storage: Storage | null, key: string, value: string) {
+  try { storage?.setItem(key, value); } catch {}
+}
+
+export function getOrCreateStudentId(candidate = "") {
+  const localStorage = browserStorage("localStorage");
+  const sessionStorage = browserStorage("sessionStorage");
+  if (UUID_V4_RE.test(candidate)) {
+    const hubStudentId = candidate.toLowerCase();
+    memoryStudentId = hubStudentId;
+    storageSet(localStorage, STUDENT_KEY, hubStudentId);
+    storageSet(sessionStorage, STUDENT_KEY, hubStudentId);
+    return hubStudentId;
+  }
+  const local = storageGet(localStorage, STUDENT_KEY);
+  const session = storageGet(sessionStorage, STUDENT_KEY);
+  const existing = [local, session, memoryStudentId].find((value) => UUID_V4_RE.test(value || ""));
+  if (existing) return existing!.toLowerCase();
+  const created = window.crypto.randomUUID().toLowerCase();
+  memoryStudentId = created;
+  storageSet(localStorage, STUDENT_KEY, created);
+  storageSet(sessionStorage, STUDENT_KEY, created);
   return created;
 }
 
@@ -33,8 +60,9 @@ function safeEndpoint(raw: string | null) {
 
 function selectedHeritage() {
   const card = document.querySelector(".artifact-explorer__card.is-selected");
-  const heritage = card?.querySelector("strong")?.textContent?.trim() || "문화유산";
-  const question = document.querySelector(".artifact-explorer__spotlight p")?.textContent?.trim().replace(/^“|”$/g, "") || "문화유산을 비교하려면 어떤 정보를 모아야 할까?";
+  const heritage = card?.querySelector("strong")?.textContent?.trim() || "";
+  const question = document.querySelector(".artifact-explorer__spotlight p")?.textContent?.trim().replace(/^“|”$/g, "") || "";
+  if (!heritage || !question) return null;
   return { heritage, question };
 }
 
@@ -82,18 +110,19 @@ function lessonTwoDetails(record: LessonTwoRecord) {
 export function CareerLogLessonOneBridge() {
   const location = useLocation();
   const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
-  const boardCode = params.get("hub_code")?.trim() || "";
+  const boardCode = params.get("hub_code")?.trim().toLowerCase() || "";
+  const inboundStudentId = params.get("student_id")?.trim() || "";
   const endpoint = safeEndpoint(params.get("hub_ingest"));
   const lesson = location.pathname === "/three-kingdoms/lesson/1" ? 1 : location.pathname === "/three-kingdoms/lesson/2" ? 2 : null;
-  const active = lesson !== null && /^\d{6}$/.test(boardCode);
+  const active = lesson !== null && params.get("view") === "activity" && /^[a-z0-9]{4,10}$/.test(boardCode) && UUID_V4_RE.test(inboundStudentId);
   const [reflection, setReflection] = useState("");
-  const [lessonTwoRecord, setLessonTwoRecord] = useState<LessonTwoRecord | null>(() => readLessonTwoRecord(window.localStorage.getItem(LESSON_TWO_STORAGE_KEY)));
+  const [lessonTwoRecord, setLessonTwoRecord] = useState<LessonTwoRecord | null>(() => readLessonTwoRecord(storageGet(browserStorage("localStorage"), LESSON_TWO_STORAGE_KEY)));
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (lesson !== 2) return;
-    const refresh = () => window.setTimeout(() => setLessonTwoRecord(readLessonTwoRecord(window.localStorage.getItem(LESSON_TWO_STORAGE_KEY))), 0);
+    const refresh = () => window.setTimeout(() => setLessonTwoRecord(readLessonTwoRecord(storageGet(browserStorage("localStorage"), LESSON_TWO_STORAGE_KEY))), 0);
     window.addEventListener("click", refresh);
     window.addEventListener("input", refresh);
     window.addEventListener("storage", refresh);
@@ -114,18 +143,26 @@ export function CareerLogLessonOneBridge() {
 
   async function save() {
     if (status === "saving" || (lesson === 2 && (!lessonTwoRecord || !lessonTwoComplete))) return;
-    setStatus("saving");
-    setMessage("");
-    const studentId = getOrCreateStudentId();
-    const eventKey = `${EVENT_KEY_PREFIX}${boardCode}:lesson-${lesson}`;
-    let sourceEventId = window.localStorage.getItem(eventKey);
-    if (!sourceEventId) {
-      sourceEventId = `history-ai-01:${boardCode}:lesson-${lesson}:${window.crypto.randomUUID()}`;
-      window.localStorage.setItem(eventKey, sourceEventId);
-    }
     const lessonOne = selectedHeritage();
     const lessonTwo = lessonTwoRecord ? lessonTwoDetails(lessonTwoRecord) : null;
+    if (lesson === 1 && !lessonOne) {
+      setStatus("error");
+      setMessage("먼저 문화유산을 선택하고 실제 질문 카드를 완성해 주세요.");
+      return;
+    }
+    setStatus("saving");
+    setMessage("");
     try {
+      const studentId = getOrCreateStudentId(inboundStudentId);
+      const eventKey = `${EVENT_KEY_PREFIX}${boardCode}:lesson-${lesson}`;
+      const localStorage = browserStorage("localStorage");
+      const sessionStorage = browserStorage("sessionStorage");
+      let sourceEventId = storageGet(localStorage, eventKey) || storageGet(sessionStorage, eventKey);
+      if (!sourceEventId) {
+        sourceEventId = `history-ai-01:${boardCode}:lesson-${lesson}:${window.crypto.randomUUID()}`;
+        storageSet(localStorage, eventKey, sourceEventId);
+        storageSet(sessionStorage, eventKey, sourceEventId);
+      }
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -133,11 +170,11 @@ export function CareerLogLessonOneBridge() {
           board_code: boardCode,
           student_id: studentId,
           process: lesson === 1 ? "삼국·가야 문화유산을 관찰하고 모둠에서 조사할 데이터 질문을 정함" : lessonTwo?.process,
-          artifact: lesson === 1 ? `모둠 데이터 질문 · ${lessonOne.heritage}: ${lessonOne.question}` : lessonTwo?.artifact,
+          artifact: lesson === 1 ? `모둠 데이터 질문 · ${lessonOne!.heritage}: ${lessonOne!.question}` : lessonTwo?.artifact,
           reflection: reflection.trim() || null,
           source_event_id: sourceEventId,
           raw_data: lesson === 1
-            ? { lesson: 1, era: "three-kingdoms", selected_heritage: lessonOne.heritage, data_question: lessonOne.question, activity: "heritage-question-card" }
+            ? { lesson: 1, era: "three-kingdoms", selected_heritage: lessonOne!.heritage, data_question: lessonOne!.question, activity: "heritage-question-card" }
             : lessonTwo?.rawData,
         }),
       });
