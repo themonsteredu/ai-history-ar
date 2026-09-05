@@ -13,9 +13,13 @@ function resolveView(value: string | null): ClassroomView {
   return "start";
 }
 
-function lessonViewPath(basePath: string, lessonId: number, view: ClassroomView) {
+function lessonViewPath(basePath: string, lessonId: number, view: ClassroomView, currentSearch = "") {
   const lessonPath = `${basePath}/${lessonId}`;
-  return view === "start" ? lessonPath : `${lessonPath}?view=${view}`;
+  const params = new URLSearchParams(currentSearch);
+  params.delete("view");
+  if (view !== "start") params.set("view", view);
+  const search = params.toString();
+  return search ? `${lessonPath}?${search}` : lessonPath;
 }
 
 export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson }) {
@@ -28,6 +32,7 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
   const basePath = `${era.route}/lesson`;
   const activityTab = getLessonActivityModeInfo(lesson, era.id);
   const isVerificationLesson = lesson.id === 2;
+  const viewPath = (lessonId: number, nextView: ClassroomView) => lessonViewPath(basePath, lessonId, nextView, searchParams.toString());
 
   const activityDescription = isVerificationLesson
     ? "모둠별 담당 유산의 AI 문장 6개를 ○×△?로 판단하고 확인한 출처를 적습니다."
@@ -46,21 +51,21 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
             <Link
               aria-current={view === "start" ? "page" : undefined}
               className={view === "start" ? "is-active" : ""}
-              to={`${basePath}/${lesson.id}`}
+              to={viewPath(lesson.id, "start")}
             >
               <span>00</span><strong>수업 시작</strong><small>PPT와 활동 화면 선택</small>
             </Link>
             <Link
               aria-current={view === "ppt" ? "page" : undefined}
               className={view === "ppt" ? "is-active" : ""}
-              to={`${basePath}/${lesson.id}?view=ppt`}
+              to={viewPath(lesson.id, "ppt")}
             >
               <span>01</span><strong>수업 PPT</strong><small>교실 화면으로 설명하기</small>
             </Link>
             <Link
               aria-current={view === "activity" ? "page" : undefined}
               className={view === "activity" ? "is-active" : ""}
-              to={`${basePath}/${lesson.id}?view=activity`}
+              to={viewPath(lesson.id, "activity")}
             >
               <span>02</span><strong>{activityTab.label}</strong><small>{activityTab.shortLabel}</small>
             </Link>
@@ -78,7 +83,7 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
             </header>
 
             <div className="classroom-start__cards">
-              <Link className="classroom-start-card classroom-start-card--ppt" to={`${basePath}/${lesson.id}?view=ppt`}>
+              <Link className="classroom-start-card classroom-start-card--ppt" to={viewPath(lesson.id, "ppt")}>
                 <div className="classroom-start-card__top">
                   <span className="classroom-start-card__number">01</span>
                   <span className="classroom-start-card__icon"><Icon name="book" size={28} /></span>
@@ -91,7 +96,7 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
                 <strong>수업 PPT 열기 <Icon name="arrow" size={19} /></strong>
               </Link>
 
-              <Link className="classroom-start-card classroom-start-card--activity" to={`${basePath}/${lesson.id}?view=activity`}>
+              <Link className="classroom-start-card classroom-start-card--activity" to={viewPath(lesson.id, "activity")}>
                 <div className="classroom-start-card__top">
                   <span className="classroom-start-card__number">02</span>
                   <span className="classroom-start-card__icon"><Icon name="spark" size={28} /></span>
@@ -121,13 +126,13 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
 
         <nav aria-label="이전·다음 차시" className="classroom-pagination">
           {previousLesson ? (
-            <Link to={lessonViewPath(basePath, previousLesson.id, view)}>
+            <Link to={viewPath(previousLesson.id, view)}>
               <span>이전</span><strong>← {previousLesson.id}차시</strong>
             </Link>
           ) : <span />}
           {nextLesson
             ? (
-              <Link to={lessonViewPath(basePath, nextLesson.id, view)}>
+              <Link to={viewPath(nextLesson.id, view)}>
                 <span>다음</span><strong>{nextLesson.id}차시 →</strong>
               </Link>
             )
