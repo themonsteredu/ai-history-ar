@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isLessonTwoComplete, readLessonTwoRecord } from "./CareerLogLessonOneBridge";
+import { historySourceEventId, isLessonTwoComplete, readLessonTwoRecord } from "./CareerLogLessonOneBridge";
 import bridgeSource from "./CareerLogLessonOneBridge.tsx?raw";
 import lessonPageSource from "../pages/ClassroomLessonPage.tsx?raw";
 
@@ -39,5 +39,13 @@ describe("Career Log 2차시 기록", () => {
     expect(bridgeSource).toMatch(/if \(UUID_V4_RE\.test\(candidate\)\)/);
     expect(bridgeSource).toMatch(/catch \{ return null; \}/);
     expect(bridgeSource).toMatch(/setStatus\("saving"\);[\s\S]*try \{/);
+  });
+
+  it("Hub 학생 UUID별로 결정적인 source event ID를 사용한다", () => {
+    const first = historySourceEventId("abcd12", 2, "11111111-1111-4111-8111-111111111111");
+    const retry = historySourceEventId("abcd12", 2, "11111111-1111-4111-8111-111111111111");
+    const otherStudent = historySourceEventId("abcd12", 2, "22222222-2222-4222-8222-222222222222");
+    expect(retry).toBe(first);
+    expect(otherStudent).not.toBe(first);
   });
 });

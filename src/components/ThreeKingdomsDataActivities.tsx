@@ -13,6 +13,7 @@ import {
   type DataCardValues,
 } from "../content/three-kingdoms/webActivities";
 import { Icon } from "./Icon";
+import { readResilientStorage, removeResilientStorage, writeResilientStorage } from "../lib/resilientStorage";
 
 const imageRoot = `${import.meta.env.BASE_URL}images/heritage/three-kingdoms`;
 const lessonTwoStorageKey = "moa-history-ar:three-kingdoms:lesson-2:judgement:v1";
@@ -78,11 +79,14 @@ interface LessonTwoRecord {
  * 활동지·PPT와 같은 항목 이름(내 판단 (○×△?) · 확인한 출처)만 사용하고 정답은 표시하지 않습니다.
  */
 export function LessonTwoJudgementTool() {
-  const [record, setRecord] = useState<LessonTwoRecord | null>(() => readJson<LessonTwoRecord | null>(lessonTwoStorageKey, null));
+  const [record, setRecord] = useState<LessonTwoRecord | null>(() => {
+    const raw = readResilientStorage(lessonTwoStorageKey);
+    try { return raw ? JSON.parse(raw) as LessonTwoRecord : null; } catch { return null; }
+  });
 
   const save = useCallback((next: LessonTwoRecord) => {
     setRecord(next);
-    window.localStorage.setItem(lessonTwoStorageKey, JSON.stringify(next));
+    writeResilientStorage(lessonTwoStorageKey, JSON.stringify(next));
   }, []);
 
   if (!record) {
@@ -159,7 +163,7 @@ export function LessonTwoJudgementTool() {
           <button className="button button--outline" onClick={() => save({ groupId: record.groupId, marks: {}, sources: {} })} type="button">
             처음부터 다시
           </button>
-          <button className="button button--quiet" onClick={() => { window.localStorage.removeItem(lessonTwoStorageKey); setRecord(null); }} type="button">
+          <button className="button button--quiet" onClick={() => { removeResilientStorage(lessonTwoStorageKey); setRecord(null); }} type="button">
             모둠 다시 고르기
           </button>
         </div>

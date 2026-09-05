@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { lessonTwoStatementSets } from "../content/three-kingdoms/webActivities";
+import { readResilientStorage } from "../lib/resilientStorage";
 
 const DEFAULT_HUB_INGEST = "https://hub.moakit.ai/api/career-log/ingest";
 const STUDENT_KEY = "moakit-career-student-id-v1";
-const EVENT_KEY_PREFIX = "moakit-career-history-ai-01-event:";
 const LESSON_TWO_STORAGE_KEY = "moa-history-ar:three-kingdoms:lesson-2:judgement:v1";
 const UUID_V4_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 let memoryStudentId = "";
@@ -84,6 +84,10 @@ export function isLessonTwoComplete(record: LessonTwoRecord | null) {
   return set.statements.every((statement) => Boolean(record.marks[statement.id]) && Boolean(record.sources[statement.id]?.trim()));
 }
 
+export function historySourceEventId(boardCode: string, lesson: number, studentId: string) {
+  return `history-ai-01:${boardCode}:lesson-${lesson}:${studentId}`;
+}
+
 function lessonTwoDetails(record: LessonTwoRecord) {
   const set = lessonTwoStatementSets.find((candidate) => candidate.groupId === record.groupId);
   if (!set) throw new Error("2차시 모둠 기록을 찾을 수 없습니다.");
@@ -116,13 +120,13 @@ export function CareerLogLessonOneBridge() {
   const lesson = location.pathname === "/three-kingdoms/lesson/1" ? 1 : location.pathname === "/three-kingdoms/lesson/2" ? 2 : null;
   const active = lesson !== null && params.get("view") === "activity" && /^[a-z0-9]{4,10}$/.test(boardCode) && UUID_V4_RE.test(inboundStudentId);
   const [reflection, setReflection] = useState("");
-  const [lessonTwoRecord, setLessonTwoRecord] = useState<LessonTwoRecord | null>(() => readLessonTwoRecord(storageGet(browserStorage("localStorage"), LESSON_TWO_STORAGE_KEY)));
+  const [lessonTwoRecord, setLessonTwoRecord] = useState<LessonTwoRecord | null>(() => readLessonTwoRecord(readResilientStorage(LESSON_TWO_STORAGE_KEY)));
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (lesson !== 2) return;
-    const refresh = () => window.setTimeout(() => setLessonTwoRecord(readLessonTwoRecord(storageGet(browserStorage("localStorage"), LESSON_TWO_STORAGE_KEY))), 0);
+    const refresh = () => window.setTimeout(() => setLessonTwoRecord(readLessonTwoRecord(readResilientStorage(LESSON_TWO_STORAGE_KEY))), 0);
     window.addEventListener("click", refresh);
     window.addEventListener("input", refresh);
     window.addEventListener("storage", refresh);
@@ -154,15 +158,7 @@ export function CareerLogLessonOneBridge() {
     setMessage("");
     try {
       const studentId = getOrCreateStudentId(inboundStudentId);
-      const eventKey = `${EVENT_KEY_PREFIX}${boardCode}:lesson-${lesson}`;
-      const localStorage = browserStorage("localStorage");
-      const sessionStorage = browserStorage("sessionStorage");
-      let sourceEventId = storageGet(localStorage, eventKey) || storageGet(sessionStorage, eventKey);
-      if (!sourceEventId) {
-        sourceEventId = `history-ai-01:${boardCode}:lesson-${lesson}:${window.crypto.randomUUID()}`;
-        storageSet(localStorage, eventKey, sourceEventId);
-        storageSet(sessionStorage, eventKey, sourceEventId);
-      }
+      const sourceEventId = historySourceEventId(boardCode, lesson!, studentId);
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
