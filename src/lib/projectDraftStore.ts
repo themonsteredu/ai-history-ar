@@ -1,5 +1,7 @@
 import { readResilientStorage } from './resilientStorage';
 
+const pending = new Map<string, Promise<void>>();
+
 function database(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     if (!('indexedDB' in window)) { reject(new Error('임시 저장을 지원하지 않는 브라우저입니다.')); return; }
@@ -12,6 +14,9 @@ function database(): Promise<IDBDatabase> {
 }
 export async function loadProjectDraft(key: string): Promise<string | null> {
   try {
+    // Reopening an activity must wait for its queued saves before reading.
+    // If a save failed, keep the last successfully stored draft available.
+    await pending.get(key)?.catch(() => {});
     const db = await database();
     return await new Promise((resolve, reject) => {
       const tx = db.transaction('drafts', 'readonly');
@@ -23,7 +28,6 @@ export async function loadProjectDraft(key: string): Promise<string | null> {
     });
   } catch { return readResilientStorage(key); }
 }
-const pending = new Map<string, Promise<void>>();
 export function saveProjectDraft(key: string, text: string): Promise<void> {
   const next = (pending.get(key) || Promise.resolve()).catch(() => {}).then(() => writeDraft(key, text));
   pending.set(key, next);
