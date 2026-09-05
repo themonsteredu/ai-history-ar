@@ -36,7 +36,7 @@ export function getContinuitySlides(id: number, history?: LessonSlide): readonly
     ...(id === 9 ? [
       { kind: 'activity' as const, image, eyebrow: '설명점 만들기', title: '설명할 곳 두 군데를 골라요', instruction: '1번 설명을 고른 뒤 유물에서 설명할 곳을 눌러요.', steps: ['자료에서 확인한 설명을 적어요.', '2번 설명에서도 같은 순서로 해요.', '입체 모형은 끌어서 돌려 보고 짧게 눌러 위치를 정해요.'] },
       { kind: 'activity' as const, image, eyebrow: '목소리 녹음하기', title: '우리 목소리로 설명해요', instruction: '설명점에서 녹음 시작을 누르고 마이크 사용을 허용해요.', steps: ['설명을 30초 안으로 읽고 녹음 끝내기를 눌러요.', '재생 버튼으로 들어 보고, 필요하면 다시 녹음해요.', '다른 설명점도 녹음한 뒤 친구 화면으로 체험해요.'] },
-      { kind: 'activity' as const, image, eyebrow: '카드로 관람하기', title: '카드를 비추고 해설을 들어요', instruction: '인식용 유물 사진을 받아 자르지 않고 출력해요.', steps: ['다른 기기는 오늘 작업 저장하기로 받은 파일을 먼저 열어요.', '수업 웹앱의 카메라 AR 켜기를 누르고 출력물을 비춰요.', '1·2번 설명점을 눌러 듣고 친구가 만든 문제를 풀어요.'] },
+      { kind: 'activity' as const, image, eyebrow: '카드로 관람하기', title: '카드를 비추고 해설을 들어요', instruction: '우리 유물의 카드 받기를 눌러 A4 한 장으로 출력해요.', steps: ['다른 기기는 오늘 작업 저장하기로 받은 파일을 먼저 열어요.', '수업 웹앱의 카메라 AR 켜기를 누르고 카드 사진 전체를 비춰요.', '1·2번 설명점을 눌러 듣고 친구가 만든 문제를 풀어요.'] },
     ] : []),
     { kind: 'activity', image, eyebrow: `함께 해요 · ${main.minutes}분`, title: plan.title, instruction: main.details[0], steps: main.details.slice(1) },
     { kind: 'fact', image, eyebrow: '여기까지 했나요?', title: '오늘 만든 것을 확인해요', points: plan.outputs, takeaway: '빠진 것이 있으면 친구나 선생님에게 물어봐요.' },

@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { MAX_MODEL_BYTES, readDataUrl, safeSourceLink, validateGlb, type ArExhibit, type ExhibitPoint } from '../lib/ar/exhibit';
 import NarrationEditor from './NarrationEditor';
+import ArRecognitionCard from './ArRecognitionCard';
 import { cheomseongdaeModel } from '../content/three-kingdoms/arModels';
 import '../styles/ar-exhibit.css';
 
@@ -43,6 +44,8 @@ export default function ArExhibitEditor({ value, onChange, image, heritage, heri
   if (preview) return <section className="ar-maker"><button type="button" onClick={() => setPreview(false)}>← 설명과 녹음 고치기</button><Suspense fallback={<p>우리 전시를 열어요…</p>}><ArExhibitViewer value={value} heritage={heritage} heritageId={heritageId} image={image} /></Suspense></section>;
   return <section className="ar-maker" aria-label="설명점과 녹음 만들기">
     <div className="ar-maker-heading"><h3>우리 목소리로 안내하는 AR 전시</h3><button type="button" disabled={busy} onClick={() => setPreview(true)}>친구 화면으로 체험</button></div>
+    <ol className="ar-classroom-steps"><li><strong>설명 두 곳 정하기</strong><span>자료에서 확인한 내용을 적어요.</span></li><li><strong>목소리 녹음하기</strong><span>설명마다 30초 안으로 읽어요.</span></li><li><strong>친구 화면으로 확인</strong><span>해설을 듣고 문제를 풀어 봐요.</span></li><li><strong>카드와 작업 파일 준비</strong><span>카드를 출력하고 녹음한 작업을 저장해요.</span></li></ol>
+    <ArRecognitionCard heritageId={heritageId} heritage={heritage} />
     <details className="ar-teacher-prep">
       <summary>선생님 준비 · 입체 유물 넣기{value.model ? ' ✓' : ''}</summary>
       <p>사용 가능한 3D 원본을 넣으면 카드 위에 입체 유물이 나타납니다. 학생들은 모형에 설명점과 녹음을 붙입니다.</p>
@@ -55,8 +58,7 @@ export default function ArExhibitEditor({ value, onChange, image, heritage, heri
         <div className="ar-maker-actions">{['앞뒤', '좌우', '기울기'].map((label, index) => <button type="button" key={label} onClick={() => onChange({ ...value, model: { ...value.model!, rotation: value.model!.rotation.map((n, axis) => axis === index ? (n + 90) % 360 : n) as [number, number, number] } })}>{label} 90° 조정</button>)}<button type="button" onClick={() => onChange({ ...value, model: undefined })}>모형 빼기</button></div>
         <p className="ar-help">방향을 먼저 맞춘 뒤 설명점을 놓아 주세요. STL은 표면 사진이 없는 단색 모형으로 표시됩니다.</p>
       </fieldset>}
-      <a href={image} download={`${heritage}-AR인식카드.jpg`}>인식용 유물 사진 받기</a>
-      <p className="ar-help">사진을 자르거나 늘리지 않고 출력해 주세요. 다른 기기에서는 저장한 작업 파일을 연 뒤 웹앱의 AR 카메라를 켭니다.</p>
+      <a href={image} download={`${heritage}-AR인식카드.jpg`}>인식용 원본 사진만 받기</a>
     </details>
     {message && <p role="status" className="ar-help">{message}</p>}
     <div className="ar-maker-layout">

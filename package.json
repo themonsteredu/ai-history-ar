@@ -12,6 +12,7 @@
     "verify:printables": "python scripts/verify_printables.py",
     "verify:ui": "node scripts/verify-ui.mjs",
     "compile:ar-targets": "node scripts/compile-ar-targets.mjs",
+    "generate:ar-cards": "python scripts/generate_ar_cards.py",
     "preview": "vite preview",
     "check": "pnpm test && pnpm build"
   },

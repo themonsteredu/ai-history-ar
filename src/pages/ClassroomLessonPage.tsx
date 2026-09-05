@@ -3,6 +3,7 @@ import { Icon } from "../components/Icon";
 import { LessonSlides } from "../components/LessonSlides";
 import { LessonWebActivity } from "../components/LessonWebActivity";
 import { SimpleLessonSlides } from "../components/SimpleLessonSlides";
+import { allArCardsUrl } from '../components/ArRecognitionCard';
 import { getLessonActivityModeInfo } from "../content/lesson-helpers";
 import type { Era, Lesson } from "../types/curriculum";
 
@@ -74,7 +75,7 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
       </header>
 
       <main className="page-width classroom-content">
-        {era.id === "three-kingdoms" && lesson.id === 9 && <p><Link className="button" to="/three-kingdoms/ar-preview">첨성대 AR 먼저 체험하기</Link></p>}
+        {era.id === "three-kingdoms" && [9, 10].includes(lesson.id) && <div className="ar-maker-actions ar-lesson-tools"><Link className="button" to={`/three-kingdoms/ar-preview?${searchParams}`}>유물 6종 AR 먼저 체험하기</Link><a href={allArCardsUrl} download>전시용 인식 카드 6종 받기 · PDF</a></div>}
         {view === "start" ? (
           <section className="classroom-start" aria-labelledby="classroom-start-title">
             <header className="classroom-start__heading">

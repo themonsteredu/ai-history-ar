@@ -8,6 +8,8 @@ import { heritageResearchCases } from '../content/three-kingdoms/webActivities';
 import { downloadProjectFile, evidenceCategories, evidenceStatuses, newProject, parseProject, PROJECT_STORAGE_KEY, projectCsv, projectReadiness, recordProblems, sourceUrl, summarizeRecords, updateRecords, type HeritageProject, type ResearchRecord } from '../content/three-kingdoms/project';
 import { ExternalToolActivity } from './ExternalToolActivity';
 import { CodapTutorial } from './CodapTutorial';
+import ArRecognitionCard from './ArRecognitionCard';
+import ArVisitGuide from './ArVisitGuide';
 import type { Lesson } from '../types/curriculum';
 import { EXTERNAL_TOOL_STORAGE_KEY, EXTERNAL_TOOL_UPDATE_EVENT, getResolvedExternalTool, readExternalToolSettings } from '../settings/externalToolSettings';
 import { projectStages as stages, projectRequirements as requirements, statusLabels, categoryLabels, studentExamples } from '../content/three-kingdoms/studentLanguage';
@@ -173,7 +175,7 @@ function ProjectWorkspace({ lesson, search, storageKey }: { lesson: Lesson; sear
       {ready.inferred && <Suspense fallback={<p>AR 제작 화면을 준비해요…</p>}><ArExhibitEditor key={project.heritageId} heritageId={project.heritageId} heritage={heritage.heritage} image={`${import.meta.env.BASE_URL}images/heritage/three-kingdoms/${heritage.image}`} value={project.ar ?? newArExhibit(evidence.map(record => record.text))} onBusy={setArBusy} onChange={ar => update({ ar, exhibit: { ...project.exhibit, tested: false } })} /></Suspense>}
       <p>설명 두 곳과 관람 문제를 만들고 친구 화면에서 눌러 보세요. 녹음도 들어 본 뒤 오늘 작업을 저장해요.</p><button className="button button--primary" disabled={!ready.planned || arBusy} type="button" onClick={() => setShowExhibit(true)}>완성한 전시 확인하기</button></section>}
 
-    {lesson.id === 10 && <section className="project-paper"><h3>{project.group}모둠 · {heritage.heritage} 전시</h3><p>9차시 파일을 열면 우리 그래프·설명·녹음과 준비한 입체 유물이 나와요. 지난 2·3차시 활동지도 전시 자리에 함께 놓아요.</p><button className="button button--primary" disabled={!ready.exhibited} type="button" onClick={() => setShowExhibit(true)}>친구에게 전시 보여 주기</button><details><summary>설명하고 구경하는 순서 · 40분</summary><p>준비 5분 → A팀 설명·B팀 구경 12분 → 역할 바꾸기 2분 → B팀 설명·A팀 구경 12분 → 정리 3분 → 돌아보기 6분. 구경하는 팀은 다른 모둠 세 곳을 4분씩 둘러봐요.</p></details></section>}
+    {lesson.id === 10 && <section className="project-paper"><h3>{project.group}모둠 · {heritage.heritage} 전시</h3><p>9차시 파일을 열면 우리 그래프·설명·녹음과 준비한 입체 유물이 나와요. 지난 2·3차시 활동지도 전시 자리에 함께 놓아요.</p><ArRecognitionCard heritageId={project.heritageId} heritage={heritage.heritage} /><button className="button button--primary" disabled={!ready.exhibited} type="button" onClick={() => setShowExhibit(true)}>친구에게 전시 보여 주기</button><ArVisitGuide /></section>}
 
     {showExhibit && ready.planned && <section className="project-exhibit" aria-label="우리 모둠 전시">
       <div className="project-section-title"><div><span>{project.group}모둠 · 근거로 설명하는 박물관</span><h3>{heritage.heritage}</h3></div><button type="button" onClick={() => setShowExhibit(false)}>전시 닫기</button></div>

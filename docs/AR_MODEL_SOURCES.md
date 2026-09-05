@@ -57,6 +57,10 @@ The first load transfers about 35.7 MB. The mesh has 599,998 triangles; mobile p
 
 Choose Cheomseongdae in lesson 9, open the teacher preparation section, and select the official model. Students place two explanation points, record up to 30 seconds per point, and create one visitor question. The exact downloaded recognition photo must be printed without cropping or stretching. Visitors open the saved project in the web app and enable its AR camera. A phone's ordinary camera app does not run the exhibit.
 
+The practice page now offers all six heritage images. It starts with the photo so the 36 MB Cheomseongdae model is downloaded only after selection. Practice edits are kept separately for each heritage while the page stays open; class work is still created and saved in lesson 9.
+
+A4 recognition cards are available beside the editor, viewer, and lessons 9–10. `pnpm generate:ar-cards` regenerates six one-page PDFs plus a combined six-page PDF from the same original images used by the tracker. The card does not contain or transfer recordings: visitors use a station device with that group's saved project open. Lesson 10 keeps its existing within-group A/B split and adds the exact station order for three four-minute visits. After the role swap, the other half follows the same route.
+
 Project exports embed student recordings and uploaded GLB/STL models. The built-in museum model is saved as a stable asset reference and is loaded from the site on each new device; initial access requires internet. Device-local drafts use IndexedDB. Legacy version 1 projects remain readable.
 
 Built-in model credits remain visible and are read-only in the editor. Official license: https://www.kogl.or.kr/info/licenseType3.do
