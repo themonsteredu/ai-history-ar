@@ -5,6 +5,7 @@ import { readResilientStorage, writeResilientStorage } from '../lib/resilientSto
 import { heritageResearchCases } from '../content/three-kingdoms/webActivities';
 import { downloadProjectFile, evidenceCategories, evidenceStatuses, newProject, parseProject, PROJECT_STORAGE_KEY, projectCsv, projectReadiness, recordProblems, sourceUrl, summarizeRecords, updateRecords, type HeritageProject, type ResearchRecord } from '../content/three-kingdoms/project';
 import { ExternalToolActivity } from './ExternalToolActivity';
+import { CodapTutorial } from './CodapTutorial';
 import type { Lesson } from '../types/curriculum';
 import { EXTERNAL_TOOL_STORAGE_KEY, EXTERNAL_TOOL_UPDATE_EVENT, getResolvedExternalTool, readExternalToolSettings } from '../settings/externalToolSettings';
 import { projectStages as stages, projectRequirements as requirements, statusLabels, categoryLabels, studentExamples } from '../content/three-kingdoms/studentLanguage';
@@ -130,6 +131,7 @@ function ProjectWorkspace({ lesson, search, storageKey }: { lesson: Lesson; sear
     {lesson.id === 6 && <section className="project-paper"><h3>우리 표로 그래프를 만들어요</h3><p>그래프 아래쪽 가로축에는 문장의 종류를, 옆쪽 세로축에는 <strong>문장 수(개)</strong>를 놓아요. 문장 수로 나라의 힘이나 옛사람 수를 비교할 수는 없어요.</p><label>무엇을 나누어 세어 볼까요?<select disabled={!ready.cleaned} value={project.graph.dimension} onChange={event => update({ graph: { ...project.graph, dimension: event.target.value as 'category' | 'status', image: '', revision: -1 }, interpretation: '', exhibit: { ...project.exhibit, tested: false } })}><option value="category">문장 종류별로 (살펴본항목)</option><option value="status">자료를 확인했는지에 따라 (확인상태)</option></select></label>
       <div className="project-actions"><button disabled={!ready.cleaned} type="button" onClick={() => downloadProjectFile(projectCsv(project), `삼국시대_${project.group}모둠_고친표.csv`, 'text/csv;charset=utf-8')}>1. 고친 표 받기 (CSV)</button><a aria-disabled={!ready.cleaned || !codap.enabled || !codapUrl} href={ready.cleaned && codap.enabled && codapUrl ? codapUrl : undefined} target="_blank" rel="noreferrer">2. 그래프 도구 열기 ↗</a><label className="project-file-button">3. 그래프 그림 가져오기<input disabled={!ready.cleaned} type="file" accept="image/png" onChange={event => { void importGraph(event.target.files?.[0]); event.target.value = ''; }} /></label></div>
       <ol><li>CODAP은 그래프를 만드는 도구예요. 우리 표 파일(CSV)을 열어요.</li><li>표에서 ‘살펴본항목’ 또는 ‘확인상태’를 그래프 아래쪽으로 끌어 놓고 종류별 문장 수를 표시해요.</li><li>문장 수가 아래 표와 맞는지 확인해요. 그래프를 그림 파일(PNG)로 저장해요.</li></ol><label>그래프 제목<input maxLength={180} value={project.graph.title} onChange={event => update({ graph: { ...project.graph, title: event.target.value } })} placeholder="예: 우리 모둠이 찾은 문장 종류" /></label>
+      <details className="project-codap-guide"><summary>화면을 보며 CODAP 따라하기 · 7단계</summary><CodapTutorial /></details>
       <table className="project-counts"><caption>그래프의 개수가 이 표와 같은지 보세요 · 전체 {project.records.length}개</caption><thead><tr><th>종류</th><th>문장 수</th></tr></thead><tbody>{summary.map(row => <tr key={row.label}><td>{row.label}</td><td>{row.count}개</td></tr>)}</tbody></table>
     </section>}
 

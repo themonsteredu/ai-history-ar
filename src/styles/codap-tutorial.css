@@ -1,0 +1,38 @@
+.codap-step{color:#19372b;background:#f6f5ef;padding:1.4rem;word-break:keep-all;line-height:1.55}
+.codap-step header>p{font-size:.8rem;color:#566b60;margin:0 0 .4rem}
+.codap-step h3{font-size:1.4rem;margin:0 0 1rem}
+.codap-step__body{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(220px,1fr);gap:1.4rem;align-items:center}
+.codap-step figure{margin:0;min-width:0}
+.codap-step__image{display:flex;align-items:center;justify-content:center;min-height:220px;background:white}
+.codap-step__image img{display:block;max-width:100%;width:auto;max-height:410px;object-fit:contain}
+.codap-step figcaption{font-size:.7rem;color:#65736b;margin-top:.5rem}
+.codap-step figcaption span{display:block}
+.codap-step__instructions>p{font-size:.95rem}
+.codap-step__instructions .codap-step__action{font-size:1.12rem;margin-top:0}
+.codap-step__target{display:block;color:#7b3d2e;font-size:1rem;border-left:4px solid #aa6044;padding-left:.7rem}
+.codap-step__check{visibility:hidden;margin-top:1rem;border-top:1px solid #b7c6bb;padding-top:.8rem}
+.codap-step__check.is-visible{visibility:visible}
+.codap-step__check p{margin:.3rem 0 0;font-size:.95rem}
+.codap-step__help{font-size:.82rem;border-top:1px solid #d5dace;padding-top:.8rem;margin:1rem 0 0}
+.codap-step__help strong{color:#55645b}
+.codap-step__image-error{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem;background:white;text-align:center}
+.codap-tutorial nav{display:flex;gap:.7rem;align-items:center;justify-content:space-between;margin-top:.8rem;flex-wrap:wrap}
+.codap-tutorial nav label{display:flex;gap:.5rem;align-items:center;font-size:.8rem;min-width:0}
+.codap-tutorial nav select{max-width:100%;padding:.5rem;font:inherit}
+.class-slide--tutorial{padding:0!important;background:#f6f5ef!important}
+.class-slide--tutorial .codap-step{height:100%;display:flex;flex-direction:column;padding:2cqw 3cqw}
+.class-slide--tutorial .codap-step header>p{font-size:1.15cqw}
+.class-slide--tutorial .codap-step h3{font-size:2.7cqw;line-height:1.3;margin-bottom:1.2cqw}
+.class-slide--tutorial .codap-step__body{flex:1;min-height:0;grid-template-columns:minmax(0,1.8fr) minmax(0,1fr);gap:2cqw}
+.class-slide--tutorial .codap-step__image{height:29cqw;min-height:0}
+.class-slide--tutorial .codap-step__image img{max-height:100%}
+.class-slide--tutorial .codap-step figcaption{font-size:.9cqw;margin-top:.6cqw}
+.class-slide--tutorial .codap-step__instructions>p,.class-slide--tutorial .codap-step__check p{font-size:1.35cqw}
+.class-slide--tutorial .codap-step__instructions .codap-step__action{font-size:1.65cqw}
+.class-slide--tutorial .codap-step__target,.class-slide--tutorial .codap-step__check>strong{font-size:1.4cqw}
+.class-slide--tutorial .codap-step__target{padding-left:1cqw}
+.class-slide--tutorial .codap-step__check{margin-top:1.2cqw;padding-top:1cqw}
+.class-slide--tutorial .codap-step__help{font-size:1.13cqw;margin-top:1cqw;padding-top:.8cqw}
+.class-slide--tutorial .codap-step__image-error{font-size:1.4cqw;min-height:29cqw}
+.lesson-slides__tutorial-start{font:inherit;background:none;color:#315844;border:1px solid #8ca493;border-radius:6px;padding:.6rem .9rem;cursor:pointer}
+@media(max-width:760px){.codap-tutorial .codap-step__body{grid-template-columns:1fr}.codap-tutorial .codap-step{padding:1rem}.codap-tutorial nav label{width:100%}.codap-tutorial nav select{flex:1;min-width:0}}
