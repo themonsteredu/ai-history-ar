@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { lessonTwoStatementSets } from "../content/three-kingdoms/webActivities";
+import { lessonTwoStorageKey } from "../lib/careerLogKeys";
 import { readResilientStorage } from "../lib/resilientStorage";
 
 const DEFAULT_HUB_INGEST = "https://hub.moakit.ai/api/career-log/ingest";
 const STUDENT_KEY = "moakit-career-student-id-v1";
-const LESSON_TWO_STORAGE_KEY = "moa-history-ar:three-kingdoms:lesson-2:judgement:v1";
 const UUID_V4_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 let memoryStudentId = "";
 
@@ -116,17 +116,19 @@ export function CareerLogLessonOneBridge() {
   const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const boardCode = params.get("hub_code")?.trim().toLowerCase() || "";
   const inboundStudentId = params.get("student_id")?.trim() || "";
+  const lessonTwoDraftKey = useMemo(() => lessonTwoStorageKey(boardCode, inboundStudentId), [boardCode, inboundStudentId]);
   const endpoint = safeEndpoint(params.get("hub_ingest"));
   const lesson = location.pathname === "/three-kingdoms/lesson/1" ? 1 : location.pathname === "/three-kingdoms/lesson/2" ? 2 : null;
   const active = lesson !== null && params.get("view") === "activity" && /^[a-z0-9]{4,10}$/.test(boardCode) && UUID_V4_RE.test(inboundStudentId);
   const [reflection, setReflection] = useState("");
-  const [lessonTwoRecord, setLessonTwoRecord] = useState<LessonTwoRecord | null>(() => readLessonTwoRecord(readResilientStorage(LESSON_TWO_STORAGE_KEY)));
+  const [lessonTwoRecord, setLessonTwoRecord] = useState<LessonTwoRecord | null>(() => readLessonTwoRecord(readResilientStorage(lessonTwoDraftKey)));
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (lesson !== 2) return;
-    const refresh = () => window.setTimeout(() => setLessonTwoRecord(readLessonTwoRecord(readResilientStorage(LESSON_TWO_STORAGE_KEY))), 0);
+    const refresh = () => window.setTimeout(() => setLessonTwoRecord(readLessonTwoRecord(readResilientStorage(lessonTwoDraftKey))), 0);
+    refresh();
     window.addEventListener("click", refresh);
     window.addEventListener("input", refresh);
     window.addEventListener("storage", refresh);
@@ -135,7 +137,7 @@ export function CareerLogLessonOneBridge() {
       window.removeEventListener("input", refresh);
       window.removeEventListener("storage", refresh);
     };
-  }, [lesson]);
+  }, [lesson, lessonTwoDraftKey]);
 
   useEffect(() => {
     setStatus("idle");

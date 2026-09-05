@@ -11,15 +11,17 @@ describe("resilientStorage", () => {
       setItem: () => { throw new Error("quota"); },
       removeItem: () => {},
     };
+    let sessionValue: string | null = null;
     const session = {
       getItem: () => null,
-      setItem: () => {},
+      setItem: (_key: string, value: string) => { sessionValue = value; },
       removeItem: () => {},
     };
     vi.stubGlobal("window", { localStorage: local, sessionStorage: session });
 
     writeResilientStorage(key, "fresh");
     expect(readResilientStorage(key)).toBe("fresh");
+    expect(sessionValue).toBe("fresh");
     removeResilientStorage(key);
   });
 });

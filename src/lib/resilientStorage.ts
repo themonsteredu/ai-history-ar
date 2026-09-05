@@ -9,7 +9,13 @@ function safeGet(storage: Storage | null, key: string) {
 }
 
 function safeSet(storage: Storage | null, key: string, value: string) {
-  try { storage?.setItem(key, value); } catch {}
+  try {
+    if (!storage) return false;
+    storage.setItem(key, value);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function safeRemove(storage: Storage | null, key: string) {
@@ -18,15 +24,17 @@ function safeRemove(storage: Storage | null, key: string) {
 
 export function readResilientStorage(key: string) {
   return memoryStorage.get(key)
-    ?? safeGet(browserStorage("localStorage"), key)
     ?? safeGet(browserStorage("sessionStorage"), key)
+    ?? safeGet(browserStorage("localStorage"), key)
     ?? null;
 }
 
 export function writeResilientStorage(key: string, value: string) {
   memoryStorage.set(key, value);
-  safeSet(browserStorage("localStorage"), key, value);
-  safeSet(browserStorage("sessionStorage"), key, value);
+  const session = browserStorage("sessionStorage");
+  const local = browserStorage("localStorage");
+  if (!safeSet(session, key, value)) safeRemove(session, key);
+  if (!safeSet(local, key, value)) safeRemove(local, key);
 }
 
 export function removeResilientStorage(key: string) {
