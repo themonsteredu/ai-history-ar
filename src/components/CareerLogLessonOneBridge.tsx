@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { lessonTwoStatementSets } from "../content/three-kingdoms/webActivities";
 import { lessonTwoStorageKey } from "../lib/careerLogKeys";
@@ -124,6 +124,7 @@ export function CareerLogLessonOneBridge() {
   const [lessonTwoRecord, setLessonTwoRecord] = useState<LessonTwoRecord | null>(() => readLessonTwoRecord(readResilientStorage(lessonTwoDraftKey)));
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [message, setMessage] = useState("");
+  const requestScope = useRef(0);
 
   useEffect(() => {
     if (lesson !== 2) return;
@@ -140,6 +141,7 @@ export function CareerLogLessonOneBridge() {
   }, [lesson, lessonTwoDraftKey]);
 
   useEffect(() => {
+    requestScope.current += 1;
     setStatus("idle");
     setMessage("");
     setReflection("");
@@ -159,6 +161,7 @@ export function CareerLogLessonOneBridge() {
     }
     setStatus("saving");
     setMessage("");
+    const scope = requestScope.current;
     try {
       const studentId = getOrCreateStudentId(inboundStudentId);
       const sourceEventId = historySourceEventId(boardCode, lesson!, studentId);
@@ -179,10 +182,12 @@ export function CareerLogLessonOneBridge() {
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result?.error || `HTTP ${response.status}`);
+      if (scope !== requestScope.current) return;
       setStatus("saved");
       setMessage(result?.duplicate ? "이미 저장된 활동 기록입니다." : `${lesson}차시 활동이 Career Log에 저장되었습니다.`);
     } catch (error) {
       console.error("Career Log save failed", error);
+      if (scope !== requestScope.current) return;
       setStatus("error");
       setMessage("기록 저장에 실패했습니다. 수업 코드를 확인하고 다시 시도하세요.");
     }
