@@ -17,9 +17,9 @@ function safeRemove(storage: Storage | null, key: string) {
 }
 
 export function readResilientStorage(key: string) {
-  return safeGet(browserStorage("localStorage"), key)
+  return memoryStorage.get(key)
+    ?? safeGet(browserStorage("localStorage"), key)
     ?? safeGet(browserStorage("sessionStorage"), key)
-    ?? memoryStorage.get(key)
     ?? null;
 }
 

@@ -140,6 +140,7 @@ export function CareerLogLessonOneBridge() {
   useEffect(() => {
     setStatus("idle");
     setMessage("");
+    setReflection("");
   }, [boardCode, lesson]);
 
   if (!active || lesson === null) return null;
