@@ -143,7 +143,7 @@ export function CareerLogLessonOneBridge() {
     setStatus("idle");
     setMessage("");
     setReflection("");
-  }, [boardCode, lesson]);
+  }, [boardCode, inboundStudentId, lesson]);
 
   if (!active || lesson === null) return null;
   const lessonTwoComplete = isLessonTwoComplete(lessonTwoRecord);

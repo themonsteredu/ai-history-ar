@@ -33,6 +33,7 @@ describe("Career Log 2차시 기록", () => {
     expect(lessonPageSource).toMatch(/viewPath\(previousLesson\.id, view\)/);
     expect(lessonPageSource).toMatch(/viewPath\(nextLesson\.id, view\)/);
     expect(bridgeSource).toMatch(/setReflection\(""\)/);
+    expect(bridgeSource).toMatch(/\[boardCode, inboundStudentId, lesson\]/);
   });
 
   it("저장소 예외를 처리하고 Hub가 전달한 UUID를 우선한다", () => {
