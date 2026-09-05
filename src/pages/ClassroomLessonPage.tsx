@@ -74,6 +74,7 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
       </header>
 
       <main className="page-width classroom-content">
+        {era.id === "three-kingdoms" && lesson.id === 9 && <p><Link className="button" to="/three-kingdoms/ar-preview">첨성대 AR 먼저 체험하기</Link></p>}
         {view === "start" ? (
           <section className="classroom-start" aria-labelledby="classroom-start-title">
             <header className="classroom-start__heading">

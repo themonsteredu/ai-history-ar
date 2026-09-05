@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import { AppShell } from "./components/AppShell";
 import { TeacherGate } from "./components/TeacherGate";
@@ -9,12 +10,15 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { TeacherDashboardPage } from "./pages/TeacherDashboardPage";
 import { TeacherToolSettingsPage } from "./pages/TeacherToolSettingsPage";
 
+const ArPreviewPage = lazy(() => import("./pages/ArPreviewPage"));
+
 export function App() {
   return (
     <Routes>
       <Route element={<AppShell />}>
         <Route index element={<HomePage />} />
         <Route path="three-kingdoms" element={<EraPage eraId="three-kingdoms" />} />
+        <Route path="three-kingdoms/ar-preview" element={<Suspense fallback={<p role="status">첨성대 AR을 준비하고 있어요…</p>}><ArPreviewPage /></Suspense>} />
         <Route path="three-kingdoms/lesson/:lessonId" element={<LessonPage eraId="three-kingdoms" mode="student" />} />
         <Route path="joseon" element={<EraPage eraId="joseon" />} />
         <Route path="joseon/lesson/:lessonId" element={<LessonPage eraId="joseon" mode="student" />} />
