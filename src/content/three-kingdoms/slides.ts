@@ -1,3 +1,4 @@
+import { getContinuitySlides } from './continuitySlides';
 export type HeritageImageKey = "muryeong" | "incense" | "cheomseongdae" | "crown" | "mural" | "gaya";
 
 export interface SlideSource {
@@ -1405,5 +1406,7 @@ const decks = Object.fromEntries(
 ) as Record<number, readonly LessonSlide[]>;
 
 export function getThreeKingdomsSlides(lessonId: number) {
+  const continuation = getContinuitySlides(lessonId, decks[lessonId]?.[2]);
+  if (continuation) return continuation;
   return decks[lessonId] ?? decks[1];
 }

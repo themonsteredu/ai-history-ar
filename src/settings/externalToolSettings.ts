@@ -9,6 +9,29 @@ import type {
 
 export const EXTERNAL_TOOL_STORAGE_KEY = "moa-history-ar:external-tools:v1";
 export const EXTERNAL_TOOL_UPDATE_EVENT = "moa-history-ar:external-tools-updated";
+export const STUDENT_TOOL_QUERY = 'classTools';
+
+export function encodeStudentToolSettings(settings: ExternalToolSettings) {
+  const safe = normalizeExternalToolSettings(settings);
+  const payload = { version: 1, lessons: safe.lessons.map(({ teacherSourceUrl: _teacher, ...lesson }) => lesson) };
+  return btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(payload))));
+}
+
+export function decodeStudentToolSettings(encoded: string): ExternalToolSettings {
+  if (encoded.length > 24000) throw new Error('수업 링크가 너무 깁니다.');
+  const value = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(encoded), character => character.charCodeAt(0))));
+  if (value?.version !== 1 || !Array.isArray(value.lessons)) throw new Error('올바른 수업 링크가 아닙니다.');
+  const safe = normalizeExternalToolSettings(value);
+  return { ...safe, lessons: safe.lessons.map(lesson => ({ ...lesson, teacherSourceUrl: '' })) };
+}
+
+export function studentToolShareUrl(origin: string, base: string, settings: ExternalToolSettings) {
+  const url = new URL(base, origin);
+  url.searchParams.set(STUDENT_TOOL_QUERY, encodeStudentToolSettings(settings));
+  if (base === '/') url.pathname = '/three-kingdoms/lesson/4';
+  else url.hash = '/three-kingdoms/lesson/4';
+  return url.toString();
+}
 
 type SettingsStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
@@ -39,7 +62,7 @@ export function isAllowedExternalUrl(value: string, allowedDomains: readonly str
 
   try {
     const url = new URL(value);
-    if (url.protocol !== "https:") return false;
+    if (url.protocol !== "https:" || url.username || url.password) return false;
     return allowedDomains.some((domain) => url.hostname === domain || url.hostname.endsWith(`.${domain}`));
   } catch {
     return false;

@@ -4,7 +4,7 @@
       "title": "삼국시대",
       "bundle": {
         "path": "/downloads/three-kingdoms/three-kingdoms-all-materials.zip",
-        "size": 1091806
+        "size": 1661892
       },
       "lessons": [
         {
@@ -133,19 +133,19 @@
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-04-student.pdf",
-              "size": 29453
+              "size": 31848
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-04-teacher.pdf",
-              "size": 68722
+              "size": 47370
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-04-answer.pdf",
-              "size": 48664
+              "size": 36485
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-04-all.zip",
-              "size": 132018
+              "size": 107024
             }
           }
         },
@@ -155,19 +155,19 @@
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-05-student.pdf",
-              "size": 27940
+              "size": 34111
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-05-teacher.pdf",
-              "size": 50453
+              "size": 46882
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-05-answer.pdf",
-              "size": 41163
+              "size": 36133
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-05-all.zip",
-              "size": 108539
+              "size": 108395
             }
           }
         },
@@ -177,19 +177,19 @@
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-06-student.pdf",
-              "size": 28118
+              "size": 31905
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-06-teacher.pdf",
-              "size": 48136
+              "size": 46094
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-06-answer.pdf",
-              "size": 32270
+              "size": 35857
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-06-all.zip",
-              "size": 99019
+              "size": 105250
             }
           }
         },
@@ -199,19 +199,19 @@
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-07-student.pdf",
-              "size": 27982
+              "size": 32340
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-07-teacher.pdf",
-              "size": 46522
+              "size": 44795
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-07-answer.pdf",
-              "size": 37010
+              "size": 35745
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-07-all.zip",
-              "size": 101706
+              "size": 104312
             }
           }
         },
@@ -221,19 +221,19 @@
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-08-student.pdf",
-              "size": 28982
+              "size": 31892
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-08-teacher.pdf",
-              "size": 47950
+              "size": 46064
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-08-answer.pdf",
-              "size": 40204
+              "size": 35589
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-08-all.zip",
-              "size": 106527
+              "size": 104992
             }
           }
         },
@@ -243,19 +243,19 @@
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-09-student.pdf",
-              "size": 30405
+              "size": 34469
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-09-teacher.pdf",
-              "size": 52388
+              "size": 45887
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-09-answer.pdf",
-              "size": 33236
+              "size": 39734
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-09-all.zip",
-              "size": 106157
+              "size": 110484
             }
           }
         },
@@ -265,19 +265,19 @@
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-10-student.pdf",
-              "size": 29468
+              "size": 31364
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-10-teacher.pdf",
-              "size": 56310
+              "size": 45824
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-10-answer.pdf",
-              "size": 40132
+              "size": 36720
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-10-all.zip",
-              "size": 114187
+              "size": 105214
             }
           }
         }

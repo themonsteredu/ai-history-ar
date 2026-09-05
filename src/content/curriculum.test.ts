@@ -79,10 +79,10 @@ describe("curriculum catalog", () => {
       const slides = getThreeKingdomsSlides(lessonId);
       const lastSlide = slides.at(-1);
       const visibleCopy = JSON.stringify(slides);
-      expect(slides.length, `${lessonId}차시 충분한 수업 슬라이드`).toBeGreaterThanOrEqual(13);
+      expect(slides.length, `${lessonId}차시 충분한 수업 슬라이드`).toBeGreaterThanOrEqual(lessonId >= 4 ? 9 : 13);
       expect(slides.filter((slide) => slide.kind === "fact").length, `${lessonId}차시 내용 슬라이드`).toBeGreaterThanOrEqual(3);
       if ([1, 2, 3, 4, 9].includes(lessonId)) {
-        expect(slides.length, `${lessonId}차시 확장 슬라이드`).toBeGreaterThanOrEqual(14);
+        expect(slides.length, `${lessonId}차시 확장 슬라이드`).toBeGreaterThanOrEqual(lessonId >= 4 ? 9 : 14);
         expect(slides.some((slide) => slide.kind === "gallery"), `${lessonId}차시 문화유산 관찰 슬라이드`).toBe(true);
         expect(slides.some((slide) => slide.kind === "quiz"), `${lessonId}차시 판단 퀴즈`).toBe(true);
       }

@@ -19,21 +19,21 @@ export const classroomModeInfo = {
 } as const satisfies Record<ClassroomActivityMode, { label: string; shortLabel: string; description: string }>;
 
 const lessonFourResearchModeInfo = {
-  label: "모둠 공식 자료실",
-  shortLabel: "모둠 자료실",
-  description: "담당 유산의 공식 자료를 웹에서 조사하기",
+  label: "모둠 근거 조사",
+  shortLabel: "지난 판단 이어가기",
+  description: "지난 검증 결과를 가져와 우리 근거 표 만들기",
 } as const;
 
 const externalDataToolModeInfo = {
-  label: "외부 데이터 도구",
-  shortLabel: "외부 도구 실습",
-  description: "Google Sheets·CODAP에서 직접 정제하고 분석하기",
+  label: "이어지는 모둠 탐구",
+  shortLabel: "우리 결과 이어가기",
+  description: "같은 근거 표와 그래프로 정제·분석·해석하기",
 } as const;
 
 const arDataExplanationModeInfo = {
   label: "AR 데이터 해설",
   shortLabel: "AR 해설 체험",
-  description: "그래프 결과를 문화유산 AR 설명으로 연결하기",
+  description: "우리 그래프·근거·해설을 전시에 넣고 시험하기",
 } as const;
 
 const arMuseumModeInfo = {

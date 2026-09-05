@@ -5,6 +5,7 @@ import type { Era, HeritageGroup, Lesson } from "../types/curriculum";
 import { ExternalToolActivity } from "./ExternalToolActivity";
 import { Icon } from "./Icon";
 import { LessonFourResearchHub, LessonNineArStudio } from "./ThreeKingdomsProjectActivities";
+import { HeritageProjectWorkspace } from './HeritageProjectWorkspace';
 
 const threeKingdomsImages = [
   "muryeong-tomb.jpg",
@@ -702,6 +703,7 @@ const toolNames = [
 ] as const;
 
 export function LessonWebActivity({ era, lesson }: { era: Era; lesson: Lesson }) {
+  if (era.id === 'three-kingdoms' && lesson.id >= 4) return <HeritageProjectWorkspace lesson={lesson} />;
   if (lesson.classroomMode === "worksheet") return <WorksheetLessonView era={era} lesson={lesson} />;
   if (era.id === "three-kingdoms" && ((lesson.id >= 5 && lesson.id <= 8) || lesson.id === 10)) return <ExternalToolActivity lesson={lesson} />;
 

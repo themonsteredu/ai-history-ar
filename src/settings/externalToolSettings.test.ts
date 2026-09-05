@@ -8,6 +8,8 @@ import {
   readExternalToolSettings,
   validateExternalToolSetting,
   writeExternalToolSettings,
+  encodeStudentToolSettings,
+  decodeStudentToolSettings,
 } from "./externalToolSettings";
 
 class MemoryStorage {
@@ -27,6 +29,16 @@ class MemoryStorage {
 }
 
 describe("external tool settings", () => {
+  it('transfers lesson links to a different device without including teacher sources', () => {
+    const settings = createDefaultExternalToolSettings();
+    settings.lessons[4].studentUrl = 'https://docs.google.com/spreadsheets/d/class/edit';
+    settings.lessons[4].teacherSourceUrl = 'https://docs.google.com/spreadsheets/d/teacher-only/edit';
+    const encoded = encodeStudentToolSettings(settings);
+    expect(atob(encoded)).not.toContain('teacher-only');
+    const imported = decodeStudentToolSettings(encoded);
+    expect(imported.lessons[4].studentUrl).toContain('/class/edit');
+    expect(imported.lessons.every(lesson => lesson.teacherSourceUrl === '')).toBe(true);
+  });
   it("defines one activity for every Three Kingdoms lesson", () => {
     expect(threeKingdomsExternalTools).toHaveLength(10);
     expect(threeKingdomsExternalTools.map((tool) => tool.lessonId)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
