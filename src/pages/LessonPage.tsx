@@ -21,8 +21,10 @@ export function LessonPage({ eraId, mode }: LessonPageProps) {
   if (!era || !lesson) return <NotFoundPage />;
   if (mode === "student") return <ClassroomLessonPage era={era} lesson={lesson} />;
 
-  const previousLesson = era.lessons.find((candidate) => candidate.id === lesson.id - 1);
-  const nextLesson = era.lessons.find((candidate) => candidate.id === lesson.id + 1);
+  // 차시 번호는 연속이 아닙니다(삼국시대는 2·3차시를 합쳐 3차시가 없음). 배열 순서로 이웃을 찾습니다.
+  const lessonIndex = era.lessons.findIndex((candidate) => candidate.id === lesson.id);
+  const previousLesson = lessonIndex > 0 ? era.lessons[lessonIndex - 1] : undefined;
+  const nextLesson = lessonIndex >= 0 ? era.lessons[lessonIndex + 1] : undefined;
   const basePath = `/teacher/${era.id}/lesson`;
 
   return (

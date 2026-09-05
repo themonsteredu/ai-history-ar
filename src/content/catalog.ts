@@ -25,7 +25,7 @@ export const eras = [
         description: "역사 기록이나 유적과 유물에 나타난 고대 사람들의 생각과 생활을 추론한다.",
       },
     ],
-    lessons: applyLesson2Override("three-kingdoms", threeKingdomsLessons),
+    lessons: threeKingdomsLessons,
     groups: threeKingdomsGroups,
   },
   {

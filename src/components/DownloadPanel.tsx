@@ -39,7 +39,7 @@ export function DownloadPanel({ era, lesson }: DownloadPanelProps) {
         <Icon name="print" size={18} />화면 운영안 바로 인쇄
       </button>
       <Link className="button button--quiet button--full" to={`/teacher/${era.id}/downloads`}>
-        10차시 전체 다운로드 센터 <Icon name="arrow" size={16} />
+        {era.lessons.length}차시 전체 다운로드 센터 <Icon name="arrow" size={16} />
       </Link>
       <p className="download-panel__notice">
         학생용은 차시당 A4 한 장이며, 교사용 답안은 별도 PDF입니다. 모든 파일은 흑백 인쇄용입니다.

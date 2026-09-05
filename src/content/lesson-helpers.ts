@@ -12,22 +12,28 @@ export const classroomModeInfo = {
     description: "인쇄 자료에 생각을 기록하기",
   },
   student: {
-    label: "학생 체험 웹앱",
+    label: "학생 활동 화면",
     shortLabel: "학생 직접 체험",
     description: "각자 체험하고 결과를 수업에서 활용하기",
   },
 } as const satisfies Record<ClassroomActivityMode, { label: string; shortLabel: string; description: string }>;
 
-const lessonFourResearchModeInfo = {
-  label: "모둠 공식 자료실",
-  shortLabel: "모둠 자료실",
-  description: "담당 유산의 공식 자료를 웹에서 조사하기",
+const lessonTwoJudgementModeInfo = {
+  label: "AI 문장 판단",
+  shortLabel: "○×△? 판단",
+  description: "AI 문장 6개를 판단하고 확인한 출처 적기",
+} as const;
+
+const lessonFourDataModeInfo = {
+  label: "모둠 근거 조사",
+  shortLabel: "지난 판단 이어가기",
+  description: "지난 검증 결과를 가져와 우리 근거 표 만들기",
 } as const;
 
 const externalDataToolModeInfo = {
-  label: "외부 데이터 도구",
-  shortLabel: "외부 도구 실습",
-  description: "Google Sheets·CODAP에서 직접 정제하고 분석하기",
+  label: "이어지는 모둠 탐구",
+  shortLabel: "우리 결과 이어가기",
+  description: "같은 근거 표와 그래프로 정제·분석·해석하기",
 } as const;
 
 const arDataExplanationModeInfo = {
@@ -43,7 +49,8 @@ const arMuseumModeInfo = {
 } as const;
 
 export function getLessonActivityModeInfo(lesson: Lesson, eraId: EraId) {
-  if (eraId === "three-kingdoms" && lesson.id === 4) return lessonFourResearchModeInfo;
+  if (eraId === "three-kingdoms" && lesson.id === 2) return lessonTwoJudgementModeInfo;
+  if (eraId === "three-kingdoms" && lesson.id === 4) return lessonFourDataModeInfo;
   if (eraId === "three-kingdoms" && lesson.id >= 5 && lesson.id <= 8) return externalDataToolModeInfo;
   if (eraId === "three-kingdoms" && lesson.id === 9) return arDataExplanationModeInfo;
   if (eraId === "three-kingdoms" && lesson.id === 10) return arMuseumModeInfo;

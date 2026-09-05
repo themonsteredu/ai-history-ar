@@ -387,3 +387,202 @@ export const verificationCases: readonly VerificationCase[] = [
     ],
   },
 ];
+
+/**
+ * 2차시 공통 어휘.
+ * PPT(scripts/generate_lesson2_onepage.py)·활동지·활동 화면이 모두 이 표현을 그대로 사용합니다.
+ */
+export const judgementMarks = [
+  { symbol: "○", meaning: "자료로 확인" },
+  { symbol: "×", meaning: "자료와 다름" },
+  { symbol: "△", meaning: "의견 나뉨·근거 부족" },
+  { symbol: "?", meaning: "더 찾아봐야 함" },
+] as const;
+
+export interface LessonTwoStatement {
+  id: string;
+  text: string;
+}
+
+export interface LessonTwoStatementSet {
+  groupId: number;
+  heritage: string;
+  aiQuestion: string;
+  statements: readonly LessonTwoStatement[];
+}
+
+export const lessonTwoStatementSets: readonly LessonTwoStatementSet[] = [
+  {
+    groupId: 1,
+    heritage: "무령왕릉",
+    aiQuestion: "무령왕릉은 어떻게 발견되었고, 무엇을 알게 되었나요?",
+    statements: [
+      { id: "g1-1", text: "무령왕릉은 1971년 공주 송산리 고분군의 배수로 공사 중 우연히 발견되었습니다." },
+      { id: "g1-2", text: "무덤 안의 지석 덕분에 무덤의 주인이 무령왕과 왕비라는 사실을 확인할 수 있었습니다." },
+      { id: "g1-3", text: "발견 당시 이미 여러 차례 도굴되어 중요한 유물 대부분이 사라진 상태였습니다." },
+      { id: "g1-4", text: "무령왕릉을 처음 발견한 사람은 현장 학습을 온 초등학생이었습니다." },
+      { id: "g1-5", text: "무덤 안에서는 진묘수, 금제 관식, 금동 신발, 청동 거울 등 여러 유물이 나왔습니다." },
+      { id: "g1-6", text: "지석만 읽으면 장례의 모든 과정과 유물 하나하나의 정확한 쓰임까지 완전히 알 수 있습니다." },
+    ],
+  },
+  {
+    groupId: 2,
+    heritage: "백제 금동대향로",
+    aiQuestion: "백제 금동대향로는 어디에서 발견되었고, 어떤 모습인가요?",
+    statements: [
+      { id: "g2-1", text: "백제 금동대향로는 1993년 부여 능산리 절터를 발굴하던 중 발견되었습니다." },
+      { id: "g2-2", text: "이 향로는 청동으로 만든 뒤 표면에 금을 입힌 금동 유물입니다." },
+      { id: "g2-3", text: "향로는 백제 왕의 무덤 안에서 발견되었습니다." },
+      { id: "g2-4", text: "향로의 꼭대기에는 봉황, 받침에는 용이 있고 산·연꽃·동물·악사도 표현되어 있습니다." },
+      { id: "g2-5", text: "향로에 새겨진 모든 동물과 인물이 무엇을 뜻하는지 당시 기록에 남아 있어 완전히 밝혀졌습니다." },
+      { id: "g2-6", text: "이 향로는 신라의 황룡사에서 만들어져 발견된 유물입니다." },
+    ],
+  },
+  {
+    groupId: 3,
+    heritage: "첨성대",
+    aiQuestion: "첨성대는 무엇을 하던 곳이며, 사용 방법은 모두 밝혀졌나요?",
+    statements: [
+      { id: "g3-1", text: "첨성대는 경주에 남아 있는 돌로 쌓은 신라시대 건축물입니다." },
+      { id: "g3-2", text: "국가유산 안내에서는 첨성대를 선덕여왕 때 세운 천문 관측대로 설명합니다." },
+      { id: "g3-3", text: "첨성대 꼭대기에는 별을 확대해서 보는 망원경이 설치되어 있었습니다." },
+      { id: "g3-4", text: "첨성대는 나무 기둥과 기와로만 만든 건물이었습니다." },
+      { id: "g3-5", text: "첨성대의 돌 개수와 모든 층의 수가 달력을 뜻한다는 사실이 옛 문헌으로 완전히 증명되었습니다." },
+      { id: "g3-6", text: "신라 사람들이 첨성대 안팎에서 별을 관찰한 정확한 방법은 학자들이 모두 같은 결론을 내렸습니다." },
+    ],
+  },
+  {
+    groupId: 4,
+    heritage: "신라 금관",
+    aiQuestion: "신라 금관은 누가, 언제, 어떻게 사용했나요?",
+    statements: [
+      { id: "g4-1", text: "신라 금관은 왕릉급의 큰 무덤에서 권위를 보여 주는 부장품으로 발견되었습니다." },
+      { id: "g4-2", text: "금관에는 얇은 금판으로 만든 세움 장식과 굽은옥 같은 장식이 보입니다." },
+      { id: "g4-3", text: "신라 금관은 오직 왕의 무덤에서만 발견되었으므로 모두 왕이 쓴 왕관입니다." },
+      { id: "g4-4", text: "발견된 금관은 모두 무덤 주인의 머리에 똑바로 씌워진 상태였습니다." },
+      { id: "g4-5", text: "신라 사람들은 금관을 농사나 일상 노동을 할 때도 매일 쓰고 다녔습니다." },
+      { id: "g4-6", text: "금관이 생전에 실제로 착용된 것인지 장례를 위해 제작된 것인지에 대해서는 여러 연구 의견이 있습니다." },
+    ],
+  },
+  {
+    groupId: 5,
+    heritage: "고구려 고분벽화",
+    aiQuestion: "고구려 고분벽화에는 어떤 장면이 있으며, 무엇을 알 수 있나요?",
+    statements: [
+      { id: "g5-1", text: "고구려 고분벽화에는 사냥, 행렬, 생활 모습, 무늬와 사신도 같은 그림이 남아 있습니다." },
+      { id: "g5-2", text: "벽화무덤은 주로 왕족과 귀족의 무덤과 관련된 것으로 설명됩니다." },
+      { id: "g5-3", text: "발견된 고구려 무덤에는 하나도 빠짐없이 모두 벽화가 그려져 있습니다." },
+      { id: "g5-4", text: "고구려 고분벽화는 모두 현재 대한민국 안에서만 발견되었습니다." },
+      { id: "g5-5", text: "벽화에 보이는 장면은 모든 고구려 사람의 하루를 사진처럼 정확히 보여 줍니다." },
+      { id: "g5-6", text: "한 명의 유명한 화가가 고구려의 모든 고분벽화를 혼자 그렸다는 기록이 남아 있습니다." },
+    ],
+  },
+  {
+    groupId: 6,
+    heritage: "가야 고분군",
+    aiQuestion: "가야 고분군은 어떤 나라의 모습을 보여 주나요?",
+    statements: [
+      { id: "g6-1", text: "가야 고분군 세계유산은 여러 지역에 있는 일곱 고분군으로 이루어져 있습니다." },
+      { id: "g6-2", text: "가야는 여러 정치체가 함께 존재한 연맹적 성격을 지녔으며 지역마다 차이도 있었습니다." },
+      { id: "g6-3", text: "가야는 처음부터 한 명의 왕이 모든 지역을 다스린 하나의 중앙집권 제국이었습니다." },
+      { id: "g6-4", text: "세계유산에 포함된 가야 고분군 일곱 곳은 모두 같은 한 도시 안에 있습니다." },
+      { id: "g6-5", text: "가야 고분군은 2023년에 유네스코 세계유산으로 등재되었습니다." },
+      { id: "g6-6", text: "고분 하나마다 묻힌 사람의 이름과 일생이 모두 문헌에 남아 있어 정확히 알 수 있습니다." },
+    ],
+  },
+];
+
+/**
+ * 4차시 공통 항목.
+ * PPT(scripts/generate_lesson4_datacards.py)·활동지·활동 화면·학급 표가 모두 이 일곱 이름을 그대로 사용합니다.
+ * 여섯 모둠이 같은 항목을 채워야 학급 데이터 표의 한 줄이 됩니다.
+ */
+export const dataCardFields = [
+  { id: "period", label: "시기", hint: "언제 만들었는지 (세기·왕 이름)" },
+  { id: "purpose", label: "만든 까닭", hint: "무엇을 위해 만들었는지" },
+  { id: "value", label: "가치", hint: "왜 중요한 유산인지" },
+  { id: "condition", label: "현재 상태", hint: "지금 어디에 어떤 모습으로 남아 있는지" },
+  { id: "correction", label: "AI 오류 바로잡기", hint: "2차시에서 ×였던 문장을 바르게 고쳐 쓰기" },
+  { id: "unknown", label: "아직 모름", hint: "자료로 확인되지 않은 점" },
+  { id: "source", label: "출처", hint: "확인한 기관 이름" },
+] as const;
+
+export type DataCardFieldId = (typeof dataCardFields)[number]["id"];
+
+export type DataCardValues = Record<DataCardFieldId, string>;
+
+export interface ClassDataRow {
+  groupId: number;
+  heritage: string;
+  values: DataCardValues;
+  updatedAt: string;
+}
+
+export const emptyDataCard = (): DataCardValues =>
+  Object.fromEntries(dataCardFields.map((field) => [field.id, ""])) as DataCardValues;
+
+/** 5차시 정제 수업이 그대로 불러 쓰는 학급 표의 열 이름. */
+export const classTableColumns = ["모둠", "유산", ...dataCardFields.map((field) => field.label)] as const;
+
+export function classTableCsv(rows: readonly ClassDataRow[]) {
+  const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
+  const body = [...rows]
+    .sort((left, right) => left.groupId - right.groupId)
+    .map((row) => [`${row.groupId}모둠`, row.heritage, ...dataCardFields.map((field) => row.values[field.id])]);
+  return [classTableColumns, ...body].map((line) => line.map((cell) => escape(String(cell ?? ""))).join(",")).join("\r\n");
+}
+
+/**
+ * 5차시에서 학생이 직접 만드는 비교용 열.
+ * 4차시 일곱 항목은 한 칸에 두 가지 정보가 섞여 있다(예: "백제 무령왕 때, 6세기 초" = 나라 + 세기).
+ * 그 칸을 쪼개 아래 다섯 열을 만들어야 6~8차시에서 그래프를 그릴 수 있다.
+ * PPT(slides.ts)·활동지(generate_printables.py)·지도안이 이 낱말을 그대로 쓴다.
+ */
+export const cleaningColumns = [
+  { id: "country", label: "나라", from: "시기", standards: ["백제", "신라", "고구려", "가야"], rule: "네 나라 가운데 하나로 적습니다." },
+  { id: "century", label: "세기", from: "시기", standards: ["1", "4", "5", "6", "7"], rule: "숫자만 적습니다. 물결(~)이면 앞 숫자, ○○○년대는 그다음 세기입니다(500년대 = 6세기)." },
+  { id: "kind", label: "자료 종류", from: "유산", standards: ["무덤", "건축물", "공예품", "그림"], rule: "네 가지 가운데 하나로 적습니다." },
+  { id: "region", label: "지역", from: "현재 상태", standards: ["충청남도", "경상북도", "북한·중국", "영남 여러 곳"], rule: "지금 남아 있는 시·도로 적습니다. 두 곳에 나뉘어 있으면 ‘확인 필요’." },
+  { id: "institution", label: "확인 기관", from: "출처", standards: ["국가유산청", "국립중앙박물관", "국립공주박물관", "국립부여박물관", "유네스코 세계유산센터"], rule: "기관 하나만 적습니다. 비어 있으면 ‘확인 필요’." },
+] as const;
+
+/**
+ * 2차시 AI 답변에서 옮겨 온 줄.
+ * 사실은 틀리지 않았고 **표기와 빈칸만** 어긋난다.
+ * (정제 수업과 검증 수업을 섞지 않기 위해서다.)
+ */
+export const aiDraftRows: readonly { groupId: number; heritage: string; values: DataCardValues }[] = [
+  { groupId: 1, heritage: "무령왕릉", values: { period: "백 제 6세기", purpose: "왕과 왕비의 무덤", value: "백제 왕릉", condition: "공주", correction: "", unknown: "", source: "" } },
+  { groupId: 2, heritage: "백제 금동대향로", values: { period: "약 1500년 전", purpose: "의례에 쓰려고", value: "백제 공예", condition: "부여", correction: "", unknown: "", source: "" } },
+  { groupId: 3, heritage: "첨성대", values: { period: "신라국 600년대", purpose: "하늘을 보려고", value: "오래된 천문 건축물", condition: "경주시", correction: "", unknown: "", source: "" } },
+  { groupId: 4, heritage: "신라 금관", values: { period: "Silla 500년대", purpose: "권위를 드러내려고", value: "황금 문화", condition: "경주", correction: "", unknown: "", source: "" } },
+  { groupId: 5, heritage: "고구려 고분벽화", values: { period: "고구려 4~7세기", purpose: "무덤 안에 그림", value: "생활 모습", condition: "북한 중국", correction: "", unknown: "", source: "" } },
+  { groupId: 6, heritage: "가야 고분군", values: { period: "가야 1세기~6세기", purpose: "지배층 무덤", value: "세계유산", condition: "영남", correction: "", unknown: "", source: "" } },
+];
+
+/** 5차시 시작 파일의 열. 4차시 일곱 항목을 그대로 이어받는다. */
+export const lessonFiveStartColumns = ["모둠", "기록한 곳", "유산", ...dataCardFields.map((field) => field.label)] as const;
+
+/** 정제한 표의 열 이름. 시작 파일에 다섯 열을 더한 것이며 6~8차시 그래프는 이 표에서 그린다. */
+export const cleanedTableColumns = [...lessonFiveStartColumns, ...cleaningColumns.map((column) => column.label)] as const;
+
+/** 같은 모둠이 두 기기에서 올려 두 번 들어온 줄. 5차시 중복 정리 연습에 쓴다. */
+const duplicatedGroupIds = [1, 4];
+
+/**
+ * 5차시 시작 파일.
+ * 우리 모둠 줄 + 두 번 올라온 줄 + 2차시 AI 답변 줄을 합쳐 정제할 거리가 있는 표를 만든다.
+ */
+export function lessonFiveStartCsv(rows: readonly ClassDataRow[]) {
+  const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
+  const line = (groupId: number, origin: string, heritage: string, values: DataCardValues) =>
+    [`${groupId}모둠`, origin, heritage, ...dataCardFields.map((field) => values[field.id] ?? "")];
+
+  const ours = [...rows].sort((left, right) => left.groupId - right.groupId);
+  const body = [
+    ...ours.map((row) => line(row.groupId, "우리 모둠", row.heritage, row.values)),
+    ...ours.filter((row) => duplicatedGroupIds.includes(row.groupId)).map((row) => line(row.groupId, "우리 모둠", row.heritage, row.values)),
+    ...aiDraftRows.map((row) => line(row.groupId, "AI 답변", row.heritage, row.values)),
+  ];
+  return [lessonFiveStartColumns, ...body].map((cells) => cells.map((cell) => escape(String(cell ?? ""))).join(",")).join("\r\n");
+}

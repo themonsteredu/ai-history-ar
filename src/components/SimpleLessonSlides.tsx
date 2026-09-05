@@ -32,7 +32,7 @@ function buildSlides(era: Era, lesson: Lesson): readonly SimpleSlide[] {
       body: activity.details,
     })),
     {
-      kicker: "웹앱 활동",
+      kicker: "활동 화면",
       title: "화면에서 직접 확인하고 시험해요",
       body: ["친구와 함께 화면을 조작합니다.", "결과가 나온 까닭을 역사 근거로 설명합니다.", "기록이 필요한 내용은 교사가 안내할 때만 정리합니다."],
     },

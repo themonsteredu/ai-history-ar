@@ -21,11 +21,11 @@ export function LessonCard({ era, lesson, mode = "student" }: LessonCardProps) {
         <div className="lesson-card__body">
           <PhaseBadge phase={lesson.phase} />
           <h3>{lesson.title}</h3>
-          <p>첫 화면에서 수업 PPT와 학생 웹앱을 선택합니다.</p>
+          <p>첫 화면에서 수업 PPT와 활동 화면을 선택합니다.</p>
         </div>
         <div className="lesson-card__classroom-actions lesson-card__classroom-actions--single">
-          <Link aria-label={`${lesson.id}차시 PPT와 웹앱 선택 화면 열기`} to={path}>
-            <Icon name="arrow" size={19} /><span>수업 시작</span><small>PPT · 웹앱</small>
+          <Link aria-label={`${lesson.id}차시 PPT와 활동 화면 선택 화면 열기`} to={path}>
+            <Icon name="arrow" size={19} /><span>수업 시작</span><small>PPT · {activityMode.label}</small>
           </Link>
         </div>
       </article>

@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { HeritageProjectWorkspace } from './HeritageProjectWorkspace';
+import { useEffect, useState, type ReactElement } from "react";
 import { lessonDownloadPath } from "../content/downloads";
 import { classroomModeInfo } from "../content/lesson-helpers";
 import type { Era, HeritageGroup, Lesson } from "../types/curriculum";
 import { ExternalToolActivity } from "./ExternalToolActivity";
 import { Icon } from "./Icon";
-import { LessonFourResearchHub, LessonNineArStudio } from "./ThreeKingdomsProjectActivities";
+import { LessonFourDataBuilder, LessonTwoJudgementTool } from "./ThreeKingdomsDataActivities";
+import { LessonNineArStudio } from "./ThreeKingdomsProjectActivities";
 
 const threeKingdomsImages = [
   "muryeong-tomb.jpg",
@@ -645,9 +647,9 @@ function RandomPromptTool({ lessonId }: { lessonId: number }) {
 
 function LessonTool({ era, lesson }: { era: Era; lesson: Lesson }) {
   if (lesson.id === 1) return <ArtifactExplorer era={era} />;
-  if (lesson.id === 2) return <StudentResponseTool challenges={lessonTwoChallenges[era.id]} choices={["확인 필요", "자료와 맞음"]} storageKey={`ai-history-${era.id}-lesson-02-responses`} />;
+  if (lesson.id === 2) return era.id === "three-kingdoms" ? <LessonTwoJudgementTool /> : <StudentResponseTool challenges={lessonTwoChallenges[era.id]} choices={["확인 필요", "자료와 맞음"]} storageKey={`ai-history-${era.id}-lesson-02-responses`} />;
   if (lesson.id === 3) return <SourceVerificationTool era={era} />;
-  if (lesson.id === 4) return <SourcePortal era={era} />;
+  if (lesson.id === 4) return era.id === "three-kingdoms" ? <LessonFourDataBuilder /> : <SourcePortal era={era} />;
   if (era.id === "three-kingdoms" && lesson.id === 9) return <LessonNineArStudio />;
   if (lesson.id === 5) return <ArPreviewTool era={era} />;
   if (lesson.id === 6) return <QuickChoiceTool challenges={lessonSixChallenges[era.id]} choices={["진짜", "가짜", "판단 보류"]} />;
@@ -656,17 +658,22 @@ function LessonTool({ era, lesson }: { era: Era; lesson: Lesson }) {
   return <RandomPromptTool lessonId={lesson.id} />;
 }
 
+const threeKingdomsWorksheetTools: Partial<Record<number, { title: string; render: () => ReactElement }>> = {
+  2: { title: "AI 문장 판단 · 내 판단 (○×△?)", render: () => <LessonTwoJudgementTool /> },
+  4: { title: "우리 모둠 데이터 만들기", render: () => <LessonFourDataBuilder /> },
+};
+
 function WorksheetLessonView({ era, lesson }: { era: Era; lesson: Lesson }) {
-  const isThreeKingdomsResearch = era.id === "three-kingdoms" && lesson.id === 4;
+  const tool = era.id === "three-kingdoms" ? threeKingdomsWorksheetTools[lesson.id] : undefined;
   return (
-    <section className={isThreeKingdomsResearch ? "worksheet-classroom worksheet-classroom--research" : "worksheet-classroom"} aria-labelledby="worksheet-classroom-title">
+    <section className={tool ? "worksheet-classroom worksheet-classroom--research" : "worksheet-classroom"} aria-labelledby="worksheet-classroom-title">
       <header>
         <span>{era.shortName} {lesson.id}차시 · 활동지 중심</span>
-        <h2 id="worksheet-classroom-title">{isThreeKingdomsResearch ? "모둠별 공식 자료실" : "활동지에 조사 과정과 근거를 남깁니다"}</h2>
+        <h2 id="worksheet-classroom-title">{tool ? tool.title : "활동지에 조사 과정과 근거를 남깁니다"}</h2>
         <p>{lesson.objective}</p>
       </header>
-      {isThreeKingdomsResearch ? (
-        <div className="worksheet-classroom__research"><LessonFourResearchHub /></div>
+      {tool ? (
+        <div className="worksheet-classroom__research">{tool.render()}</div>
       ) : (
         <div className="worksheet-classroom__grid">
           <div>
@@ -702,6 +709,7 @@ const toolNames = [
 ] as const;
 
 export function LessonWebActivity({ era, lesson }: { era: Era; lesson: Lesson }) {
+  if (era.id === "three-kingdoms" && lesson.id >= 4) return <HeritageProjectWorkspace lesson={lesson} />;
   if (lesson.classroomMode === "worksheet") return <WorksheetLessonView era={era} lesson={lesson} />;
   if (era.id === "three-kingdoms" && ((lesson.id >= 5 && lesson.id <= 8) || lesson.id === 10)) return <ExternalToolActivity lesson={lesson} />;
 

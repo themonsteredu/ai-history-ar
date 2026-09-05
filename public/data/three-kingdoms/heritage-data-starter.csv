@@ -1,13 +1,31 @@
-모둠코드,유산이름,국가·정치체,자료종류,시기,정확한연도,발견·출토지역,소장·관리기관,확인된사실,자료상태,출처기관,출처URL,확인날짜
-1모둠,무령왕릉,백제,무덤,6세기,1971,충청남도 공주,국가유산청,배수로 공사 중 발견되었고 지석으로 무덤 주인을 확인했다,확인됨,국가유산청,https://www.heritage.go.kr/,수업용 예시
-1모둠,무령왕릉,백제,기록 유물,6세기,,충청남도 공주,국립공주박물관,지석에는 무덤 주인과 장례 관련 정보가 남아 있다,확인됨,국립공주박물관,https://gongju.museum.go.kr/,수업용 예시
-2모둠,백제 금동대향로,백제,공예품,6세기,1993,충청남도 부여,국립부여박물관,능산리 절터에서 발견되었다,확인됨,국립부여박물관,https://buyeo.museum.go.kr/,수업용 예시
-2모둠,백제 금동대향로,백제,공예품,6세기,,충청남도 부여,국립부여박물관,봉황·산·연꽃·용과 여러 인물·동물이 표현되어 있다,확인됨,국립부여박물관,https://buyeo.museum.go.kr/,수업용 예시
-3모둠,첨성대,신라,석조 건축,7세기,,경상북도 경주,국가유산청,선덕여왕 때 세운 것으로 보는 천문 관측 관련 시설이다,확인됨,국가유산청,https://www.heritage.go.kr/,수업용 예시
-3모둠,첨성대,신라,사용 방법,7세기,,경상북도 경주,국가유산청,정확한 관측 방법은 하나로 확정하기 어렵다,판단 보류,국가유산청,https://www.heritage.go.kr/,수업용 예시
-4모둠,신라 금관,신라,장신구,5~6세기,,경상북도 경주,국립중앙박물관,왕릉급 무덤의 부장품으로 발견되었다,확인됨,국립중앙박물관,https://www.museum.go.kr/,수업용 예시
-4모둠,신라 금관,신라,사용 방법,5~6세기,,경상북도 경주,국립중앙박물관,살아 있을 때 직접 썼는지는 한 가지 결론으로 확정하기 어렵다,판단 보류,국립중앙박물관,https://www.museum.go.kr/,수업용 예시
-5모둠,고구려 고분벽화,고구려,무덤 벽화,4~7세기,,북한과 중국 동북 지역,유네스코,생활·사냥·행렬·수호신 장면이 남아 있다,확인됨,유네스코,https://whc.unesco.org/en/list/1091/,수업용 예시
-5모둠,고구려 고분벽화,고구려,자료 범위,4~7세기,,북한과 중국 동북 지역,유네스코,왕족·귀족 무덤의 모습을 모든 사람의 생활로 일반화할 수 없다,주의,유네스코,https://whc.unesco.org/en/list/1091/,수업용 예시
-6모둠,가야 고분군,가야,고분군,1~6세기,2023,영남 여러 지역,유네스코,일곱 고분군이 연속유산을 이룬다,확인됨,유네스코,https://whc.unesco.org/,수업용 예시
-6모둠,가야 고분군,가야,관계 자료,1~6세기,,영남 여러 지역,국가유산청,공통점과 지역별 차이가 함께 나타난다,확인됨,국가유산청,https://www.heritage.go.kr/,수업용 예시
+﻿"용도","근거번호","모둠","유산","살펴본항목","확인상태","근거문장","출처기관","출처URL"
+"교사 연습용","1","1","무령왕릉","","추가 확인","무령왕릉은 1971년 송산리 고분의 배수로 공사 중 발견되었다.","국립중앙박물관","https://www.museum.go.kr/MUSEUM/contents/M0501000000.do?relicRecommendId=16892&schM=view"
+"교사 연습용","2","1","무령왕릉","","추가 확인","무덤은 벽돌을 쌓아 만든 벽돌무덤이다.","국립중앙박물관","https://www.museum.go.kr/MUSEUM/contents/M0501000000.do?relicRecommendId=16892&schM=view"
+"교사 연습용","3","1","무령왕릉","","추가 확인","지석의 기록으로 무령왕과 왕비의 무덤임을 확인했다.","국립중앙박물관","https://www.museum.go.kr/MUSEUM/contents/M0501000000.do?relicRecommendId=16892&schM=view"
+"교사 연습용","4","1","무령왕릉","","추가 확인","무덤 안에서는 금동신발, 청동거울, 도자기 등 여러 유물이 나왔다.","국립중앙박물관","https://www.museum.go.kr/MUSEUM/contents/M0501000000.do?relicRecommendId=16892&schM=view"
+"교사 연습용","5","1","무령왕릉","","판단 보류","유물이 놓인 까닭과 장례의 모든 순간까지 지석만으로 확정할 수는 없다.","국립중앙박물관 전시 해설","https://www.museum.go.kr/MUSEUM/contents/M0501000000.do?relicRecommendId=16892&schM=view"
+"교사 연습용","6","2","백제 금동대향로","","추가 확인","백제 금동대향로는 1993년 부여 능산리 절터에서 발견되었다.","국립부여박물관","https://buyeo.museum.go.kr/rprsPsn/view.do?key=2302150017&rprsPsnCmdtyMngSn=2001010001"
+"교사 연습용","7","2","백제 금동대향로","","추가 확인","청동으로 만든 뒤 표면에 금을 입힌 금동 유물이다.","국립부여박물관","https://buyeo.museum.go.kr/rprsPsn/view.do?key=2302150017&rprsPsnCmdtyMngSn=2001010001"
+"교사 연습용","8","2","백제 금동대향로","","추가 확인","꼭대기에는 봉황, 받침에는 용이 표현되어 있다.","국립부여박물관","https://buyeo.museum.go.kr/rprsPsn/view.do?key=2302150017&rprsPsnCmdtyMngSn=2001010001"
+"교사 연습용","9","2","백제 금동대향로","","추가 확인","산봉우리와 연꽃, 악사와 여러 동물 모습이 정교하게 새겨져 있다.","국립부여박물관","https://buyeo.museum.go.kr/rprsPsn/view.do?key=2302150017&rprsPsnCmdtyMngSn=2001010001"
+"교사 연습용","10","2","백제 금동대향로","","판단 보류","향로에 새긴 모든 인물과 동물의 뜻을 한 가지로 단정해서는 안 된다.","국립부여박물관 소장품 해설","https://buyeo.museum.go.kr/rprsPsn/view.do?key=2302150017&rprsPsnCmdtyMngSn=2001010001"
+"교사 연습용","11","3","첨성대","","추가 확인","첨성대는 신라 선덕여왕 때 세운 것으로 본다.","국가유산청","https://www.heritage.go.kr/heri/cul/culGuidePostDetail.do?ccbaCpno=1113700310000&ccgbGbtype=IND&ccgbGbtypeNo=2&pageNo=1_5_0_0"
+"교사 연습용","12","3","첨성대","","추가 확인","다듬은 돌을 층층이 쌓아 만든 석조 건축물이다.","국가유산청","https://www.heritage.go.kr/heri/cul/culGuidePostDetail.do?ccbaCpno=1113700310000&ccgbGbtype=IND&ccgbGbtypeNo=2&pageNo=1_5_0_0"
+"교사 연습용","13","3","첨성대","","추가 확인","첨성대는 신라의 천문 관측과 관련된 시설로 설명된다.","국가유산청","https://www.heritage.go.kr/heri/cul/culGuidePostDetail.do?ccbaCpno=1113700310000&ccgbGbtype=IND&ccgbGbtypeNo=2&pageNo=1_5_0_0"
+"교사 연습용","14","3","첨성대","","추가 확인","몸통 가운데에 네모난 창이 있고 위아래의 돌 구조가 다르다.","국가유산청","https://www.heritage.go.kr/heri/cul/culGuidePostDetail.do?ccbaCpno=1113700310000&ccgbGbtype=IND&ccgbGbtypeNo=2&pageNo=1_5_0_0"
+"교사 연습용","15","3","첨성대","","판단 보류","첨성대에서 누가 어떤 자세와 도구로 관측했는지는 하나로 확정되지 않았다.","국가유산청 안내 비교","https://www.heritage.go.kr/heri/cul/culGuidePostDetail.do?ccbaCpno=1113700310000&ccgbGbtype=IND&ccgbGbtypeNo=2&pageNo=1_5_0_0"
+"교사 연습용","16","4","신라 금관","","추가 확인","신라 금관은 왕릉급 무덤의 부장품으로 발견되었다.","국립중앙박물관","https://www.museum.go.kr/MUSEUM/contents/M0501000000.do?pageSize=10&relicRecommendId=519954&schM=view"
+"교사 연습용","17","4","신라 금관","","추가 확인","얇은 금판으로 만들어 무덤에 묻힌 사람의 권위를 보여 준다.","국립중앙박물관","https://www.museum.go.kr/MUSEUM/contents/M0501000000.do?pageSize=10&relicRecommendId=519954&schM=view"
+"교사 연습용","18","4","신라 금관","","추가 확인","금관에는 나뭇가지 모양의 세움 장식이 있다.","국립중앙박물관","https://www.museum.go.kr/MUSEUM/contents/M0501000000.do?pageSize=10&relicRecommendId=519954&schM=view"
+"교사 연습용","19","4","신라 금관","","추가 확인","굽은옥과 둥근 달개가 달려 있다.","국립중앙박물관","https://www.museum.go.kr/MUSEUM/contents/M0501000000.do?pageSize=10&relicRecommendId=519954&schM=view"
+"교사 연습용","20","4","신라 금관","","판단 보류","금관을 살아 있을 때 직접 썼는지, 장례를 위해 만들었는지는 한 가지 결론으로 확정하기 어렵다.","국립중앙박물관 소장품 해설","https://www.museum.go.kr/MUSEUM/contents/M0501000000.do?pageSize=10&relicRecommendId=519954&schM=view"
+"교사 연습용","21","5","고구려 고분벽화","","추가 확인","고구려 고분벽화는 왕족과 귀족의 무덤에 남아 있다.","유네스코 세계유산센터","https://whc.unesco.org/en/list/1091"
+"교사 연습용","22","5","고구려 고분벽화","","추가 확인","벽화는 고구려의 문화와 장례 모습을 알려 주는 자료이다.","유네스코 세계유산센터","https://whc.unesco.org/en/list/1091"
+"교사 연습용","23","5","고구려 고분벽화","","추가 확인","벽화에는 인물, 행렬, 사냥과 생활 모습이 나타난다.","유네스코 세계유산센터","https://whc.unesco.org/en/list/1091"
+"교사 연습용","24","5","고구려 고분벽화","","추가 확인","사신도 같은 그림에서 죽음 뒤의 세계에 대한 믿음을 살펴볼 수 있다.","유네스코 세계유산센터","https://whc.unesco.org/en/list/1091"
+"교사 연습용","25","5","고구려 고분벽화","","판단 보류","왕족·귀족 무덤의 벽화를 모든 고구려 사람의 일상으로 일반화해서는 안 된다.","유네스코 자료 비교","https://whc.unesco.org/en/list/1091"
+"교사 연습용","26","6","가야 고분군","","추가 확인","가야고분군 세계유산은 여러 지역의 일곱 고분군으로 이루어져 있다.","국가유산청","https://www.heritage.go.kr/heri/cul/culGuidePostDetail.do?ccbaCpno=1333803410000&ccgbGbtype=UNI&ccgbGbtypeNo=2&pageNo=1_1_5_0"
+"교사 연습용","27","6","가야 고분군","","추가 확인","1세기부터 6세기 무렵 가야 정치체의 무덤 문화를 보여 준다.","국가유산청","https://www.heritage.go.kr/heri/cul/culGuidePostDetail.do?ccbaCpno=1333803410000&ccgbGbtype=UNI&ccgbGbtypeNo=2&pageNo=1_1_5_0"
+"교사 연습용","28","6","가야 고분군","","추가 확인","무덤과 껴묻거리에는 가야 문화의 공통점과 지역별 차이가 함께 나타난다.","국가유산청","https://www.heritage.go.kr/heri/cul/culGuidePostDetail.do?ccbaCpno=1333803410000&ccgbGbtype=UNI&ccgbGbtypeNo=2&pageNo=1_1_5_0"
+"교사 연습용","29","6","가야 고분군","","추가 확인","토기와 교역품은 가야 여러 정치체의 교류를 보여 준다.","국가유산청","https://www.heritage.go.kr/heri/cul/culGuidePostDetail.do?ccbaCpno=1333803410000&ccgbGbtype=UNI&ccgbGbtypeNo=2&pageNo=1_1_5_0"
+"교사 연습용","30","6","가야 고분군","","판단 보류","가야를 처음부터 하나의 왕이 다스린 단일 국가로 단정해서는 안 된다.","국가유산청 세계유산 해설","https://www.heritage.go.kr/heri/cul/culGuidePostDetail.do?ccbaCpno=1333803410000&ccgbGbtype=UNI&ccgbGbtypeNo=2&pageNo=1_1_5_0"

@@ -2,20 +2,7 @@ name: Generate lesson 2 one-page materials
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - scripts/generate_lesson2_onepage.py
-      - scripts/generator_parts/**
-      - .github/workflows/generate-lesson2-onepage.yml
-      - src/content/lesson2Overrides.ts
-      - src/content/catalog.ts
-      - src/content/downloads.ts
-      - src/content/lesson-helpers.ts
-      - src/content/curriculum.test.ts
-      - src/pages/DownloadCenterPage.tsx
-      - docs/LESSON2_A4_ONEPAGE_SPEC.md
+  # Already taught materials are regenerated only by an explicit teacher request.
 
 permissions:
   contents: write

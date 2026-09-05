@@ -34,7 +34,7 @@ export function AppShell() {
             <strong>인공지능과 역사</strong>
             <p>기술은 도구로, 학생의 검증과 성장을 수업의 결과로.</p>
           </div>
-          <p className="site-footer__meta">초등학교 5학년 · 시대별 10차시 · 6모둠</p>
+          <p className="site-footer__meta">초등학교 5학년 · 시대별 문화유산 탐구 · 6모둠</p>
         </div>
       </footer>
     </div>

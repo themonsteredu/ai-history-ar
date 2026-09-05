@@ -7,6 +7,7 @@ import {
   readExternalToolSettings,
   validateExternalToolSetting,
   writeExternalToolSettings,
+  studentToolShareUrl,
 } from "../settings/externalToolSettings";
 import type { ExternalToolLessonSettings, ToolLaunchMode } from "../types/externalTools";
 import { Icon } from "../components/Icon";
@@ -14,10 +15,12 @@ import { Icon } from "../components/Icon";
 export function TeacherToolSettingsPage() {
   const [settings, setSettings] = useState(() => readExternalToolSettings(window.localStorage));
   const [message, setMessage] = useState("");
+  const [studentLink, setStudentLink] = useState('');
   const definitionByLesson = useMemo(() => new Map(threeKingdomsExternalTools.map((tool) => [tool.lessonId, tool])), []);
   const errorCount = settings.lessons.reduce((total, lesson) => total + validateExternalToolSetting(lesson).length, 0);
 
   function updateLesson(lessonId: number, patch: Partial<ExternalToolLessonSettings>) {
+    setStudentLink('');
     setSettings((current) => ({
       ...current,
       lessons: current.lessons.map((lesson) => lesson.lessonId === lessonId ? { ...lesson, ...patch } : lesson),
@@ -85,16 +88,18 @@ export function TeacherToolSettingsPage() {
           <h1>삼국시대 외부 도구 설정</h1>
           <p>학생 화면에는 실행 링크만 보입니다. 교사용 원본·설정 주소와 준비 상태는 이 화면에서만 관리합니다.</p>
           <div className="teacher-tools-hero__actions">
+            <button className="button button--outline" type="button" disabled={errorCount > 0} onClick={() => setStudentLink(studentToolShareUrl(window.location.origin, import.meta.env.BASE_URL, settings))}>학생 기기용 수업 링크 만들기</button>
             <Link className="button button--outline" to="/three-kingdoms/lesson/1?view=activity">학생 활동 화면 보기</Link>
             <button className="button button--outline" onClick={exportSettings} type="button">설정 내려받기</button>
             <label className="button button--outline teacher-tools-import">설정 불러오기<input accept="application/json" onChange={importSettings} type="file" /></label>
           </div>
+          {studentLink && <label style={{display:'grid',gap:8,marginTop:16}}>이 링크를 학생 기기에 전달하면 수업용 도구 주소도 함께 열립니다. 교사용 원본 주소는 포함하지 않습니다.<textarea aria-label="학생 기기용 수업 링크" readOnly value={studentLink} onFocus={event => event.target.select()} style={{width:'100%',minHeight:84,fontSize:14}} /></label>}
         </div>
       </section>
 
       <form className="page-width teacher-tools-form" onSubmit={saveSettings}>
         <div className="teacher-tools-summary">
-          <div><strong>10</strong><span>전체 차시</span></div>
+          <div><strong>{settings.lessons.length}</strong><span>전체 차시</span></div>
           <div><strong>{settings.lessons.filter((lesson) => lesson.enabled).length}</strong><span>사용 차시</span></div>
           <div className={errorCount > 0 ? "has-error" : ""}><strong>{errorCount}</strong><span>확인할 항목</span></div>
           <button className="button button--primary" type="submit">전체 설정 저장</button>
@@ -123,12 +128,12 @@ export function TeacherToolSettingsPage() {
                 <div className="teacher-tool-card__meta">
                   <span className={ready ? "is-ready" : ""}><Icon name={ready ? "check" : "clock"} size={16} />{ready ? "준비 완료" : "확인 필요"}</span>
                   <span>결과 {definition.resultKind === "none" ? "활동지·말" : definition.resultKind.toUpperCase()}</span>
-                  {definition.toolHomeUrl ? <a href={definition.toolHomeUrl} rel="noreferrer" target="_blank">공식 도구 열기 ↗</a> : <span>웹앱 내부 활동</span>}
+                  {definition.toolHomeUrl ? <a href={definition.toolHomeUrl} rel="noreferrer" target="_blank">공식 도구 열기 ↗</a> : <span>이 화면에서 활동</span>}
                 </div>
 
                 {isInternal ? (
                   <div className="teacher-tool-internal-note">
-                    <strong>웹앱 내부 활동</strong>
+                    <strong>이 화면에서 활동</strong>
                     <p>외부 실행 주소가 필요하지 않습니다. 결과 모아보기 주소만 선택해서 연결할 수 있습니다.</p>
                   </div>
                 ) : (
@@ -136,7 +141,7 @@ export function TeacherToolSettingsPage() {
                     <label>
                       <span>실행 방식</span>
                       <select onChange={(event) => updateLesson(lessonSetting.lessonId, { launchMode: event.target.value as ToolLaunchMode })} value={lessonSetting.launchMode}>
-                        <option value="embed">웹앱 안에서 열기</option>
+                        <option value="embed">이 화면 안에서 열기</option>
                         <option value="new-tab">새 탭에서 열기</option>
                       </select>
                     </label>

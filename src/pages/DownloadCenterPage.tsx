@@ -16,7 +16,13 @@ function printableFormat(specialFormat: string | undefined, lessonId: number) {
   return "A4 1장";
 }
 
-const lessonTwoSlugs: Record<string, readonly string[]> = {
+/** 모둠별 A4 한 장 활동지를 제공하는 차시. 파일명 슬러그는 생성 스크립트와 같아야 합니다. */
+const groupWorksheetLessons: Record<string, readonly number[]> = {
+  "three-kingdoms": [2],
+  joseon: [2],
+};
+
+const groupWorksheetSlugs: Record<string, readonly string[]> = {
   "three-kingdoms": [
     "muryeongwangneung",
     "baekje-incense-burner",
@@ -55,12 +61,12 @@ export function DownloadCenterPage() {
           <h1>활동지·활동카드·답안</h1>
           <p>학생 공개 화면에는 나오지 않는 교사용 인쇄 자료입니다. 차시별 PDF·PPT와 ZIP으로 내려받을 수 있습니다.</p>
           <div className="downloads-hero__stats">
-            <span><strong>10</strong>차시</span>
-            <span><strong>6</strong>모둠별 2차시 활동지</span>
+            <span><strong>{era.lessons.length}</strong>차시</span>
+            <span><strong>6</strong>모둠별 활동지</span>
             <span><strong>{totalFiles}</strong>종 기본 수업자료</span>
           </div>
           <a className="button button--light downloads-hero__download" download href={eraBundlePath(era.id)}>
-            <Icon name="download" size={19} />{era.shortName} 10차시 전체 ZIP
+            <Icon name="download" size={19} />{era.shortName} {era.lessons.length}차시 전체 ZIP
           </a>
         </div>
       </section>
@@ -90,13 +96,13 @@ export function DownloadCenterPage() {
                   <th scope="row"><span>{String(lesson.id).padStart(2, "0")}</span>{lesson.title}</th>
                   <td>
                     <ul>{lesson.downloads.student.map((item) => <li key={item}>{item}</li>)}</ul>
-                    {lesson.id === 2 ? <p style={{ marginTop: "0.55rem", fontWeight: 700 }}>각 모둠 PDF는 A4 세로 1쪽</p> : null}
+                    {groupWorksheetLessons[era.id].includes(lesson.id) ? <p style={{ marginTop: "0.55rem", fontWeight: 700 }}>각 모둠 PDF는 A4 세로 1쪽</p> : null}
                   </td>
                   <td><ul>{lesson.downloads.teacher.map((item) => <li key={item}>{item}</li>)}</ul></td>
                   <td>{printableFormat(lesson.downloads.specialFormat, lesson.id)}</td>
                   <td>
                     <div className="download-actions">
-                      {lesson.id === 2 ? (
+                      {groupWorksheetLessons[era.id].includes(lesson.id) ? (
                         <a className="button button--primary button--small" download href={lessonPptDownloadPath(era.id, lesson.id)}>
                           수업 PPT
                         </a>
@@ -117,9 +123,9 @@ export function DownloadCenterPage() {
                         운영안 보기 <Icon name="arrow" size={14} />
                       </Link>
                     </div>
-                    {lesson.id === 2 ? (
+                    {groupWorksheetLessons[era.id].includes(lesson.id) ? (
                       <div
-                        aria-label="2차시 모둠별 활동지"
+                        aria-label={`${lesson.id}차시 모둠별 활동지`}
                         style={{
                           display: "grid",
                           gap: "0.45rem",
@@ -140,7 +146,7 @@ export function DownloadCenterPage() {
                               era.id,
                               lesson.id,
                               group.id,
-                              lessonTwoSlugs[era.id][index],
+                              groupWorksheetSlugs[era.id][index],
                             )}
                           >
                             {group.id}모둠 · {group.heritage} <Icon name="download" size={14} />

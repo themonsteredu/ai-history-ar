@@ -541,7 +541,7 @@ export function ExternalToolActivity({ lesson }: { lesson: Lesson }) {
           <div className="external-activity__badges">
             <span>{lesson.id}차시</span>
             <span>{tool.estimatedMinutes}분</span>
-            <span>{tool.launchMode === "embed" ? "화면 안에서 실행" : tool.launchMode === "new-tab" ? "새 탭에서 실행" : "웹앱 내부 활동"}</span>
+            <span>{tool.launchMode === "embed" ? "화면 안에서 실행" : tool.launchMode === "new-tab" ? "새 탭에서 실행" : "이 화면에서 활동"}</span>
           </div>
           <h3>{tool.toolName}</h3>
           <p>{tool.purpose}</p>

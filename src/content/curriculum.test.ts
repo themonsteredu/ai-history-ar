@@ -5,10 +5,11 @@ import { getThreeKingdomsSlides } from "./three-kingdoms/slides";
 import { threeKingdomsExternalTools } from "./three-kingdoms/externalTools";
 
 describe("curriculum catalog", () => {
-  it("contains two complete 10-lesson courses", () => {
+  // 삼국시대는 2·3차시를 한 차시로 합쳐 아홉 차시입니다. 조선시대는 열 차시 그대로입니다.
+  it("keeps the merged Three Kingdoms sequence and the untouched Joseon sequence", () => {
     expect(eras).toHaveLength(2);
-    expect(eras.flatMap((era) => era.lessons)).toHaveLength(20);
-    expect(eras.every((era) => era.lessons.length === 10)).toBe(true);
+    expect(eras[0].lessons.map((lesson) => lesson.id)).toEqual([1, 2, 4, 5, 6, 7, 8, 9, 10]);
+    expect(eras[1].lessons.map((lesson) => lesson.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   });
 
   it("keeps every lesson at 40 minutes", () => {
@@ -20,13 +21,16 @@ describe("curriculum catalog", () => {
   });
 
   it("uses the agreed three-act phase structure", () => {
-    for (const era of eras) {
-      expect(era.lessons.map((lesson) => lesson.phase)).toEqual([
-        "의심하기", "의심하기", "의심하기",
-        "확인하고 만들기", "확인하고 만들기", "확인하고 만들기", "확인하고 만들기",
-        "해설사 되기", "해설사 되기", "해설사 되기",
-      ]);
-    }
+    expect(eras[0].lessons.map((lesson) => lesson.phase)).toEqual([
+      "의심하기", "의심하기",
+      "확인하고 만들기", "확인하고 만들기", "확인하고 만들기", "확인하고 만들기",
+      "해설사 되기", "해설사 되기", "해설사 되기",
+    ]);
+    expect(eras[1].lessons.map((lesson) => lesson.phase)).toEqual([
+      "의심하기", "의심하기", "의심하기",
+      "확인하고 만들기", "확인하고 만들기", "확인하고 만들기", "확인하고 만들기",
+      "해설사 되기", "해설사 되기", "해설사 되기",
+    ]);
   });
 
   it("keeps each era's verification model distinct", () => {
@@ -49,40 +53,48 @@ describe("curriculum catalog", () => {
     }
   });
 
-  it("restores AI doubt and source verification in the early Three Kingdoms sequence", () => {
+  it("folds AI doubt and source verification into a single Three Kingdoms lesson", () => {
     expect(eras[0].lessons.map((lesson) => lesson.title)).toEqual([
-      "역사 데이터 질문 찾기", "AI에게 물어보았습니다", "진짜인지 확인하는 방법",
+      "역사 데이터 질문 찾기", "AI에게 물어보았습니다",
       "우리 모둠 유산 파헤치기", "역사 데이터 정제하기", "역사 데이터를 그림으로 보기",
       "그래프를 읽고 설명하기", "데이터로 과거 유추하기", "데이터 해석을 AR로 표현하기", "AR 데이터 박물관 열기",
     ]);
+    const merged = eras[0].lessons[1];
+    expect(merged.objective).toContain("○×△?");
+    expect(JSON.stringify(merged)).toContain("출처·시기·교차·원본·보류");
   });
 
-  it("uses one-page worksheets in lesson two and reserves web apps for needed interactions", () => {
-    const expectedModes = ["teacher-led", "worksheet", "teacher-led", "worksheet", "student", "student", "student", "student", "student", "student"];
+  it("uses one-page worksheets in the judgement and data lessons", () => {
+    expect(eras[0].lessons.map((lesson) => lesson.classroomMode)).toEqual(
+      ["teacher-led", "worksheet", "worksheet", "student", "student", "student", "student", "student", "student"],
+    );
+    expect(eras[1].lessons.map((lesson) => lesson.classroomMode)).toEqual(
+      ["teacher-led", "worksheet", "teacher-led", "worksheet", "student", "student", "student", "student", "student", "student"],
+    );
     for (const era of eras) {
-      expect(era.lessons.map((lesson) => lesson.classroomMode), era.shortName).toEqual(expectedModes);
-      expect(era.lessons[1].downloads.student.join(" ")).toContain("A4 한 장");
-      expect(era.lessons[1].outputs.join(" ")).toContain("A4 한 장");
+      expect(era.lessons[1].downloads.student.join(" "), era.shortName).toContain("A4 한 장");
+      expect(era.lessons[1].outputs.join(" "), era.shortName).toContain("A4 한 장");
     }
   });
 
   it("keeps grade-five student results choice-led and short", () => {
     const studentCopy = JSON.stringify(threeKingdomsExternalTools);
     expect(studentCopy).not.toMatch(/두 가지 적|수정 이유를.*기록|30초 도슨트 대본을 완성/);
-    expect(threeKingdomsExternalTools[6].resultGuide).toContain("하나");
-    expect(threeKingdomsExternalTools[9].resultGuide).toContain("체크");
+    const tool = (lessonId: number) => threeKingdomsExternalTools.find((item) => item.lessonId === lessonId);
+    expect(tool(7)?.resultGuide).toContain("하나");
+    expect(tool(10)?.resultGuide).toContain("체크");
   });
 
   it("keeps every Three Kingdoms deck rich, classroom-facing, and Q&A-led", () => {
     const internalPhrases = /다운로드 없음|새 탭/;
-    for (let lessonId = 1; lessonId <= 10; lessonId += 1) {
+    for (const lessonId of eras[0].lessons.map((lesson) => lesson.id)) {
       const slides = getThreeKingdomsSlides(lessonId);
       const lastSlide = slides.at(-1);
       const visibleCopy = JSON.stringify(slides);
-      expect(slides.length, `${lessonId}차시 충분한 수업 슬라이드`).toBeGreaterThanOrEqual(13);
+      expect(slides.length, `${lessonId}차시 충분한 수업 슬라이드`).toBeGreaterThanOrEqual(lessonId >= 4 ? 9 : 13);
       expect(slides.filter((slide) => slide.kind === "fact").length, `${lessonId}차시 내용 슬라이드`).toBeGreaterThanOrEqual(3);
-      if ([1, 2, 3, 4, 9].includes(lessonId)) {
-        expect(slides.length, `${lessonId}차시 확장 슬라이드`).toBeGreaterThanOrEqual(14);
+      if ([1, 2, 4, 9].includes(lessonId)) {
+        expect(slides.length, `${lessonId}차시 확장 슬라이드`).toBeGreaterThanOrEqual(lessonId >= 4 ? 9 : 14);
         expect(slides.some((slide) => slide.kind === "gallery"), `${lessonId}차시 문화유산 관찰 슬라이드`).toBe(true);
         expect(slides.some((slide) => slide.kind === "quiz"), `${lessonId}차시 판단 퀴즈`).toBe(true);
       }

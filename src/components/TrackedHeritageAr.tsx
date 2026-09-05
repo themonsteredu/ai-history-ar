@@ -23,8 +23,8 @@ function cameraErrorMessage(error: unknown) {
   return "카메라를 시작하지 못했습니다. 아래 대체 체험으로 같은 내용을 확인할 수 있습니다.";
 }
 
-export default function TrackedHeritageAr() {
-  const [selectedId, setSelectedId] = useState(1);
+export default function TrackedHeritageAr({ heritageId, explanation, caution }: { heritageId?: number; explanation?: string; caution?: string } = {}) {
+  const [selectedId, setSelectedId] = useState(heritageId ?? 1);
   const [status, setStatus] = useState<ArStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const stageRef = useRef<HTMLDivElement>(null);
@@ -190,14 +190,14 @@ export default function TrackedHeritageAr() {
 
   return (
     <div className="tracked-ar">
-      <div aria-label="AR로 볼 문화유산 선택" className="ar-target-picker" role="group">
+      {!heritageId && <div aria-label="AR로 볼 문화유산 선택" className="ar-target-picker" role="group">
         {heritageResearchCases.map((item) => (
           <button aria-pressed={selectedId === item.id} key={item.id} onClick={() => chooseTarget(item.id)} type="button">
             <img alt="" src={`${imageRoot}/${item.image}`} />
             <span>{item.heritage}</span>
           </button>
         ))}
-      </div>
+      </div>}
 
       <section className="ar-control-bar">
         <div><span>선택한 표적 카드</span><strong>{selectedCase.heritage}</strong></div>
@@ -235,8 +235,8 @@ export default function TrackedHeritageAr() {
         <section className="ar-learning-card" aria-live="polite">
           <span>카드 인식 뒤 확인하는 역사 정보</span>
           <h3>{selectedCase.heritage}</h3>
-          <div><strong>자료로 확인</strong><p>{confirmedFact?.text}</p></div>
-          <div className="is-caution"><strong>아직 단정하지 않기</strong><p>{cautionFact?.text}</p></div>
+          <div><strong>{explanation ? '우리 모둠이 확인한 근거' : '자료로 확인'}</strong><p>{explanation || confirmedFact?.text}</p></div>
+          <div className="is-caution"><strong>아직 단정하지 않기</strong><p>{caution || cautionFact?.text}</p></div>
           <p className="ar-talk-prompt">모둠 질문: 확인된 사실과 아직 모르는 점은 무엇이 다른가요?</p>
         </section>
       ) : null}
