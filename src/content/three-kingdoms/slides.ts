@@ -1183,9 +1183,9 @@ const deckPlans: Record<number, DeckPlan> = {
     coverImage: "incense",
     history: {
       image: "incense",
-      title: "백제 금동대향로는 출토 기록과 모양을 함께 살펴야 합니다",
-      points: ["1993년 부여 능산리 절터에서 발견되었습니다.", "청동으로 만든 뒤 표면에 금을 입힌 금동 유물입니다.", "봉황·산봉우리·연꽃·용과 여러 인물·동물이 표현되어 있습니다."],
-      takeaway: "발견 장소·재료·모양을 출처와 함께 기록하면 유산의 가치와 남은 질문을 구분할 수 있습니다.",
+      title: "향로는 어디에서 찾았고 어떤 모습일까요?",
+      points: ["1993년, 부여 능산리의 절이 있던 자리에서 찾았어요.", "청동으로 만들고 겉에 금을 입혔어요. 이것을 금동이라고 해요.", "상상 속의 새인 봉황과 산·연꽃·용·사람·동물의 모습이 보여요."],
+      takeaway: "찾은 곳, 만든 재료, 보이는 모습을 각각 한 문장으로 적어 봐요.",
       source: sources.incense,
     },
     data: {
@@ -1214,9 +1214,9 @@ const deckPlans: Record<number, DeckPlan> = {
     coverImage: "incense",
     history: {
       image: "crown",
-      title: "같은 유산도 적는 말이 다르면 셀 수가 없습니다",
-      points: ["신라 금관을 ‘5세기’·‘400년대’·‘마립간 때’로 적으면 같은 칸에 못 넣습니다.", "출처를 ‘국립중앙박물관’·‘국박’으로 적으면 두 기관처럼 보입니다.", "틀린 글이 아니라 기준이 서로 다른 글입니다."],
-      takeaway: "역사적 의미를 바꾸지 않으면서 비교 기준만 맞추는 것이 데이터 정제입니다.",
+      title: "같은 곳의 이름은 똑같이 적어요",
+      points: ["‘국립중앙박물관’과 줄여 쓴 ‘국박’은 같은 곳을 가리킬 수 있어요.", "다른 곳으로 잘못 세지 않도록 기관 이름을 정확히 적어요.", "문장에 적힌 역사 이야기는 마음대로 바꾸지 않아요."],
+      takeaway: "자료를 찾은 곳의 이름도 빠짐없이 확인해요.",
       source: sources.crown,
     },
     data: {
@@ -1245,9 +1245,9 @@ const deckPlans: Record<number, DeckPlan> = {
     coverImage: "mural",
     history: {
       image: "mural",
-      title: "고구려 벽화는 장면과 자료 범위를 함께 봐야 합니다",
-      points: ["생활·사냥·행렬·수호신 장면이 남아 있습니다.", "왕족과 귀족의 무덤 자료가 중심입니다.", "벽화 한 장을 모든 고구려 사람의 삶으로 볼 수는 없습니다."],
-      takeaway: "그래프도 어떤 자료를 모았는지에 따라 보여 주는 범위가 달라집니다.",
+      title: "벽화 한 장으로 모든 사람의 생활을 알 수 있을까요?",
+      points: ["고구려 무덤 벽에는 사냥하거나 줄지어 가는 모습이 남아 있어요.", "주로 왕의 가족이나 높은 신분의 사람들의 무덤이에요.", "그 그림만으로 모든 고구려 사람이 똑같이 살았다고 말할 수는 없어요."],
+      takeaway: "우리 그래프도 어떤 자료를 골랐는지 함께 말해요.",
       source: sources.mural,
     },
     data: {
@@ -1276,9 +1276,9 @@ const deckPlans: Record<number, DeckPlan> = {
     coverImage: "gaya",
     history: {
       image: "gaya",
-      title: "가야의 여러 고분군은 공통점과 차이를 함께 보여 줍니다",
-      points: ["여러 지역에 큰 무덤 떼가 남아 있습니다.", "무덤과 껴묻거리에는 지역별 특징이 있습니다.", "한 나라가 아니라 여러 정치체의 관계를 살펴야 합니다."],
-      takeaway: "차이가 보인다고 곧바로 원인을 단정하지 말고 다른 역사 자료와 함께 확인합니다.",
+      title: "가야 무덤은 지역마다 무엇이 같고 다를까요?",
+      points: ["여러 지역에 옛 무덤들이 모여 있어요. 이를 고분군이라고 해요.", "무덤의 모양과 함께 묻은 물건에는 같은 점도, 다른 점도 있어요.", "가야에는 여러 작은 나라가 있었어요."],
+      takeaway: "다른 점을 찾았다면 왜 다른지는 다른 자료도 읽고 생각해요.",
       source: sources.gaya,
     },
     data: {
@@ -1307,9 +1307,9 @@ const deckPlans: Record<number, DeckPlan> = {
     coverImage: "incense",
     history: {
       image: "incense",
-      title: "금동대향로의 장소와 모양을 함께 보면 질문이 넓어집니다",
-      points: ["절터에서 발견된 향로라는 장소 정보가 있습니다.", "다양한 인물·동물·산과 연꽃 표현이 있습니다.", "모든 무늬의 뜻을 하나로 단정할 수는 없습니다."],
-      takeaway: "발견 장소와 유물 모양을 연결하면 당시 의식과 믿음을 유추할 단서가 됩니다.",
+      title: "향로를 어디에서 찾았는지 함께 생각해요",
+      points: ["이 향로는 절이 있던 자리에서 찾았어요.", "사람·동물·산·연꽃의 모습이 새겨져 있어요.", "모든 무늬가 무엇을 뜻하는지는 아직 다 알 수 없어요."],
+      takeaway: "장소와 모양을 함께 보며 무엇에 썼을지 생각하고, 아직 모르는 점도 말해요.",
       source: sources.incense,
     },
     data: {
@@ -1338,9 +1338,9 @@ const deckPlans: Record<number, DeckPlan> = {
     coverImage: "crown",
     history: {
       image: "crown",
-      title: "그래프와 AR은 서로 다른 근거를 보여 줍니다",
-      points: ["그래프는 모둠이 모은 자료 안의 경향을 보여 줍니다.", "AR은 금관의 세움 장식과 굽은옥처럼 실제 특징을 가리킬 수 있습니다.", "두 자료가 같은 주장과 출처를 가리켜야 해설이 정확해집니다."],
-      takeaway: "그래프의 큰 값을 역사적 중요성으로 바꾸지 않고, AR 장면도 확인된 사실까지만 표현합니다.",
+      title: "그래프와 사진을 함께 보여 줘요",
+      points: ["그래프는 우리가 고른 문장이 몇 개인지 보여 줘요.", "유산 사진에서는 금관에 세워진 장식처럼 실제 모양을 볼 수 있어요.", "우리가 찾은 문장을 사진 옆에 놓고 설명해요."],
+      takeaway: "자료에서 확인한 것과 우리가 생각한 것을 나누어 말해요.",
       source: sources.crown,
     },
     data: {
@@ -1369,9 +1369,9 @@ const deckPlans: Record<number, DeckPlan> = {
     coverImage: "gaya",
     history: {
       image: "muryeong",
-      title: "문화유산은 근거를 따라 설명할 때 살아납니다",
-      points: ["무령왕릉은 지석으로 무덤 주인을 확인했습니다.", "금동대향로와 고분벽화는 모양과 장면을 남겼습니다.", "첨성대·금관·가야 고분군에는 판단을 보류할 질문도 있습니다."],
-      takeaway: "좋은 도슨트는 아는 것과 모르는 것을 나누고 출처를 보여 줍니다.",
+      title: "유산을 보여 주며 설명해 볼까요?",
+      points: ["무령왕릉에서는 무덤 주인을 알려 주는 글자가 적힌 돌, 지석이 나왔어요.", "향로와 벽화에는 옛사람이 만든 여러 모습이 남아 있어요.", "유산을 살펴봐도 아직 답을 모르는 질문이 있어요."],
+      takeaway: "친구에게 아는 것은 자료를 보여 주고, 모르는 것은 아직 모른다고 말해요.",
       source: sources.muryeong,
     },
     data: {
@@ -1503,7 +1503,7 @@ const decks = Object.fromEntries(
 ) as Record<number, readonly LessonSlide[]>;
 
 export function getThreeKingdomsSlides(lessonId: number) {
-  const continuation = getContinuitySlides(lessonId, decks[lessonId]?.[2]);
+  const continuation = getContinuitySlides(lessonId, deckPlans[lessonId] ? { kind: 'fact', eyebrow: '유산 이야기', ...deckPlans[lessonId].history } : undefined);
   if (continuation) return continuation;
   return decks[lessonId] ?? decks[1];
 }

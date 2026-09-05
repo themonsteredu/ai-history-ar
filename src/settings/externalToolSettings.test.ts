@@ -68,7 +68,7 @@ describe("external tool settings", () => {
     const restored = readExternalToolSettings(storage);
     expect(restored.lessons).toHaveLength(9);
     expect(forLesson(restored.lessons, 6).teacherSourceUrl).toContain("docs.google.com");
-    expect(getResolvedExternalTool(6, restored).toolName).toBe("CODAP · 역사 데이터 시각화");
+    expect(getResolvedExternalTool(6, restored).toolName).toBe("CODAP · 그래프 만들기");
     expect(getResolvedExternalTool(6, restored).launchMode).toBe("embed");
   });
 

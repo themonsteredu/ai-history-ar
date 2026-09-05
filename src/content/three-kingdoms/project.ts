@@ -53,11 +53,11 @@ export function recordProblems(records: ResearchRecord[]) {
   return records.flatMap((record, index) => {
     const problems: string[] = [];
     const key = normalized(record.text);
-    if (!key) problems.push(`${index + 1}행: 근거 문장이 비어 있습니다.`);
-    if (key && seen.has(key)) problems.push(`${index + 1}행: 같은 근거가 반복됩니다. 원본을 남긴 뒤 중복 행을 정리하세요.`);
+    if (!key) problems.push(`${index + 1}번 문장: 내용이 비어 있어요. 찾은 문장을 적어 주세요.`);
+    if (key && seen.has(key)) problems.push(`${index + 1}번 문장: 같은 내용이 있어요. 고치기 전 파일을 저장하고 하나만 남겨 주세요.`);
     seen.add(key);
-    if (!record.category) problems.push(`${index + 1}행: 살펴본 항목을 골라 주세요.`);
-    if (!record.source.trim() || !sourceUrl(record.url)) problems.push(`${index + 1}행: 공식 출처와 원문 주소를 확인하세요.`);
+    if (!record.category) problems.push(`${index + 1}번 문장: 어떤 내용인지 골라 주세요.`);
+    if (!record.source.trim() || !sourceUrl(record.url)) problems.push(`${index + 1}번 문장: 자료를 찾은 곳과 주소를 확인해 주세요.`);
     return problems;
   });
 }
@@ -81,7 +81,7 @@ export function updateRecords(project: HeritageProject, records: ResearchRecord[
     inference: { evidenceIds: [], sentence: '', limit: '' }, exhibit: { ...project.exhibit, focusId: '', tested: false } };
 }
 export function parseProject(text: string): HeritageProject {
-  if (text.length > 2_800_000) throw new Error('파일이 너무 큽니다. 수업에서 저장한 프로젝트 파일을 선택하세요.');
+  if (text.length > 2_800_000) throw new Error('파일이 너무 커요. ‘오늘 작업 저장하기’로 받은 파일을 골라 주세요.');
   const value = JSON.parse(text) as HeritageProject;
   const short = (v: unknown, max = 1500): v is string => typeof v === 'string' && v.length <= max;
   if (value?.version !== 1 || !Number.isInteger(value.group) || value.group < 1 || value.group > 6 || !Number.isInteger(value.heritageId) || value.heritageId < 1 || value.heritageId > 6 ||
@@ -93,7 +93,7 @@ export function parseProject(text: string): HeritageProject {
     !value.graph || !['category', 'status'].includes(value.graph.dimension) || !short(value.graph.title) || !Number.isSafeInteger(value.graph.revision) || !short(value.graph.image, 2_400_000) ||
     (value.graph.image !== '' && !/^data:image\/png;base64,[A-Za-z0-9+/]+=*$/.test(value.graph.image)) ||
     !short(value.interpretation) || !short(value.limitation) || !value.inference || !Array.isArray(value.inference.evidenceIds) || value.inference.evidenceIds.length > 2 || value.inference.evidenceIds.some(id => !short(id, 100)) || !short(value.inference.sentence) || !short(value.inference.limit) ||
-    !value.exhibit || !short(value.exhibit.focusId) || !['표시', '확대'].includes(value.exhibit.effect) || !['특징 찾기', '근거 고르기'].includes(value.exhibit.action) || typeof value.exhibit.tested !== 'boolean') throw new Error('올바른 삼국시대 프로젝트 파일이 아닙니다.');
+    !value.exhibit || !short(value.exhibit.focusId) || !['표시', '확대'].includes(value.exhibit.effect) || !['특징 찾기', '근거 고르기'].includes(value.exhibit.action) || typeof value.exhibit.tested !== 'boolean') throw new Error('삼국시대 수업에서 ‘오늘 작업 저장하기’로 받은 파일을 골라 주세요.');
   return value;
 }
 export function csvCell(value: string) { return `"${(/^[\s]*[=+@-]/.test(value) ? "'" : '') + value.replaceAll('"', '""')}"`; }

@@ -25,27 +25,27 @@ const lessonTwoJudgementModeInfo = {
 } as const;
 
 const lessonFourDataModeInfo = {
-  label: "모둠 근거 조사",
-  shortLabel: "지난 판단 이어가기",
-  description: "지난 검증 결과를 가져와 우리 근거 표 만들기",
+  label: "우리 유산 문장 찾기",
+  shortLabel: "지난 시간에 고친 말 보기",
+  description: "자료에서 찾은 문장 3~5개를 우리 표에 담기",
 } as const;
 
 const externalDataToolModeInfo = {
-  label: "이어지는 모둠 탐구",
-  shortLabel: "우리 결과 이어가기",
-  description: "같은 근거 표와 그래프로 정제·분석·해석하기",
+  label: "우리 모둠 활동",
+  shortLabel: "지난 작업 이어서 하기",
+  description: "우리 표를 고치고, 그래프를 만들어 설명하기",
 } as const;
 
 const arDataExplanationModeInfo = {
-  label: "AR 데이터 해설",
-  shortLabel: "AR 해설 체험",
-  description: "그래프 결과를 문화유산 AR 설명으로 연결하기",
+  label: "우리 전시 준비",
+  shortLabel: "사진과 설명 보여 주기",
+  description: "사진·그래프·설명을 골라 우리 전시 만들기",
 } as const;
 
 const arMuseumModeInfo = {
-  label: "AR 데이터 박물관",
-  shortLabel: "박물관 운영",
-  description: "그래프·AR·도슨트 해설을 한 부스에서 운영하기",
+  label: "우리 반 유산 박물관",
+  shortLabel: "설명하고 구경하기",
+  description: "우리 유산을 설명하고 친구들의 전시 구경하기",
 } as const;
 
 export function getLessonActivityModeInfo(lesson: Lesson, eraId: EraId) {

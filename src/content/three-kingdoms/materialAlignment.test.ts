@@ -74,7 +74,7 @@ describe("4~10차시 근거 표와 수업 자료 연결", () => {
     const tool = threeKingdomsExternalTools.find(item => item.lessonId === 6)!;
     expect(JSON.stringify(lesson)).toContain("근거 문장 수");
     expect(JSON.stringify(tool)).toContain("근거 문장 수");
-    expect(threeKingdomsLessons.find(item => item.id === 8)?.cautions.join(" ")).toContain("교차 검증");
-    expect(threeKingdomsLessons.find(item => item.id === 10)?.nextLessonPrep).toContain("최종 작업 파일");
+    expect(threeKingdomsLessons.find(item => item.id === 8)?.cautions.join(" ")).toContain("두 곳에서 따로 확인한 것이 아닙니다");
+    expect(threeKingdomsLessons.find(item => item.id === 10)?.nextLessonPrep).toContain("마지막으로 저장한 작업 파일");
   });
 });

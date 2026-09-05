@@ -56,8 +56,8 @@ describe("curriculum catalog", () => {
   it("folds AI doubt and source verification into a single Three Kingdoms lesson", () => {
     expect(eras[0].lessons.map((lesson) => lesson.title)).toEqual([
       "역사 데이터 질문 찾기", "AI에게 물어보았습니다",
-      "우리 모둠 유산 파헤치기", "역사 데이터 정제하기", "역사 데이터를 그림으로 보기",
-      "그래프를 읽고 설명하기", "데이터로 과거 유추하기", "데이터 해석을 AR로 표현하기", "AR 데이터 박물관 열기",
+      "우리 유산의 이야기 찾기", "우리 표를 깔끔하게 고치기", "우리 표로 그래프 만들기",
+      "그래프를 보고 말하기", "자료로 옛날 모습 생각하기", "우리 유산 전시 준비하기", "우리 반 유산 박물관 열기",
     ]);
     const merged = eras[0].lessons[1];
     expect(merged.objective).toContain("○×△?");
@@ -82,7 +82,7 @@ describe("curriculum catalog", () => {
     expect(studentCopy).not.toMatch(/두 가지 적|수정 이유를.*기록|30초 도슨트 대본을 완성/);
     const tool = (lessonId: number) => threeKingdomsExternalTools.find((item) => item.lessonId === lessonId);
     expect(tool(7)?.resultGuide).toContain("하나");
-    expect(tool(10)?.resultGuide).toContain("체크");
+    expect(tool(10)?.resultGuide).toContain("친구");
   });
 
   it("keeps every Three Kingdoms deck rich, classroom-facing, and Q&A-led", () => {
@@ -104,7 +104,10 @@ describe("curriculum catalog", () => {
       expect(internalPhrases.test(visibleCopy), `${lessonId}차시 운영 문구`).toBe(false);
       if (lastSlide?.kind === "closing") {
         expect(lastSlide.title.endsWith("까요?") || lastSlide.title.endsWith("할까요?")).toBe(true);
-        expect(lastSlide.prompt.length).toBeGreaterThan(45);
+        if (lessonId >= 4) {
+          expect(lastSlide.prompt.length).toBeGreaterThan(0);
+          expect(lastSlide.prompt.length).toBeLessThanOrEqual(140);
+        } else expect(lastSlide.prompt.length).toBeGreaterThan(45);
       }
     }
   });
