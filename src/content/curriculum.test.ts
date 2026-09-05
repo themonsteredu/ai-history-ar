@@ -57,7 +57,7 @@ describe("curriculum catalog", () => {
     expect(eras[0].lessons.map((lesson) => lesson.title)).toEqual([
       "역사 데이터 질문 찾기", "AI에게 물어보았습니다",
       "우리 유산의 이야기 찾기", "우리 표를 깔끔하게 고치기", "우리 표로 그래프 만들기",
-      "그래프를 보고 말하기", "자료로 옛날 모습 생각하기", "우리 유산 전시 준비하기", "우리 반 유산 박물관 열기",
+      "그래프를 보고 말하기", "자료로 옛날 모습 생각하기", "우리 목소리로 안내하는 AR 전시", "우리 반 유산 박물관 열기",
     ]);
     const merged = eras[0].lessons[1];
     expect(merged.objective).toContain("○×△?");

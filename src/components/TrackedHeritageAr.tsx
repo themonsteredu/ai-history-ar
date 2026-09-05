@@ -1,5 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { heritageResearchCases } from "../content/three-kingdoms/webActivities";
+import type { ArExhibit } from '../lib/ar/exhibit';
+
+const ArExhibitViewer = lazy(() => import('./ArExhibitViewer'));
 
 const imageRoot = `${import.meta.env.BASE_URL}images/heritage/three-kingdoms`;
 const targetFile = `${import.meta.env.BASE_URL}ar/three-kingdoms-targets.mind`;
@@ -23,7 +26,12 @@ function cameraErrorMessage(error: unknown) {
   return "카메라를 시작하지 못했습니다. 아래 대체 체험으로 같은 내용을 확인할 수 있습니다.";
 }
 
-export default function TrackedHeritageAr({ heritageId, explanation, caution }: { heritageId?: number; explanation?: string; caution?: string } = {}) {
+export default function TrackedHeritageAr(props: { heritageId?: number; explanation?: string; caution?: string; ar?: ArExhibit } = {}) {
+  const heritage = heritageResearchCases.find(item => item.id === props.heritageId);
+  if (props.ar && heritage) return <Suspense fallback={<p>입체 유물과 녹음을 준비해요…</p>}><ArExhibitViewer value={props.ar} heritage={heritage.heritage} heritageId={heritage.id} image={`${imageRoot}/${heritage.image}`} /></Suspense>;
+  return <LegacyTrackedHeritageAr {...props} />;
+}
+function LegacyTrackedHeritageAr({ heritageId, explanation, caution }: { heritageId?: number; explanation?: string; caution?: string } = {}) {
   const [selectedId, setSelectedId] = useState(heritageId ?? 1);
   const [status, setStatus] = useState<ArStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");

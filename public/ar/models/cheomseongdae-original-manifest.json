@@ -1,0 +1,20 @@
+{
+  "LOBJ_2989.OBJ": {
+    "bytes": 44426112,
+    "compressedBytes": 17862890,
+    "sha256": "905915e6120ddaaff2978d00f6eb22d6b3c83fd0fc4d088c412b1dbb85c898ff",
+    "parts": [
+      "cheomseongdae-original-obj-1.gzpart",
+      "cheomseongdae-original-obj-2.gzpart"
+    ]
+  },
+  "LOBJ_2989.BMP": {
+    "bytes": 50331702,
+    "compressedBytes": 17794779,
+    "sha256": "689e1f3d34b130da0e066bbc8353c4b8749d04ce1d89f099192f92539093d5b9",
+    "parts": [
+      "cheomseongdae-original-bmp-1.gzpart",
+      "cheomseongdae-original-bmp-2.gzpart"
+    ]
+  }
+}

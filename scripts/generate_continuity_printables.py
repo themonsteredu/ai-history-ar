@@ -44,7 +44,7 @@ def student(plan):
  elif i==8:
   s += [p('우리 표에서 확인됨으로 표시한 서로 다른 근거 두 개를 고릅니다.',BOLD),table([['선택한 근거','핵심 내용과 출처'],['근거 번호 ____','내용:\n\n출처:'],['근거 번호 ____','내용:\n\n출처:']],[WIDTH*.22,WIDTH*.78],[None,35*mm,35*mm]),Spacer(1,4*mm),box('두 근거를 연결한 과거 설명','두 근거를 함께 보면,\n\n__________________________________했을 가능성이 있습니다.',36),Spacer(1,4*mm),box('그래도 단정할 수 없는 점','이 자료만으로는\n\n__________________________________까지 알 수 없습니다.',32),Spacer(1,4*mm),p('□ 두 근거와 설명이 연결됨  □ 확인된 사실과 유추를 구분함\n□ 같은 원문의 두 문장을 출처 두 곳으로 세지 않음\n□ 작업 파일 보관')]
  elif i==9:
-  s += [p('8차시의 그래프·근거·설명을 그대로 전시에 넣습니다.',BOLD),box('사진과 연결할 핵심 근거','근거 번호 ____   사진에서 보여 줄 특징:',24),Spacer(1,4*mm),table([['전시 선택','우리 모둠'],['사진 표현','□ 표시  □ 확대'],['관람객 활동','□ 특징 찾기  □ 근거 고르기']],[WIDTH*.3,WIDTH*.7],[None,19*mm,19*mm]),Spacer(1,4*mm),p('전시를 실제로 열고 확인한 것에 표시해요.',BOLD),table([['점검 항목','확인'],['우리 그래프와 실제 개수가 맞다.','□'],['선택한 핵심 근거와 우리 해설이 보인다.','□'],['확대 또는 표시가 선택한 대로 나타난다.','□'],['관람객이 특징 찾기 또는 근거 고르기를 할 수 있다.','□'],['카메라 AR 또는 카메라 없는 체험을 확인했다.','□'],['다른 기기에서 작업 파일을 불러와 열었다.','□']],[WIDTH*.86,WIDTH*.14]),Spacer(1,4*mm),box('30초 해설 순서','우리 그래프 → 확인한 근거 → 가능한 과거 설명 → 아직 모르는 점\n□ 전시 점검 완료  □ 최종 작업 파일 보관',27)]
+  s += [p('8차시에 확인한 설명을 유물에 붙이고 우리 목소리로 녹음해요.',BOLD),table([['설명점','설명할 곳 · 핵심 낱말','녹음 점검'],['1번','','□ 녹음함  □ 들어 봄'],['2번','','□ 녹음함  □ 들어 봄']],[WIDTH*.12,WIDTH*.58,WIDTH*.3],[None,29*mm,29*mm]),Spacer(1,4*mm),box('친구에게 낼 문제 하나','문제:\n\n정답인 설명점:  □ 1번  □ 2번',29),Spacer(1,4*mm),p('친구 화면에서 직접 눌러 보고 확인해요.',BOLD),table([['점검 항목','확인'],['두 설명점이 보여 주려는 곳에 놓여 있다.','□'],['설명은 수업 자료에서 확인한 내용이다.','□'],['설명점을 누르면 녹음한 목소리가 들린다.','□'],['친구가 설명을 듣고 관람 문제를 풀 수 있다.','□'],['출력한 카드로 AR 또는 카메라 없는 체험을 확인했다.','□'],['녹음을 끝내고 작업 파일을 저장했다.','□']],[WIDTH*.87,WIDTH*.13]),Spacer(1,4*mm),p('녹음 순서: 녹음 시작 → 설명 읽기(30초 안) → 녹음 끝내기 → 들어 보기',SMALL),p('다른 기기는 저장한 작업 파일을 먼저 열어요. 3D 원본이 없으면 사진과 녹음으로 관람해요.',SMALL)]
  else:
   s += [p('9차시 최종 파일과 지난 2·3차시 검증 활동지를 전시합니다.',BOLD),table([['시간','우리 역할'],['0~5분','파일 열기·전시 준비'],['5~17분','A팀 해설 / B팀 관람: 세 부스, 각 4분'],['17~19분','역할 교대'],['19~31분','B팀 해설 / A팀 관람: 세 부스, 각 4분'],['31~34분','부스 정리'],['34~40분','처음 판단과 현재 설명 비교']],[WIDTH*.22,WIDTH*.78]),Spacer(1,4*mm),table([['방문한 부스','기억에 남은 근거·질문'],['____모둠',''],['____모둠',''],['____모둠','']],[WIDTH*.25,WIDTH*.75],[None,18*mm,18*mm,18*mm]),Spacer(1,4*mm),box('지난 2·3차시와 지금의 나','그때 의심한 말:\n지금 근거로 설명할 수 있는 것:\n□ 출처 확인  □ 그래프 읽기  □ 사실과 유추 구분',32)]
  return s
@@ -63,11 +63,14 @@ def build(path,story,title):
  SimpleDocTemplate(str(path),pagesize=A4,leftMargin=14*mm,rightMargin=14*mm,topMargin=13*mm,bottomMargin=17*mm,title=title,author='MOAKIT').build(story,onFirstPage=footer,onLaterPages=footer)
 
 def main():
+ import argparse
+ parser=argparse.ArgumentParser();parser.add_argument('--lessons',type=int,nargs='+');args=parser.parse_args()
+ selected=[plan for plan in PLANS if args.lessons is None or plan['id'] in args.lessons]
  manifest_path=ROOT/'public/downloads/manifest.json'
  manifest=json.loads(manifest_path.read_text())
- for stale in [*OUT.glob('lesson-04-group-*.pdf'), OUT/'lesson-04-teaching.pptx']:
+ for stale in ([*OUT.glob('lesson-04-group-*.pdf'), OUT/'lesson-04-teaching.pptx'] if any(plan['id']==4 for plan in selected) else []):
   stale.unlink(missing_ok=True)
- for plan in PLANS:
+ for plan in selected:
   id=plan['id'];entry=next(item for item in manifest['eras']['three-kingdoms']['lessons'] if item['lessonId']==id)
   entry['title']=plan['title']
   entry['files']={}
@@ -84,6 +87,6 @@ def main():
    if file.suffix in ['.pdf','.pptx']:z.write(file,f'삼국시대/{file.name}')
  manifest['eras']['three-kingdoms']['bundle']={'path':f'/downloads/three-kingdoms/{bundle.name}','size':bundle.stat().st_size}
  manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
- print('Updated only lessons 4–10: 21 PDFs and 8 ZIPs. Taught lessons and Joseon preserved.')
+ print('Updated lessons:', ', '.join(str(plan['id']) for plan in selected))
 
 if __name__=='__main__':main()

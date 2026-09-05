@@ -139,8 +139,8 @@ export const threeKingdomsExternalTools: readonly LessonExternalToolDefinition[]
   {
     lessonId: 9,
     toolId: "ar-data-explanation",
-    toolName: "우리 유산 전시 준비",
-    purpose: "우리 사진·그래프·설명으로 전시를 만들고, 잘 열리는지 확인할 수 있다.",
+    toolName: "우리 목소리 AR 전시",
+    purpose: "확인한 설명 두 개와 녹음, 관람 문제로 AR 전시를 만들고 친구 화면에서 확인할 수 있다.",
     estimatedMinutes: 29,
     launchMode: "internal",
     studentUrl: "",
@@ -149,9 +149,9 @@ export const threeKingdomsExternalTools: readonly LessonExternalToolDefinition[]
     submissionUrl: "",
     resultBoardUrl: "",
     resultKind: "none",
-    resultGuide: "전시를 열어 사진·그래프·설명과 친구가 할 활동을 확인해요.",
-    steps: ["두 문장 중 사진과 함께 보여 줄 문장 하나를 고릅니다.", "사진을 그대로 볼지 크게 볼지, 친구가 무엇을 찾아볼지 고릅니다.", "‘우리 전시 미리 열어 보기’를 눌러 사진·그래프·설명이 잘 보이는지 확인합니다.", "유산 카드를 카메라에 비추는 AR과 카메라 없이 보는 화면을 확인합니다. 설명도 30초 동안 연습합니다."],
-    dataTip: "이 전시에서는 준비된 유산 사진을 보여 주거나 크게 볼 수 있습니다.",
+    resultGuide: "설명점·녹음·관람 문제를 만들고 친구 화면에서 확인해요.",
+    steps: ["친구에게 보여 줄 근거를 고르고 유물 위에 설명점 두 곳을 놓습니다.", "각 설명점에 확인한 설명을 적고 30초 안으로 녹음합니다.", "녹음 끝내기와 재생 버튼으로 확인하고 관람 문제 하나를 만듭니다.", "친구 화면과 카메라 AR에서 설명점·녹음·관람 문제가 작동하는지 확인합니다."],
+    dataTip: "녹음을 끝낸 뒤 작업 파일을 저장해요. 다른 기기는 이 파일을 열어야 우리 해설이 함께 나옵니다.",
     allowedDomains: formSubmissionDomains,
   },
   {
