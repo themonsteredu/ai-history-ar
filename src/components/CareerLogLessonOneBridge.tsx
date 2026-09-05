@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 
-const DEFAULT_HUB_INGEST = "https://hub.moakit.ai/api?route=career-log-ingest";
+const DEFAULT_HUB_INGEST = "https://hub.moakit.ai/api";
 const STUDENT_KEY = "moakit-career-student-id-v1";
 const EVENT_KEY_PREFIX = "moakit-career-history-ai-01-event:";
 
@@ -62,19 +62,14 @@ export function CareerLogLessonOneBridge() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          career_log_route: "ingest",
           board_code: boardCode,
           student_id: studentId,
           process: "삼국·가야 문화유산을 관찰하고 모둠에서 조사할 데이터 질문을 정함",
           artifact: `모둠 데이터 질문 · ${heritage}: ${question}`,
           reflection: reflection.trim() || null,
           source_event_id: sourceEventId,
-          raw_data: {
-            lesson: 1,
-            era: "three-kingdoms",
-            selected_heritage: heritage,
-            data_question: question,
-            activity: "heritage-question-card",
-          },
+          raw_data: { lesson: 1, era: "three-kingdoms", selected_heritage: heritage, data_question: question, activity: "heritage-question-card" },
         }),
       });
       const result = await response.json().catch(() => ({}));
