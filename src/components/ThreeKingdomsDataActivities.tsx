@@ -1,3 +1,5 @@
+import { statementSetsForEra, researchForEra, heritageImageUrl, sourceChoicesForEra } from "../content/heritageCatalog";
+import type { EraId } from "../types/curriculum";
 import { WorksheetSteps } from './WorksheetSteps';
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -43,7 +45,9 @@ function GroupPicker({
   title,
   description,
   onSelect,
+  eraId = "three-kingdoms",
 }: {
+  eraId?: EraId;
   eyebrow: string;
   title: string;
   description: string;
@@ -57,9 +61,9 @@ function GroupPicker({
         <p>{description}</p>
       </div>
       <div className="group-picker__grid">
-        {lessonTwoStatementSets.map((set) => (
+        {statementSetsForEra(eraId).map((set) => (
           <button key={set.groupId} onClick={() => onSelect(set.groupId)} type="button">
-            <img alt="" aria-hidden="true" src={`${imageRoot}/${heritageResearchCases[set.groupId - 1].image}`} />
+            <img alt="" aria-hidden="true" src={heritageImageUrl(eraId, set.groupId)} />
             <span>{set.groupId}모둠</span>
             <strong>{set.heritage}</strong>
           </button>
@@ -74,18 +78,21 @@ interface LessonTwoRecord {
   groupId: number;
   marks: Record<string, string>;
   sources: Record<string, string>;
+  plannedSources?: Record<string, string>;
 }
 
 /**
  * 2차시 학생 활동 화면.
  * 활동지·PPT와 같은 항목 이름(내 판단 (○×△?) · 확인한 출처)만 사용하고 정답은 표시하지 않습니다.
  */
-export function LessonTwoJudgementTool() {
+export function LessonTwoJudgementTool({ eraId = "three-kingdoms", lessonId = 2 }: { eraId?: EraId; lessonId?: number } = {}) {
+  const lessonTwoStatementSets = statementSetsForEra(eraId);
+  const marks = judgementMarks.map(mark => eraId === 'joseon' && mark.symbol === '△' ? { ...mark, meaning: '근거 부족·과장됨' } : mark);
   const location = useLocation();
   const storageKey = useMemo(() => {
     const params = new URLSearchParams(location.search);
-    return lessonTwoStorageKey(params.get("hub_code") || "", params.get("student_id") || "");
-  }, [location.search]);
+    return lessonTwoStorageKey(params.get("hub_code") || "", params.get("student_id") || "", eraId);
+  }, [location.search, eraId]);
   const [record, setRecord] = useState<LessonTwoRecord | null>(() => {
     const raw = readResilientStorage(storageKey);
     try { return raw ? JSON.parse(raw) as LessonTwoRecord : null; } catch { return null; }
@@ -101,11 +108,12 @@ export function LessonTwoJudgementTool() {
     writeResilientStorage(storageKey, JSON.stringify(next));
   }, [storageKey]);
 
-  if (!record) {
+  if (!record || !lessonTwoStatementSets.some(set => set.groupId === record.groupId) || !record.marks || !record.sources) {
     return (
       <GroupPicker
+        eraId={eraId}
         description="우리 모둠 유산에 대해 AI가 한 말 6문장이 활동지와 같은 번호로 나옵니다."
-        eyebrow="2차시 · 우리 모둠 고르기"
+        eyebrow={`${lessonId}차시 · 우리 모둠 고르기`}
         onSelect={(groupId) => save({ groupId, marks: {}, sources: {} })}
         title="어느 모둠인가요?"
       />
@@ -128,7 +136,8 @@ export function LessonTwoJudgementTool() {
         </div>
       </header>
 
-      <WorksheetSteps lessonId={2} />
+      <WorksheetSteps eraId={eraId} lessonId={lessonId} />
+      {eraId === "joseon" && lessonId === 3 && <section className="project-paper"><h3>우리 유산 자료 열기</h3><p>출처·시기·교차·원본을 살펴요. 선생님이 나눠 준 자료를 읽어도 좋아요.</p>{researchForEra(eraId)[record.groupId - 1].sources.filter(source => !source.id.includes("limit")).map(source => <p key={source.id}><a href={source.href} target="_blank" rel="noreferrer">{source.institution} · {source.title} ↗</a></p>)}<p>자료를 읽고 아래 판단을 다시 고쳐요. 활동지 3번에는 바르게 고친 말 한 문장을 남겨요.</p></section>}
       <ol className="judgement-tool__list">
         {set.statements.map((statement, index) => (
           <li key={statement.id}>
@@ -140,7 +149,7 @@ export function LessonTwoJudgementTool() {
               <fieldset>
                 <legend>내 판단 (○×△?)</legend>
                 <div role="group">
-                  {judgementMarks.map((mark) => (
+                  {marks.map((mark) => (
                     <button
                       aria-label={`${index + 1}번 ${mark.symbol} ${mark.meaning}`}
                       aria-pressed={record.marks[statement.id] === mark.symbol}
@@ -156,13 +165,13 @@ export function LessonTwoJudgementTool() {
                 </div>
               </fieldset>
               <label>
-                <span>확인한 출처</span>
+                <span>{eraId === "joseon" && lessonId === 2 ? "찾아볼 출처" : "확인한 출처"}</span>
                 <input
-                  onChange={(event) => save({ ...record, sources: { ...record.sources, [statement.id]: event.target.value } })}
-                  placeholder="자료를 읽고 출처 번호 선택"
+                  onChange={(event) => eraId === "joseon" && lessonId === 2 ? save({ ...record, plannedSources: { ...record.plannedSources, [statement.id]: event.target.value } }) : save({ ...record, sources: { ...record.sources, [statement.id]: event.target.value } })}
+                  placeholder={eraId === "joseon" && lessonId === 2 ? "다음 시간에 찾아볼 기관" : "자료를 읽고 출처 번호 선택"}
                   list="worksheet-source-choices"
                   type="text"
-                  value={record.sources[statement.id] ?? ""}
+                  value={(eraId === "joseon" && lessonId === 2 ? record.plannedSources?.[statement.id] : record.sources[statement.id]) ?? ""}
                 />
               </label>
             </div>
@@ -170,9 +179,9 @@ export function LessonTwoJudgementTool() {
         ))}
       </ol>
 
-      <datalist id="worksheet-source-choices"><option value="1 국가유산청" /><option value="2 국립박물관" /><option value="3 유네스코" /><option value="4 기타: " /></datalist>
+      <datalist id="worksheet-source-choices">{sourceChoicesForEra(eraId).map(value => <option key={value} value={value} />)}</datalist>
       <footer className="judgement-tool__footer">
-        <p><Icon name="lock" size={16} />정답과 점수는 이 화면에 나오지 않습니다. 선생님이 모둠 발표 뒤에 공개합니다.</p>
+        <p><Icon name="lock" size={16} />정답과 점수는 이 화면에 나오지 않습니다. {eraId === "joseon" ? "선생님이 3차시 자료 확인과 발표 뒤에 공개합니다." : "선생님이 모둠 발표 뒤에 공개합니다."}</p>
         <div>
           <span>확인한 출처가 없으면 ?로 남깁니다.</span>
           <button className="button button--outline" onClick={() => save({ groupId: record.groupId, marks: {}, sources: {} })} type="button">

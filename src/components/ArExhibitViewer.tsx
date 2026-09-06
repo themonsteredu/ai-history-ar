@@ -1,10 +1,11 @@
+import type { EraId } from "../types/curriculum";
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { safeSourceLink, type ArExhibit } from '../lib/ar/exhibit';
 import ArRecognitionCard from './ArRecognitionCard';
 import '../styles/ar-exhibit.css';
 const HeritageModelView = lazy(() => import('./HeritageModelView'));
 
-export default function ArExhibitViewer({ value, heritage, heritageId, image }: { value: ArExhibit; heritage: string; heritageId: number; image: string }) {
+export default function ArExhibitViewer({ value, heritage, heritageId, image, eraId = "three-kingdoms" }: { value: ArExhibit; heritage: string; heritageId: number; eraId?: EraId; image: string }) {
   const [selected, setSelected] = useState(value.points[0].id);
   const [camera, setCamera] = useState(false);
   const [tracked, setTracked] = useState(false);
@@ -39,11 +40,11 @@ export default function ArExhibitViewer({ value, heritage, heritageId, image }: 
       <button type="button" aria-pressed={!camera} onClick={() => setCamera(false)}>{value.model ? '입체 유물 둘러보기' : '사진으로 둘러보기'}</button><button type="button" aria-pressed={camera} disabled={camera} onClick={() => { setTracked(false); setCamera(true); }}>{camera ? '카메라 AR 사용 중' : '카메라 AR 켜기'}</button>
       {camera && <button type="button" onClick={() => setCamera(false)}>카메라 끄기</button>}
     </div></div>
-    {!camera && <ArRecognitionCard heritageId={heritageId} heritage={heritage} />}
+    {!camera && <ArRecognitionCard eraId={eraId} heritageId={heritageId} heritage={heritage} />}
     {!value.model && <p className="ar-help">지금은 사진에 설명점과 녹음을 띄우는 AR이에요. 선생님이 3D 유물을 넣으면 입체 모형으로 바뀝니다.</p>}
     {camera && <p className="ar-help">받은 사진을 자르지 않고 출력한 뒤 카메라에 비춰 주세요. 영상은 저장하지 않습니다.</p>}
     <div className="ar-maker-layout">
-      {value.model || camera ? <Suspense fallback={<p>AR을 준비해요…</p>}><HeritageModelView model={value.model} image={image} points={value.points} selectedId={selected} onSelect={select} targetIndex={heritageId - 1} camera={camera} onTracking={setTracked} /></Suspense> : <div className="ar-point-photo"><img src={image} alt={heritage} />{value.points.map((item, index) => <button type="button" className="ar-hotspot" key={item.id} aria-pressed={selected === item.id} aria-label={`${index + 1}번 ${item.title} 해설 듣기`} style={{ left: `${item.photoPosition[0] * 100}%`, top: `${item.photoPosition[1] * 100}%` }} onClick={() => select(item.id)}>{index + 1}</button>)}</div>}
+      {value.model || camera ? <Suspense fallback={<p>AR을 준비해요…</p>}><HeritageModelView eraId={eraId} model={value.model} image={image} points={value.points} selectedId={selected} onSelect={select} targetIndex={heritageId - 1} camera={camera} onTracking={setTracked} /></Suspense> : <div className="ar-point-photo"><img src={image} alt={heritage} />{value.points.map((item, index) => <button type="button" className="ar-hotspot" key={item.id} aria-pressed={selected === item.id} aria-label={`${index + 1}번 ${item.title} 해설 듣기`} style={{ left: `${item.photoPosition[0] * 100}%`, top: `${item.photoPosition[1] * 100}%` }} onClick={() => select(item.id)}>{index + 1}</button>)}</div>}
       <div className="ar-viewer-reading">
         <div className="ar-point-select" role="group" aria-label="해설 선택">{value.points.map((item, index) => <button disabled={camera && !tracked} type="button" key={item.id} aria-pressed={selected === item.id} onClick={() => select(item.id)}>{index + 1}번 해설</button>)}</div>
         <div aria-live="polite"><h4>{point.title || '설명할 곳'}</h4><p className="ar-reading-text">{point.text || '아직 설명을 쓰지 않았어요.'}</p></div>

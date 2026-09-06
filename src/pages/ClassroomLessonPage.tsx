@@ -36,7 +36,7 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
   const viewPath = (lessonId: number, nextView: ClassroomView) => lessonViewPath(basePath, lessonId, nextView, searchParams.toString());
 
   const activityDescription = isVerificationLesson
-    ? "모둠별 담당 유산의 AI 문장 6개를 ○×△?로 판단하고 확인한 출처를 적습니다."
+    ? era.id === "joseon" ? "AI 문장 6개를 ○×△?로 판단하고, 다음 시간에 찾아볼 자료를 정합니다." : "모둠별 담당 유산의 AI 문장 6개를 ○×△?로 판단하고 확인한 출처를 적습니다."
     : activityTab.description;
 
   return (
@@ -75,7 +75,7 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
       </header>
 
       <main className="page-width classroom-content">
-        {era.id === "three-kingdoms" && [9, 10].includes(lesson.id) && <div className="ar-maker-actions ar-lesson-tools"><Link className="button" to={`/three-kingdoms/ar-preview?${searchParams}`}>유물 6종 AR 먼저 체험하기</Link><a href={allArCardsUrl} download>전시용 인식 카드 6종 받기 · PDF</a></div>}
+        {[9, 10].includes(lesson.id) && <div className="ar-maker-actions ar-lesson-tools"><Link className="button" to={`/${era.id}/ar-preview?${searchParams}`}>유물 6종 AR 먼저 체험하기</Link><a href={allArCardsUrl(era.id)} download>전시용 인식 카드 6종 받기 · PDF</a></div>}
         {view === "start" ? (
           <section className="classroom-start" aria-labelledby="classroom-start-title">
             <header className="classroom-start__heading">

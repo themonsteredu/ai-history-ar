@@ -49,11 +49,13 @@ const arMuseumModeInfo = {
 } as const;
 
 export function getLessonActivityModeInfo(lesson: Lesson, eraId: EraId) {
-  if (eraId === "three-kingdoms" && lesson.id === 2) return lessonTwoJudgementModeInfo;
-  if (eraId === "three-kingdoms" && lesson.id === 4) return lessonFourDataModeInfo;
-  if (eraId === "three-kingdoms" && lesson.id >= 5 && lesson.id <= 8) return externalDataToolModeInfo;
-  if (eraId === "three-kingdoms" && lesson.id === 9) return arDataExplanationModeInfo;
-  if (eraId === "three-kingdoms" && lesson.id === 10) return arMuseumModeInfo;
+  if (eraId === 'joseon' && lesson.id === 2) return { ...lessonTwoJudgementModeInfo, description: 'AI 문장 6개를 판단하고 찾아볼 자료 정하기' };
+  if (eraId === 'joseon' && lesson.id === 3) return { label: '자료 확인하기', shortLabel: '출처 보고 고쳐 말하기', description: '자료를 읽고 지난 판단을 다시 살펴보기' };
+  if (lesson.id === 2) return lessonTwoJudgementModeInfo;
+  if (lesson.id === 4) return lessonFourDataModeInfo;
+  if (lesson.id >= 5 && lesson.id <= 8) return externalDataToolModeInfo;
+  if (lesson.id === 9) return arDataExplanationModeInfo;
+  if (lesson.id === 10) return arMuseumModeInfo;
   return classroomModeInfo[lesson.classroomMode];
 }
 

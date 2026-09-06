@@ -1,6 +1,5 @@
 import { joseonGroups } from "./joseon/groups";
 import { joseonLessons } from "./joseon/lessons";
-import { applyLesson2Override } from "./lesson2Overrides";
 import { threeKingdomsGroups } from "./three-kingdoms/groups";
 import { threeKingdomsLessons } from "./three-kingdoms/lessons";
 import type { Era, EraId, Lesson } from "../types/curriculum";
@@ -35,7 +34,7 @@ export const eras = [
     title: "조선시대 문화유산 AI 해설사",
     eyebrow: "기록과 통념을 구분하는 수업",
     coreQuestion: "우리가 아는 조선, 정말 그랬을까?",
-    description: "드라마와 통념 속 이야기에서 한 걸음 물러나, 기록과 원본으로 확인한 사실을 자기 말로 다시 설명합니다.",
+    description: "AI의 말을 기록과 원본으로 확인하고, 찾은 내용을 표와 그래프로 정리해 우리 목소리의 AR 전시로 소개합니다.",
     verificationLabel: "검증 4단계",
     verificationSteps: ["출처", "시기", "교차", "원본"],
     accent: "#24574e",
@@ -51,7 +50,7 @@ export const eras = [
         description: "조선 후기 사회·문화적 변화와 개항기 근대 문물 수용 과정에서 달라진 사람들의 생활을 이해한다.",
       },
     ],
-    lessons: applyLesson2Override("joseon", joseonLessons),
+    lessons: joseonLessons,
     groups: joseonGroups,
   },
 ] as const satisfies readonly Era[];

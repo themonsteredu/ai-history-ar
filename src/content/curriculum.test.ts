@@ -6,8 +6,8 @@ import { getThreeKingdomsSlides } from "./three-kingdoms/slides";
 import { threeKingdomsExternalTools } from "./three-kingdoms/externalTools";
 
 describe("curriculum catalog", () => {
-  // 삼국시대는 2·3차시를 한 차시로 합쳐 아홉 차시입니다. 조선시대는 열 차시 그대로입니다.
-  it("keeps the merged Three Kingdoms sequence and the untouched Joseon sequence", () => {
+  // 삼국시대는 이미 진행한 통합 차시를 유지하고, 조선시대는 판단과 검증을 나누어 열 차시로 운영합니다.
+  it("keeps the taught Three Kingdoms sequence and ten separate Joseon lessons", () => {
     expect(eras).toHaveLength(2);
     expect(eras[0].lessons.map((lesson) => lesson.id)).toEqual([1, 2, 4, 5, 6, 7, 8, 9, 10]);
     expect(eras[1].lessons.map((lesson) => lesson.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
@@ -70,7 +70,7 @@ describe("curriculum catalog", () => {
       ["teacher-led", "worksheet", "worksheet", "student", "student", "student", "student", "student", "student"],
     );
     expect(eras[1].lessons.map((lesson) => lesson.classroomMode)).toEqual(
-      ["teacher-led", "worksheet", "teacher-led", "worksheet", "student", "student", "student", "student", "student", "student"],
+      ["teacher-led", "worksheet", "worksheet", "worksheet", "student", "student", "student", "student", "student", "student"],
     );
     for (const era of eras) {
       expect(era.lessons[1].downloads.student.join(" "), era.shortName).toContain("A4 한 장");

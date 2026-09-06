@@ -1,7 +1,4 @@
-"""School-ready Three Kingdoms worksheets. Shared task order drives paper and web PPT.
-
-Only this era is changed. Taught AI statements and the students' saved data stay intact.
-"""
+"""School worksheets with era-scoped generation and shared task order for paper and web PPT."""
 import argparse
 import json
 import re
@@ -21,6 +18,8 @@ from reportlab.platypus import Paragraph
 from generate_lesson2_onepage import DATA
 
 ROOT = Path(__file__).resolve().parents[1]
+ERA = 'three-kingdoms'
+SHORT = '삼국시대'
 OUT = ROOT / 'public/downloads/three-kingdoms'
 PLANS = json.loads((ROOT / 'src/content/three-kingdoms/worksheet-guide.json').read_text())
 CONTINUATION = json.loads((ROOT / 'src/content/three-kingdoms/continuity-guide.json').read_text())
@@ -31,10 +30,10 @@ for name, file in [('School', 'SCDream5.ttf'), ('SchoolBold', 'SCDream9.ttf')]:
 class Sheet:
     def __init__(self, path, plan, audience='학생 활동지', heritage=None):
         self.c = canvas.Canvas(str(path), pagesize=A4, invariant=1)
-        self.c.setTitle(f"삼국시대 {plan['label']} {plan['title']} · {audience}")
+        self.c.setTitle(f"{SHORT} {plan['label']} {plan['title']} · {audience}")
         self.c.setAuthor('MOAKIT')
         self.plan = plan
-        self.text(14, 12, 182, f"삼국시대 {plan['label']}  |  {audience}", 10)
+        self.text(14, 12, 182, f"{SHORT} {plan['label']}  |  {audience}", 10)
         self.text(14, 21, 182, plan['title'], 20, bold=True)
         self.text(14, 35, 182, '____학년 ____반    ____모둠    이름 ____________________', 11)
         self.line(14, 44, 196, 44)
@@ -45,7 +44,7 @@ class Sheet:
 
     def text(self, x, y, width, text, size=11, bold=False, max_height=None):
         style = ParagraphStyle('text', fontName='SchoolBold' if bold else 'School',
-                               fontSize=size, leading=size * 1.5, wordWrap='CJK')
+                               fontSize=size, leading=size * 1.5, wordWrap=None if ERA == 'joseon' else 'CJK')
         p = Paragraph(escape(text).replace('\n', '<br/>'), style)
         _, height = p.wrap(width * mm, 297 * mm)
         if max_height is not None and height > max_height * mm:
@@ -103,7 +102,7 @@ class Sheet:
         self.line(14, 282, 196, 282)
         # Footer is deliberately below the normal writing area.
         self.c.setFont('School', 8)
-        self.c.drawString(14 * mm, 10 * mm, '삼국시대 탐구  ·  짧게 기록하고, 자료를 보며 이야기해요.')
+        self.c.drawString(14 * mm, 10 * mm, f'{SHORT} 탐구  ·  짧게 기록하고, 자료를 보며 이야기해요.')
         self.c.showPage()
         self.c.save()
 
@@ -111,7 +110,27 @@ class Sheet:
 def student(plan, path, group=None):
     i = plan['id']
     s = Sheet(path, plan, heritage=group['heritage'] if group else None)
-    if i == 2:
+    if i == 2 and ERA == 'joseon':
+        s.task(1, instruction=False)
+        s.note('○ 자료로 확인   × 자료와 다름   △ 근거 부족·과장됨   ? 아직 확인하지 못함', 9)
+        s.table(['번호', 'AI가 한 말', '내 판단'],
+                [[str(n), item[0], '○ × △ ?'] for n, item in enumerate(group['items'], 1)],
+                [13, 137, 32], height=20.5, size=10.5)
+        s.task(2, instruction=False)
+        s.note('더 확인할 문장: ____번   /   궁금한 낱말: __________________', 10)
+        s.task(3, instruction=False)
+        s.note('□ 1 국가유산청  □ 2 국립박물관  □ 3 국사편찬위원회  □ 4 기타', 9)
+        s.box('검색할 낱말: __________________________________________', 17)
+        s.note('판단한 까닭을 친구에게 말해요. 3차시에서 자료를 읽고 다시 판단해요.', 9)
+    elif i == 3:
+        s.task(1)
+        s.box('지난 활동지 ____번  /  우리 유산: ________________________\n\n자료를 만든 기관: ______________________________________\n\n자료 제목: ____________________________________________', 43)
+        s.task(2)
+        s.box('□ 출처  □ 시기  □ 다른 자료와 비교  □ 원문 찾아보기\n\n자료에서 찾은 핵심 낱말: ________________________________\n\n다시 판단: ○  ×  △  ?   (아직 확인하지 못했다면 ?)', 43)
+        s.task(3)
+        s.box('자료를 읽어 보니, ______________________________________\n\n______________________________________________________\n\n□ 고친 말과 출처를 친구에게 설명했어요.', 42)
+        s.note('2·3차시 활동지를 보관하고 4차시에 다시 꺼내요.', 9)
+    elif i == 2:
         s.task(1, instruction=False)
         s.note('○ 자료로 확인   × 자료와 다름   △ 의견 나뉨·근거 부족   ? 더 찾아봐야 함', 9)
         s.table(['번호', 'AI가 한 말', '내 판단 (○×△?)', '확인한 출처'],
@@ -159,7 +178,7 @@ def student(plan, path, group=None):
         s.task(1)
         s.box('우리 문장 ______개 중\n\n‘____________________________’은 ______개예요.', 33)
         s.task(2)
-        s.box('□ 삼국시대 사람들의 생활 전체\n□ 어느 유산이 더 중요한지\n□ 어느 나라가 더 힘이 셌는지', 33)
+        s.box(f'□ {SHORT} 사람들의 생활 전체\n□ 어느 유산이 더 중요한지\n□ 어느 나라가 더 힘이 셌는지', 33)
         s.task(3)
         s.box('친구가 확인해 주세요.\n\n□ 그래프에서 개수를 가리키며 말했어요.\n□ 알 수 없는 것도 말했어요.    친구 이름: ______________', 38)
         s.note('□ 화면에서 설명 두 문장 선택    □ 오늘 작업 저장')
@@ -190,6 +209,7 @@ def student(plan, path, group=None):
     s.finish()
 
 ASSESSMENT = {
+    3: ['확인할 문장과 실제로 읽은 자료가 연결되는가?', '출처와 설명 시기, 원문을 살피고 판단을 다시 표시했는가?', '자료에서 확인한 범위만 고쳐 쓰고 근거를 가리키는가?'],
     1: ['사진에서 실제로 보이는 특징을 두 가지 찾았는가?', '고른 궁금증이 우리 유산과 관련되는가?', '자료로 알아볼 수 있는 질문을 한 문장으로 말하는가?'],
     4: ['지난 활동지의 문장 번호와 고친 내용이 맞는가?', '서로 다른 문장 세 개와 해당 자료 번호가 연결되는가?', '표 한 줄을 가리키며 내용과 출처를 설명하는가?'],
     5: ['중복·분류·출처·확인 상태를 실제 표에서 점검했는가?', '내용이 다른 문장은 남기고 필요한 곳만 고쳤는가?', '남은 문장 수가 맞고 고친 파일을 저장했는가?'],
@@ -206,11 +226,11 @@ def teacher(plan, path, answers=False):
     continuation = next((p for p in CONTINUATION if p['id'] == plan['id']), None)
     if answers and plan['id'] == 2:
         # Verified claim verdicts stay identical to the existing 6-group materials.
-        s.note('모둠 발표 뒤에만 공개하세요. △와 ?는 뜻이 다릅니다.')
+        s.note(('3차시 자료 확인과 모둠 발표 뒤에만 공개하세요.' if ERA == 'joseon' else '모둠 발표 뒤에만 공개하세요.') + ' △와 ?는 뜻이 다릅니다.')
         s.table(['모둠 · 유산', '1번', '2번', '3번', '4번', '5번', '6번'],
-                [[f"{g['id']} · {g['heritage']}"] + [x[1][0] for x in g['items']] for g in DATA['three-kingdoms']['groups']],
+                [[f"{g['id']} · {g['heritage']}"] + [x[1][0] for x in g['items']] for g in DATA[ERA]['groups']],
                 [68] + [19]*6, 18, 10)
-        s.note('○ 자료와 같음 / × 자료와 다름 / △ 의견 나뉨·근거 부족 / ? 미확인')
+        s.note('○ 자료로 확인 / × 자료와 다름 / △ 근거 부족·과장됨 / ? 미확인' if ERA == 'joseon' else '○ 자료와 같음 / × 자료와 다름 / △ 의견 나뉨·근거 부족 / ? 미확인')
         s.note('‘출처 번호’만 보고 맞았다고 판단하지 않습니다. 해당 자료에서 어느 문장을 읽었는지 짚게 합니다.')
     else:
         for n, task in enumerate(plan['tasks'], 1):
@@ -218,9 +238,12 @@ def teacher(plan, path, answers=False):
             s.note(('확인: ' + ASSESSMENT[plan['id']][n - 1]) if answers else ('진행: ' + task['tip']))
             s.y += 4
     if continuation:
-        s.note('수업 전: 지난 작업 파일과 모둠별 A4 활동지 한 장을 준비합니다.', 10)
-        if not answers and plan['id'] == 9:
+        prep = {1: '유산별 사진과 모둠별 A4 활동지를 준비합니다.', 2: '모둠별 유산에 맞는 2차시 활동지를 준비합니다. 정답은 3차시 발표 뒤에 공개합니다.', 3: '완성한 2차시 활동지와 공식 자료, 오늘 활동지를 준비합니다.'}
+        s.note('수업 전: ' + (prep[plan['id']] if ERA == 'joseon' and plan['id'] <= 3 else '지난 작업 파일과 모둠별 A4 활동지 한 장을 준비합니다.'), 10)
+        if not answers and plan['id'] == 9 and ERA == 'three-kingdoms':
             s.note('AR 준비: 유물 카드를 A4로 출력하고 마이크·카메라를 확인합니다. 첨성대 공식 3D 원본은 약 36MB이므로 수업 전에 열어 둡니다. 다른 유산은 준비한 모형 또는 사진으로 진행합니다.', 9.5)
+        if not answers and plan['id'] == 9 and ERA == 'joseon':
+            s.note('AR 준비: 조선 유산 카드 6종을 A4로 출력합니다. 사진 AR로 시작하며 입체 모형은 준비한 교사 파일을 사용합니다. 카메라·마이크를 미리 확인합니다.', 9.5)
         for warning in continuation['cautions']:
             s.note('유의: ' + warning, 9.5)
         s.note('다음 연결: ' + continuation['nextLessonPrep'], 9.5)
@@ -244,7 +267,7 @@ def merge(paths, output):
 def rebuild_bundles():
     manifest_path = ROOT / 'public/downloads/manifest.json'
     manifest = json.loads(manifest_path.read_text())
-    era = manifest['eras']['three-kingdoms']
+    era = manifest['eras'][ERA]
     for plan in PLANS:
         entry = next(e for e in era['lessons'] if e['lessonId'] == plan['id'])
         entry['title'] = plan['title']
@@ -260,12 +283,17 @@ def rebuild_bundles():
             if path.exists():
                 value['size'] = path.stat().st_size
     ids = {p['id'] for p in PLANS}
-    archive = OUT / 'three-kingdoms-all-materials.zip'
+    archive = OUT / f'{ERA}-all-materials.zip'
     with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as z:
         for file in sorted(OUT.iterdir()):
             match = re.match(r'lesson-(\d+)-', file.name)
             if file.suffix in ('.pdf', '.pptx') and (not match or int(match[1]) in ids):
-                z.write(file, '삼국시대/' + file.name)
+                z.write(file, SHORT + '/' + file.name)
+        if ERA == 'joseon':
+            # The six-page pack already contains every card. Avoid duplicating
+            # the original photos in the era ZIP and exceeding static asset limits.
+            file = OUT / 'ar/ar-cards-all.pdf'
+            if file.exists(): z.write(file, SHORT + '/ar/' + file.name)
     era['bundle']['size'] = archive.stat().st_size
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
     # The legacy combined lesson-2 pack must also contain the revised files.
@@ -277,7 +305,7 @@ def rebuild_bundles():
             for info, data in old:
                 name = Path(info.filename).name
                 replacement = OUT / name
-                if ('삼국시대' in info.filename or 'three-kingdoms' in info.filename) and replacement.exists():
+                if (SHORT in info.filename or ERA in info.filename) and replacement.exists():
                     data = replacement.read_bytes()
                 z.writestr(info, data)
     details_path = ROOT / 'public/downloads/lesson-02-materials.json'
@@ -297,9 +325,16 @@ def rebuild_bundles():
 
 
 def main():
+    global ERA, SHORT, OUT, PLANS, CONTINUATION
     parser = argparse.ArgumentParser()
+    parser.add_argument('--era', choices=['three-kingdoms', 'joseon'], default='three-kingdoms')
     parser.add_argument('--bundles-only', action='store_true')
     args = parser.parse_args()
+    ERA = args.era
+    SHORT = '조선시대' if ERA == 'joseon' else '삼국시대'
+    OUT = ROOT / 'public/downloads' / ERA
+    PLANS = json.loads((ROOT / 'src/content' / ERA / 'worksheet-guide.json').read_text())
+    CONTINUATION = json.loads((ROOT / 'src/content' / ERA / 'continuity-guide.json').read_text())
     if not args.bundles_only:
         student_files = []
         for plan in PLANS:
@@ -307,7 +342,7 @@ def main():
             path = OUT / (prefix + 'student.pdf')
             if plan['id'] == 2:
                 groups = []
-                for group in DATA['three-kingdoms']['groups']:
+                for group in DATA[ERA]['groups']:
                     group_path = OUT / (prefix + f"group-{group['id']:02d}-{group['slug']}.pdf")
                     student(plan, group_path, group)
                     groups.append(group_path)
