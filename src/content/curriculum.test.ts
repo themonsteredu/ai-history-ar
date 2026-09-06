@@ -1,3 +1,4 @@
+import worksheets from './three-kingdoms/worksheet-guide.json';
 import { describe, expect, it } from "vitest";
 import { eras } from "./catalog";
 import { getLessonMinutes } from "./lesson-helpers";
@@ -55,13 +56,13 @@ describe("curriculum catalog", () => {
 
   it("folds AI doubt and source verification into a single Three Kingdoms lesson", () => {
     expect(eras[0].lessons.map((lesson) => lesson.title)).toEqual([
-      "역사 데이터 질문 찾기", "AI에게 물어보았습니다",
-      "우리 유산의 이야기 찾기", "우리 표를 깔끔하게 고치기", "우리 표로 그래프 만들기",
+      "우리 유산과 질문 정하기", "AI가 한 말 확인하기",
+      "찾은 내용을 표로 정리하기", "우리 표를 깔끔하게 고치기", "우리 표로 그래프 만들기",
       "그래프를 보고 말하기", "자료로 옛날 모습 생각하기", "우리 목소리로 안내하는 AR 전시", "우리 반 유산 박물관 열기",
     ]);
     const merged = eras[0].lessons[1];
     expect(merged.objective).toContain("○×△?");
-    expect(JSON.stringify(merged)).toContain("출처·시기·교차·원본·보류");
+    expect(JSON.stringify(merged)).toContain("출처 번호");
   });
 
   it("uses one-page worksheets in the judgement and data lessons", () => {
@@ -85,30 +86,13 @@ describe("curriculum catalog", () => {
     expect(tool(10)?.resultGuide).toContain("친구");
   });
 
-  it("keeps every Three Kingdoms deck rich, classroom-facing, and Q&A-led", () => {
-    const internalPhrases = /다운로드 없음|새 탭/;
-    for (const lessonId of eras[0].lessons.map((lesson) => lesson.id)) {
-      const slides = getThreeKingdomsSlides(lessonId);
-      const lastSlide = slides.at(-1);
-      const visibleCopy = JSON.stringify(slides);
-      expect(slides.length, `${lessonId}차시 충분한 수업 슬라이드`).toBeGreaterThanOrEqual(lessonId >= 4 ? 9 : 13);
-      expect(slides.filter((slide) => slide.kind === "fact").length, `${lessonId}차시 내용 슬라이드`).toBeGreaterThanOrEqual(3);
-      if ([1, 2, 4, 9].includes(lessonId)) {
-        expect(slides.length, `${lessonId}차시 확장 슬라이드`).toBeGreaterThanOrEqual(lessonId >= 4 ? 9 : 14);
-        expect(slides.some((slide) => slide.kind === "gallery"), `${lessonId}차시 문화유산 관찰 슬라이드`).toBe(true);
-        expect(slides.some((slide) => slide.kind === "quiz"), `${lessonId}차시 판단 퀴즈`).toBe(true);
-      }
-      expect(slides.some((slide) => slide.kind === "activity"), `${lessonId}차시 따라 하기 활동`).toBe(true);
-      expect(slides.some((slide) => slide.kind === "quiz"), `${lessonId}차시 중간 확인 퀴즈`).toBe(true);
-      expect(lastSlide?.kind, `${lessonId}차시 마지막 슬라이드`).toBe("closing");
-      expect(internalPhrases.test(visibleCopy), `${lessonId}차시 운영 문구`).toBe(false);
-      if (lastSlide?.kind === "closing") {
-        expect(lastSlide.title.endsWith("까요?") || lastSlide.title.endsWith("할까요?")).toBe(true);
-        if (lessonId >= 4) {
-          expect(lastSlide.prompt.length).toBeGreaterThan(0);
-          expect(lastSlide.prompt.length).toBeLessThanOrEqual(140);
-        } else expect(lastSlide.prompt.length).toBeGreaterThan(45);
-      }
+  it("keeps the classroom deck in the same three-task order as the printed worksheet", () => {
+    for (const sheet of worksheets) {
+      const slides = getThreeKingdomsSlides(sheet.id);
+      const taskSlides = slides.filter(slide => slide.kind === "activity" && slide.eyebrow.startsWith("활동지 "));
+      expect(taskSlides.map(slide => slide.title)).toEqual(sheet.tasks.map((task, index) => `${index + 1}. ${task.title}`));
+      expect(slides.at(-1)?.kind).toBe("closing");
+      expect(JSON.stringify(slides)).not.toMatch(/다운로드 없음|새 탭/);
     }
-  });
-});
+    expect(getThreeKingdomsSlides(6).filter(slide => slide.kind === "tutorial")).toHaveLength(7);
+  });});

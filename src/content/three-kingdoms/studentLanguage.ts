@@ -1,5 +1,5 @@
 // Display text only: saved project values and CSV columns stay compatible.
-export const projectStages = ['문장 찾기', '표 고치기', '그래프 만들기', '그래프 말하기', '옛날 생각하기', '전시 준비', '박물관 열기'];
+export const projectStages = ['표로 정리', '표 고치기', '그래프 만들기', '그래프 말하기', '옛날 생각하기', '전시 준비', '박물관 열기'];
 export const projectRequirements = [
   '',
   '4차시에서 지난 시간에 고친 말과 자료의 문장 3개를 담아 주세요.',

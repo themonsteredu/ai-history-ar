@@ -1,3 +1,4 @@
+import { WorksheetSteps } from './WorksheetSteps';
 import { HeritageProjectWorkspace } from './HeritageProjectWorkspace';
 import { useEffect, useState, type ReactElement } from "react";
 import { lessonDownloadPath } from "../content/downloads";
@@ -201,9 +202,10 @@ function ArtifactExplorer({ era }: { era: Era }) {
 
   return (
     <div className="web-tool web-tool--artifacts">
+      {era.id === "three-kingdoms" && <WorksheetSteps lessonId={1} />}
       <div className="web-tool__instruction">
         <strong>사진을 눌러 크게 관찰하세요.</strong>
-        <span>기록하지 않고, 화면을 보며 모둠에서 말로 선택합니다.</span>
+        <span>{era.id === "three-kingdoms" ? "사진을 보고 활동지에 특징과 질문을 짧게 적어요." : "기록하지 않고, 화면을 보며 모둠에서 말로 선택합니다."}</span>
       </div>
       <div className="artifact-explorer__grid">
         {era.groups.map((group) => (

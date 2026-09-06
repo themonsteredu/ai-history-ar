@@ -1,47 +1,47 @@
 import plans from './continuity-guide.json';
+import worksheets from './worksheet-guide.json';
 import { studentExamples } from './studentLanguage';
 import { codapTutorial } from './codapTutorial';
 import type { HeritageImageKey, LessonSlide } from './slides';
 
 const images: HeritageImageKey[] = ['muryeong', 'incense', 'cheomseongdae', 'crown', 'mural', 'gaya'];
-const checks: Record<number, { statement: string; explanation: string }> = {
-  4: { statement: '같은 유산을 설명하는 문장은 모두 하나로 합쳐야 해요.', explanation: '한 줄에 서로 다른 문장 하나를 담아요. 같은 유산이어도 모양과 발견 장소처럼 내용이 다르면 각각 남겨요.' },
-  5: { statement: '같은 박물관 자료에서 찾았으면 문장 하나는 지워야 해요.', explanation: '내용이 다른 문장은 둘 다 남겨요. 같은 문장을 두 번 담았을 때만 하나를 빼요.' },
-  6: { statement: '그래프의 막대가 길수록 더 중요한 유산이에요.', explanation: '막대는 우리가 고른 문장이 몇 개인지 보여 줘요. 유산의 중요성을 보여 주는 것은 아니에요.' },
-  7: { statement: '우리가 고른 문장 몇 개를 세면 삼국시대 생활을 모두 알 수 있어요.', explanation: '우리는 고른 자료만 살펴봤어요. 다른 자료에는 우리가 아직 보지 못한 이야기도 있어요.' },
-  8: { statement: '아무 말이나 “그랬을 것 같아요”라고 쓰면 돼요.', explanation: '왜 그렇게 생각했는지 보여 주는 문장 두 개가 필요해요. 문장에 없는 이야기를 지어 쓰지는 않아요.' },
-  9: { statement: '녹음했으니 들어 보지 않고 전시해도 돼요.', explanation: '친구 화면에서 설명점을 눌러 목소리를 들어 봐요. 설명과 녹음이 맞는지, 관람 문제를 풀 수 있는지도 확인해요.' },
-  10: { statement: '친구가 물어보면 모르는 것도 아는 것처럼 대답해야 해요.', explanation: '모르면 “아직 모르겠어요. 같이 찾아볼까요?”라고 말해도 괜찮아요.' },
-};
-const bridges: Record<number, string> = {
-  4: '지난 2·3차시 활동지를 꺼내요.', 5: '4차시에 저장한 우리 모둠 파일을 열어요.',
-  6: '5차시에 고친 우리 표로 그래프를 만들어요.', 7: '6차시에 만든 그래프를 다시 봐요.',
-  8: '이제 자료의 문장을 다시 읽어요.', 9: '8차시에 고른 문장 두 개와 우리 설명을 가져와요.',
-  10: '9차시에 확인한 전시를 친구에게 보여 줘요.',
-};
+
 export function getContinuitySlides(id: number, history?: LessonSlide): readonly LessonSlide[] | undefined {
   const plan = plans.find(item => item.id === id);
-  if (!plan) return undefined;
+  const sheet = worksheets.find(item => item.id === id);
+  if (!plan || !sheet) return undefined;
   const image = images[(id - 4) % images.length];
-  const [intro, main, closing] = plan.activities;
   const example = studentExamples[id];
-  return [
-    { kind: 'cover', image, tag: `삼국시대 ${id}차시 · 우리 모둠 활동`, title: plan.title, subtitle: plan.objective },
-    { kind: 'fact', image, eyebrow: '지난 시간과 이어서', title: plan.role, points: [bridges[id], ...intro.details], takeaway: '지난 시간에 저장한 파일을 이어서 써요.' },
-    { kind: 'gallery', image, eyebrow: '우리 유산 다시 보기', title: '우리 모둠의 유산은 어디 있나요?', instruction: '우리 유산을 찾고, 지난 시간에 알게 된 것을 하나 말해 봐요.' },
+  const slides: LessonSlide[] = [
+    { kind: 'cover', image, tag: `삼국시대 ${sheet.label}`, title: sheet.title, subtitle: plan.objective },
+    { kind: 'fact', image, eyebrow: '활동 준비', title: '지난 시간과 이어서 해요', points: [plan.activities[0].details[0], '활동지에 모둠과 이름을 써요.'], takeaway: '종이에는 체크·숫자·핵심 낱말만 남겨요.' },
     ...(history ? [history] : []),
-    { kind: 'fact', image, eyebrow: '예를 보며 알아보기', title: example.title, points: example.lines, takeaway: '예시를 보고, 우리 모둠이 찾은 내용으로 활동해요.' },
-    { kind: 'fact', image, eyebrow: '꼭 기억해요', title: plan.keyQuestion, points: plan.cautions, takeaway: '자료에서 확인한 것과 우리 생각을 나누어 말해요.' },
-    ...(id === 6 ? codapTutorial.map((tutorial, stepIndex): LessonSlide => ({ kind: 'tutorial', image, title: tutorial.title, tutorial, stepIndex, source: tutorial.source })) : []),
-    ...(id === 9 ? [
-      { kind: 'activity' as const, image, eyebrow: '설명점 만들기', title: '설명할 곳 두 군데를 골라요', instruction: '1번 설명을 고른 뒤 유물에서 설명할 곳을 눌러요.', steps: ['자료에서 확인한 설명을 적어요.', '2번 설명에서도 같은 순서로 해요.', '입체 모형은 끌어서 돌려 보고 짧게 눌러 위치를 정해요.'] },
-      { kind: 'activity' as const, image, eyebrow: '목소리 녹음하기', title: '우리 목소리로 설명해요', instruction: '설명점에서 녹음 시작을 누르고 마이크 사용을 허용해요.', steps: ['설명을 30초 안으로 읽고 녹음 끝내기를 눌러요.', '재생 버튼으로 들어 보고, 필요하면 다시 녹음해요.', '다른 설명점도 녹음한 뒤 친구 화면으로 체험해요.'] },
-      { kind: 'activity' as const, image, eyebrow: '카드로 관람하기', title: '카드를 비추고 해설을 들어요', instruction: '우리 유물의 카드 받기를 눌러 A4 한 장으로 출력해요.', steps: ['다른 기기는 오늘 작업 저장하기로 받은 파일을 먼저 열어요.', '수업 웹앱의 카메라 AR 켜기를 누르고 카드 사진 전체를 비춰요.', '1·2번 설명점을 눌러 듣고 친구가 만든 문제를 풀어요.'] },
-    ] : []),
-    { kind: 'activity', image, eyebrow: `함께 해요 · ${main.minutes}분`, title: plan.title, instruction: main.details[0], steps: main.details.slice(1) },
-    { kind: 'fact', image, eyebrow: '여기까지 했나요?', title: '오늘 만든 것을 확인해요', points: plan.outputs, takeaway: '빠진 것이 있으면 친구나 선생님에게 물어봐요.' },
-    { kind: 'quiz', image, eyebrow: '잠깐 생각하기', title: '이렇게 해도 될까요?', statement: checks[id].statement, verdict: '틀림', explanation: checks[id].explanation },
-    { kind: 'activity', image, eyebrow: '오늘 작업 저장하기', title: '다음 시간에도 이어서 해요', instruction: id >= 9 ? '녹음을 끝낸 뒤 ‘오늘 작업 저장하기’를 누르면 설명점·녹음·전시 설정도 함께 담겨요.' : '‘오늘 작업 저장하기’를 누르면 표·그래프·설명이 한 파일에 담겨요.', steps: closing.details },
-    { kind: 'closing', image, eyebrow: '마지막 확인', title: '다음 시간에는 무엇을 할까요?', prompt: plan.nextLessonPrep, next: id === 10 ? '처음과 지금의 생각 비교하기' : `${id + 1}차시 · ${plans.find(item => item.id === id + 1)?.title}` },
+    { kind: 'fact', image, eyebrow: '짧은 예시', title: example.title, points: example.lines.slice(0, 3), takeaway: '우리 모둠이 찾은 내용으로 바꾸어 활동해요.' },
   ];
+  sheet.tasks.forEach((task, index) => {
+    slides.push({ kind: 'activity', image, eyebrow: `활동지 ${index + 1}번`, title: `${index + 1}. ${task.title}`, instruction: task.instruction, steps: [task.tip] });
+    if (id === 6 && index === 1) slides.push(...codapTutorial.map((tutorial, stepIndex): LessonSlide => ({ kind: 'tutorial', image, title: tutorial.title, tutorial, stepIndex, source: tutorial.source })));
+    if (id === 9 && index === 1) slides.push({ kind: 'activity', image, eyebrow: '녹음 따라 하기', title: '녹음하고 다시 들어요', instruction: '설명점에서 녹음 시작을 누르고 마이크 사용을 허용해요.', steps: ['30초 안으로 설명하고 녹음 끝내기를 눌러요.', '재생해서 들어 보고, 다른 설명점도 녹음해요.', '설명을 듣고 풀 수 있는 문제 하나를 만들어요.'] });
+    if (id === 9 && index === 2) slides.push({ kind: 'activity', image, eyebrow: '카드로 확인하기', title: '카드를 비추고 해설을 들어요', instruction: '우리 유물의 카드 받기를 눌러 A4 한 장으로 출력해요.', steps: ['다른 기기는 저장한 작업 파일을 먼저 열어요.', '카메라 AR 켜기를 누르고 카드 사진 전체를 비춰요.', '1·2번 설명점을 눌러 듣고 문제를 풀어요.'] });
+  });
+  slides.push(
+    { kind: 'fact', image, eyebrow: '마지막 확인', title: '자료를 보며 확인해요', points: plan.cautions, takeaway: '오늘 작업 저장하기를 누르고 활동지도 보관해요.' },
+    { kind: 'closing', image, eyebrow: '다음 연결', title: id === 10 ? '우리가 배운 것을 이야기해요' : '다음 시간에도 이어서 해요', prompt: plan.nextLessonPrep, next: id === 10 ? '활동지와 마지막 작업 파일 보관' : `${id + 1}차시 · ${plans.find(item => item.id === id + 1)?.title}` },
+  );
+  return slides;
+}
+
+export function getStartingWorksheetSlides(id: number): readonly LessonSlide[] | undefined {
+  if (id !== 1 && id !== 2) return undefined;
+  const sheet = worksheets.find(item => item.id === id)!;
+  const image: HeritageImageKey = 'muryeong';
+  const slides: LessonSlide[] = [{ kind: 'cover', image, tag: `삼국시대 ${sheet.label}`, title: sheet.title, subtitle: id === 1 ? '사진을 보고 우리 모둠 질문을 정해요.' : 'AI가 한 말을 자료에서 확인해요.' }];
+  if (id === 1) slides.push({ kind: 'gallery', image, eyebrow: '우리 유산 만나기', title: '사진에서 무엇이 보이나요?', instruction: '우리 모둠 사진을 크게 보고 모양·재료·장면을 살펴봐요.' });
+  if (id === 2) slides.push({ kind: 'fact', image, eyebrow: '내 판단 (○×△?)', title: '네 가지 기호를 사용해요', points: ['○ 자료로 확인 · × 자료와 다름', '△ 의견 나뉨·근거 부족 · ? 더 찾아봐야 함'], takeaway: '확인한 출처가 없으면 ?로 남겨요.' });
+  sheet.tasks.forEach((task, index) => {
+    slides.push({ kind: 'activity', image, eyebrow: `활동지 ${index + 1}번`, title: `${index + 1}. ${task.title}`, instruction: task.instruction, steps: [task.tip] });
+    if (id === 2 && index === 1) slides.push({ kind: 'fact', image, eyebrow: '확인한 출처', title: '읽은 자료의 번호를 적어요', points: ['1 국가유산청 · 2 국립박물관', '3 유네스코 · 4 그 밖의 자료 (이름도 적기)', '검색어는 유산 이름과 궁금한 낱말을 함께 넣어요.'], takeaway: '자료에서 확인한 문장을 가리키며 말해요.' });
+  });
+  slides.push({ kind: 'closing', image, eyebrow: '다음 시간', title: '완성한 활동지를 보관해요', prompt: id === 1 ? '다음 시간에는 우리 유산에 대한 AI의 말을 확인해요.' : '4차시에는 찾은 문장 세 개를 표로 정리해요.', next: id === 1 ? '2·3차시 · AI가 한 말 확인하기' : '4차시 · 찾은 내용을 표로 정리하기' });
+  return slides;
 }

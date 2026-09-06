@@ -1,0 +1,1246 @@
+{
+  "outputSlides": [
+    {
+      "outputSlide": 1,
+      "sourceSlide": 1,
+      "narrativeRole": "worksheet instructions",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/7qp4be9c",
+          "action": "rewrite",
+          "oldText": "AI혁신학교 공개수업 · 2차시",
+          "newText": "삼국시대 · 2·3차시 통합"
+        },
+        {
+          "sourceElementId": "sh/65g3298r",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/wn6dc7eh",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산에 대한 AI 문장 6개에서\n의심할 문장을 찾아 출처로 확인합니다.",
+          "newText": "활동지 한 장으로\n판단하기 · 자료 확인하기 · 한 문장 쓰기"
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "outputSlide": 2,
+      "sourceSlide": 2,
+      "narrativeRole": "worksheet instructions",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/b29kza94",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/a10jqpsj",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "outputSlide": 3,
+      "sourceSlide": 3,
+      "narrativeRole": "worksheet instructions",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/298ryl4v",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/3ah8rqlg",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/m5cra54z",
+          "action": "rewrite",
+          "oldText": "오늘의 미션",
+          "newText": "활동지 순서"
+        },
+        {
+          "sourceElementId": "sh/n6ls3alk",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장 찾기",
+          "newText": "종이에는 판단 기호와 출처 번호만 짧게 적어요."
+        },
+        {
+          "sourceElementId": "sh/m1c3mlsn",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장을 찾아라",
+          "newText": "우리 모둠 활동지 1 → 2 → 3"
+        },
+        {
+          "sourceElementId": "sh/v6l4jq94",
+          "action": "rewrite",
+          "oldText": "검색하기 전에 먼저 내 판단을 표시한다.",
+          "newText": "1. 내 판단 표시하기 · ○ × △ ? 중 하나를 골라요."
+        },
+        {
+          "sourceElementId": "sh/w7ulsvqp",
+          "action": "rewrite",
+          "oldText": "맞는 말과 틀린 말이 섞여 있음을 기억한다.",
+          "newText": "2. 자료에서 확인하기 · 읽은 출처의 번호를 적어요."
+        },
+        {
+          "sourceElementId": "sh/e10f2twf",
+          "action": "rewrite",
+          "oldText": "판단한 뒤에는 확인한 출처를 꼭 적는다.",
+          "newText": "3. 오늘의 한 문장 · 왜 확인해야 할지 말해요."
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "outputSlide": 4,
+      "sourceSlide": 4,
+      "narrativeRole": "worksheet instructions",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/rm1k7yt4",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/ql8jytsj",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/3ihk3et8",
+          "action": "rewrite",
+          "oldText": "내 판단 (○×△?)",
+          "newText": "1. 내 판단 표시하기"
+        },
+        {
+          "sourceElementId": "sh/ih8ju9sn",
+          "action": "rewrite",
+          "oldText": "활동지의 ‘내 판단’ 칸에 그대로 표시합니다.",
+          "newText": "내 판단 (○×△?) 칸에 동그라미 해요. 확인한 뒤 바꿔도 돼요."
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "outputSlide": 5,
+      "sourceSlide": 5,
+      "narrativeRole": "worksheet instructions",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/z2tcnm5s",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/yhkbe1o7",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/v2twb6dw",
+          "action": "rewrite",
+          "oldText": "주소 뒤에 /three-kingdoms/lesson/2?view=activity 를 붙여도 바로 열립니다.",
+          "newText": "선생님이 알려 준 수업 링크에서 우리 모둠을 골라요."
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "outputSlide": 6,
+      "sourceSlide": 6,
+      "narrativeRole": "worksheet instructions",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/87ipkzal",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/98rqt4r6",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/v2tcn650",
+          "action": "rewrite",
+          "oldText": "혼자 판단",
+          "newText": "1. 내 판단 표시하기"
+        },
+        {
+          "sourceElementId": "sh/j6dcr65c",
+          "action": "rewrite",
+          "oldText": "모둠 조사",
+          "newText": "2. 자료에서 확인하기"
+        },
+        {
+          "sourceElementId": "sh/i54bylor",
+          "action": "rewrite",
+          "oldText": "공식 자료로 확인하고 ‘확인한 출처’ 칸을 채웁니다.",
+          "newText": "자료를 읽고 ‘확인한 출처’에 번호를 적어요."
+        },
+        {
+          "sourceElementId": "sh/0fy5k3id",
+          "action": "rewrite",
+          "oldText": "정답 확인·정리",
+          "newText": "3. 오늘의 한 문장"
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "outputSlide": 7,
+      "sourceSlide": 7,
+      "narrativeRole": "worksheet instructions",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/ydkbm5sv",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/zedcfa9g",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/eh0ba1sr",
+          "action": "rewrite",
+          "oldText": "좋은 검색어 만들기 · 어디에서 확인할까?",
+          "newText": "2. 자료에서 확인하기"
+        },
+        {
+          "sourceElementId": "sh/25ojml43",
+          "action": "rewrite",
+          "oldText": "어디에서 확인할까? (공식 자료 순위)",
+          "newText": "확인한 출처 · 활동지 번호"
+        },
+        {
+          "sourceElementId": "sh/o761ov2t",
+          "action": "rewrite",
+          "oldText": "1순위  국가유산청 국가유산포털",
+          "newText": "1  국가유산청"
+        },
+        {
+          "sourceElementId": "sh/eh4jil4r",
+          "action": "rewrite",
+          "oldText": "2순위  국립중앙박물관·국립부여박물관",
+          "newText": "2  국립박물관"
+        },
+        {
+          "sourceElementId": "sh/jedkn654",
+          "action": "rewrite",
+          "oldText": "3순위  유네스코 세계유산센터·우리역사넷",
+          "newText": "3  유네스코"
+        },
+        {
+          "sourceElementId": "sh/50v2pgna",
+          "action": "rewrite",
+          "oldText": "비교용  블로그·영상·AI 답변",
+          "newText": "4  그 밖의 자료 · 이름도 적어요."
+        },
+        {
+          "sourceElementId": "sh/q143ylov",
+          "action": "rewrite",
+          "oldText": "확인한 곳의 기관 이름을 활동지 ‘확인한 출처’ 칸에 적습니다.",
+          "newText": "읽은 자료의 번호를 적고, 확인한 문장을 말해요."
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "outputSlide": 8,
+      "sourceSlide": 3,
+      "narrativeRole": "teacher answer, three statements per slide",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/298ryl4v",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/3ah8rqlg",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/m5cra54z",
+          "action": "rewrite",
+          "oldText": "오늘의 미션",
+          "newText": "1모둠 정답 · 무령왕릉"
+        },
+        {
+          "sourceElementId": "sh/n6ls3alk",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장 찾기",
+          "newText": "우리 모둠 발표를 마친 뒤 확인해요."
+        },
+        {
+          "sourceElementId": "sh/m1c3mlsn",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장을 찾아라",
+          "newText": "무령왕릉 · 1~3번"
+        },
+        {
+          "sourceElementId": "sh/83ulovat",
+          "action": "rewrite",
+          "oldText": "1",
+          "newText": "1"
+        },
+        {
+          "sourceElementId": "sh/v6l4jq94",
+          "action": "rewrite",
+          "oldText": "검색하기 전에 먼저 내 판단을 표시한다.",
+          "newText": "○ 1971년 배수로 공사 중 발견했어요."
+        },
+        {
+          "sourceElementId": "sh/x8nml0ra",
+          "action": "rewrite",
+          "oldText": "2",
+          "newText": "2"
+        },
+        {
+          "sourceElementId": "sh/w7ulsvqp",
+          "action": "rewrite",
+          "oldText": "맞는 말과 틀린 말이 섞여 있음을 기억한다.",
+          "newText": "○ 지석으로 무덤 주인을 확인했어요."
+        },
+        {
+          "sourceElementId": "sh/i9w3u58v",
+          "action": "rewrite",
+          "oldText": "3",
+          "newText": "3"
+        },
+        {
+          "sourceElementId": "sh/e10f2twf",
+          "action": "rewrite",
+          "oldText": "판단한 뒤에는 확인한 출처를 꼭 적는다.",
+          "newText": "× 도굴되지 않아 많은 유물이 남았어요."
+        }
+      ],
+      "notes": "\n\n2차시\nAI에게 물어보았습니다\n삼국시대 · 교사용 수업 PPT\n\n1모둠 정답 · 무령왕릉\n이 모둠의 발표를 들은 뒤에 공개하세요.\n\n발표 후 공개\nAI가 한 말\n왜 그렇게 판단하나요\n추천 검색어\n\n\n1 ○\n무령왕릉은 1971년 공주 송산리 고분군의 배수로 공사 중 우연히 발견되었습니다.\n발견 연도와 경위가 공식 자료에 기록되어 있습니다.\n무령왕릉 1971 배수로 공사\n\n2 ○\n무덤 안의 지석 덕분에 무덤의 주인이 무령왕과 왕비라는 사실을 확인할 수 있었습니다.\n지석에 무덤 주인과 장례 정보가 남아 있습니다.\n무령왕릉 지석 무령왕 왕비\n\n3 ×\n발견 당시 이미 여러 차례 도굴되어 중요한 유물 대부분이 사라진 상태였습니다.\n도굴되지 않은 상태로 발견되어 많은 유물이 남아 있었습니다.\n무령왕릉 도굴 여부\n\n4 ×\n무령왕릉을 처음 발견한 사람은 현장 학습을 온 초등학생이었습니다.\n배수로 공사 과정에서 공사 관계자들이 발견했습니다.\n무령왕릉 발견 과정\n\n5 ○\n무덤 안에서는 진묘수, 금제 관식, 금동 신발, 청동 거울 등 여러 유물이 나왔습니다.\n대표 출토 유물은 박물관 자료에서 확인됩니다.\n무령왕릉 출토 유물\n\n6 △\n지석만 읽으면 장례의 모든 과정과 유물 하나하나의 정확한 쓰임까지 완전히 알 수 있습니다.\n지석은 중요한 단서지만 모든 과정과 쓰임을 전부 설명하지는 않습니다.\n무령왕릉 지석 한계\n우선 확인처: 국립공주박물관·국립중앙박물관 무령왕릉 자료"
+    },
+    {
+      "outputSlide": 9,
+      "sourceSlide": 3,
+      "narrativeRole": "teacher answer, three statements per slide",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/298ryl4v",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/3ah8rqlg",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/m5cra54z",
+          "action": "rewrite",
+          "oldText": "오늘의 미션",
+          "newText": "1모둠 정답 · 무령왕릉"
+        },
+        {
+          "sourceElementId": "sh/n6ls3alk",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장 찾기",
+          "newText": "우리 모둠 발표를 마친 뒤 확인해요."
+        },
+        {
+          "sourceElementId": "sh/m1c3mlsn",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장을 찾아라",
+          "newText": "무령왕릉 · 4~6번"
+        },
+        {
+          "sourceElementId": "sh/83ulovat",
+          "action": "rewrite",
+          "oldText": "1",
+          "newText": "4"
+        },
+        {
+          "sourceElementId": "sh/v6l4jq94",
+          "action": "rewrite",
+          "oldText": "검색하기 전에 먼저 내 판단을 표시한다.",
+          "newText": "× 공사 중 발견했어요. 학생이 아니에요."
+        },
+        {
+          "sourceElementId": "sh/x8nml0ra",
+          "action": "rewrite",
+          "oldText": "2",
+          "newText": "5"
+        },
+        {
+          "sourceElementId": "sh/w7ulsvqp",
+          "action": "rewrite",
+          "oldText": "맞는 말과 틀린 말이 섞여 있음을 기억한다.",
+          "newText": "○ 진묘수·관식 등 여러 유물이 나왔어요."
+        },
+        {
+          "sourceElementId": "sh/i9w3u58v",
+          "action": "rewrite",
+          "oldText": "3",
+          "newText": "6"
+        },
+        {
+          "sourceElementId": "sh/e10f2twf",
+          "action": "rewrite",
+          "oldText": "판단한 뒤에는 확인한 출처를 꼭 적는다.",
+          "newText": "△ 지석만으로 모든 쓰임을 알 수는 없어요."
+        }
+      ],
+      "notes": "\n\n2차시\nAI에게 물어보았습니다\n삼국시대 · 교사용 수업 PPT\n\n1모둠 정답 · 무령왕릉\n이 모둠의 발표를 들은 뒤에 공개하세요.\n\n발표 후 공개\nAI가 한 말\n왜 그렇게 판단하나요\n추천 검색어\n\n\n1 ○\n무령왕릉은 1971년 공주 송산리 고분군의 배수로 공사 중 우연히 발견되었습니다.\n발견 연도와 경위가 공식 자료에 기록되어 있습니다.\n무령왕릉 1971 배수로 공사\n\n2 ○\n무덤 안의 지석 덕분에 무덤의 주인이 무령왕과 왕비라는 사실을 확인할 수 있었습니다.\n지석에 무덤 주인과 장례 정보가 남아 있습니다.\n무령왕릉 지석 무령왕 왕비\n\n3 ×\n발견 당시 이미 여러 차례 도굴되어 중요한 유물 대부분이 사라진 상태였습니다.\n도굴되지 않은 상태로 발견되어 많은 유물이 남아 있었습니다.\n무령왕릉 도굴 여부\n\n4 ×\n무령왕릉을 처음 발견한 사람은 현장 학습을 온 초등학생이었습니다.\n배수로 공사 과정에서 공사 관계자들이 발견했습니다.\n무령왕릉 발견 과정\n\n5 ○\n무덤 안에서는 진묘수, 금제 관식, 금동 신발, 청동 거울 등 여러 유물이 나왔습니다.\n대표 출토 유물은 박물관 자료에서 확인됩니다.\n무령왕릉 출토 유물\n\n6 △\n지석만 읽으면 장례의 모든 과정과 유물 하나하나의 정확한 쓰임까지 완전히 알 수 있습니다.\n지석은 중요한 단서지만 모든 과정과 쓰임을 전부 설명하지는 않습니다.\n무령왕릉 지석 한계\n우선 확인처: 국립공주박물관·국립중앙박물관 무령왕릉 자료"
+    },
+    {
+      "outputSlide": 10,
+      "sourceSlide": 3,
+      "narrativeRole": "teacher answer, three statements per slide",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/298ryl4v",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/3ah8rqlg",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/m5cra54z",
+          "action": "rewrite",
+          "oldText": "오늘의 미션",
+          "newText": "2모둠 정답 · 백제 금동대향로"
+        },
+        {
+          "sourceElementId": "sh/n6ls3alk",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장 찾기",
+          "newText": "우리 모둠 발표를 마친 뒤 확인해요."
+        },
+        {
+          "sourceElementId": "sh/m1c3mlsn",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장을 찾아라",
+          "newText": "백제 금동대향로 · 1~3번"
+        },
+        {
+          "sourceElementId": "sh/83ulovat",
+          "action": "rewrite",
+          "oldText": "1",
+          "newText": "1"
+        },
+        {
+          "sourceElementId": "sh/v6l4jq94",
+          "action": "rewrite",
+          "oldText": "검색하기 전에 먼저 내 판단을 표시한다.",
+          "newText": "○ 1993년 능산리 절터에서 발견했어요."
+        },
+        {
+          "sourceElementId": "sh/x8nml0ra",
+          "action": "rewrite",
+          "oldText": "2",
+          "newText": "2"
+        },
+        {
+          "sourceElementId": "sh/w7ulsvqp",
+          "action": "rewrite",
+          "oldText": "맞는 말과 틀린 말이 섞여 있음을 기억한다.",
+          "newText": "○ 청동 바탕에 금을 입힌 유물이에요."
+        },
+        {
+          "sourceElementId": "sh/i9w3u58v",
+          "action": "rewrite",
+          "oldText": "3",
+          "newText": "3"
+        },
+        {
+          "sourceElementId": "sh/e10f2twf",
+          "action": "rewrite",
+          "oldText": "판단한 뒤에는 확인한 출처를 꼭 적는다.",
+          "newText": "× 무덤이 아니라 절터에서 나왔어요."
+        }
+      ],
+      "notes": "\n\n2차시\nAI에게 물어보았습니다\n삼국시대 · 교사용 수업 PPT\n\n2모둠 정답 · 백제 금동대향로\n이 모둠의 발표를 들은 뒤에 공개하세요.\n\n발표 후 공개\nAI가 한 말\n왜 그렇게 판단하나요\n추천 검색어\n\n\n1 ○\n백제 금동대향로는 1993년 부여 능산리 절터를 발굴하던 중 발견되었습니다.\n발견 연도와 장소가 박물관 자료에 기록되어 있습니다.\n금동대향로 1993 능산리\n\n2 ○\n이 향로는 청동으로 만든 뒤 표면에 금을 입힌 금동 유물입니다.\n금동은 청동 바탕에 금을 입힌 재료를 뜻합니다.\n금동대향로 재료\n\n3 ×\n향로는 백제 왕의 무덤 안에서 발견되었습니다.\n왕릉이 아니라 능산리 절터에서 출토되었습니다.\n금동대향로 발견 장소\n\n4 ○\n향로의 꼭대기에는 봉황, 받침에는 용이 있고 산·연꽃·동물·악사도 표현되어 있습니다.\n향로의 형태와 장식은 소장품 사진과 설명에서 확인됩니다.\n금동대향로 봉황 용 악사\n\n5 △\n향로에 새겨진 모든 동물과 인물이 무엇을 뜻하는지 당시 기록에 남아 있어 완전히 밝혀졌습니다.\n형상은 관찰되지만 모든 무늬의 뜻을 하나로 확정하기 어렵습니다.\n금동대향로 무늬 의미\n\n6 ×\n이 향로는 신라의 황룡사에서 만들어져 발견된 유물입니다.\n부여 지역 절터에서 발견된 백제 유물입니다.\n금동대향로 백제 신라\n우선 확인처: 국립부여박물관 백제 금동대향로 자료"
+    },
+    {
+      "outputSlide": 11,
+      "sourceSlide": 3,
+      "narrativeRole": "teacher answer, three statements per slide",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/298ryl4v",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/3ah8rqlg",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/m5cra54z",
+          "action": "rewrite",
+          "oldText": "오늘의 미션",
+          "newText": "2모둠 정답 · 백제 금동대향로"
+        },
+        {
+          "sourceElementId": "sh/n6ls3alk",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장 찾기",
+          "newText": "우리 모둠 발표를 마친 뒤 확인해요."
+        },
+        {
+          "sourceElementId": "sh/m1c3mlsn",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장을 찾아라",
+          "newText": "백제 금동대향로 · 4~6번"
+        },
+        {
+          "sourceElementId": "sh/83ulovat",
+          "action": "rewrite",
+          "oldText": "1",
+          "newText": "4"
+        },
+        {
+          "sourceElementId": "sh/v6l4jq94",
+          "action": "rewrite",
+          "oldText": "검색하기 전에 먼저 내 판단을 표시한다.",
+          "newText": "○ 봉황·용·악사 등의 장식이 보여요."
+        },
+        {
+          "sourceElementId": "sh/x8nml0ra",
+          "action": "rewrite",
+          "oldText": "2",
+          "newText": "5"
+        },
+        {
+          "sourceElementId": "sh/w7ulsvqp",
+          "action": "rewrite",
+          "oldText": "맞는 말과 틀린 말이 섞여 있음을 기억한다.",
+          "newText": "△ 모든 무늬의 뜻을 확정하기 어려워요."
+        },
+        {
+          "sourceElementId": "sh/i9w3u58v",
+          "action": "rewrite",
+          "oldText": "3",
+          "newText": "6"
+        },
+        {
+          "sourceElementId": "sh/e10f2twf",
+          "action": "rewrite",
+          "oldText": "판단한 뒤에는 확인한 출처를 꼭 적는다.",
+          "newText": "× 신라 황룡사가 아니라 백제 유물이에요."
+        }
+      ],
+      "notes": "\n\n2차시\nAI에게 물어보았습니다\n삼국시대 · 교사용 수업 PPT\n\n2모둠 정답 · 백제 금동대향로\n이 모둠의 발표를 들은 뒤에 공개하세요.\n\n발표 후 공개\nAI가 한 말\n왜 그렇게 판단하나요\n추천 검색어\n\n\n1 ○\n백제 금동대향로는 1993년 부여 능산리 절터를 발굴하던 중 발견되었습니다.\n발견 연도와 장소가 박물관 자료에 기록되어 있습니다.\n금동대향로 1993 능산리\n\n2 ○\n이 향로는 청동으로 만든 뒤 표면에 금을 입힌 금동 유물입니다.\n금동은 청동 바탕에 금을 입힌 재료를 뜻합니다.\n금동대향로 재료\n\n3 ×\n향로는 백제 왕의 무덤 안에서 발견되었습니다.\n왕릉이 아니라 능산리 절터에서 출토되었습니다.\n금동대향로 발견 장소\n\n4 ○\n향로의 꼭대기에는 봉황, 받침에는 용이 있고 산·연꽃·동물·악사도 표현되어 있습니다.\n향로의 형태와 장식은 소장품 사진과 설명에서 확인됩니다.\n금동대향로 봉황 용 악사\n\n5 △\n향로에 새겨진 모든 동물과 인물이 무엇을 뜻하는지 당시 기록에 남아 있어 완전히 밝혀졌습니다.\n형상은 관찰되지만 모든 무늬의 뜻을 하나로 확정하기 어렵습니다.\n금동대향로 무늬 의미\n\n6 ×\n이 향로는 신라의 황룡사에서 만들어져 발견된 유물입니다.\n부여 지역 절터에서 발견된 백제 유물입니다.\n금동대향로 백제 신라\n우선 확인처: 국립부여박물관 백제 금동대향로 자료"
+    },
+    {
+      "outputSlide": 12,
+      "sourceSlide": 3,
+      "narrativeRole": "teacher answer, three statements per slide",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/298ryl4v",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/3ah8rqlg",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/m5cra54z",
+          "action": "rewrite",
+          "oldText": "오늘의 미션",
+          "newText": "3모둠 정답 · 첨성대"
+        },
+        {
+          "sourceElementId": "sh/n6ls3alk",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장 찾기",
+          "newText": "우리 모둠 발표를 마친 뒤 확인해요."
+        },
+        {
+          "sourceElementId": "sh/m1c3mlsn",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장을 찾아라",
+          "newText": "첨성대 · 1~3번"
+        },
+        {
+          "sourceElementId": "sh/83ulovat",
+          "action": "rewrite",
+          "oldText": "1",
+          "newText": "1"
+        },
+        {
+          "sourceElementId": "sh/v6l4jq94",
+          "action": "rewrite",
+          "oldText": "검색하기 전에 먼저 내 판단을 표시한다.",
+          "newText": "○ 경주에 남아 있는 신라 석조 건축물이에요."
+        },
+        {
+          "sourceElementId": "sh/x8nml0ra",
+          "action": "rewrite",
+          "oldText": "2",
+          "newText": "2"
+        },
+        {
+          "sourceElementId": "sh/w7ulsvqp",
+          "action": "rewrite",
+          "oldText": "맞는 말과 틀린 말이 섞여 있음을 기억한다.",
+          "newText": "○ 공식 안내는 선덕여왕 때 관측대로 설명해요."
+        },
+        {
+          "sourceElementId": "sh/i9w3u58v",
+          "action": "rewrite",
+          "oldText": "3",
+          "newText": "3"
+        },
+        {
+          "sourceElementId": "sh/e10f2twf",
+          "action": "rewrite",
+          "oldText": "판단한 뒤에는 확인한 출처를 꼭 적는다.",
+          "newText": "× 망원경은 훨씬 뒤에 등장했어요."
+        }
+      ],
+      "notes": "\n\n2차시\nAI에게 물어보았습니다\n삼국시대 · 교사용 수업 PPT\n\n3모둠 정답 · 첨성대\n이 모둠의 발표를 들은 뒤에 공개하세요.\n\n발표 후 공개\nAI가 한 말\n왜 그렇게 판단하나요\n추천 검색어\n\n\n1 ○\n첨성대는 경주에 남아 있는 돌로 쌓은 신라시대 건축물입니다.\n경주에 있는 석조 건축물임을 확인할 수 있습니다.\n경주 첨성대 석조\n\n2 ○\n국가유산 안내에서는 첨성대를 선덕여왕 때 세운 천문 관측대로 설명합니다.\n공식 안내에 건립 시기와 천문 관측 관련 설명이 있습니다.\n첨성대 선덕여왕 천문\n\n3 ×\n첨성대 꼭대기에는 별을 확대해서 보는 망원경이 설치되어 있었습니다.\n망원경은 첨성대가 세워진 시대보다 훨씬 뒤에 등장했습니다.\n첨성대 망원경\n\n4 ×\n첨성대는 나무 기둥과 기와로만 만든 건물이었습니다.\n현재 남은 첨성대는 돌을 층층이 쌓은 구조물입니다.\n첨성대 재료 돌\n\n5 △\n첨성대의 돌 개수와 모든 층의 수가 달력을 뜻한다는 사실이 옛 문헌으로 완전히 증명되었습니다.\n숫자의 상징에는 여러 해석이 있어 확정된 사실로 보기 어렵습니다.\n첨성대 돌 개수 학설\n\n6 △\n신라 사람들이 첨성대 안팎에서 별을 관찰한 정확한 방법은 학자들이 모두 같은 결론을 내렸습니다.\n구체적인 사용 방법에는 여러 해석이 있습니다.\n첨성대 사용 방법 학설\n우선 확인처: 국가유산청 경주 첨성대 안내"
+    },
+    {
+      "outputSlide": 13,
+      "sourceSlide": 3,
+      "narrativeRole": "teacher answer, three statements per slide",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/298ryl4v",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/3ah8rqlg",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/m5cra54z",
+          "action": "rewrite",
+          "oldText": "오늘의 미션",
+          "newText": "3모둠 정답 · 첨성대"
+        },
+        {
+          "sourceElementId": "sh/n6ls3alk",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장 찾기",
+          "newText": "우리 모둠 발표를 마친 뒤 확인해요."
+        },
+        {
+          "sourceElementId": "sh/m1c3mlsn",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장을 찾아라",
+          "newText": "첨성대 · 4~6번"
+        },
+        {
+          "sourceElementId": "sh/83ulovat",
+          "action": "rewrite",
+          "oldText": "1",
+          "newText": "4"
+        },
+        {
+          "sourceElementId": "sh/v6l4jq94",
+          "action": "rewrite",
+          "oldText": "검색하기 전에 먼저 내 판단을 표시한다.",
+          "newText": "× 나무가 아니라 돌로 쌓았어요."
+        },
+        {
+          "sourceElementId": "sh/x8nml0ra",
+          "action": "rewrite",
+          "oldText": "2",
+          "newText": "5"
+        },
+        {
+          "sourceElementId": "sh/w7ulsvqp",
+          "action": "rewrite",
+          "oldText": "맞는 말과 틀린 말이 섞여 있음을 기억한다.",
+          "newText": "△ 숫자의 뜻에는 여러 해석이 있어요."
+        },
+        {
+          "sourceElementId": "sh/i9w3u58v",
+          "action": "rewrite",
+          "oldText": "3",
+          "newText": "6"
+        },
+        {
+          "sourceElementId": "sh/e10f2twf",
+          "action": "rewrite",
+          "oldText": "판단한 뒤에는 확인한 출처를 꼭 적는다.",
+          "newText": "△ 정확한 사용 방법에는 여러 의견이 있어요."
+        }
+      ],
+      "notes": "\n\n2차시\nAI에게 물어보았습니다\n삼국시대 · 교사용 수업 PPT\n\n3모둠 정답 · 첨성대\n이 모둠의 발표를 들은 뒤에 공개하세요.\n\n발표 후 공개\nAI가 한 말\n왜 그렇게 판단하나요\n추천 검색어\n\n\n1 ○\n첨성대는 경주에 남아 있는 돌로 쌓은 신라시대 건축물입니다.\n경주에 있는 석조 건축물임을 확인할 수 있습니다.\n경주 첨성대 석조\n\n2 ○\n국가유산 안내에서는 첨성대를 선덕여왕 때 세운 천문 관측대로 설명합니다.\n공식 안내에 건립 시기와 천문 관측 관련 설명이 있습니다.\n첨성대 선덕여왕 천문\n\n3 ×\n첨성대 꼭대기에는 별을 확대해서 보는 망원경이 설치되어 있었습니다.\n망원경은 첨성대가 세워진 시대보다 훨씬 뒤에 등장했습니다.\n첨성대 망원경\n\n4 ×\n첨성대는 나무 기둥과 기와로만 만든 건물이었습니다.\n현재 남은 첨성대는 돌을 층층이 쌓은 구조물입니다.\n첨성대 재료 돌\n\n5 △\n첨성대의 돌 개수와 모든 층의 수가 달력을 뜻한다는 사실이 옛 문헌으로 완전히 증명되었습니다.\n숫자의 상징에는 여러 해석이 있어 확정된 사실로 보기 어렵습니다.\n첨성대 돌 개수 학설\n\n6 △\n신라 사람들이 첨성대 안팎에서 별을 관찰한 정확한 방법은 학자들이 모두 같은 결론을 내렸습니다.\n구체적인 사용 방법에는 여러 해석이 있습니다.\n첨성대 사용 방법 학설\n우선 확인처: 국가유산청 경주 첨성대 안내"
+    },
+    {
+      "outputSlide": 14,
+      "sourceSlide": 3,
+      "narrativeRole": "teacher answer, three statements per slide",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/298ryl4v",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/3ah8rqlg",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/m5cra54z",
+          "action": "rewrite",
+          "oldText": "오늘의 미션",
+          "newText": "4모둠 정답 · 신라 금관"
+        },
+        {
+          "sourceElementId": "sh/n6ls3alk",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장 찾기",
+          "newText": "우리 모둠 발표를 마친 뒤 확인해요."
+        },
+        {
+          "sourceElementId": "sh/m1c3mlsn",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장을 찾아라",
+          "newText": "신라 금관 · 1~3번"
+        },
+        {
+          "sourceElementId": "sh/83ulovat",
+          "action": "rewrite",
+          "oldText": "1",
+          "newText": "1"
+        },
+        {
+          "sourceElementId": "sh/v6l4jq94",
+          "action": "rewrite",
+          "oldText": "검색하기 전에 먼저 내 판단을 표시한다.",
+          "newText": "○ 큰 무덤에서 권위를 보여 주는 유물이에요."
+        },
+        {
+          "sourceElementId": "sh/x8nml0ra",
+          "action": "rewrite",
+          "oldText": "2",
+          "newText": "2"
+        },
+        {
+          "sourceElementId": "sh/w7ulsvqp",
+          "action": "rewrite",
+          "oldText": "맞는 말과 틀린 말이 섞여 있음을 기억한다.",
+          "newText": "○ 금판 장식과 굽은옥이 보여요."
+        },
+        {
+          "sourceElementId": "sh/i9w3u58v",
+          "action": "rewrite",
+          "oldText": "3",
+          "newText": "3"
+        },
+        {
+          "sourceElementId": "sh/e10f2twf",
+          "action": "rewrite",
+          "oldText": "판단한 뒤에는 확인한 출처를 꼭 적는다.",
+          "newText": "× 모두 왕의 관이라고 단정할 수 없어요."
+        }
+      ],
+      "notes": "\n\n2차시\nAI에게 물어보았습니다\n삼국시대 · 교사용 수업 PPT\n\n4모둠 정답 · 신라 금관\n이 모둠의 발표를 들은 뒤에 공개하세요.\n\n발표 후 공개\nAI가 한 말\n왜 그렇게 판단하나요\n추천 검색어\n\n\n1 ○\n신라 금관은 왕릉급의 큰 무덤에서 권위를 보여 주는 부장품으로 발견되었습니다.\n출토 상황과 금관의 성격은 박물관 자료에서 확인됩니다.\n신라 금관 부장품\n\n2 ○\n금관에는 얇은 금판으로 만든 세움 장식과 굽은옥 같은 장식이 보입니다.\n금관의 실제 형태와 장식에서 확인됩니다.\n신라 금관 굽은옥\n\n3 ×\n신라 금관은 오직 왕의 무덤에서만 발견되었으므로 모두 왕이 쓴 왕관입니다.\n높은 신분의 인물 무덤에서도 발견되어 모두 왕의 관이라 단정할 수 없습니다.\n신라 금관 왕족 무덤\n\n4 ×\n발견된 금관은 모두 무덤 주인의 머리에 똑바로 씌워진 상태였습니다.\n얼굴이나 가슴 부근 등 서로 다른 위치에서 발견된 사례가 있습니다.\n신라 금관 출토 위치\n\n5 ×\n신라 사람들은 금관을 농사나 일상 노동을 할 때도 매일 쓰고 다녔습니다.\n일상 작업용으로 사용했다는 근거는 없습니다.\n신라 금관 일상 착용\n\n6 △\n금관이 생전에 실제로 착용된 것인지 장례를 위해 제작된 것인지에 대해서는 여러 연구 의견이 있습니다.\n실제 착용설과 장례용 해석을 함께 살펴봐야 합니다.\n신라 금관 실제 착용\n우선 확인처: 국립중앙박물관 신라 금관 자료"
+    },
+    {
+      "outputSlide": 15,
+      "sourceSlide": 3,
+      "narrativeRole": "teacher answer, three statements per slide",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/298ryl4v",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/3ah8rqlg",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/m5cra54z",
+          "action": "rewrite",
+          "oldText": "오늘의 미션",
+          "newText": "4모둠 정답 · 신라 금관"
+        },
+        {
+          "sourceElementId": "sh/n6ls3alk",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장 찾기",
+          "newText": "우리 모둠 발표를 마친 뒤 확인해요."
+        },
+        {
+          "sourceElementId": "sh/m1c3mlsn",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장을 찾아라",
+          "newText": "신라 금관 · 4~6번"
+        },
+        {
+          "sourceElementId": "sh/83ulovat",
+          "action": "rewrite",
+          "oldText": "1",
+          "newText": "4"
+        },
+        {
+          "sourceElementId": "sh/v6l4jq94",
+          "action": "rewrite",
+          "oldText": "검색하기 전에 먼저 내 판단을 표시한다.",
+          "newText": "× 서로 다른 위치에서 발견되기도 했어요."
+        },
+        {
+          "sourceElementId": "sh/x8nml0ra",
+          "action": "rewrite",
+          "oldText": "2",
+          "newText": "5"
+        },
+        {
+          "sourceElementId": "sh/w7ulsvqp",
+          "action": "rewrite",
+          "oldText": "맞는 말과 틀린 말이 섞여 있음을 기억한다.",
+          "newText": "× 일할 때 매일 썼다는 근거는 없어요."
+        },
+        {
+          "sourceElementId": "sh/i9w3u58v",
+          "action": "rewrite",
+          "oldText": "3",
+          "newText": "6"
+        },
+        {
+          "sourceElementId": "sh/e10f2twf",
+          "action": "rewrite",
+          "oldText": "판단한 뒤에는 확인한 출처를 꼭 적는다.",
+          "newText": "△ 실제 착용과 장례용이라는 의견이 있어요."
+        }
+      ],
+      "notes": "\n\n2차시\nAI에게 물어보았습니다\n삼국시대 · 교사용 수업 PPT\n\n4모둠 정답 · 신라 금관\n이 모둠의 발표를 들은 뒤에 공개하세요.\n\n발표 후 공개\nAI가 한 말\n왜 그렇게 판단하나요\n추천 검색어\n\n\n1 ○\n신라 금관은 왕릉급의 큰 무덤에서 권위를 보여 주는 부장품으로 발견되었습니다.\n출토 상황과 금관의 성격은 박물관 자료에서 확인됩니다.\n신라 금관 부장품\n\n2 ○\n금관에는 얇은 금판으로 만든 세움 장식과 굽은옥 같은 장식이 보입니다.\n금관의 실제 형태와 장식에서 확인됩니다.\n신라 금관 굽은옥\n\n3 ×\n신라 금관은 오직 왕의 무덤에서만 발견되었으므로 모두 왕이 쓴 왕관입니다.\n높은 신분의 인물 무덤에서도 발견되어 모두 왕의 관이라 단정할 수 없습니다.\n신라 금관 왕족 무덤\n\n4 ×\n발견된 금관은 모두 무덤 주인의 머리에 똑바로 씌워진 상태였습니다.\n얼굴이나 가슴 부근 등 서로 다른 위치에서 발견된 사례가 있습니다.\n신라 금관 출토 위치\n\n5 ×\n신라 사람들은 금관을 농사나 일상 노동을 할 때도 매일 쓰고 다녔습니다.\n일상 작업용으로 사용했다는 근거는 없습니다.\n신라 금관 일상 착용\n\n6 △\n금관이 생전에 실제로 착용된 것인지 장례를 위해 제작된 것인지에 대해서는 여러 연구 의견이 있습니다.\n실제 착용설과 장례용 해석을 함께 살펴봐야 합니다.\n신라 금관 실제 착용\n우선 확인처: 국립중앙박물관 신라 금관 자료"
+    },
+    {
+      "outputSlide": 16,
+      "sourceSlide": 3,
+      "narrativeRole": "teacher answer, three statements per slide",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/298ryl4v",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/3ah8rqlg",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/m5cra54z",
+          "action": "rewrite",
+          "oldText": "오늘의 미션",
+          "newText": "5모둠 정답 · 고구려 고분벽화"
+        },
+        {
+          "sourceElementId": "sh/n6ls3alk",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장 찾기",
+          "newText": "우리 모둠 발표를 마친 뒤 확인해요."
+        },
+        {
+          "sourceElementId": "sh/m1c3mlsn",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장을 찾아라",
+          "newText": "고구려 고분벽화 · 1~3번"
+        },
+        {
+          "sourceElementId": "sh/83ulovat",
+          "action": "rewrite",
+          "oldText": "1",
+          "newText": "1"
+        },
+        {
+          "sourceElementId": "sh/v6l4jq94",
+          "action": "rewrite",
+          "oldText": "검색하기 전에 먼저 내 판단을 표시한다.",
+          "newText": "○ 사냥·행렬·생활 등의 그림이 남아 있어요."
+        },
+        {
+          "sourceElementId": "sh/x8nml0ra",
+          "action": "rewrite",
+          "oldText": "2",
+          "newText": "2"
+        },
+        {
+          "sourceElementId": "sh/w7ulsvqp",
+          "action": "rewrite",
+          "oldText": "맞는 말과 틀린 말이 섞여 있음을 기억한다.",
+          "newText": "○ 주로 왕족·귀족 무덤과 관련돼요."
+        },
+        {
+          "sourceElementId": "sh/i9w3u58v",
+          "action": "rewrite",
+          "oldText": "3",
+          "newText": "3"
+        },
+        {
+          "sourceElementId": "sh/e10f2twf",
+          "action": "rewrite",
+          "oldText": "판단한 뒤에는 확인한 출처를 꼭 적는다.",
+          "newText": "× 일부 무덤에만 벽화가 남아 있어요."
+        }
+      ],
+      "notes": "\n\n2차시\nAI에게 물어보았습니다\n삼국시대 · 교사용 수업 PPT\n\n5모둠 정답 · 고구려 고분벽화\n이 모둠의 발표를 들은 뒤에 공개하세요.\n\n발표 후 공개\nAI가 한 말\n왜 그렇게 판단하나요\n추천 검색어\n\n\n1 ○\n고구려 고분벽화에는 사냥, 행렬, 생활 모습, 무늬와 사신도 같은 그림이 남아 있습니다.\n벽화의 주제는 공식 자료에서 확인할 수 있습니다.\n고구려 벽화 사냥 사신도\n\n2 ○\n벽화무덤은 주로 왕족과 귀족의 무덤과 관련된 것으로 설명됩니다.\n무덤의 규모와 내용을 바탕으로 왕족·귀족 무덤으로 봅니다.\n고구려 벽화무덤 왕족\n\n3 ×\n발견된 고구려 무덤에는 하나도 빠짐없이 모두 벽화가 그려져 있습니다.\n고구려 무덤 가운데 일부에만 벽화가 남아 있습니다.\n고구려 무덤 모두 벽화\n\n4 ×\n고구려 고분벽화는 모두 현재 대한민국 안에서만 발견되었습니다.\n북한과 중국 동북 지역에도 고구려 벽화무덤이 있습니다.\n고구려 벽화 북한 중국\n\n5 △\n벽화에 보이는 장면은 모든 고구려 사람의 하루를 사진처럼 정확히 보여 줍니다.\n왕족·귀족 무덤의 장면을 모든 사람의 생활로 일반화하면 안 됩니다.\n고구려 벽화 생활 일반화\n\n6 ×\n한 명의 유명한 화가가 고구려의 모든 고분벽화를 혼자 그렸다는 기록이 남아 있습니다.\n모든 벽화를 한 사람이 그렸다는 기록은 확인되지 않습니다.\n고구려 벽화 화가 기록\n우선 확인처: UNESCO 고구려 고분군·국립박물관 자료"
+    },
+    {
+      "outputSlide": 17,
+      "sourceSlide": 3,
+      "narrativeRole": "teacher answer, three statements per slide",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/298ryl4v",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/3ah8rqlg",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/m5cra54z",
+          "action": "rewrite",
+          "oldText": "오늘의 미션",
+          "newText": "5모둠 정답 · 고구려 고분벽화"
+        },
+        {
+          "sourceElementId": "sh/n6ls3alk",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장 찾기",
+          "newText": "우리 모둠 발표를 마친 뒤 확인해요."
+        },
+        {
+          "sourceElementId": "sh/m1c3mlsn",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장을 찾아라",
+          "newText": "고구려 고분벽화 · 4~6번"
+        },
+        {
+          "sourceElementId": "sh/83ulovat",
+          "action": "rewrite",
+          "oldText": "1",
+          "newText": "4"
+        },
+        {
+          "sourceElementId": "sh/v6l4jq94",
+          "action": "rewrite",
+          "oldText": "검색하기 전에 먼저 내 판단을 표시한다.",
+          "newText": "× 북한과 중국에도 벽화무덤이 있어요."
+        },
+        {
+          "sourceElementId": "sh/x8nml0ra",
+          "action": "rewrite",
+          "oldText": "2",
+          "newText": "5"
+        },
+        {
+          "sourceElementId": "sh/w7ulsvqp",
+          "action": "rewrite",
+          "oldText": "맞는 말과 틀린 말이 섞여 있음을 기억한다.",
+          "newText": "△ 모든 사람의 하루를 보여 주지는 않아요."
+        },
+        {
+          "sourceElementId": "sh/i9w3u58v",
+          "action": "rewrite",
+          "oldText": "3",
+          "newText": "6"
+        },
+        {
+          "sourceElementId": "sh/e10f2twf",
+          "action": "rewrite",
+          "oldText": "판단한 뒤에는 확인한 출처를 꼭 적는다.",
+          "newText": "× 한 사람이 모두 그렸다는 기록은 없어요."
+        }
+      ],
+      "notes": "\n\n2차시\nAI에게 물어보았습니다\n삼국시대 · 교사용 수업 PPT\n\n5모둠 정답 · 고구려 고분벽화\n이 모둠의 발표를 들은 뒤에 공개하세요.\n\n발표 후 공개\nAI가 한 말\n왜 그렇게 판단하나요\n추천 검색어\n\n\n1 ○\n고구려 고분벽화에는 사냥, 행렬, 생활 모습, 무늬와 사신도 같은 그림이 남아 있습니다.\n벽화의 주제는 공식 자료에서 확인할 수 있습니다.\n고구려 벽화 사냥 사신도\n\n2 ○\n벽화무덤은 주로 왕족과 귀족의 무덤과 관련된 것으로 설명됩니다.\n무덤의 규모와 내용을 바탕으로 왕족·귀족 무덤으로 봅니다.\n고구려 벽화무덤 왕족\n\n3 ×\n발견된 고구려 무덤에는 하나도 빠짐없이 모두 벽화가 그려져 있습니다.\n고구려 무덤 가운데 일부에만 벽화가 남아 있습니다.\n고구려 무덤 모두 벽화\n\n4 ×\n고구려 고분벽화는 모두 현재 대한민국 안에서만 발견되었습니다.\n북한과 중국 동북 지역에도 고구려 벽화무덤이 있습니다.\n고구려 벽화 북한 중국\n\n5 △\n벽화에 보이는 장면은 모든 고구려 사람의 하루를 사진처럼 정확히 보여 줍니다.\n왕족·귀족 무덤의 장면을 모든 사람의 생활로 일반화하면 안 됩니다.\n고구려 벽화 생활 일반화\n\n6 ×\n한 명의 유명한 화가가 고구려의 모든 고분벽화를 혼자 그렸다는 기록이 남아 있습니다.\n모든 벽화를 한 사람이 그렸다는 기록은 확인되지 않습니다.\n고구려 벽화 화가 기록\n우선 확인처: UNESCO 고구려 고분군·국립박물관 자료"
+    },
+    {
+      "outputSlide": 18,
+      "sourceSlide": 3,
+      "narrativeRole": "teacher answer, three statements per slide",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/298ryl4v",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/3ah8rqlg",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/m5cra54z",
+          "action": "rewrite",
+          "oldText": "오늘의 미션",
+          "newText": "6모둠 정답 · 가야 고분군"
+        },
+        {
+          "sourceElementId": "sh/n6ls3alk",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장 찾기",
+          "newText": "우리 모둠 발표를 마친 뒤 확인해요."
+        },
+        {
+          "sourceElementId": "sh/m1c3mlsn",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장을 찾아라",
+          "newText": "가야 고분군 · 1~3번"
+        },
+        {
+          "sourceElementId": "sh/83ulovat",
+          "action": "rewrite",
+          "oldText": "1",
+          "newText": "1"
+        },
+        {
+          "sourceElementId": "sh/v6l4jq94",
+          "action": "rewrite",
+          "oldText": "검색하기 전에 먼저 내 판단을 표시한다.",
+          "newText": "○ 세계유산은 일곱 고분군으로 이루어져요."
+        },
+        {
+          "sourceElementId": "sh/x8nml0ra",
+          "action": "rewrite",
+          "oldText": "2",
+          "newText": "2"
+        },
+        {
+          "sourceElementId": "sh/w7ulsvqp",
+          "action": "rewrite",
+          "oldText": "맞는 말과 틀린 말이 섞여 있음을 기억한다.",
+          "newText": "○ 여러 정치체가 함께 있었어요."
+        },
+        {
+          "sourceElementId": "sh/i9w3u58v",
+          "action": "rewrite",
+          "oldText": "3",
+          "newText": "3"
+        },
+        {
+          "sourceElementId": "sh/e10f2twf",
+          "action": "rewrite",
+          "oldText": "판단한 뒤에는 확인한 출처를 꼭 적는다.",
+          "newText": "× 한 왕이 다스린 제국으로 보기 어려워요."
+        }
+      ],
+      "notes": "\n\n2차시\nAI에게 물어보았습니다\n삼국시대 · 교사용 수업 PPT\n\n6모둠 정답 · 가야 고분군\n이 모둠의 발표를 들은 뒤에 공개하세요.\n\n발표 후 공개\nAI가 한 말\n왜 그렇게 판단하나요\n추천 검색어\n\n\n1 ○\n가야 고분군 세계유산은 여러 지역에 있는 일곱 고분군으로 이루어져 있습니다.\n세계유산은 일곱 고분군으로 구성되어 있습니다.\n가야 고분군 일곱\n\n2 ○\n가야는 여러 정치체가 함께 존재한 연맹적 성격을 지녔으며 지역마다 차이도 있었습니다.\n고분군은 가야 정치체의 공통점과 지역 차이를 보여 줍니다.\n가야 여러 정치체\n\n3 ×\n가야는 처음부터 한 명의 왕이 모든 지역을 다스린 하나의 중앙집권 제국이었습니다.\n여러 정치체가 공존한 연맹적 성격으로 설명됩니다.\n가야 중앙집권 제국\n\n4 ×\n세계유산에 포함된 가야 고분군 일곱 곳은 모두 같은 한 도시 안에 있습니다.\n고분군은 여러 지역에 분포합니다.\n가야 고분군 위치\n\n5 ○\n가야 고분군은 2023년에 유네스코 세계유산으로 등재되었습니다.\n2023년에 유네스코 세계유산으로 등재되었습니다.\n가야 고분군 2023\n\n6 △\n고분 하나마다 묻힌 사람의 이름과 일생이 모두 문헌에 남아 있어 정확히 알 수 있습니다.\n문헌이 부족해 무덤 주인과 일생을 모두 특정하기 어렵습니다.\n가야 고분 주인 문헌\n우선 확인처: 국가유산청 가야고분군·UNESCO 자료"
+    },
+    {
+      "outputSlide": 19,
+      "sourceSlide": 3,
+      "narrativeRole": "teacher answer, three statements per slide",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/298ryl4v",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/3ah8rqlg",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/m5cra54z",
+          "action": "rewrite",
+          "oldText": "오늘의 미션",
+          "newText": "6모둠 정답 · 가야 고분군"
+        },
+        {
+          "sourceElementId": "sh/n6ls3alk",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장 찾기",
+          "newText": "우리 모둠 발표를 마친 뒤 확인해요."
+        },
+        {
+          "sourceElementId": "sh/m1c3mlsn",
+          "action": "rewrite",
+          "oldText": "우리 모둠 유산 6문장에서 의심 문장을 찾아라",
+          "newText": "가야 고분군 · 4~6번"
+        },
+        {
+          "sourceElementId": "sh/83ulovat",
+          "action": "rewrite",
+          "oldText": "1",
+          "newText": "4"
+        },
+        {
+          "sourceElementId": "sh/v6l4jq94",
+          "action": "rewrite",
+          "oldText": "검색하기 전에 먼저 내 판단을 표시한다.",
+          "newText": "× 여러 지역에 나뉘어 있어요."
+        },
+        {
+          "sourceElementId": "sh/x8nml0ra",
+          "action": "rewrite",
+          "oldText": "2",
+          "newText": "5"
+        },
+        {
+          "sourceElementId": "sh/w7ulsvqp",
+          "action": "rewrite",
+          "oldText": "맞는 말과 틀린 말이 섞여 있음을 기억한다.",
+          "newText": "○ 2023년에 세계유산이 되었어요."
+        },
+        {
+          "sourceElementId": "sh/i9w3u58v",
+          "action": "rewrite",
+          "oldText": "3",
+          "newText": "6"
+        },
+        {
+          "sourceElementId": "sh/e10f2twf",
+          "action": "rewrite",
+          "oldText": "판단한 뒤에는 확인한 출처를 꼭 적는다.",
+          "newText": "△ 모든 무덤 주인의 일생을 알 수는 없어요."
+        }
+      ],
+      "notes": "\n\n2차시\nAI에게 물어보았습니다\n삼국시대 · 교사용 수업 PPT\n\n6모둠 정답 · 가야 고분군\n이 모둠의 발표를 들은 뒤에 공개하세요.\n\n발표 후 공개\nAI가 한 말\n왜 그렇게 판단하나요\n추천 검색어\n\n\n1 ○\n가야 고분군 세계유산은 여러 지역에 있는 일곱 고분군으로 이루어져 있습니다.\n세계유산은 일곱 고분군으로 구성되어 있습니다.\n가야 고분군 일곱\n\n2 ○\n가야는 여러 정치체가 함께 존재한 연맹적 성격을 지녔으며 지역마다 차이도 있었습니다.\n고분군은 가야 정치체의 공통점과 지역 차이를 보여 줍니다.\n가야 여러 정치체\n\n3 ×\n가야는 처음부터 한 명의 왕이 모든 지역을 다스린 하나의 중앙집권 제국이었습니다.\n여러 정치체가 공존한 연맹적 성격으로 설명됩니다.\n가야 중앙집권 제국\n\n4 ×\n세계유산에 포함된 가야 고분군 일곱 곳은 모두 같은 한 도시 안에 있습니다.\n고분군은 여러 지역에 분포합니다.\n가야 고분군 위치\n\n5 ○\n가야 고분군은 2023년에 유네스코 세계유산으로 등재되었습니다.\n2023년에 유네스코 세계유산으로 등재되었습니다.\n가야 고분군 2023\n\n6 △\n고분 하나마다 묻힌 사람의 이름과 일생이 모두 문헌에 남아 있어 정확히 알 수 있습니다.\n문헌이 부족해 무덤 주인과 일생을 모두 특정하기 어렵습니다.\n가야 고분 주인 문헌\n우선 확인처: 국가유산청 가야고분군·UNESCO 자료"
+    },
+    {
+      "outputSlide": 20,
+      "sourceSlide": 14,
+      "narrativeRole": "worksheet reflection and lesson 4 bridge",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "sourceElementId": "sh/jepwf2pc",
+          "action": "rewrite",
+          "oldText": "2차시",
+          "newText": "2·3차시"
+        },
+        {
+          "sourceElementId": "sh/idgvmx8r",
+          "action": "rewrite",
+          "oldText": "AI에게 물어보았습니다",
+          "newText": "AI가 한 말 확인하기"
+        },
+        {
+          "sourceElementId": "sh/zi5c3y98",
+          "action": "rewrite",
+          "oldText": "AI는 왜 틀릴까?",
+          "newText": "3. 오늘의 한 문장"
+        },
+        {
+          "sourceElementId": "sh/ehwvat8n",
+          "action": "rewrite",
+          "oldText": "그리고 다음 시간에는 무엇을 할까요?",
+          "newText": "AI의 말은 __________ 때문에 확인해야 해요."
+        },
+        {
+          "sourceElementId": "sh/0buh8zy5",
+          "action": "rewrite",
+          "oldText": "다음 시간 · 오늘 우리가 한 확인에 이름 붙이기",
+          "newText": "4차시 · 찾은 문장 세 개를 표로 정리해요."
+        },
+        {
+          "sourceElementId": "sh/hsvy50re",
+          "action": "rewrite",
+          "oldText": "출처",
+          "newText": "문장"
+        },
+        {
+          "sourceElementId": "sh/fqdg3q98",
+          "action": "rewrite",
+          "oldText": "시기",
+          "newText": "표"
+        },
+        {
+          "sourceElementId": "sh/pwvy90rq",
+          "action": "rewrite",
+          "oldText": "교차",
+          "newText": "그래프"
+        },
+        {
+          "sourceElementId": "sh/3udg7q9k",
+          "action": "rewrite",
+          "oldText": "원본",
+          "newText": "설명"
+        },
+        {
+          "sourceElementId": "sh/d0fydk7m",
+          "action": "rewrite",
+          "oldText": "보류",
+          "newText": "전시"
+        }
+      ],
+      "notes": ""
+    }
+  ]
+}

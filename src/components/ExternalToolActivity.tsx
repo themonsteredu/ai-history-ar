@@ -269,7 +269,7 @@ function LessonOneQuestionWorkshop({ onSaved }: { onSaved: () => void }) {
         <div><span>12분 미션</span><h4>사진에서 단서를 찾고, 조사할 질문 한 문장을 완성하세요.</h4></div>
         <ol aria-label="활동 진행 단계">
           <li className={draft.group > 0 && draft.heritageId > 0 ? "is-done" : ""}><span>1</span>모둠·유산 선택</li>
-          <li className={draft.clues.length > 0 && draft.dataFields.length > 0 ? "is-done" : ""}><span>2</span>관찰·데이터 선택</li>
+          <li className={draft.clues.length > 0 && draft.dataFields.length > 0 ? "is-done" : ""}><span>2</span>특징·궁금한 것 선택</li>
           <li className={draft.savedAt > 0 ? "is-done" : ""}><span>3</span>질문 저장</li>
         </ol>
       </header>
@@ -299,15 +299,15 @@ function LessonOneQuestionWorkshop({ onSaved }: { onSaved: () => void }) {
         </section>
 
         <form className="question-workshop__form" onSubmit={saveQuestion}>
-          <div className="question-workshop__step-heading"><span>3</span><div><h5>모을 데이터와 질문을 작성하세요</h5><p>다른 유산과 비교할 수 있는 항목을 선택합니다.</p></div></div>
+          <div className="question-workshop__step-heading"><span>3</span><div><h5>더 알아보고 싶은 것과 질문을 적어요</h5><p>우리 유산에서 더 알아보고 싶은 항목을 골라요.</p></div></div>
           <fieldset>
             <legend>어떤 데이터를 모을까요?</legend>
             <div className="question-workshop__data-fields">
               {questionDataFields.map((field) => <button aria-pressed={draft.dataFields.includes(field)} key={field} onClick={() => toggleItem("dataFields", field)} type="button">{field}</button>)}
             </div>
           </fieldset>
-          <label><span>사진에서 관찰한 사실</span><textarea maxLength={100} onChange={(event) => updateDraft({ observation: event.target.value })} placeholder="예: 둥근 봉분이 능선을 따라 여러 개 이어져 있다." rows={3} value={draft.observation} /><small>{draft.observation.length}/100</small></label>
-          <label><span>우리 모둠의 역사 데이터 질문</span><textarea maxLength={140} onChange={(event) => updateDraft({ question: event.target.value })} placeholder="예: 유산의 재료와 발견 지역은 서로 어떤 관계가 있을까?" rows={4} value={draft.question} /><small>{draft.question.length}/140</small></label>
+          <label><span>사진에서 보이는 특징 (낱말도 좋아요)</span><textarea maxLength={100} onChange={(event) => updateDraft({ observation: event.target.value })} placeholder="예: 둥근 봉분이 능선을 따라 여러 개 이어져 있다." rows={3} value={draft.observation} /><small>{draft.observation.length}/100</small></label>
+          <label><span>우리 모둠 질문 (한 문장)</span><textarea maxLength={140} onChange={(event) => updateDraft({ question: event.target.value })} placeholder="예: 우리 유산은 무엇으로 만들었을까?" rows={4} value={draft.question} /><small>{draft.question.length}/140</small></label>
           {message ? <p className={draft.savedAt > 0 ? "question-workshop__message is-saved" : "question-workshop__message"} role="status">{message}</p> : null}
           <div className="question-workshop__actions"><button className="button button--primary" type="submit">질문 카드 저장</button><button className="button button--outline" onClick={resetQuestion} type="button">처음부터 다시</button></div>
         </form>

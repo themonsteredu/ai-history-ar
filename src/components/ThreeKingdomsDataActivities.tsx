@@ -1,3 +1,4 @@
+import { WorksheetSteps } from './WorksheetSteps';
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   classTableColumns,
@@ -127,6 +128,7 @@ export function LessonTwoJudgementTool() {
         </div>
       </header>
 
+      <WorksheetSteps lessonId={2} />
       <ol className="judgement-tool__list">
         {set.statements.map((statement, index) => (
           <li key={statement.id}>
@@ -157,7 +159,8 @@ export function LessonTwoJudgementTool() {
                 <span>확인한 출처</span>
                 <input
                   onChange={(event) => save({ ...record, sources: { ...record.sources, [statement.id]: event.target.value } })}
-                  placeholder="확인한 기관 이름"
+                  placeholder="자료를 읽고 출처 번호 선택"
+                  list="worksheet-source-choices"
                   type="text"
                   value={record.sources[statement.id] ?? ""}
                 />
@@ -167,6 +170,7 @@ export function LessonTwoJudgementTool() {
         ))}
       </ol>
 
+      <datalist id="worksheet-source-choices"><option value="1 국가유산청" /><option value="2 국립박물관" /><option value="3 유네스코" /><option value="4 기타: " /></datalist>
       <footer className="judgement-tool__footer">
         <p><Icon name="lock" size={16} />정답과 점수는 이 화면에 나오지 않습니다. 선생님이 모둠 발표 뒤에 공개합니다.</p>
         <div>

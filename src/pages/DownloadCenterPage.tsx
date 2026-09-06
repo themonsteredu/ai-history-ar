@@ -68,6 +68,7 @@ export function DownloadCenterPage() {
           <a className="button button--light downloads-hero__download" download href={eraBundlePath(era.id)}>
             <Icon name="download" size={19} />{era.shortName} {era.lessons.length}차시 전체 ZIP
           </a>
+          {era.id === "three-kingdoms" && <a className="button button--light downloads-hero__download" download href={`${import.meta.env.BASE_URL}downloads/three-kingdoms/student-worksheets-all.pdf`}>학생 활동지만 한 번에 받기 · PDF</a>}
         </div>
       </section>
 
@@ -75,8 +76,8 @@ export function DownloadCenterPage() {
         <div className="implementation-note">
           <Icon name="spark" size={22} />
           <div>
-            <strong>2차시는 모둠별 A4 한 장으로 제공합니다</strong>
-            <p>학교 양식의 초록·민트·베이지 디자인과 S-Core Dream을 적용했습니다. 통합 학생 PDF는 모둠별 한 장씩 총 6쪽입니다.</p>
+            <strong>{era.id === "three-kingdoms" ? "활동 3개 · 모둠별 A4 한 장 · 흑백 인쇄" : "2차시는 모둠별 A4 한 장으로 제공합니다"}</strong>
+            <p>{era.id === "three-kingdoms" ? "체크·숫자·핵심 낱말 중심으로 기록합니다. 2·3차시 통합 활동지는 유산별 6종이며, 수업 PPT와 활동지의 1·2·3번 순서가 같습니다." : "학교 양식의 초록·민트·베이지 디자인과 S-Core Dream을 적용했습니다. 통합 학생 PDF는 모둠별 한 장씩 총 6쪽입니다."}</p>
           </div>
         </div>
         <div className="download-table-wrap">
@@ -93,7 +94,7 @@ export function DownloadCenterPage() {
             <tbody>
               {era.lessons.map((lesson) => (
                 <tr key={lesson.id}>
-                  <th scope="row"><span>{String(lesson.id).padStart(2, "0")}</span>{lesson.title}</th>
+                  <th scope="row"><span>{era.id === "three-kingdoms" && lesson.id === 2 ? "2·3" : String(lesson.id).padStart(2, "0")}</span>{lesson.title}</th>
                   <td>
                     <ul>{lesson.downloads.student.map((item) => <li key={item}>{item}</li>)}</ul>
                     {groupWorksheetLessons[era.id].includes(lesson.id) ? <p style={{ marginTop: "0.55rem", fontWeight: 700 }}>각 모둠 PDF는 A4 세로 1쪽</p> : null}

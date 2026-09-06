@@ -1,4 +1,4 @@
-import { getContinuitySlides } from './continuitySlides';
+import { getContinuitySlides, getStartingWorksheetSlides } from './continuitySlides';
 import type { CodapTutorialStep } from './codapTutorial';
 export type HeritageImageKey = "muryeong" | "incense" | "cheomseongdae" | "crown" | "mural" | "gaya";
 
@@ -1505,6 +1505,8 @@ const decks = Object.fromEntries(
 ) as Record<number, readonly LessonSlide[]>;
 
 export function getThreeKingdomsSlides(lessonId: number) {
+  const starting = getStartingWorksheetSlides(lessonId);
+  if (starting) return starting;
   const continuation = getContinuitySlides(lessonId, deckPlans[lessonId] ? { kind: 'fact', eyebrow: '유산 이야기', ...deckPlans[lessonId].history } : undefined);
   if (continuation) return continuation;
   return decks[lessonId] ?? decks[1];

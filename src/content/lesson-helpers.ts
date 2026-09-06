@@ -27,7 +27,7 @@ const lessonTwoJudgementModeInfo = {
 const lessonFourDataModeInfo = {
   label: "우리 유산 문장 찾기",
   shortLabel: "지난 시간에 고친 말 보기",
-  description: "자료에서 찾은 문장 3~5개를 우리 표에 담기",
+  description: "찾은 문장 세 개를 우리 표로 정리하기",
 } as const;
 
 const externalDataToolModeInfo = {
