@@ -1,5 +1,6 @@
 import plans from './continuity-guide.json';
 import { studentExamples } from './studentLanguage';
+import { codapTutorial } from './codapTutorial';
 import type { HeritageImageKey, LessonSlide } from './slides';
 
 const images: HeritageImageKey[] = ['muryeong', 'incense', 'cheomseongdae', 'crown', 'mural', 'gaya'];
@@ -31,6 +32,7 @@ export function getContinuitySlides(id: number, history?: LessonSlide): readonly
     ...(history ? [history] : []),
     { kind: 'fact', image, eyebrow: '예를 보며 알아보기', title: example.title, points: example.lines, takeaway: '예시를 보고, 우리 모둠이 찾은 내용으로 활동해요.' },
     { kind: 'fact', image, eyebrow: '꼭 기억해요', title: plan.keyQuestion, points: plan.cautions, takeaway: '자료에서 확인한 것과 우리 생각을 나누어 말해요.' },
+    ...(id === 6 ? codapTutorial.map((tutorial, stepIndex): LessonSlide => ({ kind: 'tutorial', image, title: tutorial.title, tutorial, stepIndex, source: tutorial.source })) : []),
     { kind: 'activity', image, eyebrow: `함께 해요 · ${main.minutes}분`, title: plan.title, instruction: main.details[0], steps: main.details.slice(1) },
     { kind: 'fact', image, eyebrow: '여기까지 했나요?', title: '오늘 만든 것을 확인해요', points: plan.outputs, takeaway: '빠진 것이 있으면 친구나 선생님에게 물어봐요.' },
     { kind: 'quiz', image, eyebrow: '잠깐 생각하기', title: '이렇게 해도 될까요?', statement: checks[id].statement, verdict: '틀림', explanation: checks[id].explanation },
