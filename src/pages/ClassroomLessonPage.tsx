@@ -3,6 +3,7 @@ import { Icon } from "../components/Icon";
 import { LessonSlides } from "../components/LessonSlides";
 import { LessonWebActivity } from "../components/LessonWebActivity";
 import { SimpleLessonSlides } from "../components/SimpleLessonSlides";
+import { allArCardsUrl } from '../components/ArRecognitionCard';
 import { getLessonActivityModeInfo } from "../content/lesson-helpers";
 import type { Era, Lesson } from "../types/curriculum";
 
@@ -44,7 +45,7 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
         <div className="page-width classroom-header__inner">
           <Link className="back-link" to={era.route}><span aria-hidden="true">←</span>{era.shortName} {era.lessons.length}차시</Link>
           <div className="classroom-header__title">
-            <span>{String(lesson.id).padStart(2, "0")}</span>
+            <span>{era.id === "three-kingdoms" && lesson.id === 2 ? "2·3" : String(lesson.id).padStart(2, "0")}</span>
             <div><p>{era.grade} · {era.shortName}</p><h1>{lesson.title}</h1></div>
           </div>
           <nav aria-label="수업 화면 선택" className="classroom-tabs classroom-tabs--three">
@@ -74,6 +75,7 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
       </header>
 
       <main className="page-width classroom-content">
+        {era.id === "three-kingdoms" && [9, 10].includes(lesson.id) && <div className="ar-maker-actions ar-lesson-tools"><Link className="button" to={`/three-kingdoms/ar-preview?${searchParams}`}>유물 6종 AR 먼저 체험하기</Link><a href={allArCardsUrl} download>전시용 인식 카드 6종 받기 · PDF</a></div>}
         {view === "start" ? (
           <section className="classroom-start" aria-labelledby="classroom-start-title">
             <header className="classroom-start__heading">
@@ -91,7 +93,7 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
                 <div>
                   <p>교사용 큰 화면</p>
                   <h3>수업 PPT</h3>
-                  <span>도입 질문, 활동 방법, 시간 안내와 함께 답 확인까지 진행합니다.</span>
+                  <span>활동지의 1·2·3번 순서로 설명을 보고 활동합니다.</span>
                 </div>
                 <strong>수업 PPT 열기 <Icon name="arrow" size={19} /></strong>
               </Link>
@@ -115,7 +117,7 @@ export function ClassroomLessonPage({ era, lesson }: { era: Era; lesson: Lesson 
               <i aria-hidden="true">→</i>
               <div><b>2</b><span><strong>활동 화면에서 직접 활동</strong><small>{isVerificationLesson ? "유산별 AI 문장 6개 판단" : activityTab.description}</small></span></div>
               <i aria-hidden="true">→</i>
-              <div><b>3</b><span><strong>활동지에 생각 기록</strong><small>{isVerificationLesson ? "모둠별 A4 한 장에 근거 남기기" : "이번 차시 산출물 완성하기"}</small></span></div>
+              <div><b>3</b><span><strong>활동지에 생각 기록</strong><small>{era.id === "three-kingdoms" ? "체크·숫자·핵심 낱말로 짧게 기록" : isVerificationLesson ? "모둠별 A4 한 장에 근거 남기기" : "이번 차시 산출물 완성하기"}</small></span></div>
             </div>
           </section>
         ) : view === "ppt" ? (

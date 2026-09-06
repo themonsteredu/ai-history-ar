@@ -1,3 +1,6 @@
+import worksheetGuide from './worksheet-guide.json';
+import pptCopy from '../../../scripts/simple_ppt_copy.json';
+import simpleScript from '../../../scripts/generate_simple_materials.py?raw';
 import { describe, expect, it } from "vitest";
 import lessonTwoScript from "../../../scripts/generate_lesson2_onepage.py?raw";
 import starterCsv from "../../../public/data/three-kingdoms/heritage-data-starter.csv?raw";
@@ -23,7 +26,7 @@ describe("2차시 자료 용어 일치", () => {
 
   it("활동지의 표 항목명을 PPT·활동 화면이 그대로 쓴다", () => {
     for (const column of ["번호", "AI가 한 말", "내 판단 (○×△?)", "확인한 출처", "오늘의 한 문장"]) {
-      expect(lessonTwoScript, `활동지 항목 ${column}`).toContain(column);
+      expect(simpleScript + JSON.stringify(worksheetGuide), `활동지 항목 ${column}`).toContain(column);
     }
     const deck = JSON.stringify(getThreeKingdomsSlides(2));
     expect(deck).toContain("내 판단");
@@ -42,14 +45,14 @@ describe("2차시 자료 용어 일치", () => {
     expect(new Set(ids).size).toBe(36);
   });
 
-  it("2차시 PPT가 실제 수업 흐름 14장으로 구성된다", () => {
-    for (const heading of ["AI의 역사 설명을 얼마나 믿나요?", "오늘의 미션", "내 판단 (○×△?)", "활동 화면 여는 방법", "활동 시간 안내", "좋은 검색어 만들기 · 어디에서 확인할까?", "AI는 왜 틀릴까?"]) {
-      expect(lessonTwoScript, `PPT 슬라이드 ${heading}`).toContain(heading);
-    }
-    // 모둠별 정답은 그 모둠이 발표한 뒤에만 엽니다.
-    expect(lessonTwoScript).toContain("발표 후 공개");
-  });
-});
+  it("학교용 PPT의 정답을 모둠별 두 장으로 나누고 활동지 순서를 유지한다", () => {
+    expect(pptCopy.outputSlides).toHaveLength(20);
+    const answers = pptCopy.outputSlides.filter(slide => slide.narrativeRole.startsWith("teacher answer"));
+    expect(answers).toHaveLength(12);
+    const copy = JSON.stringify(pptCopy);
+    for (const heading of ["1. 내 판단 표시하기", "2. 자료에서 확인하기", "3. 오늘의 한 문장"]) expect(copy).toContain(heading);
+    expect(copy).toContain("우리 모둠 발표를 마친 뒤 확인해요.");
+  });});
 
 describe("4~10차시 근거 표와 수업 자료 연결", () => {
   it("학생이 내보낸 표와 교사 연습 표는 같은 근거 항목을 사용한다", () => {
