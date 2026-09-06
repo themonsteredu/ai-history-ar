@@ -265,61 +265,61 @@
       "title": "조선시대",
       "bundle": {
         "path": "/downloads/joseon/joseon-all-materials.zip",
-        "size": 3445847
+        "size": 5428375
       },
       "lessons": [
         {
           "lessonId": 1,
-          "title": "조선에는 무엇이 남아 있을까",
+          "title": "우리 유산과 질문 정하기",
           "files": {
             "student": {
               "path": "/downloads/joseon/lesson-01-student.pdf",
-              "size": 30459
+              "size": 29386
             },
             "teacher": {
               "path": "/downloads/joseon/lesson-01-teacher.pdf",
-              "size": 59114
+              "size": 31210
             },
             "answer": {
               "path": "/downloads/joseon/lesson-01-answer.pdf",
-              "size": 33938
+              "size": 31515
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-01-all.zip",
-              "size": 112543
+              "size": 84915
             }
           }
         },
         {
           "lessonId": 2,
-          "title": "AI에게 물어보았습니다",
+          "title": "AI가 한 말 판단하기",
           "files": {
             "student": {
               "path": "/downloads/joseon/lesson-02-student.pdf",
-              "size": 263594
+              "size": 204482
             },
             "teacher": {
               "path": "/downloads/joseon/lesson-02-teacher.pdf",
-              "size": 77772
+              "size": 33457
             },
             "answer": {
               "path": "/downloads/joseon/lesson-02-answer.pdf",
-              "size": 71196
+              "size": 33384
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-02-all.zip",
-              "size": 688041
+              "size": 545222
             },
             "ppt": {
               "path": "/downloads/joseon/lesson-02-teaching.pptx",
-              "size": 80129
+              "size": 125380
             },
             "groups": [
               {
                 "groupId": 1,
                 "heritage": "훈민정음 해례본",
                 "path": "/downloads/joseon/lesson-02-group-01-hunminjeongeum.pdf",
-                "size": 41270,
+                "size": 34377,
                 "pages": 1,
                 "format": "A4"
               },
@@ -327,7 +327,7 @@
                 "groupId": 2,
                 "heritage": "조선왕조실록",
                 "path": "/downloads/joseon/lesson-02-group-02-annals.pdf",
-                "size": 45736,
+                "size": 34839,
                 "pages": 1,
                 "format": "A4"
               },
@@ -335,7 +335,7 @@
                 "groupId": 3,
                 "heritage": "수원 화성",
                 "path": "/downloads/joseon/lesson-02-group-03-hwaseong.pdf",
-                "size": 44751,
+                "size": 35392,
                 "pages": 1,
                 "format": "A4"
               },
@@ -343,7 +343,7 @@
                 "groupId": 4,
                 "heritage": "자격루·앙부일구",
                 "path": "/downloads/joseon/lesson-02-group-04-jagyeongnu-angbuilgu.pdf",
-                "size": 46074,
+                "size": 35422,
                 "pages": 1,
                 "format": "A4"
               },
@@ -351,7 +351,7 @@
                 "groupId": 5,
                 "heritage": "종묘와 종묘제례악",
                 "path": "/downloads/joseon/lesson-02-group-05-jongmyo.pdf",
-                "size": 46237,
+                "size": 34981,
                 "pages": 1,
                 "format": "A4"
               },
@@ -359,7 +359,7 @@
                 "groupId": 6,
                 "heritage": "난중일기",
                 "path": "/downloads/joseon/lesson-02-group-06-nanjung-ilgi.pdf",
-                "size": 45304,
+                "size": 35291,
                 "pages": 1,
                 "format": "A4"
               }
@@ -368,177 +368,177 @@
         },
         {
           "lessonId": 3,
-          "title": "진짜인지 확인하는 방법",
+          "title": "자료에서 확인하고 고쳐 말하기",
           "files": {
             "student": {
               "path": "/downloads/joseon/lesson-03-student.pdf",
-              "size": 30480
+              "size": 29973
             },
             "teacher": {
               "path": "/downloads/joseon/lesson-03-teacher.pdf",
-              "size": 50844
+              "size": 33569
             },
             "answer": {
               "path": "/downloads/joseon/lesson-03-answer.pdf",
-              "size": 33611
+              "size": 33277
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-03-all.zip",
-              "size": 104988
+              "size": 89732
             }
           }
         },
         {
           "lessonId": 4,
-          "title": "우리 모둠 유산 파헤치기",
+          "title": "찾은 내용을 표로 정리하기",
           "files": {
             "student": {
               "path": "/downloads/joseon/lesson-04-student.pdf",
-              "size": 29853
+              "size": 30561
             },
             "teacher": {
               "path": "/downloads/joseon/lesson-04-teacher.pdf",
-              "size": 56345
+              "size": 34314
             },
             "answer": {
               "path": "/downloads/joseon/lesson-04-answer.pdf",
-              "size": 34338
+              "size": 33687
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-04-all.zip",
-              "size": 110174
+              "size": 91277
             }
           }
         },
         {
           "lessonId": 5,
-          "title": "AR로 만나는 문화유산",
+          "title": "우리 표를 깔끔하게 고치기",
           "files": {
             "student": {
               "path": "/downloads/joseon/lesson-05-student.pdf",
-              "size": 30232
+              "size": 29933
             },
             "teacher": {
               "path": "/downloads/joseon/lesson-05-teacher.pdf",
-              "size": 49699
+              "size": 32759
             },
             "answer": {
               "path": "/downloads/joseon/lesson-05-answer.pdf",
-              "size": 41620
+              "size": 33002
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-05-all.zip",
-              "size": 111192
+              "size": 88486
             }
           }
         },
         {
           "lessonId": 6,
-          "title": "헤리티지 검증 공방",
+          "title": "우리 표로 그래프 만들기",
           "files": {
             "student": {
               "path": "/downloads/joseon/lesson-06-student.pdf",
-              "size": 29086
+              "size": 30232
             },
             "teacher": {
               "path": "/downloads/joseon/lesson-06-teacher.pdf",
-              "size": 85772
+              "size": 33204
             },
             "answer": {
               "path": "/downloads/joseon/lesson-06-answer.pdf",
-              "size": 69461
+              "size": 32350
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-06-all.zip",
-              "size": 149328
+              "size": 88637
             }
           }
         },
         {
           "lessonId": 7,
-          "title": "AR 카드 만들기",
+          "title": "그래프를 보고 말하기",
           "files": {
             "student": {
               "path": "/downloads/joseon/lesson-07-student.pdf",
-              "size": 28194
+              "size": 29338
             },
             "teacher": {
               "path": "/downloads/joseon/lesson-07-teacher.pdf",
-              "size": 53580
+              "size": 31865
             },
             "answer": {
               "path": "/downloads/joseon/lesson-07-answer.pdf",
-              "size": 41124
+              "size": 31916
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-07-all.zip",
-              "size": 111925
+              "size": 85977
             }
           }
         },
         {
           "lessonId": 8,
-          "title": "30초 해설사",
+          "title": "자료로 옛날 모습 생각하기",
           "files": {
             "student": {
               "path": "/downloads/joseon/lesson-08-student.pdf",
-              "size": 29396
+              "size": 29156
             },
             "teacher": {
               "path": "/downloads/joseon/lesson-08-teacher.pdf",
-              "size": 52107
+              "size": 32925
             },
             "answer": {
               "path": "/downloads/joseon/lesson-08-answer.pdf",
-              "size": 41228
+              "size": 32758
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-08-all.zip",
-              "size": 111908
+              "size": 87803
             }
           }
         },
         {
           "lessonId": 9,
-          "title": "카드에 생명 불어넣기",
+          "title": "우리 목소리로 안내하는 AR 전시",
           "files": {
             "student": {
               "path": "/downloads/joseon/lesson-09-student.pdf",
-              "size": 29064
+              "size": 31950
             },
             "teacher": {
               "path": "/downloads/joseon/lesson-09-teacher.pdf",
-              "size": 52190
+              "size": 37437
             },
             "answer": {
               "path": "/downloads/joseon/lesson-09-answer.pdf",
-              "size": 34622
+              "size": 34395
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-09-all.zip",
-              "size": 105835
+              "size": 95826
             }
           }
         },
         {
           "lessonId": 10,
-          "title": "조선시대 유산 박물관 개관",
+          "title": "우리 반 유산 박물관 열기",
           "files": {
             "student": {
               "path": "/downloads/joseon/lesson-10-student.pdf",
-              "size": 32745
+              "size": 29430
             },
             "teacher": {
               "path": "/downloads/joseon/lesson-10-teacher.pdf",
-              "size": 58240
+              "size": 32817
             },
             "answer": {
               "path": "/downloads/joseon/lesson-10-answer.pdf",
-              "size": 36936
+              "size": 32561
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-10-all.zip",
-              "size": 116686
+              "size": 87631
             }
           }
         }

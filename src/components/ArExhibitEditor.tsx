@@ -1,3 +1,4 @@
+import type { EraId } from "../types/curriculum";
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { MAX_MODEL_BYTES, readDataUrl, safeSourceLink, validateGlb, type ArExhibit, type ExhibitPoint } from '../lib/ar/exhibit';
 import NarrationEditor from './NarrationEditor';
@@ -7,8 +8,8 @@ import '../styles/ar-exhibit.css';
 
 const HeritageModelView = lazy(() => import('./HeritageModelView'));
 const ArExhibitViewer = lazy(() => import('./ArExhibitViewer'));
-export default function ArExhibitEditor({ value, onChange, image, heritage, heritageId, onBusy }: {
-  value: ArExhibit; onChange: (value: ArExhibit) => void; image: string; heritage: string; heritageId: number; onBusy: (busy: boolean) => void;
+export default function ArExhibitEditor({ value, onChange, image, heritage, heritageId, onBusy, eraId = "three-kingdoms" }: {
+  value: ArExhibit; onChange: (value: ArExhibit) => void; image: string; heritage: string; heritageId: number; eraId?: EraId; onBusy: (busy: boolean) => void;
 }) {
   const [selected, setSelected] = useState(value.points[0].id);
   const [preview, setPreview] = useState(false);
@@ -41,15 +42,15 @@ export default function ArExhibitEditor({ value, onChange, image, heritage, heri
     } catch (error) { if (job === upload.current) setMessage(error instanceof Error ? error.message : '파일을 읽지 못했어요.'); }
     finally { if (job === upload.current) setWorking(false); }
   }
-  if (preview) return <section className="ar-maker"><button type="button" onClick={() => setPreview(false)}>← 설명과 녹음 고치기</button><Suspense fallback={<p>우리 전시를 열어요…</p>}><ArExhibitViewer value={value} heritage={heritage} heritageId={heritageId} image={image} /></Suspense></section>;
+  if (preview) return <section className="ar-maker"><button type="button" onClick={() => setPreview(false)}>← 설명과 녹음 고치기</button><Suspense fallback={<p>우리 전시를 열어요…</p>}><ArExhibitViewer eraId={eraId} value={value} heritage={heritage} heritageId={heritageId} image={image} /></Suspense></section>;
   return <section className="ar-maker" aria-label="설명점과 녹음 만들기">
     <div className="ar-maker-heading"><h3>우리 목소리로 안내하는 AR 전시</h3><button type="button" disabled={busy} onClick={() => setPreview(true)}>친구 화면으로 체험</button></div>
     <ol className="ar-classroom-steps"><li><strong>설명 두 곳 정하기</strong><span>자료에서 확인한 내용을 적어요.</span></li><li><strong>목소리 녹음하기</strong><span>설명마다 30초 안으로 읽어요.</span></li><li><strong>친구 화면으로 확인</strong><span>해설을 듣고 문제를 풀어 봐요.</span></li><li><strong>카드와 작업 파일 준비</strong><span>카드를 출력하고 녹음한 작업을 저장해요.</span></li></ol>
-    <ArRecognitionCard heritageId={heritageId} heritage={heritage} />
+    <ArRecognitionCard eraId={eraId} heritageId={heritageId} heritage={heritage} />
     <details className="ar-teacher-prep">
       <summary>선생님 준비 · 입체 유물 넣기{value.model ? ' ✓' : ''}</summary>
       <p>사용 가능한 3D 원본을 넣으면 카드 위에 입체 유물이 나타납니다. 학생들은 모형에 설명점과 녹음을 붙입니다.</p>
-      {heritageId === 3 && <><button disabled={busy} type="button" onClick={() => { onChange({ ...value, model: cheomseongdaeModel() }); setMessage('공식 첨성대 모형을 연결했어요. 돌려 보면서 설명할 곳을 눌러 주세요.'); }}>공식 첨성대 3D 원본 불러오기</button><p className="ar-help">처음 열 때 약 36MB를 내려받습니다. 원본 모양과 표면 색을 그대로 보여 줍니다.</p></>}
+      {eraId === "three-kingdoms" && heritageId === 3 && <><button disabled={busy} type="button" onClick={() => { onChange({ ...value, model: cheomseongdaeModel() }); setMessage('공식 첨성대 모형을 연결했어요. 돌려 보면서 설명할 곳을 눌러 주세요.'); }}>공식 첨성대 3D 원본 불러오기</button><p className="ar-help">처음 열 때 약 36MB를 내려받습니다. 원본 모양과 표면 색을 그대로 보여 줍니다.</p></>}
       <label>3D 유물 파일 (GLB·STL, 12MB 이하)<input disabled={busy} type="file" accept=".glb,.stl" onChange={event => { void loadModel(event.target.files?.[0]); event.target.value = ''; }} /></label>
       {value.model && <fieldset disabled={busy}>
         <p>{value.model.name}</p>
@@ -63,7 +64,7 @@ export default function ArExhibitEditor({ value, onChange, image, heritage, heri
     {message && <p role="status" className="ar-help">{message}</p>}
     <div className="ar-maker-layout">
       <div>
-        {value.model ? <Suspense fallback={<p>입체 유물을 준비해요…</p>}><HeritageModelView model={value.model} image={image} points={value.points} selectedId={selected} targetIndex={heritageId - 1} onSelect={id => { if (!busy) setSelected(id); }} onPlace={busy ? undefined : position => updatePoint({ position })} /></Suspense> : <>
+        {value.model ? <Suspense fallback={<p>입체 유물을 준비해요…</p>}><HeritageModelView eraId={eraId} model={value.model} image={image} points={value.points} selectedId={selected} targetIndex={heritageId - 1} onSelect={id => { if (!busy) setSelected(id); }} onPlace={busy ? undefined : position => updatePoint({ position })} /></Suspense> : <>
           <div className="ar-point-photo" ref={photo}>
             <img src={image} alt={heritage} />
             <button type="button" className="ar-photo-hit" disabled={busy} aria-label="사진에서 설명할 곳 선택" onClick={event => { if (event.detail === 0) return; const rect = photo.current!.getBoundingClientRect(); updatePoint({ photoPosition: [Math.max(.1, Math.min(.9, (event.clientX - rect.left) / rect.width)), Math.max(.1, Math.min(.9, (event.clientY - rect.top) / rect.height))] }); }} />

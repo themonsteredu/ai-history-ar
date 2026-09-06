@@ -1,4 +1,5 @@
-import { heritageResearchCases } from './webActivities';
+import { researchForEra, eraName } from '../heritageCatalog';
+import type { EraId } from '../../types/curriculum';
 import { cheomseongdaeModel } from './arModels';
 import { arExhibitReady, isArExhibit, MAX_PROJECT_BYTES, type ArExhibit } from '../../lib/ar/exhibit';
 
@@ -16,6 +17,7 @@ export interface ResearchRecord {
 }
 export interface HeritageProject {
   version: 1;
+  eraId?: EraId;
   group: number;
   heritageId: number;
   question: string;
@@ -33,10 +35,10 @@ export interface HeritageProject {
   savedAt: string;
 }
 export const PROJECT_STORAGE_KEY = 'moa-history-ar:research-project:v1';
-export function newProject(group = 1, heritageId = 1): HeritageProject {
+export function newProject(group = 1, heritageId = 1, eraId: EraId = "three-kingdoms"): HeritageProject {
   return {
-    version: 1, group, heritageId,
-    question: heritageResearchCases.find(item => item.id === heritageId)?.question ?? '',
+    version: 1, group, heritageId, ...(eraId === "joseon" ? { eraId } : {}),
+    question: researchForEra(eraId).find(item => item.id === heritageId)?.question ?? '',
     previousClaim: '', correction: '', records: [], revision: 0, cleanedRevision: -1,
     graph: { image: '', dimension: 'category', revision: -1, title: '' },
     interpretation: '', limitation: '', inference: { evidenceIds: [], sentence: '', limit: '' },
@@ -47,7 +49,7 @@ export function sourceUrl(value: string) {
   try {
     const url = new URL(value);
     return url.protocol === 'https:' && !url.username && !url.password &&
-      ['museum.go.kr', 'heritage.go.kr', 'khs.go.kr', 'history.go.kr', 'unesco.org'].some(domain => url.hostname === domain || url.hostname.endsWith(`.${domain}`)) ? value : '';
+      ['museum.go.kr', 'heritage.go.kr', 'khs.go.kr', 'history.go.kr', 'unesco.org', 'gogung.go.kr'].some(domain => url.hostname === domain || url.hostname.endsWith(`.${domain}`)) ? value : '';
   } catch { return ''; }
 }
 const normalized = (text: string) => text.normalize('NFKC').replace(/\s+/g, '').trim();
@@ -83,9 +85,10 @@ export function updateRecords(project: HeritageProject, records: ResearchRecord[
   return { ...project, records, revision: project.revision + 1, interpretation: '', limitation: '',
     inference: { evidenceIds: [], sentence: '', limit: '' }, exhibit: { ...project.exhibit, focusId: '', tested: false } };
 }
-export function parseProject(text: string): HeritageProject {
+export function parseProject(text: string, expectedEra: EraId = "three-kingdoms"): HeritageProject {
   if (text.length > MAX_PROJECT_BYTES) throw new Error('파일이 너무 커요. ‘오늘 작업 저장하기’로 받은 파일을 골라 주세요.');
   const value = JSON.parse(text) as HeritageProject;
+  if ((value?.eraId ?? "three-kingdoms") !== expectedEra) throw new Error(`${eraName(expectedEra)} 작업 파일을 골라 주세요. 다른 시대의 파일은 이 수업에 열 수 없어요.`);
   const short = (v: unknown, max = 1500): v is string => typeof v === 'string' && v.length <= max;
   if (value?.version !== 1 || !Number.isInteger(value.group) || value.group < 1 || value.group > 6 || !Number.isInteger(value.heritageId) || value.heritageId < 1 || value.heritageId > 6 ||
     !short(value.question) || !short(value.previousClaim) || !short(value.correction) || !short(value.savedAt) ||
@@ -96,14 +99,15 @@ export function parseProject(text: string): HeritageProject {
     !value.graph || !['category', 'status'].includes(value.graph.dimension) || !short(value.graph.title) || !Number.isSafeInteger(value.graph.revision) || !short(value.graph.image, 2_400_000) ||
     (value.graph.image !== '' && !/^data:image\/png;base64,[A-Za-z0-9+/]+=*$/.test(value.graph.image)) ||
     !short(value.interpretation) || !short(value.limitation) || !value.inference || !Array.isArray(value.inference.evidenceIds) || value.inference.evidenceIds.length > 2 || value.inference.evidenceIds.some(id => !short(id, 100)) || !short(value.inference.sentence) || !short(value.inference.limit) ||
-    !value.exhibit || !short(value.exhibit.focusId) || !['표시', '확대'].includes(value.exhibit.effect) || !['특징 찾기', '근거 고르기'].includes(value.exhibit.action) || typeof value.exhibit.tested !== 'boolean') throw new Error('삼국시대 수업에서 ‘오늘 작업 저장하기’로 받은 파일을 골라 주세요.');
+    !value.exhibit || !short(value.exhibit.focusId) || !['표시', '확대'].includes(value.exhibit.effect) || !['특징 찾기', '근거 고르기'].includes(value.exhibit.action) || typeof value.exhibit.tested !== 'boolean') throw new Error(`${eraName(expectedEra)} 수업에서 ‘오늘 작업 저장하기’로 받은 파일을 골라 주세요.`);
   if (value.ar !== undefined && !isArExhibit(value.ar)) throw new Error('AR 설명점이나 녹음 자료가 손상되었어요. 저장한 원본 파일을 다시 골라 주세요.');
+  if (expectedEra === 'joseon' && value.ar?.model?.asset) throw new Error('조선시대 유산에 맞는 모형 파일을 골라 주세요.');
   if (value.ar?.model?.asset === 'cheomseongdae-nsm-2015') value.ar.model = { ...cheomseongdaeModel(), rotation: value.ar.model.rotation };
   return value;
 }
 export function csvCell(value: string) { return `"${(/^[\s]*[=+@-]/.test(value) ? "'" : '') + value.replaceAll('"', '""')}"`; }
 export function projectCsv(project: HeritageProject) {
-  const heritage = heritageResearchCases.find(item => item.id === project.heritageId)!;
+  const heritage = researchForEra(project.eraId ?? "three-kingdoms").find(item => item.id === project.heritageId)!;
   const rows = [['근거번호', '모둠', '유산', '살펴본항목', '확인상태', '근거문장', '출처기관', '출처URL'],
     ...project.records.map((record, index) => [String(index + 1), String(project.group), heritage.heritage, record.category, record.status, record.text, record.source, record.url])];
   return '\uFEFF' + rows.map(row => row.map(csvCell).join(',')).join('\r\n');

@@ -9,13 +9,15 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "generate:printables": "node scripts/export-curriculum.mjs && python scripts/generate_simple_materials.py",
-    "verify:printables": "python scripts/verify_simple_materials.py",
+    "verify:printables": "python scripts/verify_simple_materials.py --era all",
     "verify:ui": "node scripts/verify-ui.mjs",
     "compile:ar-targets": "node scripts/compile-ar-targets.mjs",
     "generate:ar-cards": "python scripts/generate_ar_cards.py",
     "preview": "vite preview",
     "check": "pnpm test && pnpm build",
-    "generate:samguk-materials": "python scripts/generate_simple_materials.py"
+    "generate:samguk-materials": "python scripts/generate_simple_materials.py",
+    "generate:joseon-materials": "python scripts/generate_joseon_ar_cards.py && python scripts/generate_simple_materials.py --era joseon",
+    "compile:joseon-ar-targets": "node scripts/compile_joseon_targets.mjs"
   },
   "engines": {
     "node": ">=20"

@@ -1,3 +1,4 @@
+import { heritageImageUrl, imageCreditForEra } from "../content/heritageCatalog";
 import { WorksheetSteps } from './WorksheetSteps';
 import { HeritageProjectWorkspace } from './HeritageProjectWorkspace';
 import { useEffect, useState, type ReactElement } from "react";
@@ -20,7 +21,6 @@ const threeKingdomsImages = [
 
 const threeKingdomsImageRoot = `${import.meta.env.BASE_URL}images/heritage/three-kingdoms`;
 
-const joseonImagePositions = ["50% 50%", "61% 46%", "20% 50%", "88% 48%", "50% 22%", "74% 58%"] as const;
 
 const sourceLinks = {
   "three-kingdoms": [
@@ -192,7 +192,7 @@ function heritageImage(era: Era, groupId: number) {
   if (era.id === "three-kingdoms") {
     return `${import.meta.env.BASE_URL}images/heritage/three-kingdoms/${threeKingdomsImages[groupId - 1]}`;
   }
-  return `${import.meta.env.BASE_URL}images/joseon-cover.webp`;
+  return heritageImageUrl(era.id, groupId);
 }
 
 function ArtifactExplorer({ era }: { era: Era }) {
@@ -202,10 +202,10 @@ function ArtifactExplorer({ era }: { era: Era }) {
 
   return (
     <div className="web-tool web-tool--artifacts">
-      {era.id === "three-kingdoms" && <WorksheetSteps lessonId={1} />}
+      <WorksheetSteps eraId={era.id} lessonId={1} />
       <div className="web-tool__instruction">
         <strong>사진을 눌러 크게 관찰하세요.</strong>
-        <span>{era.id === "three-kingdoms" ? "사진을 보고 활동지에 특징과 질문을 짧게 적어요." : "기록하지 않고, 화면을 보며 모둠에서 말로 선택합니다."}</span>
+        <span>사진을 보고 활동지에 특징과 질문을 짧게 적어요.</span>
       </div>
       <div className="artifact-explorer__grid">
         {era.groups.map((group) => (
@@ -219,7 +219,6 @@ function ArtifactExplorer({ era }: { era: Era }) {
             <img
               alt={`${group.heritage} 관찰 이미지`}
               src={heritageImage(era, group.id)}
-              style={era.id === "joseon" ? { objectPosition: joseonImagePositions[group.id - 1] } : undefined}
             />
             <span>{group.category}</span>
             <strong>{group.heritage}</strong>
@@ -230,10 +229,10 @@ function ArtifactExplorer({ era }: { era: Era }) {
         <img
           alt={`${selected.heritage} 크게 보기`}
           src={heritageImage(era, selected.id)}
-          style={era.id === "joseon" ? { objectPosition: joseonImagePositions[selected.id - 1] } : undefined}
         />
         <div><span>{selected.category}</span><h3>{selected.heritage}</h3><p>“{selected.inquiryQuestion}”</p></div>
       </div>
+      {imageCreditForEra(era.id, selected.id) && <p className="ar-help">{imageCreditForEra(era.id, selected.id)!.alt} · <a href={imageCreditForEra(era.id, selected.id)!.source} target="_blank" rel="noreferrer">{imageCreditForEra(era.id, selected.id)!.credit}</a></p>}
       <div className="artifact-explorer__assign">
         <div><strong>모둠 빠른 배정</strong><span>여섯 유산을 1~6모둠에 겹치지 않게 즉시 배정합니다.</span></div>
         <button className="button button--primary" onClick={() => setAssignments(shuffled(era.groups))} type="button">모둠 자동 배정</button>
@@ -711,7 +710,8 @@ const toolNames = [
 ] as const;
 
 export function LessonWebActivity({ era, lesson }: { era: Era; lesson: Lesson }) {
-  if (era.id === "three-kingdoms" && lesson.id >= 4) return <HeritageProjectWorkspace lesson={lesson} />;
+  if (lesson.id >= 4) return <HeritageProjectWorkspace eraId={era.id} lesson={lesson} />;
+  if (era.id === "joseon") return <section className="web-activity-shell"><header><div><p>{era.shortName} · {lesson.id}차시</p><h2>{lesson.title}</h2></div></header>{lesson.id === 1 ? <ArtifactExplorer era={era} /> : <LessonTwoJudgementTool eraId="joseon" lessonId={lesson.id} />}<a className="button" download href={lessonDownloadPath(era.id, lesson.id, "student")}>오늘 활동지 받기 · PDF</a></section>;
   if (lesson.classroomMode === "worksheet") return <WorksheetLessonView era={era} lesson={lesson} />;
   if (era.id === "three-kingdoms" && ((lesson.id >= 5 && lesson.id <= 8) || lesson.id === 10)) return <ExternalToolActivity lesson={lesson} />;
 

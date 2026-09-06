@@ -18,7 +18,8 @@ export function App() {
       <Route element={<AppShell />}>
         <Route index element={<HomePage />} />
         <Route path="three-kingdoms" element={<EraPage eraId="three-kingdoms" />} />
-        <Route path="three-kingdoms/ar-preview" element={<Suspense fallback={<p role="status">첨성대 AR을 준비하고 있어요…</p>}><ArPreviewPage /></Suspense>} />
+        <Route path="joseon/ar-preview" element={<Suspense fallback={<p>AR을 준비하고 있어요…</p>}><ArPreviewPage key="joseon" eraId="joseon" /></Suspense>} />
+        <Route path="three-kingdoms/ar-preview" element={<Suspense fallback={<p role="status">첨성대 AR을 준비하고 있어요…</p>}><ArPreviewPage key="three-kingdoms" /></Suspense>} />
         <Route path="three-kingdoms/lesson/:lessonId" element={<LessonPage eraId="three-kingdoms" mode="student" />} />
         <Route path="joseon" element={<EraPage eraId="joseon" />} />
         <Route path="joseon/lesson/:lessonId" element={<LessonPage eraId="joseon" mode="student" />} />

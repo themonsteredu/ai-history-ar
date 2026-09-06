@@ -1,0 +1,346 @@
+[
+  {
+    "id": 1,
+    "heritage": "훈민정음 해례본",
+    "category": "문자",
+    "question": "새 글자와 해설서는 어떤 도움을 주었을까?",
+    "image": "hunminjeongeum.jpg",
+    "sources": [
+      {
+        "id": "j1-source",
+        "label": "자료 1 · 기관 설명",
+        "institution": "유네스코",
+        "title": "훈민정음 기록유산 안내",
+        "readGuide": "기관이 설명한 내용을 짧게 정리했어요. 원문 또는 선생님 인쇄 자료에서 같은 내용을 찾아봐요.",
+        "href": "https://www.unesco.org/en/memory-world/hunminjeongum-manuscript",
+        "facts": [
+          {
+            "id": "j1-1",
+            "kind": "confirmed",
+            "text": "세종은 1443년에 새 글자 창제를 마쳤다."
+          },
+          {
+            "id": "j1-2",
+            "kind": "confirmed",
+            "text": "1446년에 간행한 책에는 새 글자를 알리는 글이 실려 있다."
+          },
+          {
+            "id": "j1-3",
+            "kind": "confirmed",
+            "text": "해례에는 글자를 만든 원리를 풀어 설명한 내용과 사용 예가 담겨 있다."
+          },
+          {
+            "id": "j1-4",
+            "kind": "confirmed",
+            "text": "집현전 학자들은 해례의 설명과 예시를 만드는 데 참여했다."
+          }
+        ]
+      },
+      {
+        "id": "j1-limit",
+        "label": "자료 1 다시 읽기 · 설명의 범위",
+        "institution": "유네스코",
+        "title": "이 자료로 어디까지 말할 수 있을까?",
+        "readGuide": "위와 같은 자료예요. 다른 출처에서 따로 확인한 것으로 세지 않아요.",
+        "href": "https://www.unesco.org/en/memory-world/hunminjeongum-manuscript",
+        "facts": [
+          {
+            "id": "j1-limit-1",
+            "kind": "caution",
+            "text": "글자 창제와 해설서 편찬을 같은 일로 섞어 말하지 않는다."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "heritage": "조선왕조실록",
+    "category": "기록",
+    "question": "사람들은 역사 기록을 어떻게 지켰을까?",
+    "image": "annals.jpg",
+    "sources": [
+      {
+        "id": "j2-source",
+        "label": "자료 1 · 기관 설명",
+        "institution": "국사편찬위원회",
+        "title": "조선 역사의 보물 창고 조선왕조실록",
+        "readGuide": "기관이 설명한 내용을 짧게 정리했어요. 원문 또는 선생님 인쇄 자료에서 같은 내용을 찾아봐요.",
+        "href": "https://contents.history.go.kr/mobile/eh/view.do?code=eh_age_30&levelId=eh_r0250_0010",
+        "facts": [
+          {
+            "id": "j2-1",
+            "kind": "confirmed",
+            "text": "실록은 사관이 남긴 기록과 여러 자료를 모아 편찬했다."
+          },
+          {
+            "id": "j2-2",
+            "kind": "confirmed",
+            "text": "한 임금의 실록은 그 임금이 세상을 떠난 뒤 편찬했다."
+          },
+          {
+            "id": "j2-3",
+            "kind": "confirmed",
+            "text": "실록은 사고라는 여러 보관소에 나누어 보관했다."
+          },
+          {
+            "id": "j2-4",
+            "kind": "confirmed",
+            "text": "임진왜란 뒤 전주 사고의 실록을 바탕으로 실록을 다시 인쇄했다."
+          }
+        ]
+      },
+      {
+        "id": "j2-limit",
+        "label": "자료 1 다시 읽기 · 설명의 범위",
+        "institution": "국사편찬위원회",
+        "title": "이 자료로 어디까지 말할 수 있을까?",
+        "readGuide": "위와 같은 자료예요. 다른 출처에서 따로 확인한 것으로 세지 않아요.",
+        "href": "https://contents.history.go.kr/mobile/eh/view.do?code=eh_age_30&levelId=eh_r0250_0010",
+        "facts": [
+          {
+            "id": "j2-limit-1",
+            "kind": "caution",
+            "text": "임금이 매일 자기 실록을 직접 썼다고 말할 수 없다."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "heritage": "수원 화성",
+    "category": "건축",
+    "question": "성곽의 구조는 도시를 지키는 데 어떤 도움을 주었을까?",
+    "image": "hwaseong.jpg",
+    "sources": [
+      {
+        "id": "j3-source",
+        "label": "자료 1 · 기관 설명",
+        "institution": "유네스코",
+        "title": "수원 화성 세계유산 안내",
+        "readGuide": "기관이 설명한 내용을 짧게 정리했어요. 원문 또는 선생님 인쇄 자료에서 같은 내용을 찾아봐요.",
+        "href": "https://whc.unesco.org/en/list/817/",
+        "facts": [
+          {
+            "id": "j3-1",
+            "kind": "confirmed",
+            "text": "수원 화성은 정조 때인 1794년부터 1796년까지 건설했다."
+          },
+          {
+            "id": "j3-2",
+            "kind": "confirmed",
+            "text": "성벽은 땅의 높낮이를 따라 이어지도록 쌓았다."
+          },
+          {
+            "id": "j3-3",
+            "kind": "confirmed",
+            "text": "화성에는 돌과 벽돌을 쌓아 만든 방어 시설이 있다."
+          },
+          {
+            "id": "j3-4",
+            "kind": "confirmed",
+            "text": "화성성역의궤에는 공사 과정과 설계에 관한 기록이 남아 있다."
+          }
+        ]
+      },
+      {
+        "id": "j3-limit",
+        "label": "자료 1 다시 읽기 · 설명의 범위",
+        "institution": "유네스코",
+        "title": "이 자료로 어디까지 말할 수 있을까?",
+        "readGuide": "위와 같은 자료예요. 다른 출처에서 따로 확인한 것으로 세지 않아요.",
+        "href": "https://whc.unesco.org/en/list/817/",
+        "facts": [
+          {
+            "id": "j3-limit-1",
+            "kind": "caution",
+            "text": "거중기 하나만으로 모든 공사를 했다고 단정할 수 없다."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "heritage": "자격루·앙부일구",
+    "category": "과학",
+    "question": "시간을 알려 주는 도구는 생활에 어떤 도움을 주었을까?",
+    "image": "angbuilgu.jpg",
+    "sources": [
+      {
+        "id": "j4-source",
+        "label": "자료 1 · 기관 설명",
+        "institution": "국사편찬위원회",
+        "title": "자격루: 스스로 시간을 알리는 물시계",
+        "readGuide": "기관이 설명한 내용을 짧게 정리했어요. 원문 또는 선생님 인쇄 자료에서 같은 내용을 찾아봐요.",
+        "href": "https://contents.history.go.kr/mobile/kc/view.do?code=kc_age_30&levelId=kc_r300785",
+        "facts": [
+          {
+            "id": "j4-1",
+            "kind": "confirmed",
+            "text": "자격루는 물을 이용해 시각을 자동으로 알리도록 만든 시계이다."
+          },
+          {
+            "id": "j4-2",
+            "kind": "confirmed",
+            "text": "장영실 등이 만든 자격루는 1434년부터 사용하기 시작했다."
+          },
+          {
+            "id": "j4-3",
+            "kind": "confirmed",
+            "text": "자격루는 궁궐 안 보루각에 설치되어 시각을 알렸다."
+          },
+          {
+            "id": "j4-4",
+            "kind": "confirmed",
+            "text": "장영실이 만든 자격루 원래 모습은 그대로 남아 있지 않다."
+          }
+        ]
+      },
+      {
+        "id": "j4-sundial",
+        "label": "자료 2 · 해시계",
+        "institution": "국립고궁박물관",
+        "title": "과학문화: 시간을 알려 주는 도구",
+        "readGuide": "조선에서 시간과 절기를 알려 주려고 어떤 기구를 만들었는지 찾아요. 사진은 경복궁에 전시된 앙부일구예요.",
+        "href": "https://www.gogung.go.kr/gogung/main/contents.do?menuNo=800049",
+        "facts": [
+          {
+            "id": "j4-science-1",
+            "kind": "confirmed",
+            "text": "조선에서는 시간을 알리기 위해 앙부일구와 자격루 같은 기구를 만들었다."
+          },
+          {
+            "id": "j4-science-2",
+            "kind": "confirmed",
+            "text": "절기와 시간을 알려 주는 일은 농사와 생업을 돕는 데 쓰였다."
+          }
+        ]
+      },
+      {
+        "id": "j4-limit",
+        "label": "자료 1 다시 읽기 · 설명의 범위",
+        "institution": "국사편찬위원회",
+        "title": "이 자료로 어디까지 말할 수 있을까?",
+        "readGuide": "위와 같은 자료예요. 다른 출처에서 따로 확인한 것으로 세지 않아요.",
+        "href": "https://contents.history.go.kr/mobile/kc/view.do?code=kc_age_30&levelId=kc_r300785",
+        "facts": [
+          {
+            "id": "j4-limit-1",
+            "kind": "caution",
+            "text": "오늘날 전시된 모습이 세종 때 원본 전체라고 말할 수 없다."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "heritage": "종묘와 종묘제례악",
+    "category": "의례",
+    "question": "왕실의 제사는 무엇을 중요하게 여겼을까?",
+    "image": "jongmyo.jpg",
+    "sources": [
+      {
+        "id": "j5-source",
+        "label": "자료 1 · 기관 설명",
+        "institution": "유네스코",
+        "title": "종묘 세계유산 안내",
+        "readGuide": "기관이 설명한 내용을 짧게 정리했어요. 원문 또는 선생님 인쇄 자료에서 같은 내용을 찾아봐요.",
+        "href": "https://whc.unesco.org/en/list/738/",
+        "facts": [
+          {
+            "id": "j5-1",
+            "kind": "confirmed",
+            "text": "종묘는 조선 왕과 왕비의 신주를 모시던 사당이다."
+          },
+          {
+            "id": "j5-2",
+            "kind": "confirmed",
+            "text": "종묘에서는 왕실 조상에게 제사를 지냈다."
+          },
+          {
+            "id": "j5-3",
+            "kind": "confirmed",
+            "text": "종묘의 의례에는 악기 연주와 노래, 춤이 함께한다."
+          },
+          {
+            "id": "j5-4",
+            "kind": "confirmed",
+            "text": "종묘의 건축과 제사는 유교의 조상 공경과 의례 질서를 드러낸다."
+          }
+        ]
+      },
+      {
+        "id": "j5-limit",
+        "label": "자료 1 다시 읽기 · 설명의 범위",
+        "institution": "유네스코",
+        "title": "이 자료로 어디까지 말할 수 있을까?",
+        "readGuide": "위와 같은 자료예요. 다른 출처에서 따로 확인한 것으로 세지 않아요.",
+        "href": "https://whc.unesco.org/en/list/738/",
+        "facts": [
+          {
+            "id": "j5-limit-1",
+            "kind": "caution",
+            "text": "종묘의 모습을 비용 하나만으로 설명하지 않는다."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "heritage": "난중일기",
+    "category": "기록",
+    "question": "전쟁 중 일기에는 어떤 삶의 모습이 담겼을까?",
+    "image": "nanjung-ilgi.jpg",
+    "sources": [
+      {
+        "id": "j6-source",
+        "label": "자료 1 · 기관 설명",
+        "institution": "유네스코",
+        "title": "난중일기 기록유산 안내",
+        "readGuide": "기관이 설명한 내용을 짧게 정리했어요. 원문 또는 선생님 인쇄 자료에서 같은 내용을 찾아봐요.",
+        "href": "https://www.unesco.org/en/memory-world/nanjung-ilgi-war-diary-admiral-yi-sun-sin",
+        "facts": [
+          {
+            "id": "j6-1",
+            "kind": "confirmed",
+            "text": "난중일기는 이순신이 1592년부터 1598년까지 전쟁 중에 직접 남긴 일기이다."
+          },
+          {
+            "id": "j6-2",
+            "kind": "confirmed",
+            "text": "일기에는 전투 상황과 날씨에 관한 기록이 들어 있다."
+          },
+          {
+            "id": "j6-3",
+            "kind": "confirmed",
+            "text": "일기에는 이순신의 생각과 개인적인 감정도 담겨 있다."
+          },
+          {
+            "id": "j6-4",
+            "kind": "confirmed",
+            "text": "현재 전하는 난중일기는 일곱 권으로 이루어져 있다."
+          }
+        ]
+      },
+      {
+        "id": "j6-limit",
+        "label": "자료 1 다시 읽기 · 설명의 범위",
+        "institution": "유네스코",
+        "title": "이 자료로 어디까지 말할 수 있을까?",
+        "readGuide": "위와 같은 자료예요. 다른 출처에서 따로 확인한 것으로 세지 않아요.",
+        "href": "https://www.unesco.org/en/memory-world/nanjung-ilgi-war-diary-admiral-yi-sun-sin",
+        "facts": [
+          {
+            "id": "j6-limit-1",
+            "kind": "caution",
+            "text": "일기의 일부 기록만으로 이순신의 모든 말과 생각을 알 수는 없다."
+          }
+        ]
+      }
+    ]
+  }
+]

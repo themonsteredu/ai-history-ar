@@ -1,7 +1,8 @@
-import worksheets from '../content/three-kingdoms/worksheet-guide.json';
+import { worksheetsForEra } from '../content/heritageCatalog';
+import type { EraId } from '../types/curriculum';
 
-export function WorksheetSteps({ lessonId }: { lessonId: number }) {
-  const sheet = worksheets.find(item => item.id === lessonId);
+export function WorksheetSteps({ lessonId, eraId = "three-kingdoms" }: { lessonId: number; eraId?: EraId }) {
+  const sheet = worksheetsForEra(eraId).find(item => item.id === lessonId);
   if (!sheet) return null;
   return <details className="project-paper worksheet-steps" open>
     <summary>활동지 순서 · {sheet.title}</summary>

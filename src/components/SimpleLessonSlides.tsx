@@ -1,56 +1,18 @@
+import { getJoseonSlides } from "../content/joseon/slides";
+import { heritageImageUrl, imageCreditForEra } from "../content/heritageCatalog";
+import { CodapStep } from "./CodapTutorial";
+import { codapTutorial } from "../content/three-kingdoms/codapTutorial";
 import { useEffect, useRef, useState } from "react";
 import type { Era, Lesson } from "../types/curriculum";
 
-interface SimpleSlide {
-  kicker: string;
-  title: string;
-  body: readonly string[];
-  prompt?: string;
-}
-
-function buildSlides(era: Era, lesson: Lesson): readonly SimpleSlide[] {
-  return [
-    {
-      kicker: `${era.grade} 사회 · ${era.shortName} ${lesson.id}차시`,
-      title: lesson.title,
-      body: [lesson.role],
-      prompt: lesson.keyQuestion,
-    },
-    {
-      kicker: "오늘 만날 문화유산",
-      title: `${era.shortName}의 여섯 가지 역사 단서`,
-      body: era.groups.map((group) => `${group.category} · ${group.heritage}`),
-    },
-    {
-      kicker: "오늘의 질문",
-      title: lesson.keyQuestion,
-      body: [lesson.objective],
-    },
-    ...lesson.activities.map((activity) => ({
-      kicker: `${activity.stage} · ${activity.minutes}분`,
-      title: activity.title,
-      body: activity.details,
-    })),
-    {
-      kicker: "활동 화면",
-      title: "화면에서 직접 확인하고 시험해요",
-      body: ["친구와 함께 화면을 조작합니다.", "결과가 나온 까닭을 역사 근거로 설명합니다.", "기록이 필요한 내용은 교사가 안내할 때만 정리합니다."],
-    },
-    {
-      kicker: "오늘의 마무리",
-      title: "근거를 들어 한 문장으로 설명해 볼까요?",
-      body: [lesson.keyQuestion],
-      prompt: lesson.nextLessonPrep,
-    },
-  ];
-}
-
 export function SimpleLessonSlides({ era, lesson }: { era: Era; lesson: Lesson }) {
-  const slides = buildSlides(era, lesson);
+  const slides = getJoseonSlides(lesson.id);
   const [current, setCurrent] = useState(0);
   const viewerRef = useRef<HTMLDivElement>(null);
   const slide = slides[current];
-  const image = `${import.meta.env.BASE_URL}images/${era.id === "joseon" ? "joseon-cover.webp" : "three-kingdoms-cover.webp"}`;
+  const heritageId = slide.heritageId ?? ((lesson.id - 1) % 6 + 1);
+  const image = heritageImageUrl(era.id, heritageId);
+  const credit = imageCreditForEra(era.id, heritageId);
 
   function move(direction: number) {
     setCurrent((index) => Math.min(slides.length - 1, Math.max(0, index + direction)));
@@ -81,7 +43,7 @@ export function SimpleLessonSlides({ era, lesson }: { era: Era; lesson: Lesson }
       </div>
       <div className="lesson-slides simple-slides" ref={viewerRef} tabIndex={0} aria-label={`${era.shortName} ${lesson.id}차시 수업 슬라이드`}>
         <div className="lesson-slides__stage" aria-live="polite">
-          <section className="simple-slide">
+          {slide.tutorial ? <CodapStep key={slide.tutorial.id} step={slide.tutorial} index={codapTutorial.indexOf(slide.tutorial)} /> : <section className="simple-slide">
             <img alt="" src={image} />
             <div className="simple-slide__shade" />
             <div className="simple-slide__copy">
@@ -90,7 +52,7 @@ export function SimpleLessonSlides({ era, lesson }: { era: Era; lesson: Lesson }
               <ul>{slide.body.map((item) => <li key={item}>{item}</li>)}</ul>
               {slide.prompt ? <blockquote>“{slide.prompt}”</blockquote> : null}
             </div>
-          </section>
+          </section>}
         </div>
         <div className="lesson-slides__controls">
           <button aria-label="이전 슬라이드" disabled={current === 0} onClick={() => move(-1)} type="button">←</button>
@@ -103,6 +65,8 @@ export function SimpleLessonSlides({ era, lesson }: { era: Era; lesson: Lesson }
           <button aria-label="다음 슬라이드" disabled={current === slides.length - 1} onClick={() => move(1)} type="button">→</button>
         </div>
       </div>
+      {slide.source && <p className="lesson-slides-section__hint">자료: <a href={slide.source.href} target="_blank" rel="noreferrer">{slide.source.label}</a></p>}
+      {!slide.tutorial && credit && <p className="lesson-slides-section__hint">사진: {credit.alt} · <a href={credit.source} target="_blank" rel="noreferrer">{credit.credit}</a> · <a href={credit.licenseUrl} target="_blank" rel="noreferrer">이용 조건</a></p>}
       <p className="lesson-slides-section__hint">화면을 한 번 누른 뒤 키보드 ← → 로도 넘길 수 있습니다.</p>
     </section>
   );

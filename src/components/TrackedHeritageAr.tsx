@@ -1,6 +1,9 @@
+import { researchForEra, heritageImageUrl } from "../content/heritageCatalog";
+import type { EraId } from "../types/curriculum";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { heritageResearchCases } from "../content/three-kingdoms/webActivities";
 import type { ArExhibit } from '../lib/ar/exhibit';
+import { newArExhibit } from '../lib/ar/exhibit';
 
 const ArExhibitViewer = lazy(() => import('./ArExhibitViewer'));
 
@@ -26,9 +29,15 @@ function cameraErrorMessage(error: unknown) {
   return "카메라를 시작하지 못했습니다. 아래 대체 체험으로 같은 내용을 확인할 수 있습니다.";
 }
 
-export default function TrackedHeritageAr(props: { heritageId?: number; explanation?: string; caution?: string; ar?: ArExhibit } = {}) {
-  const heritage = heritageResearchCases.find(item => item.id === props.heritageId);
-  if (props.ar && heritage) return <Suspense fallback={<p>입체 유물과 녹음을 준비해요…</p>}><ArExhibitViewer value={props.ar} heritage={heritage.heritage} heritageId={heritage.id} image={`${imageRoot}/${heritage.image}`} /></Suspense>;
+export default function TrackedHeritageAr(props: { eraId?: EraId; heritageId?: number; explanation?: string; caution?: string; ar?: ArExhibit } = {}) {
+  const eraId = props.eraId ?? "three-kingdoms";
+  const heritage = researchForEra(eraId).find(item => item.id === (props.heritageId ?? 1));
+  if (props.ar && heritage) return <Suspense fallback={<p>입체 유물과 녹음을 준비해요…</p>}><ArExhibitViewer eraId={eraId} value={props.ar} heritage={heritage.heritage} heritageId={heritage.id} image={heritageImageUrl(eraId, heritage.id)} /></Suspense>;
+  if (eraId === 'joseon' && heritage) {
+    const sentences = heritage.sources.flatMap(source => source.facts).filter(fact => fact.kind === 'confirmed').slice(0, 2).map(fact => fact.text);
+    if (props.explanation) sentences[0] = props.explanation;
+    return <Suspense fallback={<p>유산 설명을 준비해요…</p>}><ArExhibitViewer eraId={eraId} value={newArExhibit(sentences)} heritage={heritage.heritage} heritageId={heritage.id} image={heritageImageUrl(eraId, heritage.id)} /></Suspense>;
+  }
   return <LegacyTrackedHeritageAr {...props} />;
 }
 function LegacyTrackedHeritageAr({ heritageId, explanation, caution }: { heritageId?: number; explanation?: string; caution?: string } = {}) {
