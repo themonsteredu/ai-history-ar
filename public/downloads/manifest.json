@@ -4,7 +4,7 @@
       "title": "삼국시대",
       "bundle": {
         "path": "/downloads/three-kingdoms/three-kingdoms-all-materials.zip",
-        "size": 1649497
+        "size": 1635503
       },
       "lessons": [
         {
@@ -107,45 +107,45 @@
         },
         {
           "lessonId": 4,
-          "title": "찾은 내용을 표로 정리하기",
+          "title": "문장을 표로 정리하기",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-04-student.pdf",
-              "size": 30537
+              "size": 31142
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-04-teacher.pdf",
-              "size": 34296
+              "size": 32219
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-04-answer.pdf",
-              "size": 33681
+              "size": 31846
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-04-all.zip",
-              "size": 91254
+              "size": 88180
             }
           }
         },
         {
           "lessonId": 5,
-          "title": "우리 표를 깔끔하게 고치기",
+          "title": "우리 표를 보기 좋게 고치기",
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-05-student.pdf",
-              "size": 29902
+              "size": 29314
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-05-teacher.pdf",
-              "size": 32752
+              "size": 30194
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-05-answer.pdf",
-              "size": 32971
+              "size": 30415
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-05-all.zip",
-              "size": 88422
+              "size": 82949
             }
           }
         },
@@ -155,19 +155,19 @@
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-06-student.pdf",
-              "size": 30197
+              "size": 28491
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-06-teacher.pdf",
-              "size": 33191
+              "size": 31667
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-06-answer.pdf",
-              "size": 32358
+              "size": 31487
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-06-all.zip",
-              "size": 88588
+              "size": 84560
             }
           }
         },
@@ -265,7 +265,7 @@
       "title": "조선시대",
       "bundle": {
         "path": "/downloads/joseon/joseon-all-materials.zip",
-        "size": 5428375
+        "size": 5414019
       },
       "lessons": [
         {
@@ -390,45 +390,45 @@
         },
         {
           "lessonId": 4,
-          "title": "찾은 내용을 표로 정리하기",
+          "title": "문장을 표로 정리하기",
           "files": {
             "student": {
               "path": "/downloads/joseon/lesson-04-student.pdf",
-              "size": 30561
+              "size": 31066
             },
             "teacher": {
               "path": "/downloads/joseon/lesson-04-teacher.pdf",
-              "size": 34314
+              "size": 32155
             },
             "answer": {
               "path": "/downloads/joseon/lesson-04-answer.pdf",
-              "size": 33687
+              "size": 31791
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-04-all.zip",
-              "size": 91277
+              "size": 87998
             }
           }
         },
         {
           "lessonId": 5,
-          "title": "우리 표를 깔끔하게 고치기",
+          "title": "우리 표를 보기 좋게 고치기",
           "files": {
             "student": {
               "path": "/downloads/joseon/lesson-05-student.pdf",
-              "size": 29933
+              "size": 29320
             },
             "teacher": {
               "path": "/downloads/joseon/lesson-05-teacher.pdf",
-              "size": 32759
+              "size": 30191
             },
             "answer": {
               "path": "/downloads/joseon/lesson-05-answer.pdf",
-              "size": 33002
+              "size": 30385
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-05-all.zip",
-              "size": 88486
+              "size": 82925
             }
           }
         },
@@ -438,19 +438,19 @@
           "files": {
             "student": {
               "path": "/downloads/joseon/lesson-06-student.pdf",
-              "size": 30232
+              "size": 28492
             },
             "teacher": {
               "path": "/downloads/joseon/lesson-06-teacher.pdf",
-              "size": 33204
+              "size": 31660
             },
             "answer": {
               "path": "/downloads/joseon/lesson-06-answer.pdf",
-              "size": 32350
+              "size": 31490
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-06-all.zip",
-              "size": 88637
+              "size": 84577
             }
           }
         },

@@ -75,7 +75,7 @@ describe("4~10차시 근거 표와 수업 자료 연결", () => {
   it("그래프는 유산이나 나라의 수 대신 확인한 근거의 개수를 센다", () => {
     const lesson = threeKingdomsLessons.find(item => item.id === 6)!;
     const tool = threeKingdomsExternalTools.find(item => item.lessonId === 6)!;
-    expect(JSON.stringify(lesson)).toContain("근거 문장 수");
+    expect(JSON.stringify(lesson)).toContain("종류별 내용 수");
     expect(JSON.stringify(tool)).toContain("근거 문장 수");
     expect(threeKingdomsLessons.find(item => item.id === 8)?.cautions.join(" ")).toContain("두 곳에서 따로 확인한 것이 아닙니다");
     expect(threeKingdomsLessons.find(item => item.id === 10)?.nextLessonPrep).toContain("마지막으로 저장한 작업 파일");

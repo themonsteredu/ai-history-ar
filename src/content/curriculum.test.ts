@@ -89,7 +89,7 @@ describe("curriculum catalog", () => {
   it("keeps the classroom deck in the same three-task order as the printed worksheet", () => {
     for (const sheet of worksheets) {
       const slides = getThreeKingdomsSlides(sheet.id);
-      if (sheet.id === 4 || sheet.id === 5) {
+      if (sheet.id === 4 || sheet.id === 5 || sheet.id === 6) {
         expect(slides).toHaveLength(6);
         expect(JSON.stringify(slides)).not.toMatch(/세 개|3개|지난 활동지|확인 상태|JSON|CSV/);
         expect(JSON.stringify(slides)).toContain('표');
@@ -100,5 +100,5 @@ describe("curriculum catalog", () => {
       expect(slides.at(-1)?.kind).toBe("closing");
       expect(JSON.stringify(slides)).not.toMatch(/다운로드 없음|새 탭/);
     }
-    expect(getThreeKingdomsSlides(6).filter(slide => slide.kind === "tutorial")).toHaveLength(7);
+    expect(getThreeKingdomsSlides(6).filter(slide => slide.kind === "tutorial")).toHaveLength(0);
   });});

@@ -14,7 +14,7 @@ export interface JoseonSlide {
 export function getJoseonSlides(id: number): readonly JoseonSlide[] {
   const plan = plans.find(item => item.id === id)!;
   const sheet = worksheets.find(item => item.id === id)!;
-  if (id === 4 || id === 5) return [
+  if (id === 4 || id === 5 || id === 6) return [
     { kicker: '조선시대 ' + id + '차시', title: plan.title, body: [plan.objective] },
     ...tableLessonGuide[id].map((step, index) => ({ kicker: '함께 해요 ' + (index + 1), title: step.title, body: [...step.body] })),
     { kicker: '다음 시간', title: '우리 표로 이어 가요', body: [plan.nextLessonPrep] },

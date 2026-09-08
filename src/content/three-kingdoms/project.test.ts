@@ -12,6 +12,18 @@ function finished(): HeritageProject {
   return project;
 }
 describe('same project from taught lessons through the museum', () => {
+  it('preserves typed keywords and graph counts in a portable file and invalidates the graph after edits', () => {
+    const typed = ['벽돌', '금동신발'].map((text, index): ResearchRecord => ({ id: 'typed-' + index, text, category: index === 0 ? '재료·구조' : '사용·생활', status: '확인됨', source: '선생님 자료', url: '', providedByTeacher: true }));
+    let project = updateRecords(newProject(), typed);
+    project = { ...project, cleanedRevision: project.revision, graph: { image: 'data:image/png;base64,iVBORw0KGgo=', dimension: 'category', revision: project.revision, title: '우리 표' } };
+    const restored = parseProject(JSON.stringify(project));
+    expect(restored.records.map(row => row.text)).toEqual(['벽돌', '금동신발']);
+    expect(summarizeRecords(restored).map(row => row.count)).toEqual([0,1,0,1]);
+    expect(projectReadiness(restored).graphed).toBe(true);
+    const edited = updateRecords(restored, typed.map(row => ({ ...row, category: '재료·구조' })));
+    expect(summarizeRecords(edited).map(row => row.count)).toEqual([0,2,0,0]);
+    expect(projectReadiness(edited).graphed).toBe(false);
+  });
   it('starts lesson four independently with one provided sentence and carries the same table forward', () => {
     const project = updateRecords({ ...newProject(), previousClaim: '', correction: '', question: '' }, [records[0]]);
     expect(projectReadiness(project).research).toBe(true);

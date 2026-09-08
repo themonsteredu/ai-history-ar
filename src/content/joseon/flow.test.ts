@@ -18,7 +18,7 @@ describe('Joseon classroom sequence and portable work', () => {
       expect(lesson.title).toBe(sheet.title);
       expect(lesson.activities.reduce((sum,item) => sum + item.minutes,0)).toBe(40);
       const slides = getJoseonSlides(sheet.id);
-      if (sheet.id === 4 || sheet.id === 5) {
+      if (sheet.id === 4 || sheet.id === 5 || sheet.id === 6) {
         expect(slides).toHaveLength(6);
         expect(JSON.stringify(slides)).not.toMatch(/세 개|3개|지난 활동지|확인 상태|JSON|CSV/);
         expect(slides.at(-1)?.body).toContain(lesson.nextLessonPrep);
@@ -28,7 +28,7 @@ describe('Joseon classroom sequence and portable work', () => {
       expect(slides.at(-1)?.body).toContain(lesson.nextLessonPrep);
     }
     const tutorial = getJoseonSlides(6).filter(slide => slide.tutorial);
-    expect(tutorial).toHaveLength(7);
+    expect(tutorial).toHaveLength(0);
     expect(tutorial.every(slide => slide.tutorial?.screenshot.startsWith('https://codap.concord.org/wp-content/'))).toBe(true);
   });
 
