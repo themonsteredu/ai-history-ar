@@ -12,6 +12,19 @@ function finished(): HeritageProject {
   return project;
 }
 describe('same project from taught lessons through the museum', () => {
+  it('starts lesson four independently with one provided sentence and carries the same table forward', () => {
+    const project = updateRecords({ ...newProject(), previousClaim: '', correction: '', question: '' }, [records[0]]);
+    expect(projectReadiness(project).research).toBe(true);
+    expect(projectReadiness({ ...project, cleanedRevision: project.revision }).cleaned).toBe(true);
+    expect(projectReadiness({ ...project, records: [] }).research).toBe(false);
+  });
+  it('keeps teacher-provided topics and clues when saving and does not require a web source for them', () => {
+    const project = { ...newProject(), tableMaterial: { topic: '우리 주제', clues: ['돌로 만들었다.'] }, records: [{ ...records[0], text: '돌로 만들었다.', source: '선생님 자료', url: '', providedByTeacher: true }] };
+    expect(recordProblems(project.records)).toEqual([]);
+    expect(parseProject(JSON.stringify(project))).toEqual(project);
+    expect(() => parseProject(JSON.stringify({ ...project, tableMaterial: { topic: '', clues: [] } }))).toThrow();
+    expect(recordProblems([{ ...project.records[0], providedByTeacher: false }])).toHaveLength(1);
+  });
   it('retains the actual group, heritage, source evidence, PNG and explanation across file transfer', () => {
     const original = finished();
     const nextDevice = parseProject(JSON.stringify(original));
@@ -34,7 +47,7 @@ describe('same project from taught lessons through the museum', () => {
   it('does not let a held or missing claim become a confirmed inference anchor', () => {
     const project = finished();
     expect(projectReadiness({ ...project, inference: { ...project.inference, evidenceIds: ['a','c'] } }).inferred).toBe(false);
-    expect(projectReadiness({ ...project, previousClaim: '' }).exhibited).toBe(false);
+    expect(projectReadiness({ ...project, previousClaim: '', correction: '' }).exhibited).toBe(true);
   });
   it('rejects malformed portable work and active-content images', () => {
     expect(() => parseProject('{}')).toThrow();

@@ -57,7 +57,7 @@ describe("curriculum catalog", () => {
   it("folds AI doubt and source verification into a single Three Kingdoms lesson", () => {
     expect(eras[0].lessons.map((lesson) => lesson.title)).toEqual([
       "우리 유산과 질문 정하기", "AI가 한 말 확인하기",
-      "찾은 내용을 표로 정리하기", "우리 표를 깔끔하게 고치기", "우리 표로 그래프 만들기",
+      "문장을 표로 정리하기", "우리 표를 보기 좋게 고치기", "우리 표로 그래프 만들기",
       "그래프를 보고 말하기", "자료로 옛날 모습 생각하기", "우리 목소리로 안내하는 AR 전시", "우리 반 유산 박물관 열기",
     ]);
     const merged = eras[0].lessons[1];
@@ -89,6 +89,12 @@ describe("curriculum catalog", () => {
   it("keeps the classroom deck in the same three-task order as the printed worksheet", () => {
     for (const sheet of worksheets) {
       const slides = getThreeKingdomsSlides(sheet.id);
+      if (sheet.id === 4 || sheet.id === 5) {
+        expect(slides).toHaveLength(6);
+        expect(JSON.stringify(slides)).not.toMatch(/세 개|3개|지난 활동지|확인 상태|JSON|CSV/);
+        expect(JSON.stringify(slides)).toContain('표');
+        continue;
+      }
       const taskSlides = slides.filter(slide => slide.kind === "activity" && slide.eyebrow.startsWith("활동지 "));
       expect(taskSlides.map(slide => slide.title)).toEqual(sheet.tasks.map((task, index) => `${index + 1}. ${task.title}`));
       expect(slides.at(-1)?.kind).toBe("closing");

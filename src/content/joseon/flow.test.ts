@@ -18,6 +18,12 @@ describe('Joseon classroom sequence and portable work', () => {
       expect(lesson.title).toBe(sheet.title);
       expect(lesson.activities.reduce((sum,item) => sum + item.minutes,0)).toBe(40);
       const slides = getJoseonSlides(sheet.id);
+      if (sheet.id === 4 || sheet.id === 5) {
+        expect(slides).toHaveLength(6);
+        expect(JSON.stringify(slides)).not.toMatch(/세 개|3개|지난 활동지|확인 상태|JSON|CSV/);
+        expect(slides.at(-1)?.body).toContain(lesson.nextLessonPrep);
+        continue;
+      }
       expect(slides.filter(slide => slide.taskNumber).map(slide => slide.title)).toEqual(sheet.tasks.map((task,i) => `${i+1}. ${task.title}`));
       expect(slides.at(-1)?.body).toContain(lesson.nextLessonPrep);
     }

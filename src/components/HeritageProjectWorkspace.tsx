@@ -1,21 +1,21 @@
 import { WorksheetSteps } from './WorksheetSteps';
-import { LessonFourSupport, ResearchTable } from './LessonFourSupport';
+import { SimpleTableLesson } from './SimpleTableLesson';
 import { addLessonFourSample } from '../content/lessonFourSamples';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { lessonTwoStorageKey } from '../lib/careerLogKeys';
 import { readResilientStorage } from '../lib/resilientStorage';
 import { loadProjectDraft, saveProjectDraft } from '../lib/projectDraftStore';
 import { MAX_PROJECT_BYTES, newArExhibit } from '../lib/ar/exhibit';
 import { researchForEra, heritageImageUrl, eraName, exampleForEra, imageCreditForEra } from '../content/heritageCatalog';
-import { downloadProjectFile, evidenceCategories, evidenceStatuses, newProject, parseProject, PROJECT_STORAGE_KEY, projectCsv, projectReadiness, recordProblems, sourceUrl, summarizeRecords, updateRecords, type HeritageProject, type ResearchRecord } from '../content/three-kingdoms/project';
+import { downloadProjectFile, newProject, parseProject, PROJECT_STORAGE_KEY, projectCsv, projectReadiness, recordProblems, sourceUrl, summarizeRecords, updateRecords, type HeritageProject, type ResearchRecord } from '../content/three-kingdoms/project';
 import { ExternalToolActivity } from './ExternalToolActivity';
 import { CodapTutorial } from './CodapTutorial';
 import ArRecognitionCard from './ArRecognitionCard';
 import ArVisitGuide from './ArVisitGuide';
 import type { Lesson, EraId } from '../types/curriculum';
 import { EXTERNAL_TOOL_STORAGE_KEY, EXTERNAL_TOOL_UPDATE_EVENT, getResolvedExternalTool, readExternalToolSettings } from '../settings/externalToolSettings';
-import { projectStages as stages, projectRequirements as requirements, statusLabels, categoryLabels } from '../content/three-kingdoms/studentLanguage';
+import { projectStages as stages, projectRequirements as requirements } from '../content/three-kingdoms/studentLanguage';
 import '../styles/heritage-project.css';
 
 const TrackedHeritageAr = lazy(() => import('./TrackedHeritageAr'));
@@ -32,13 +32,13 @@ export function HeritageProjectWorkspace({ lesson, eraId = "three-kingdoms" }: {
   return <ProjectWorkspace eraId={eraId} key={storageKey} lesson={lesson} search={search} storageKey={storageKey} />;
 }
 function ProjectWorkspace({ lesson, search, storageKey, eraId }: { lesson: Lesson; search: string; storageKey: string; eraId: EraId }) {
+  const navigate = useNavigate();
   const [project, setProject] = useState<HeritageProject>(() => readDraft(storageKey, eraId));
   const [draftReady, setDraftReady] = useState(false);
   const [arBusy, setArBusy] = useState(false);
   const latestProject = useRef(project); latestProject.current = project;
   const loaded = useRef(false);
   const [message, setMessage] = useState('');
-  const [opened, setOpened] = useState<string[]>([]);
   const [showExhibit, setShowExhibit] = useState(false);
   const [zoom, setZoom] = useState(false);
   const [answer, setAnswer] = useState('');
@@ -84,7 +84,6 @@ function ProjectWorkspace({ lesson, search, storageKey, eraId }: { lesson: Lesso
     setMessage('');
   }
   function changeRecords(records: ResearchRecord[]) { setProject(current => ({ ...updateRecords(current, records), savedAt: new Date().toISOString() })); }
-  function editRecord(id: string, patch: Partial<ResearchRecord>) { changeRecords(project.records.map(record => record.id === id ? { ...record, ...patch } : record)); }
   function saveFile() {
     if (arBusy) { setMessage('녹음이나 파일 준비가 끝나면 오늘 작업을 저장해 주세요.'); return; }
     downloadProjectFile(JSON.stringify(project, null, 2), `${shortName}_${project.group}모둠_${heritage.heritage}_${lesson.id}차시.json`, 'application/json');
@@ -97,7 +96,7 @@ function ProjectWorkspace({ lesson, search, storageKey, eraId }: { lesson: Lesso
       if (file.size > MAX_PROJECT_BYTES) throw new Error('수업에서 저장한 23MB 이하 작업 파일을 선택하세요.');
       const imported = parseProject(await file.text(), eraId);
       if (project.records.length && !window.confirm('현재 작업 대신 선택한 파일을 열까요? 필요한 작업은 먼저 내려받아 보관하세요.')) return;
-      setProject(imported); setOpened([]); setShowExhibit(false); setMessage(`${imported.group}모둠 작업을 불러왔습니다.`);
+      setProject(imported); setShowExhibit(false); setMessage(`${imported.group}모둠 작업을 불러왔습니다.`);
     } catch (error) { setMessage(error instanceof Error ? error.message : '파일을 읽지 못했습니다.'); }
   }
   async function importGraph(file?: File) {
@@ -114,12 +113,27 @@ function ProjectWorkspace({ lesson, search, storageKey, eraId }: { lesson: Lesso
     if (arBusy) { setMessage('녹음이 끝난 뒤 유산을 바꿔 주세요.'); return; }
     if (id === project.heritageId) return;
     if (project.records.length && !window.confirm('다른 유산을 조사하려면 새 작업이 시작됩니다. 현재 오늘 작업을 저장했나요?')) return;
-    setProject(newProject(project.group, id, eraId)); setOpened([]);
+    setProject(newProject(project.group, id, eraId));
   }
   const evidence = project.records.filter(record => project.inference.evidenceIds.includes(record.id));
   const focus = evidence.find(record => record.id === project.exhibit.focusId);
 
   if (!draftReady) return <p role="status">지난 작업과 녹음을 불러오고 있어요…</p>;
+
+  if (lesson.id === 4 || lesson.id === 5) return <SimpleTableLesson
+    key={lesson.id + ':' + project.heritageId + ':' + JSON.stringify(project.tableMaterial)}
+    eraId={eraId} lessonId={lesson.id} project={project} message={message}
+    onUpdate={update} onRecords={changeRecords} onHeritage={selectHeritage} onSave={saveFile} onImport={file => { void importFile(file); }}
+    onContinue={async () => {
+      const current = latestProject.current;
+      if (!current.records.length || (lesson.id === 5 && recordProblems(current.records).length)) return;
+      const next = lesson.id === 5 ? { ...current, cleanedRevision: current.revision } : current;
+      try {
+        await saveProjectDraft(storageKey, JSON.stringify(next));
+        setProject(next);
+        navigate('/' + eraId + '/lesson/' + (lesson.id + 1) + '?' + new URLSearchParams({ ...Object.fromEntries(new URLSearchParams(search)), view: 'activity' }));
+      } catch { setMessage('이 기기에 표를 저장하지 못했어요. 아래에서 내 표 저장을 눌러 파일로 보관해 주세요.'); }
+    }} />;
 
   return <section className="heritage-project" aria-label={`${lesson.id}차시 모둠 탐구`}>
     <div className="project-toolbar">
@@ -136,34 +150,6 @@ function ProjectWorkspace({ lesson, search, storageKey, eraId }: { lesson: Lesso
     {imageCreditForEra(eraId, heritage.id) && <p className="ar-help">사진: <a href={imageCreditForEra(eraId, heritage.id)!.source} target="_blank" rel="noreferrer">{imageCreditForEra(eraId, heritage.id)!.credit}</a></p>}
     <WorksheetSteps eraId={eraId} lessonId={lesson.id} />
     <details className="project-paper"><summary>{example.title}</summary>{example.lines.map(line => <p key={line}>{line}</p>)}</details>
-
-    {lesson.id === 4 && <>
-      <LessonFourSupport key={project.heritageId} eraId={eraId} project={project}
-        onAddSample={sample => { setProject(current => addLessonFourSample(current, sample)); setMessage('샘플 문장을 우리 표에 추가했어요. 아래 표에서 출처를 읽고 확인 상태를 고쳐 주세요.'); }}
-        onFillCorrection={sample => { update({ previousClaim: project.previousClaim.trim() ? project.previousClaim : sample.previousClaim, correction: project.correction.trim() ? project.correction : sample.correction }); setMessage('고친 말 예시를 빈칸에 채웠어요. 지난 활동지와 비교해 읽어 보세요.'); }} />
-      <div className="project-two-columns">
-        <section className="project-paper"><h3>1. 지난 시간에 고친 말을 적어요</h3><p>지난 활동지의 번호와 핵심 낱말만 적어도 돼요.</p>
-          <label>우리가 의심했던 말<textarea aria-label="우리가 의심했던 말" maxLength={500} value={project.previousClaim} onChange={event => update({ previousClaim: event.target.value })} placeholder={eraId === 'joseon' ? '예: 3번 · 누가 기록했을까' : '예: 3번 · 도굴 여부'} /></label>
-          <label>자료를 읽고 어떻게 고쳤나요?<textarea aria-label="자료를 읽고 어떻게 고쳤나요?" maxLength={500} value={project.correction} onChange={event => update({ correction: event.target.value })} placeholder="고친 말의 핵심만 적어요. 모르겠으면 까닭을 짧게 적어요." /></label>
-          <label>더 알아보고 싶은 것은 무엇인가요?<input maxLength={180} value={project.question} onChange={event => update({ question: event.target.value })} /></label>
-        </section>
-        <section className="project-paper"><h3>2. 문장 세 개를 표에 담아요</h3><p><strong>표 한 줄에는 문장 하나를 담아요.</strong> 우리가 찾은 문장이 몇 개인지 세는 표예요.</p><ol><li>박물관 자료나 선생님이 나눠 준 자료를 읽어요.</li><li>서로 다른 문장 세 개를 골라요. 시간이 남으면 두 개 더 찾아요.</li><li>한 자료를 나눠 읽었어도 자료를 찾은 곳은 같아요.</li></ol><p>다음 시간에는 비슷한 내용끼리 묶어요. 만든 해와 발견한 해는 다르니 어떤 해인지 함께 적어요.</p></section>
-      </div>
-      <section className="project-paper"><h3>자료를 읽고 ‘우리 표에 담기’를 눌러요</h3><p>아래는 자료를 짧게 정리한 내용이에요. ‘자료 열기’를 누르거나 선생님 자료를 읽고 확인해요.</p>
-        {heritage.sources.map(source => <details className="project-source" key={source.id} open={opened.includes(source.id)} onToggle={event => { const isOpen = event.currentTarget.open; setOpened(current => isOpen ? (current.includes(source.id) ? current : [...current, source.id]) : current.filter(id => id !== source.id)); }}><summary>{source.label} · {source.title}</summary><p>{source.readGuide}</p><a href={sourceUrl(source.href)} target="_blank" rel="noreferrer">{source.institution} 자료 열기 ↗</a>
-          {source.facts.map(fact => <div className="project-source-fact" key={fact.id}><p>{fact.text}</p><button type="button" disabled={project.records.some(record => record.id === fact.id)} onClick={() => changeRecords([...project.records, { id: fact.id, text: fact.text, category: '', status: '추가 확인', source: source.institution, url: source.href }])}>{project.records.some(record => record.id === fact.id) ? '표에 담았어요' : '우리 표에 담기'}</button></div>)}
-        </details>)}
-      </section>
-    </>}
-
-    {(lesson.id === 4 || lesson.id === 5) && <section className="project-paper"><div className="project-section-title"><h3>우리 모둠이 찾은 문장 · {project.records.length}개</h3><button type="button" disabled={!project.records.length} onClick={() => downloadProjectFile(projectCsv(project), `${shortName}_${project.group}모둠_찾은문장.csv`, 'text/csv;charset=utf-8')}>표 파일 받기 (CSV)</button></div>
-      {project.records.length > 0 && <ResearchTable records={project.records} caption="우리 모둠 표 · 아래 입력 칸에서 수정하면 표에도 반영돼요" />}
-      {lesson.id === 5 && <p>고치기 전 표 파일을 먼저 저장해요. 같은 문장은 하나만 남기고 빈칸을 확인해요. 같은 자료라도 내용이 다른 문장은 남겨요.</p>}
-      {!project.records.length ? <p>위에서 자료를 읽고 ‘우리 표에 담기’를 눌러 주세요.</p> : <div className="project-record-list">{project.records.map((record,index) => <article key={record.id} className="project-record"><strong>찾은 문장 {index+1}</strong><label>자료에서 찾은 문장<textarea aria-label="자료에서 찾은 문장" value={record.text} maxLength={1000} onChange={event => editRecord(record.id, { text: event.target.value })} /></label><div className="project-two-columns"><label>어떤 내용인가요?<select value={record.category} onChange={event => editRecord(record.id, { category: event.target.value as ResearchRecord['category'] })}><option value="">비슷한 내용끼리 묶어 주세요</option>{evidenceCategories.map(category => <option key={category} value={category}>{category}</option>)}</select>{record.category && <small>{categoryLabels[record.category].split(" · ")[1]}</small>}</label><label>자료를 읽어 보니 어떤가요?<select value={record.status} onChange={event => editRecord(record.id, { status: event.target.value as ResearchRecord['status'] })}>{evidenceStatuses.map(status => <option key={status} value={status}>{status}</option>)}</select><small>{statusLabels[record.status].split(" · ")[1]}</small></label></div><p>{record.source} · {sourceUrl(record.url) ? <a href={record.url} target="_blank" rel="noreferrer">찾은 자료 보기 ↗</a> : '자료를 찾은 주소를 확인해 주세요'}</p><button className="project-text-button" type="button" onClick={() => changeRecords(project.records.filter(item => item.id !== record.id))}>이 문장 빼기</button></article>)}</div>}
-      {lesson.id === 5 && <><ul className="project-validation">{recordProblems(project.records).map(problem => <li key={problem}>{problem}</li>)}</ul><button className="button button--primary" type="button" disabled={!ready.research || recordProblems(project.records).length > 0} onClick={() => { update({ cleanedRevision: project.revision }); setMessage('표를 확인했어요. 파일을 저장하고 6차시에서 그래프를 만들어요.'); }}>표 확인 끝!</button></>}
-    </section>}
-
-    {lesson.id === 5 && <details className="project-paper"><summary>구글 스프레드시트에서도 표 보기 (선택)</summary><p>표 파일을 구글 스프레드시트에서도 열 수 있어요. 그곳에서 고쳤다면 이 화면의 표도 똑같이 고친 뒤 다시 저장해요.</p>{eraId === 'three-kingdoms' ? <ExternalToolActivity lesson={lesson} /> : <a href="https://docs.google.com/spreadsheets/" target="_blank" rel="noreferrer">구글 스프레드시트 열기 ↗</a>}</details>}
 
     {lesson.id === 6 && <section className="project-paper"><h3>우리 표로 그래프를 만들어요</h3><p>그래프 아래쪽 가로축에는 문장의 종류를, 옆쪽 세로축에는 <strong>문장 수(개)</strong>를 놓아요. 문장 수로 나라의 힘이나 옛사람 수를 비교할 수는 없어요.</p><label>무엇을 나누어 세어 볼까요?<select disabled={!ready.cleaned} value={project.graph.dimension} onChange={event => update({ graph: { ...project.graph, dimension: event.target.value as 'category' | 'status', image: '', revision: -1 }, interpretation: '', exhibit: { ...project.exhibit, tested: false } })}><option value="category">문장 종류별로 (살펴본항목)</option><option value="status">자료를 확인했는지에 따라 (확인상태)</option></select></label>
       <div className="project-actions"><button disabled={!ready.cleaned} type="button" onClick={() => downloadProjectFile(projectCsv(project), `${shortName}_${project.group}모둠_고친표.csv`, 'text/csv;charset=utf-8')}>1. 고친 표 받기 (CSV)</button><a aria-disabled={!ready.cleaned || !codap.enabled || !codapUrl} href={ready.cleaned && codap.enabled && codapUrl ? codapUrl : undefined} target="_blank" rel="noreferrer">2. 그래프 도구 열기 ↗</a><label className="project-file-button">3. 그래프 그림 가져오기<input disabled={!ready.cleaned} type="file" accept="image/png" onChange={event => { void importGraph(event.target.files?.[0]); event.target.value = ''; }} /></label></div>

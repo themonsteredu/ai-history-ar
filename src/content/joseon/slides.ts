@@ -1,3 +1,4 @@
+import { tableLessonGuide } from '../tableLessonGuide';
 import plans from './continuity-guide.json';
 import { lessonFourWebGuide } from '../lessonFourWebGuide';
 import worksheets from './worksheet-guide.json';
@@ -13,6 +14,11 @@ export interface JoseonSlide {
 export function getJoseonSlides(id: number): readonly JoseonSlide[] {
   const plan = plans.find(item => item.id === id)!;
   const sheet = worksheets.find(item => item.id === id)!;
+  if (id === 4 || id === 5) return [
+    { kicker: '조선시대 ' + id + '차시', title: plan.title, body: [plan.objective] },
+    ...tableLessonGuide[id].map((step, index) => ({ kicker: '함께 해요 ' + (index + 1), title: step.title, body: [...step.body] })),
+    { kicker: '다음 시간', title: '우리 표로 이어 가요', body: [plan.nextLessonPrep] },
+  ];
   const heritage = researchForEra('joseon')[(id - 1) % 6];
   const slides: JoseonSlide[] = [{kicker:`조선시대 ${id}차시`,title:sheet.title,body:[plan.objective],prompt:plan.keyQuestion}];
   if (id === 1) slides.push(...researchForEra('joseon').map(item => ({kicker:`${item.id}모둠 · ${item.category}`,title:item.heritage,body:['사진에서 눈에 보이는 특징을 찾아요.'],prompt:item.question,heritageId:item.id})));

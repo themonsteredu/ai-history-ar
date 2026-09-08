@@ -25,9 +25,9 @@ const lessonTwoJudgementModeInfo = {
 } as const;
 
 const lessonFourDataModeInfo = {
-  label: "우리 유산 문장 찾기",
-  shortLabel: "지난 시간에 고친 말 보기",
-  description: "찾은 문장 세 개를 우리 표로 정리하기",
+  label: "문장을 표로 정리하기",
+  shortLabel: "주어진 문장으로 시작",
+  description: "주어진 문장을 알맞은 종류에 넣기",
 } as const;
 
 const externalDataToolModeInfo = {
@@ -53,6 +53,7 @@ export function getLessonActivityModeInfo(lesson: Lesson, eraId: EraId) {
   if (eraId === 'joseon' && lesson.id === 3) return { label: '자료 확인하기', shortLabel: '출처 보고 고쳐 말하기', description: '자료를 읽고 지난 판단을 다시 살펴보기' };
   if (lesson.id === 2) return lessonTwoJudgementModeInfo;
   if (lesson.id === 4) return lessonFourDataModeInfo;
+  if (lesson.id === 5) return { label: '우리 표 고치기', shortLabel: '4차시 표 그대로 이어서', description: '같은 문장을 빼고 비슷한 이야기끼리 모으기' };
   if (lesson.id >= 5 && lesson.id <= 8) return externalDataToolModeInfo;
   if (lesson.id === 9) return arDataExplanationModeInfo;
   if (lesson.id === 10) return arMuseumModeInfo;

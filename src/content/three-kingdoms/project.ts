@@ -8,6 +8,7 @@ export const evidenceStatuses = ['확인됨', '판단 보류', '추가 확인'] 
 export type EvidenceCategory = typeof evidenceCategories[number];
 export type EvidenceStatus = typeof evidenceStatuses[number];
 export interface ResearchRecord {
+  providedByTeacher?: boolean;
   id: string;
   text: string;
   category: EvidenceCategory | '';
@@ -16,6 +17,7 @@ export interface ResearchRecord {
   url: string;
 }
 export interface HeritageProject {
+  tableMaterial?: { topic: string; clues: string[] };
   version: 1;
   eraId?: EraId;
   group: number;
@@ -62,7 +64,7 @@ export function recordProblems(records: ResearchRecord[]) {
     if (key && seen.has(key)) problems.push(`${index + 1}번 문장: 같은 내용이 있어요. 고치기 전 파일을 저장하고 하나만 남겨 주세요.`);
     seen.add(key);
     if (!record.category) problems.push(`${index + 1}번 문장: 어떤 내용인지 골라 주세요.`);
-    if (!record.source.trim() || !sourceUrl(record.url)) problems.push(`${index + 1}번 문장: 자료를 찾은 곳과 주소를 확인해 주세요.`);
+    if (!record.source.trim() || (!sourceUrl(record.url) && !(record.providedByTeacher && record.source === '선생님 자료'))) problems.push(`${index + 1}번 문장: 자료를 찾은 곳과 주소를 확인해 주세요.`);
     return problems;
   });
 }
@@ -72,7 +74,7 @@ export function summarizeRecords(project: HeritageProject) {
   return labels.map(label => ({ label, count: project.records.filter(record => record[dimension] === label).length }));
 }
 export function projectReadiness(project: HeritageProject) {
-  const research = project.records.length >= 3 && !!project.previousClaim.trim() && !!project.correction.trim() && !!project.question.trim();
+  const research = project.records.some(record => !!record.text.trim());
   const cleaned = research && recordProblems(project.records).length === 0 && project.cleanedRevision === project.revision;
   const graphed = cleaned && !!project.graph.image && !!project.graph.title.trim() && project.graph.revision === project.revision;
   const interpreted = graphed && !!project.interpretation.trim() && !!project.limitation.trim();
@@ -90,11 +92,12 @@ export function parseProject(text: string, expectedEra: EraId = "three-kingdoms"
   const value = JSON.parse(text) as HeritageProject;
   if ((value?.eraId ?? "three-kingdoms") !== expectedEra) throw new Error(`${eraName(expectedEra)} 작업 파일을 골라 주세요. 다른 시대의 파일은 이 수업에 열 수 없어요.`);
   const short = (v: unknown, max = 1500): v is string => typeof v === 'string' && v.length <= max;
+  if (value.tableMaterial !== undefined && (!value.tableMaterial || !short(value.tableMaterial.topic, 180) || !value.tableMaterial.topic.trim() || !Array.isArray(value.tableMaterial.clues) || !value.tableMaterial.clues.length || value.tableMaterial.clues.length > 20 || value.tableMaterial.clues.some(clue => !short(clue, 1000) || !clue.trim()))) throw new Error('수업 자료의 주제와 문장을 확인해 주세요.');
   if (value?.version !== 1 || !Number.isInteger(value.group) || value.group < 1 || value.group > 6 || !Number.isInteger(value.heritageId) || value.heritageId < 1 || value.heritageId > 6 ||
     !short(value.question) || !short(value.previousClaim) || !short(value.correction) || !short(value.savedAt) ||
     !Number.isSafeInteger(value.revision) || value.revision < 0 || !Number.isSafeInteger(value.cleanedRevision) ||
     !Array.isArray(value.records) || value.records.length > 60 ||
-    value.records.some(r => !r || !short(r.id, 100) || !short(r.text) || !short(r.source) || !short(r.url, 2000) || (r.category !== '' && !evidenceCategories.includes(r.category)) || !evidenceStatuses.includes(r.status)) ||
+    value.records.some(r => !r || (r.providedByTeacher !== undefined && typeof r.providedByTeacher !== 'boolean') || !short(r.id, 100) || !short(r.text) || !short(r.source) || !short(r.url, 2000) || (r.category !== '' && !evidenceCategories.includes(r.category)) || !evidenceStatuses.includes(r.status)) ||
     new Set(value.records.map(r => r.id)).size !== value.records.length ||
     !value.graph || !['category', 'status'].includes(value.graph.dimension) || !short(value.graph.title) || !Number.isSafeInteger(value.graph.revision) || !short(value.graph.image, 2_400_000) ||
     (value.graph.image !== '' && !/^data:image\/png;base64,[A-Za-z0-9+/]+=*$/.test(value.graph.image)) ||

@@ -1,5 +1,11 @@
+import tableLessonPlans from './continuity-guide.json';
 import type { Lesson } from "../../types/curriculum";
 import { defineLesson } from "../lesson-helpers";
+
+function tableLesson(id: number): Lesson {
+  const plan = tableLessonPlans.find(item => item.id === id)!;
+  return defineLesson({ ...plan, activities: plan.activities as Lesson['activities'], assessment: { ...plan.assessment, method: '산출물' } });
+}
 
 export const threeKingdomsLessons = [
   defineLesson({
@@ -108,164 +114,8 @@ export const threeKingdomsLessons = [
     },
     classroomMode: "worksheet",
   }),
-  defineLesson({
-  "id": 4,
-  "title": "찾은 내용을 표로 정리하기",
-  "role": "지난 시간에 고친 말을 다시 봐요",
-  "objective": "자료에서 찾은 서로 다른 문장 세 개를 표로 정리하고 출처를 말할 수 있다.",
-  "keyQuestion": "우리 유산을 설명할 문장은 어디에서 찾을까?",
-  "activities": [
-    {
-      "stage": "도입",
-      "minutes": 5,
-      "title": "앞 차시 결과 이어 보기",
-      "details": [
-        "지난 2·3차시 활동지를 옆에 놓습니다.",
-        "고친 말과 우리 모둠 질문을 짧게 확인합니다."
-      ],
-      "materials": [
-        "모둠 작업 파일",
-        "지난 활동지"
-      ]
-    },
-    {
-      "stage": "전개",
-      "minutes": 29,
-      "title": "찾은 내용을 표로 정리하기",
-      "details": [
-        "1. 지난 활동 돌아보기: 지난 2·3차시에서 고친 말 하나를 떠올려요. 핵심 낱말만 적어요.",
-        "2. 문장 세 개를 표에 담기: 자료를 읽고 서로 다른 문장 세 개를 골라 우리 표에 담아요.",
-        "3. 표 한 줄 설명하기: 표 한 줄을 가리키며 무엇을 어디에서 찾았는지 친구에게 말해요."
-      ],
-      "materials": [
-        "학생 웹앱",
-        "학생 활동지",
-        "공식 자료 또는 모둠 그래프"
-      ]
-    },
-    {
-      "stage": "정리",
-      "minutes": 6,
-      "title": "다음 차시로 가져가기",
-      "details": [
-        "우리 표의 문장 하나를 골라 어디에서 찾았는지 말합니다.",
-        "‘표 파일 받기 (CSV)’와 ‘오늘 작업 저장하기’를 눌러 파일을 보관합니다."
-      ],
-      "materials": [
-        "모둠 작업 파일"
-      ]
-    }
-  ],
-  "outputs": [
-    "서로 다른 문장 세 개를 담은 표 (더 찾으면 다섯 개까지)",
-    "핵심 낱말과 자료 번호를 적은 활동지",
-    "오늘 작업 파일"
-  ],
-  "assessment": {
-    "method": "산출물",
-    "criterion": "자료에서 찾은 서로 다른 문장 세 개를 표로 정리하고 출처를 말할 수 있는가?",
-    "evidence": "서로 다른 문장 세 개를 담은 표 (더 찾으면 다섯 개까지) · 핵심 낱말과 자료 번호를 적은 활동지"
-  },
-  "teacherPrep": [
-    "활동지 1→2→3과 PPT 활동 번호를 맞춰 진행한다. 종이는 짧은 기록용이며 화면 내용을 모두 다시 쓰게 하지 않는다.",
-    "지난 2·3차시 모둠별 활동지를 돌려준다. 같은 수업을 반복하지 않는다.",
-    "모둠별 공식 원문과 인쇄 자료집을 준비한다. 자료 1·2·3이 같은 원문을 나눠 놓은 것일 수 있음을 설명한다.",
-    "모둠당 기기와 작업 파일을 보관할 학급 폴더를 준비한다."
-  ],
-  "cautions": [
-    "근거는 그 말이 맞는지 확인할 수 있는 자료나 문장입니다. 짧은 요약만 보고 확인했다고 표시하지 마세요.",
-    "만든 해와 발견한 해는 다릅니다. 연도를 적을 때는 어떤 해인지 함께 적으세요."
-  ],
-  "nextLessonPrep": "5차시에는 ‘지난 작업 열기’를 눌러 오늘 저장한 파일을 엽니다.",
-  "downloads": {
-    "student": [
-      "4차시 학생 활동지 · A4 한 장"
-    ],
-    "teacher": [
-      "4차시 운영 안내",
-      "앞뒤 차시 연결과 점검 기준"
-    ]
-  }
-}),
-  defineLesson({
-  "id": 5,
-  "title": "우리 표를 깔끔하게 고치기",
-  "role": "같은 내용과 빈칸을 확인해요",
-  "objective": "반복된 문장과 빈칸을 찾아 고치고, 비슷한 내용끼리 묶을 수 있다.",
-  "keyQuestion": "같은 문장을 두 번 담지는 않았을까?",
-  "activities": [
-    {
-      "stage": "도입",
-      "minutes": 5,
-      "title": "앞 차시 결과 이어 보기",
-      "details": [
-        "‘지난 작업 열기’에서 4차시 파일을 고릅니다.",
-        "고치기 전 표를 ‘표 파일 받기 (CSV)’로 먼저 저장합니다."
-      ],
-      "materials": [
-        "모둠 작업 파일",
-        "지난 활동지"
-      ]
-    },
-    {
-      "stage": "전개",
-      "minutes": 29,
-      "title": "우리 표를 깔끔하게 고치기",
-      "details": [
-        "1. 우리 표 살펴보기: 지난 작업을 열고 같은 문장·빈칸·자료를 찾은 곳을 확인해요.",
-        "2. 필요한 곳 고치기: 같은 문장은 하나만 남기고, 비슷한 내용끼리 묶어요.",
-        "3. 문장 수 세고 저장하기: 남은 문장 수를 세고 표 확인 끝!을 눌러요."
-      ],
-      "materials": [
-        "학생 웹앱",
-        "학생 활동지",
-        "공식 자료 또는 모둠 그래프"
-      ]
-    },
-    {
-      "stage": "정리",
-      "minutes": 6,
-      "title": "다음 차시로 가져가기",
-      "details": [
-        "우리 표에 서로 다른 문장이 몇 개 있는지 말합니다.",
-        "고친 표 파일과 오늘 작업 파일을 저장합니다."
-      ],
-      "materials": [
-        "모둠 작업 파일"
-      ]
-    }
-  ],
-  "outputs": [
-    "고친 표 파일 (CSV)",
-    "같은 문장·빈칸 확인",
-    "오늘 작업 파일"
-  ],
-  "assessment": {
-    "method": "산출물",
-    "criterion": "반복된 문장과 빈칸을 찾아 고치고, 비슷한 내용끼리 묶을 수 있는가?",
-    "evidence": "고친 표 파일 (CSV) · 같은 문장·빈칸 확인"
-  },
-  "teacherPrep": [
-    "활동지 1→2→3과 PPT 활동 번호를 맞춰 진행한다. 종이는 짧은 기록용이며 화면 내용을 모두 다시 쓰게 하지 않는다.",
-    "4차시 파일을 불러올 수 있는지 확인한다.",
-    "Google Sheets는 선택 실습으로 열어 둔다. 접속이 어려우면 웹앱의 같은 근거 표에서 정제한다.",
-    "원본과 최종본의 파일명을 구분해 보관하게 한다."
-  ],
-  "cautions": [
-    "같은 박물관에서 찾았어도 내용이 다른 문장은 지우지 마세요.",
-    "모르는 내용은 지어 쓰지 마세요. ‘판단 보류’는 읽었지만 아직 모르겠다는 뜻입니다."
-  ],
-  "nextLessonPrep": "6차시에는 고친 표 파일(CSV)을 그래프 만드는 도구인 CODAP에서 엽니다.",
-  "downloads": {
-    "student": [
-      "5차시 학생 활동지 · A4 한 장"
-    ],
-    "teacher": [
-      "5차시 운영 안내",
-      "앞뒤 차시 연결과 점검 기준"
-    ]
-  }
-}),
+  tableLesson(4),
+  tableLesson(5),
   defineLesson({
   "id": 6,
   "title": "우리 표로 그래프 만들기",

@@ -1,3 +1,4 @@
+import { tableLessonGuide } from '../tableLessonGuide';
 import plans from './continuity-guide.json';
 import { lessonFourWebGuide } from '../lessonFourWebGuide';
 import worksheets from './worksheet-guide.json';
@@ -11,6 +12,11 @@ export function getContinuitySlides(id: number, history?: LessonSlide): readonly
   const plan = plans.find(item => item.id === id);
   const sheet = worksheets.find(item => item.id === id);
   if (!plan || !sheet) return undefined;
+  if (id === 4 || id === 5) return [
+    { kind: 'cover', image: 'muryeong', tag: '삼국시대 ' + id + '차시', title: plan.title, subtitle: plan.objective },
+    ...tableLessonGuide[id].map((step, index): LessonSlide => ({ kind: 'fact', image: 'muryeong', eyebrow: '함께 해요 ' + (index + 1), title: step.title, points: [...step.body] })),
+    { kind: 'fact', image: 'muryeong', eyebrow: '다음 시간', title: '우리 표로 이어 가요', points: [plan.nextLessonPrep] },
+  ];
   const image = images[(id - 4) % images.length];
   const example = studentExamples[id];
   const slides: LessonSlide[] = [
