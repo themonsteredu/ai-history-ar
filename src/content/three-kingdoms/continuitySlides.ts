@@ -1,4 +1,5 @@
 import plans from './continuity-guide.json';
+import { lessonFourWebGuide } from '../lessonFourWebGuide';
 import worksheets from './worksheet-guide.json';
 import { studentExamples } from './studentLanguage';
 import { codapTutorial } from './codapTutorial';
@@ -18,8 +19,13 @@ export function getContinuitySlides(id: number, history?: LessonSlide): readonly
     ...(history ? [history] : []),
     { kind: 'fact', image, eyebrow: '짧은 예시', title: example.title, points: example.lines.slice(0, 3), takeaway: '우리 모둠이 찾은 내용으로 바꾸어 활동해요.' },
   ];
+  const addWebGuide = (afterTask: number) => {
+    if (id === 4) slides.push(...lessonFourWebGuide.filter(step => step.afterTask === afterTask).map((step): LessonSlide => ({ kind: 'activity', image, eyebrow: '웹앱 따라 하기', title: step.title, instruction: step.instruction, steps: [...step.steps] })));
+  };
+  addWebGuide(0);
   sheet.tasks.forEach((task, index) => {
     slides.push({ kind: 'activity', image, eyebrow: `활동지 ${index + 1}번`, title: `${index + 1}. ${task.title}`, instruction: task.instruction, steps: [task.tip] });
+    addWebGuide(index + 1);
     if (id === 6 && index === 1) slides.push(...codapTutorial.map((tutorial, stepIndex): LessonSlide => ({ kind: 'tutorial', image, title: tutorial.title, tutorial, stepIndex, source: tutorial.source })));
     if (id === 9 && index === 1) slides.push({ kind: 'activity', image, eyebrow: '녹음 따라 하기', title: '녹음하고 다시 들어요', instruction: '설명점에서 녹음 시작을 누르고 마이크 사용을 허용해요.', steps: ['30초 안으로 설명하고 녹음 끝내기를 눌러요.', '재생해서 들어 보고, 다른 설명점도 녹음해요.', '설명을 듣고 풀 수 있는 문제 하나를 만들어요.'] });
     if (id === 9 && index === 2) slides.push({ kind: 'activity', image, eyebrow: '카드로 확인하기', title: '카드를 비추고 해설을 들어요', instruction: '우리 유물의 카드 받기를 눌러 A4 한 장으로 출력해요.', steps: ['다른 기기는 저장한 작업 파일을 먼저 열어요.', '카메라 AR 켜기를 누르고 카드 사진 전체를 비춰요.', '1·2번 설명점을 눌러 듣고 문제를 풀어요.'] });

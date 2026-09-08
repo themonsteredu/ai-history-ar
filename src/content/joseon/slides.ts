@@ -1,4 +1,5 @@
 import plans from './continuity-guide.json';
+import { lessonFourWebGuide } from '../lessonFourWebGuide';
 import worksheets from './worksheet-guide.json';
 import claims from './lesson-two.json';
 import { codapTutorial, type CodapTutorialStep } from '../three-kingdoms/codapTutorial';
@@ -22,8 +23,13 @@ export function getJoseonSlides(id: number): readonly JoseonSlide[] {
     const example = exampleForEra('joseon', id);
     slides.push({kicker:'짧은 예시',title:example.title,body:example.lines.slice(0,3),heritageId:id === 8 ? 2 : heritage.id});
   }
+  const addWebGuide = (afterTask: number) => {
+    if (id === 4) slides.push(...lessonFourWebGuide.filter(step => step.afterTask === afterTask).map(step => ({ kicker: '웹앱 따라 하기', title: step.title, body: [step.instruction, ...step.steps] })));
+  };
+  addWebGuide(0);
   sheet.tasks.forEach((task,index) => {
     slides.push({kicker:`활동지 ${index+1}번`,title:`${index+1}. ${task.title}`,body:[task.instruction,task.tip],taskNumber:index+1});
+    addWebGuide(index + 1);
     if (id === 6 && index === 1) slides.push(...codapTutorial.map(tutorial => ({kicker:'CODAP 실제 화면',title:tutorial.title,body:[],tutorial,source:tutorial.source})));
     if (id === 9 && index === 1) slides.push({kicker:'녹음 따라 하기',title:'녹음하고 다시 들어요',body:['설명점 선택 → 녹음 시작 → 마이크 허용','30초 안에 설명 → 녹음 끝내기 → 다시 듣기','다른 설명점도 녹음한 뒤 관람 문제를 만들어요.']});
     if (id === 9 && index === 2) slides.push({kicker:'카드와 작업 파일',title:'카드를 비추고 해설을 들어요',body:['우리 유산 카드 PDF를 A4 한 장으로 출력해요.','다른 기기에서는 먼저 우리 모둠 작업 파일을 열어요.','카메라 AR 켜기 → 카드 전체 비추기 → 설명점 듣기']});
