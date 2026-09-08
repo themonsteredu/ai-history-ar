@@ -18,6 +18,20 @@ type Props = {
 
 export function SimpleTableLesson({ eraId, lessonId, project, message, onUpdate, onRecords, onHeritage, onSave, onImport, onContinue }: Props) {
   const [moving, setMoving] = useState(false);
+  const [excelBusy, setExcelBusy] = useState(false);
+  const [excelMessage, setExcelMessage] = useState('');
+  async function importExcel(file?: File) {
+    if (!file) return;
+    setExcelBusy(true); setExcelMessage('');
+    try {
+      if (!file.name.toLowerCase().endsWith('.xlsx') || file.size > 2_000_000) throw new Error('2MB 이하의 Excel 통합 문서(.xlsx)를 골라 주세요.');
+      const { readExcelTable } = await import('../lib/excelTable');
+      const records = await readExcelTable(await file.arrayBuffer());
+      onRecords(records);
+      setExcelMessage(records.length + '줄을 가져왔어요. 이 표로 다음 활동을 이어 가요.');
+    } catch (error) { setExcelMessage(error instanceof Error ? error.message : '파일을 읽지 못했어요.'); }
+    finally { setExcelBusy(false); }
+  }
   const heritage = researchForEra(eraId).find(item => item.id === project.heritageId)!;
   const sample = lessonFourSample(eraId, project.heritageId);
   const clues: ResearchRecord[] = project.tableMaterial
@@ -50,34 +64,40 @@ export function SimpleTableLesson({ eraId, lessonId, project, message, onUpdate,
 
   return <section className="heritage-project simple-table-lesson" aria-label={`${lessonId}차시 표 활동`}>
     <header className="table-lesson-heading"><p>{lessonId}차시</p><h2>{lessonId === 4 ? '문장을 표로 정리해요' : '우리 표를 보기 좋게 고쳐요'}</h2>
-      <p>{lessonId === 4 ? '단서 문장을 읽고, 중요한 내용을 표에 직접 써요.' : '4차시에서 만든 표예요. 비슷한 이야기끼리 모아 봐요.'}</p>
+      <p>{lessonId === 4 ? '단서 문장을 읽고, 실제 Excel에서 표를 만들어요.' : '4차시에서 만든 표예요. 비슷한 이야기끼리 모아 봐요.'}</p>
     </header>
     <div className="table-lesson-tools">
       <label>우리 모둠<select aria-label="우리 모둠" value={project.group} onChange={event => onUpdate({ group: Number(event.target.value) })}>{[1,2,3,4,5,6].map(id => <option key={id} value={id}>{id}모둠</option>)}</select></label>
       <label>우리 주제<select aria-label="우리 주제" value={project.heritageId} onChange={event => onHeritage(Number(event.target.value))}>{researchForEra(eraId).map(item => <option key={item.id} value={item.id}>{item.heritage}</option>)}</select></label>
     </div>
     {message && <p className="project-message" role="status">{message}</p>}
-    <div className="table-lesson-flow" aria-label="오늘 할 일">{(lessonId === 4 ? ['단서 읽기', '종류 생각하기', '표에 직접 쓰기'] : ['같은 문장 빼기', '종류별로 모으기', '표 이름 붙이기']).map((text, index) => <span key={text}><b>{index + 1}</b>{text}</span>)}</div>
+    <div className="table-lesson-flow" aria-label="오늘 할 일">{(lessonId === 4 ? ['단서 읽기', 'Excel에서 표 쓰기', '저장한 표 가져오기'] : ['같은 문장 빼기', '종류별로 모으기', '표 이름 붙이기']).map((text, index) => <span key={text}><b>{index + 1}</b>{text}</span>)}</div>
 
     {lessonId === 4 ? <section className="project-paper clue-sheet"><p className="table-section-label">선생님이 준 자료</p><h3>{topic}</h3>
-      <p>어떤 이야기인지 생각해 본 뒤, 아래 표에 중요한 낱말이나 짧은 문장으로 써요.</p>
+      <p>어떤 이야기인지 생각해 본 뒤, Excel 표에 중요한 낱말이나 짧은 문장으로 써요.</p>
       <ol>{clues.map(clue => <li key={clue.id}><p>{clue.text}</p><label>어떤 이야기일까?<select aria-label={clue.text + ' 이야기 종류'} defaultValue=""><option value="">생각해 보고 골라요</option>{evidenceCategories.map(category => <option key={category} value={category}>{categoryNames[category]}</option>)}</select></label></li>)}</ol>
       <p>예: “무덤은 벽돌을 쌓아 만들었다.” → 표에서 ‘재료·만드는 방법’을 고르고 ‘벽돌’이라고 써요.</p>
     </section> : !project.records.length ? <section className="project-paper"><h3>아직 표가 없어요</h3><p>아래에서 빈 줄을 더해 직접 쓰거나, 예시 표로 시작해요.</p><button type="button" onClick={() => onRecords(sample.records.map(record => ({ ...record, status: '확인됨' })))}>예시 표로 시작하기</button></section> : null}
 
+    <section className="project-paper"><h3>Excel에서 표 만들기</h3>
+      <ol><li><a href="/downloads/lesson-04-excel.xlsx" download>Excel 활동 파일 받기</a>를 누르고, 받은 파일을 Excel에서 열어요.</li><li>노란 칸에 내용을 직접 쓰고 이야기 종류를 골라요.</li><li>제목 줄부터 쓴 마지막 줄까지 선택한 뒤 <strong>삽입 → 표</strong>를 눌러요. ‘머리글 포함’을 선택해요.</li><li>우리 모둠 이름으로 저장하고 아래에서 파일을 가져와요.</li></ol>
+      <label className="project-file-button">{excelBusy ? 'Excel 표를 읽고 있어요…' : '작성한 Excel 표 가져오기'}<input disabled={excelBusy} aria-label="작성한 Excel 표 가져오기" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={event => { void importExcel(event.target.files?.[0]); event.target.value = ''; }} /></label>
+      <p>새 파일을 가져오면 아래 표가 그 파일의 내용으로 바뀌어요. 단서 문장과 안내는 그래프 개수에 포함하지 않아요.</p>
+      {excelMessage && <p role="status">{excelMessage}</p>}
+    </section>
     <section className="project-paper table-work"><div className="project-section-title"><h3>우리 모둠 표</h3><span>내용 {project.records.length}개</span></div>
-      <p>{lessonId === 4 ? '‘빈 줄 추가’를 누르고 종류를 고른 뒤, 중요한 내용을 직접 써요. 한 줄에는 한 가지 내용만 적어요.' : '같은 문장은 하나만 남겨요. 고칠 곳이 없으면 그대로 써도 좋아요.'}</p>
+      <p>{lessonId === 4 ? 'Excel에서 가져온 표예요. 고칠 내용이 있으면 Excel 파일을 수정하고 다시 가져와요.' : '같은 문장은 하나만 남겨요. 고칠 곳이 없으면 그대로 써도 좋아요.'}</p>
       {project.records.length ? <div className="research-table-scroll" tabIndex={0} role="region" aria-label="우리 모둠 표">
         <table className="project-counts student-table"><thead><tr><th scope="col">번호</th><th scope="col">내가 정리한 내용</th><th scope="col">어떤 이야기?</th><th scope="col">빼기</th></tr></thead>
-          <tbody>{project.records.map((record, index) => <tr key={record.id}><th scope="row">{index + 1}</th><td>{<textarea aria-label={`${index + 1}번 문장`} maxLength={1000} value={record.text} onChange={event => changeRecord(record.id, { text: event.target.value })} placeholder="예: 벽돌" />}</td><td><select aria-label={`${index + 1}번 이야기 종류`} value={record.category} onChange={event => changeRecord(record.id, { category: event.target.value as ResearchRecord['category'] })}><option value="">골라 주세요</option>{evidenceCategories.map(category => <option key={category} value={category}>{categoryNames[category]}</option>)}</select></td><td><button type="button" aria-label={`${index + 1}번 문장 빼기`} onClick={() => onRecords(project.records.filter(item => item.id !== record.id))}>빼기</button></td></tr>)}</tbody>
+          <tbody>{project.records.map((record, index) => <tr key={record.id}><th scope="row">{index + 1}</th><td>{lessonId === 4 ? record.text : <textarea aria-label={`${index + 1}번 문장`} maxLength={1000} value={record.text} onChange={event => changeRecord(record.id, { text: event.target.value })} placeholder="예: 벽돌" />}</td><td>{lessonId === 4 ? (record.category ? categoryNames[record.category] : '') : <select aria-label={`${index + 1}번 이야기 종류`} value={record.category} onChange={event => changeRecord(record.id, { category: event.target.value as ResearchRecord['category'] })}><option value="">골라 주세요</option>{evidenceCategories.map(category => <option key={category} value={category}>{categoryNames[category]}</option>)}</select>}</td><td><button type="button" aria-label={`${index + 1}번 문장 빼기`} onClick={() => onRecords(project.records.filter(item => item.id !== record.id))}>빼기</button></td></tr>)}</tbody>
         </table>
-      </div> : <p className="empty-table-note">아직 빈 표예요. 아래 ‘빈 줄 추가’를 눌러 첫 줄을 써 보세요.</p>}
-      <button type="button" disabled={project.records.length >= 60} onClick={addRow}>빈 줄 추가</button>
+      </div> : <p className="empty-table-note">Excel에서 표를 작성하고 ‘작성한 Excel 표 가져오기’를 눌러 주세요.</p>}
+      {lessonId === 5 && <button type="button" disabled={project.records.length >= 60} onClick={addRow}>빈 줄 추가</button>}
       {lessonId === 5 && project.records.length > 0 && <><button type="button" onClick={() => onRecords([...project.records].sort((a,b) => evidenceCategories.indexOf(a.category as typeof evidenceCategories[number]) - evidenceCategories.indexOf(b.category as typeof evidenceCategories[number])))}>같은 종류끼리 모으기</button><label className="student-table-title">우리 표 이름<input aria-label="우리 표 이름" maxLength={180} value={project.question} onChange={event => onUpdate({ question: event.target.value })} placeholder="예: 무령왕릉은 어떤 무덤일까?" /></label></>}
     </section>
 
     <footer className="table-next-step"><div><strong>{lessonId === 4 ? '이 표를 다음 시간에도 써요' : '다음에는 우리 표로 그래프를 만들어요'}</strong><p>같은 기기에서는 표가 그대로 이어져요.</p></div>
-      <button className="button button--primary" type="button" disabled={moving || !ready} onClick={() => void continueLesson()}>{moving ? '표를 가져가고 있어요…' : lessonId === 4 ? '이 표로 5차시 시작 →' : '이 표로 6차시 시작 →'}</button>
+      <button className="button button--primary" type="button" disabled={moving || excelBusy || !ready} onClick={() => void continueLesson()}>{moving ? '표를 가져가고 있어요…' : lessonId === 4 ? '이 표로 5차시 시작 →' : '이 표로 6차시 시작 →'}</button>
     </footer>
     {project.records.length > 0 && !ready && <p role="status">빈 문장이나 ‘골라 주세요’로 남은 칸을 채워요. 똑같은 문장이 있으면 하나를 빼요.</p>}
     <div className="project-actions"><button type="button" onClick={onSave}>내 표 저장</button></div>

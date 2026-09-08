@@ -159,7 +159,7 @@ def student(plan, path, group=None):
         s.table(['번호', '내가 정리한 내용', '어떤 이야기?'],
                 [[str(n), '', ''] for n in range(1, 5)], [16, 104, 62], height=20)
         s.task(3, instruction=False)
-        s.note('빈 줄 추가 → 직접 입력 → 내 표 저장', 10)
+        s.note('Excel에 직접 입력 → 삽입 > 표 → 저장 → 웹앱에 가져오기', 9)
         s.note('5차시: 표 다듬기 / 6차시: 이 표로 그래프 만들기', 9)
     elif i == 5:
         s.task(1)
@@ -277,7 +277,7 @@ def rebuild_bundles():
         entry = next(e for e in era['lessons'] if e['lessonId'] == plan['id'])
         entry['title'] = plan['title']
         prefix = f"lesson-{plan['id']:02d}-"
-        files = sorted(f for f in OUT.glob(prefix + '*') if f.suffix in ('.pdf', '.pptx'))
+        files = sorted(f for f in OUT.glob(prefix + '*') if f.suffix in ('.pdf', '.pptx', '.xlsx'))
         archive = OUT / (prefix + 'all.zip')
         with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as z:
             for file in files:
@@ -292,7 +292,7 @@ def rebuild_bundles():
     with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as z:
         for file in sorted(OUT.iterdir()):
             match = re.match(r'lesson-(\d+)-', file.name)
-            if file.suffix in ('.pdf', '.pptx') and (not match or int(match[1]) in ids):
+            if file.suffix in ('.pdf', '.pptx', '.xlsx') and (not match or int(match[1]) in ids):
                 z.write(file, SHORT + '/' + file.name)
         if ERA == 'joseon':
             # The six-page pack already contains every card. Avoid duplicating

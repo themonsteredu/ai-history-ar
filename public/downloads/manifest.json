@@ -4,7 +4,7 @@
       "title": "삼국시대",
       "bundle": {
         "path": "/downloads/three-kingdoms/three-kingdoms-all-materials.zip",
-        "size": 1635503
+        "size": 1640218
       },
       "lessons": [
         {
@@ -111,19 +111,19 @@
           "files": {
             "student": {
               "path": "/downloads/three-kingdoms/lesson-04-student.pdf",
-              "size": 31142
+              "size": 30932
             },
             "teacher": {
               "path": "/downloads/three-kingdoms/lesson-04-teacher.pdf",
-              "size": 32219
+              "size": 32671
             },
             "answer": {
               "path": "/downloads/three-kingdoms/lesson-04-answer.pdf",
-              "size": 31846
+              "size": 32080
             },
             "bundle": {
               "path": "/downloads/three-kingdoms/lesson-04-all.zip",
-              "size": 88180
+              "size": 93061
             }
           }
         },
@@ -265,7 +265,7 @@
       "title": "조선시대",
       "bundle": {
         "path": "/downloads/joseon/joseon-all-materials.zip",
-        "size": 5414019
+        "size": 5418715
       },
       "lessons": [
         {
@@ -394,19 +394,19 @@
           "files": {
             "student": {
               "path": "/downloads/joseon/lesson-04-student.pdf",
-              "size": 31066
+              "size": 30872
             },
             "teacher": {
               "path": "/downloads/joseon/lesson-04-teacher.pdf",
-              "size": 32155
+              "size": 32611
             },
             "answer": {
               "path": "/downloads/joseon/lesson-04-answer.pdf",
-              "size": 31791
+              "size": 32025
             },
             "bundle": {
               "path": "/downloads/joseon/lesson-04-all.zip",
-              "size": 87998
+              "size": 92854
             }
           }
         },

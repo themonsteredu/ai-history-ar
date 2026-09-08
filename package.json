@@ -23,6 +23,7 @@
     "node": ">=20"
   },
   "dependencies": {
+    "exceljs": "^4.4.0",
     "mind-ar": "1.2.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -30,10 +31,10 @@
     "three": "0.160.0"
   },
   "devDependencies": {
+    "@openai/sites-vite-plugin": "0.2.0",
     "@types/node": "^26.2.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
-    "@openai/sites-vite-plugin": "0.2.0",
     "@vitejs/plugin-react": "^6.1.0",
     "playwright-core": "^1.62.1",
     "typescript": "^7.0.2",
