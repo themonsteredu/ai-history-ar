@@ -314,12 +314,15 @@ function ClassSlide({ slide, revealStep }: { slide: PresentationSlide; revealSte
 }
 
 export function LessonSlides({ lessonId }: { lessonId: number }) {
-  const slides = expandPresentationSlides(getThreeKingdomsSlides(lessonId));
+  const showWholeSlide = lessonId === 4;
+  const lessonSlides = getThreeKingdomsSlides(lessonId);
+  const slides = showWholeSlide ? lessonSlides : expandPresentationSlides(lessonSlides);
   const [current, setCurrent] = useState(0);
   const [revealStep, setRevealStep] = useState(0);
   const viewerRef = useRef<HTMLDivElement>(null);
   const slide = slides[current];
-  const revealTotal = getRevealCount(slide);
+  const revealTotal = showWholeSlide ? 0 : getRevealCount(slide);
+  const visibleStep = showWholeSlide ? getRevealCount(slide) : revealStep;
   const tutorialStart = slides.findIndex(item => item.kind === 'tutorial');
 
   const goTo = (index: number) => {
@@ -370,7 +373,7 @@ export function LessonSlides({ lessonId }: { lessonId: number }) {
     <section className="lesson-slides-section" aria-labelledby={`lesson-slides-title-${lessonId}`}>
       <div className="lesson-slides-section__heading">
         <div>
-          <p>교실 화면용 · 질문 → 생각 → 클릭 공개</p>
+          <p>{showWholeSlide ? "교실 화면용 · 한 장씩 보기" : "교실 화면용 · 질문 → 생각 → 클릭 공개"}</p>
           <h2 id={`lesson-slides-title-${lessonId}`}>{lessonId}차시 수업 슬라이드</h2>
         </div>
         {tutorialStart >= 0 && <button className="lesson-slides__tutorial-start" type="button" onClick={() => goTo(tutorialStart)}>CODAP 따라하기부터 보기</button>}
@@ -379,10 +382,10 @@ export function LessonSlides({ lessonId }: { lessonId: number }) {
 
       <div className="lesson-slides" ref={viewerRef} tabIndex={0} aria-label={`삼국시대 ${lessonId}차시 수업 슬라이드`}>
         <div className="lesson-slides__stage" aria-live="polite">
-          <ClassSlide key={current} revealStep={revealStep} slide={slide} />
+          <ClassSlide key={current} revealStep={visibleStep} slide={slide} />
         </div>
         <div className="lesson-slides__controls">
-          <button type="button" onClick={retreat} disabled={current === 0 && revealStep === 0} aria-label="이전 내용">←</button>
+          <button type="button" onClick={retreat} disabled={current === 0 && revealStep === 0} aria-label={showWholeSlide ? "이전 슬라이드" : "이전 내용"}>←</button>
           <div className="lesson-slides__dots" aria-label="슬라이드 선택">
             {slides.map((_, index) => (
               <button
@@ -402,7 +405,7 @@ export function LessonSlides({ lessonId }: { lessonId: number }) {
           <button type="button" onClick={advance} disabled={current === slides.length - 1 && revealStep === revealTotal} aria-label={revealStep < revealTotal ? "다음 내용 공개" : "다음 슬라이드"}>→</button>
         </div>
       </div>
-      <p className="lesson-slides-section__hint">질문을 먼저 보여 준 뒤 ‘다음 내용 공개’를 누르세요. 키보드 → 또는 Space로도 한 단계씩 진행됩니다.</p>
+      <p className="lesson-slides-section__hint">{showWholeSlide ? "내용은 처음부터 모두 보입니다. 화살표를 한 번 누르면 한 장씩 넘어갑니다. 키보드 ← → 또는 Space로도 넘길 수 있습니다." : "질문을 먼저 보여 준 뒤 ‘다음 내용 공개’를 누르세요. 키보드 → 또는 Space로도 한 단계씩 진행됩니다."}</p>
     </section>
   );
 }
