@@ -14,7 +14,8 @@ export interface ExhibitPoint {
 }
 export interface ExhibitModel {
   data: string;
-  format: 'glb' | 'stl' | 'obj' | 'primitives';
+  format: 'glb' | 'stl' | 'obj' | 'primitives' | 'preset';
+  preset?: PreparedModelKey;
   parts?: ModelPart[];
   asset?: 'cheomseongdae-nsm-2015';
   name: string;
@@ -50,9 +51,10 @@ export function isArExhibit(value: unknown): value is ArExhibit {
   if (new Set(ar.points.map(point => point.id)).size !== ar.points.length || !ar.points.some(point => point.id === ar.answerId)) return false;
   const model = ar.model;
   return model === undefined || (!!model && typeof model === 'object' && short(model.name, 180) && short(model.credit, 300) && short(model.source, 2000) && vector(model.rotation, 3, -360, 360) &&
-    ((model.format === 'primitives' && model.asset === undefined && model.data === '' && validParts(model.parts)) ||
-      (model.asset === 'cheomseongdae-nsm-2015' && model.format === 'obj' && model.data === '') ||
-      (model.asset === undefined && ['glb', 'stl'].includes(model.format) && short(model.data, Math.ceil(MAX_MODEL_BYTES / 3) * 4 + 100) && /^data:application\/octet-stream;base64,[A-Za-z0-9+/]+={0,2}$/.test(model.data))));
+    ((model.format === 'preset' && model.asset === undefined && model.data === '' && model.parts === undefined && !!preparedHeritage(model.preset)) ||
+      (model.format === 'primitives' && model.asset === undefined && model.preset === undefined && model.data === '' && validParts(model.parts)) ||
+      (model.asset === 'cheomseongdae-nsm-2015' && model.preset === undefined && model.format === 'obj' && model.data === '') ||
+      (model.asset === undefined && model.preset === undefined && ['glb', 'stl'].includes(model.format) && short(model.data, Math.ceil(MAX_MODEL_BYTES / 3) * 4 + 100) && /^data:application\/octet-stream;base64,[A-Za-z0-9+/]+={0,2}$/.test(model.data))));
 }
 export function arExhibitReady(ar: ArExhibit) {
   return ar.points.every(point => point.title.trim() && point.text.trim()) && !!ar.question.trim() && ar.points.some(point => point.id === ar.answerId);
@@ -86,3 +88,4 @@ export function validateGlb(buffer: ArrayBuffer) {
   return document;
 }
 import { validParts, type ModelPart } from './primitives';
+import { preparedHeritage, type PreparedModelKey } from './preparedCatalog';

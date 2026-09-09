@@ -24,7 +24,7 @@ export function EraPage({ eraId }: { eraId: EraId }) {
             <p>차시를 고른 뒤 수업 PPT를 띄우거나 활동 화면을 바로 실행하세요.</p>
             {era.id === 'three-kingdoms' && <div className="era-hero__maker-entry">
               <Link className="button" to={makerPath(search)}>AR 만들기 바로 시작</Link>
-              <span>사진에 점 찍기 · 설명과 녹음 · 3D 모형 만들기</span>
+              <span>준비된 유물 고르기 · 점 찍기 · 설명과 녹음</span>
             </div>}
           </div>
           <EraArtwork eraId={era.id} compact />

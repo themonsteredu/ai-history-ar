@@ -6,6 +6,7 @@ import { handleStudio } from '../../../sites-worker/arStudio';
 import { arLessons } from './curriculum';
 import { newStudioProject, newPoint, newQuestion, isStudioProject, submissionProblems } from './project';
 import { isArExhibit, newArExhibit } from '../../lib/ar/exhibit';
+import { preparedModel } from '../../lib/ar/preparedCatalog';
 
 function completeProject(group = 1, heritageId = 1) {
   const p = newStudioProject(group, heritageId); p.modelChecked = p.pointsChecked = true;
@@ -113,6 +114,7 @@ describe('six-lesson AR studio', () => {
       const member = (await call('/join', { code: 'class6', name: `${group}모둠`, group })).data; viewer = member.token;
       await call('/rooms/class6/editor', { memberId: member.memberId }, undefined, 'teacher-1');
       const project = completeProject(group, group);
+      project.ar.model = preparedModel(group);
       project.questions.push({ ...newQuestion(project.ar.points[0].id), prompt: '이 유물의 재료는?', options: ['돌', '나무', '철'], answer: 0 });
       expect((await call(`/rooms/class6/works/${group}`, { project, expectedVersion: 0 }, member.token)).status).toBe(200);
     }

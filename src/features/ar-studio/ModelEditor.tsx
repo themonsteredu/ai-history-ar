@@ -3,7 +3,18 @@ import { heritageImageUrl, researchForEra } from '../../content/heritageCatalog'
 import { newPart, partLabels, type ModelPart, type Vector3 } from '../../lib/ar/primitives';
 import { changeParts, type StudioProject } from './project';
 const PrimitiveCanvas = lazy(() => import('./PrimitiveCanvas'));
-export function ModelEditor({ project, onChange, onNext }: { project: StudioProject; onChange: (value: StudioProject) => void; onNext: () => void }) {
+const HeritageModelView = lazy(() => import('../../components/HeritageModelView'));
+type EditorProps = { project: StudioProject; onChange: (value: StudioProject) => void; onNext: () => void };
+export function ModelEditor(props: EditorProps) {
+  if (props.project.ar.model?.format === 'preset') return <PreparedModelReview {...props} />;
+  return <PrimitiveModelEditor {...props} />;
+}
+function PreparedModelReview({ project, onChange, onNext }: EditorProps) {
+  const [selected, setSelected] = useState(project.ar.points[0].id);
+  const heritage = researchForEra('three-kingdoms').find(h => h.id === project.heritageId)!;
+  return <section><header className="studio-section-title"><div><h1>준비된 {heritage.heritage} 모형</h1><p>모형을 돌려 살펴본 뒤 설명할 부분을 골라요.</p></div></header><Suspense fallback={<p>모형을 열어요…</p>}><HeritageModelView model={project.ar.model} image={heritageImageUrl('three-kingdoms', heritage.id)} points={project.ar.points} selectedId={selected} onSelect={setSelected} targetIndex={heritage.id - 1} /></Suspense><div className="studio-actions"><button className="studio-primary" onClick={() => { onChange({ ...project, modelChecked: true }); onNext(); }}>설명과 목소리 붙이기 →</button></div></section>;
+}
+function PrimitiveModelEditor({ project, onChange, onNext }: EditorProps) {
   const parts = project.ar.model!.parts!;
   const [selected, setSelected] = useState(parts[0].id);
   const part = parts.find(p => p.id === selected) || parts[0];

@@ -33,7 +33,11 @@ function disposeObject(root: any) {
   });
 }
 
-async function readModel(model: ExhibitModel) {
+async function readModel(model: ExhibitModel, withImages = true) {
+  if (model.format === 'preset' && model.preset) {
+    const { createPreparedModel } = await import('./preparedModels');
+    return createPreparedModel(model.preset, withImages);
+  }
   if (model.format === 'primitives') {
     const group = new THREE.Group();
     for (const part of model.parts || []) {
@@ -73,7 +77,11 @@ async function readModel(model: ExhibitModel) {
 
 /** Map a photo tap onto the front of the same fitted model used by the AR viewer. */
 export async function photoToModelPosition(model: ExhibitModel, coordinates: [number, number]): Promise<[number, number, number]> {
-  const content = await readModel(model);
+  return (await photoToModelPositions(model, [coordinates]))[0];
+}
+
+export async function photoToModelPositions(model: ExhibitModel, coordinates: Array<[number, number]>): Promise<Array<[number, number, number]>> {
+  const content = await readModel(model, false);
   try {
     const oriented = new THREE.Group();
     oriented.add(content);
@@ -85,12 +93,14 @@ export async function photoToModelPosition(model: ExhibitModel, coordinates: [nu
     const center = bounds.getCenter(new THREE.Vector3());
     oriented.position.set(-center.x, -bounds.min.y, -center.z);
     const fitted = new THREE.Group(); fitted.scale.setScalar(1 / extent); fitted.add(oriented); fitted.updateMatrixWorld(true);
-    const x = (coordinates[0] - .5) * size.x / extent;
-    const y = (1 - coordinates[1]) * size.y / extent;
-    const ray = new THREE.Raycaster(new THREE.Vector3(x, y, 2), new THREE.Vector3(0, 0, -1));
-    const hit = ray.intersectObject(fitted, true)[0];
-    const position = hit ? hit.point.add(new THREE.Vector3(0, 0, .015)) : new THREE.Vector3(x, y, size.z / extent / 2 + .015);
-    return position.toArray().map((n: number) => Math.round(n * 1000) / 1000) as [number, number, number];
+    return coordinates.map(coordinate => {
+      const x = (coordinate[0] - .5) * size.x / extent;
+      const y = (1 - coordinate[1]) * size.y / extent;
+      const ray = new THREE.Raycaster(new THREE.Vector3(x, y, 2), new THREE.Vector3(0, 0, -1));
+      const hit = ray.intersectObject(fitted, true)[0];
+      const position = hit ? hit.point.add(new THREE.Vector3(0, 0, .015)) : new THREE.Vector3(x, y, size.z / extent / 2 + .015);
+      return position.toArray().map((n: number) => Math.round(n * 1000) / 1000) as [number, number, number];
+    });
   } finally { disposeObject(content); }
 }
 

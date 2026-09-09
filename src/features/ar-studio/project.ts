@@ -1,5 +1,6 @@
 import { isArExhibit, type ArExhibit, type ExhibitPoint } from '../../lib/ar/exhibit';
 import { newPart, type ModelPart } from '../../lib/ar/primitives';
+import { preparedHeritage } from '../../lib/ar/preparedCatalog';
 export interface StudioQuestion { id: string; prompt: string; options: [string, string, string]; answer: number; pointId: string }
 export interface StudioProject { version: 1; group: number; heritageId: number; ar: ArExhibit; questions: StudioQuestion[]; modelChecked: boolean; pointsChecked: boolean; role: string; reflection: string }
 export function newPoint(index: number): ExhibitPoint {
@@ -15,7 +16,7 @@ export function changeParts(project: StudioProject, parts: ModelPart[]): StudioP
 }
 export function submissionProblems(project: StudioProject) {
   const problems: string[] = [];
-  if (!project.modelChecked) problems.push('모형을 돌려 보고 완성 확인을 눌러 주세요.');
+  if (!project.modelChecked && project.ar.model?.format !== 'preset') problems.push('모형을 돌려 보고 완성 확인을 눌러 주세요.');
   if (!project.pointsChecked) problems.push('설명점의 위치를 확인해 주세요.');
   if (project.ar.points.length < 3 || project.ar.points.length > 4) problems.push('해설은 3~4개를 준비해 주세요.');
   project.ar.points.forEach((p, i) => { if (!p.title.trim() || !p.text.trim() || !p.narration) problems.push(`${i + 1}번 해설의 제목·내용·녹음을 확인해 주세요.`); });
@@ -26,5 +27,5 @@ export function submissionProblems(project: StudioProject) {
 export function isStudioProject(v: unknown): v is StudioProject {
   if (!v || typeof v !== 'object') return false;
   const p = v as StudioProject;
-  return p.version === 1 && Number.isInteger(p.group) && p.group >= 1 && p.group <= 6 && Number.isInteger(p.heritageId) && p.heritageId >= 1 && p.heritageId <= 6 && typeof p.modelChecked === 'boolean' && typeof p.pointsChecked === 'boolean' && typeof p.role === 'string' && p.role.length <= 300 && typeof p.reflection === 'string' && p.reflection.length <= 1000 && isArExhibit(p.ar) && p.ar.model?.format === 'primitives' && p.ar.points.length >= 3 && Array.isArray(p.questions) && p.questions.length >= 2 && p.questions.length <= 3 && new Set(p.questions.map(q => q?.id)).size === p.questions.length && p.questions.every(q => q && typeof q.id === 'string' && q.id.length > 0 && q.id.length <= 60 && typeof q.prompt === 'string' && q.prompt.length <= 300 && Array.isArray(q.options) && q.options.length === 3 && q.options.every(o => typeof o === 'string' && o.length <= 150) && Number.isInteger(q.answer) && q.answer >= 0 && q.answer <= 2 && p.ar.points.some(point => point.id === q.pointId));
+  return p.version === 1 && Number.isInteger(p.group) && p.group >= 1 && p.group <= 6 && Number.isInteger(p.heritageId) && p.heritageId >= 1 && p.heritageId <= 6 && typeof p.modelChecked === 'boolean' && typeof p.pointsChecked === 'boolean' && typeof p.role === 'string' && p.role.length <= 300 && typeof p.reflection === 'string' && p.reflection.length <= 1000 && isArExhibit(p.ar) && (p.ar.model?.format === 'primitives' || (p.ar.model?.format === 'preset' && preparedHeritage(p.ar.model.preset)?.id === p.heritageId)) && p.ar.points.length >= 3 && Array.isArray(p.questions) && p.questions.length >= 2 && p.questions.length <= 3 && new Set(p.questions.map(q => q?.id)).size === p.questions.length && p.questions.every(q => q && typeof q.id === 'string' && q.id.length > 0 && q.id.length <= 60 && typeof q.prompt === 'string' && q.prompt.length <= 300 && Array.isArray(q.options) && q.options.length === 3 && q.options.every(o => typeof o === 'string' && o.length <= 150) && Number.isInteger(q.answer) && q.answer >= 0 && q.answer <= 2 && p.ar.points.some(point => point.id === q.pointId));
 }

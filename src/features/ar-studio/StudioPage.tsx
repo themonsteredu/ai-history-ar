@@ -5,6 +5,7 @@ import { downloadProjectFile } from '../../content/three-kingdoms/project';
 import { loadProjectDraft, saveProjectDraft } from '../../lib/projectDraftStore';
 import { ExhibitionSound } from '../../lib/ar/sound';
 import { isStudioProject, newStudioProject, type StudioProject } from './project';
+import { prepareMakerDraft } from './prepared';
 import { studioApi, keepStudioSession, readStudioSession, type Classroom, type StudioSession } from './api';
 import { samplePath } from './sample';
 import { TeacherGuide } from './TeacherGuide';
@@ -43,14 +44,33 @@ export default function StudioPage({ teacher = false, maker = false }: { teacher
   }
   useEffect(() => {
     let cancelled = false; draftLoaded.current = false; setReady(false); setClassroom(undefined); setRevision(0);
-    void loadProjectDraft(draftKey).then(text => {
+    void (async () => {
+      let draft = newStudioProject(effectiveSession?.group || 1, maker ? 3 : 1);
+      let savedRevision = 0, notice = '';
+      try {
+        const text = await loadProjectDraft(draftKey);
+        if (cancelled) return;
+        const transferred = transferredDraft.current;
+        const parsed = transferred ? null : text ? JSON.parse(text) : null;
+        const candidate = transferred || parsed?.project || parsed;
+        transferredDraft.current = undefined;
+        if (isStudioProject(candidate)) {
+          draft = candidate;
+          if (!transferred && Number.isInteger(parsed?.revision)) savedRevision = parsed.revision;
+        } else if (candidate) notice = '임시 작업 형식을 확인하지 못했어요. 저장한 작업 파일을 열어 주세요.';
+      } catch { notice = '임시 작업을 읽지 못했어요. 저장한 작업 파일을 열어 주세요.'; }
+      if (maker) {
+        try { draft = await prepareMakerDraft(draft); }
+        catch { notice = '준비된 모형을 열지 못했어요. 기존 작업은 유지했으니 모형 사용 버튼으로 다시 열어 주세요.'; }
+      }
       if (cancelled) return;
-      try { const parsed = text ? JSON.parse(text) : null; const p = transferredDraft.current || parsed?.project || parsed; transferredDraft.current = undefined; setProject(isStudioProject(p) ? p : newStudioProject(effectiveSession?.group || 1, maker ? 3 : 1)); if (Number.isInteger(parsed?.revision)) setRevision(parsed.revision); }
-      catch { setProject(newStudioProject(effectiveSession?.group || 1, maker ? 3 : 1)); setMessage('임시 작업을 읽지 못했어요. 저장한 작업 파일을 열어 주세요.'); }
+      latest.current = draft; latestDraft.current = { project: draft, revision: savedRevision };
+      setProject(draft); setRevision(savedRevision);
+      if (notice) setMessage(notice);
       draftLoaded.current = true; setReady(true);
-    });
+    })();
     return () => { cancelled = true; if (draftLoaded.current) void saveProjectDraft(draftKey, JSON.stringify(latestDraft.current)).catch(() => {}); };
-  }, [draftKey]);
+  }, [draftKey, maker, effectiveSession?.group]);
   useEffect(() => {
     if (!ready) return; const timer = window.setTimeout(() => { void saveProjectDraft(draftKey, JSON.stringify({ project, revision })).catch(() => setMessage('임시 저장 공간이 부족해요. 작업 파일을 받아 보관해 주세요.')); }, 500);
     return () => clearTimeout(timer);
@@ -80,10 +100,22 @@ export default function StudioPage({ teacher = false, maker = false }: { teacher
   async function loadShared() {
     if (!effectiveSession || !window.confirm('이 기기의 작업 대신 제출된 우리 모둠 작품을 열까요? 필요한 작업은 먼저 파일로 저장해 주세요.')) return;
     setBusy(true);
-    try { const result = await studioApi<{ project: StudioProject; version: number }>(`/rooms/${code}/works/${effectiveSession.group}?draft=1`, effectiveSession.token); if (!isStudioProject(result.project)) throw new Error('작품 형식을 확인하지 못했어요.'); setProject(result.project); setRevision(result.version); setMessage('제출된 우리 모둠 작품을 열었어요.'); }
+    try { const result = await studioApi<{ project: StudioProject; version: number }>(`/rooms/${code}/works/${effectiveSession.group}?draft=1`, effectiveSession.token); if (!isStudioProject(result.project)) throw new Error('작품 형식을 확인하지 못했어요.'); const next = maker ? await prepareMakerDraft(result.project) : result.project; setProject(next); setRevision(result.version); setMessage('제출된 우리 모둠 작품을 열었어요.'); }
     catch (e) { setMessage(e instanceof Error ? e.message : '작품을 열지 못했어요.'); } finally { setBusy(false); }
   }
-  async function importFile(file?: File) { if (!file) return; try { if (file.size > 4_000_000) throw new Error('4MB 이하의 AR 제작 파일을 골라 주세요.'); const parsed = JSON.parse(await file.text()); const p = parsed.project || parsed; if (!isStudioProject(p)) throw new Error('새 AR 제작 화면에서 저장한 작업 파일을 골라 주세요.'); if (!window.confirm('현재 작업 대신 선택한 파일을 열까요?')) return; setProject({ ...p, group: effectiveSession?.group || p.group }); setMessage('작업 파일을 열었어요.'); } catch (e) { setMessage(e instanceof Error ? e.message : '작업 파일을 읽지 못했어요.'); } }
+  async function importFile(file?: File) {
+    if (!file) return;
+    setBusy(true);
+    try {
+      if (file.size > 4_000_000) throw new Error('4MB 이하의 AR 제작 파일을 골라 주세요.');
+      const parsed = JSON.parse(await file.text()), p = parsed.project || parsed;
+      if (!isStudioProject(p)) throw new Error('AR 제작 화면에서 저장한 작업 파일을 골라 주세요.');
+      if (!window.confirm('현재 작업 대신 선택한 파일을 열까요?')) return;
+      const next = maker ? await prepareMakerDraft(p) : p;
+      setProject({ ...next, group: effectiveSession?.group || next.group }); setMessage('작업 파일을 열었어요.');
+    } catch (e) { setMessage(e instanceof Error ? e.message : '작업 파일을 읽지 못했어요.'); }
+    finally { setBusy(false); }
+  }
   const homeParams = new URLSearchParams(params); homeParams.delete('step'); homeParams.delete('lesson');
   if (maker) return <MakerWorkspace
     project={project} onChange={setProject} ready={ready} busy={busy} recording={recording} onRecording={setRecording}
