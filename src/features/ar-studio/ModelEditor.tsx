@@ -6,7 +6,7 @@ const PrimitiveCanvas = lazy(() => import('./PrimitiveCanvas'));
 const HeritageModelView = lazy(() => import('../../components/HeritageModelView'));
 type EditorProps = { project: StudioProject; onChange: (value: StudioProject) => void; onNext: () => void };
 export function ModelEditor(props: EditorProps) {
-  if (props.project.ar.model?.format === 'preset') return <PreparedModelReview {...props} />;
+  if (props.project.ar.model?.format === 'preset' || props.project.ar.model?.asset === 'cheomseongdae-nsm-2015') return <PreparedModelReview {...props} />;
   return <PrimitiveModelEditor {...props} />;
 }
 function PreparedModelReview({ project, onChange, onNext }: EditorProps) {

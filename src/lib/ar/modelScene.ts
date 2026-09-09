@@ -10,6 +10,7 @@ export interface SceneOptions {
   loadBuiltIn?: (signal: AbortSignal) => Promise<any>;
   image: string;
   mode: 'preview' | 'camera';
+  cardPlacement?: () => CardPlacement;
   targetFile: string;
   targetIndex: number;
   signal: AbortSignal;
@@ -20,6 +21,13 @@ export interface SceneOptions {
   onPlace?: (position: [number, number, number]) => void;
 }
 export interface ModelScene { dispose: () => void; reset: () => void }
+
+export type CardPlacement = 'table' | 'upright';
+/** Change display orientation only; museum geometry and texture remain untouched. */
+export function cameraCardTransform(hasModel: boolean, height: number, placement: CardPlacement) {
+  const standingOnTable = hasModel && placement === 'table';
+  return { rotationX: standingOnTable ? Math.PI / 2 : 0, offsetY: standingOnTable ? 0 : -height / 2 };
+}
 
 function disposeObject(root: any) {
   const disposed = new Set<any>();
@@ -35,6 +43,10 @@ function disposeObject(root: any) {
 }
 
 async function readModel(model: ExhibitModel, withImages = true) {
+  if (model.asset === 'cheomseongdae-nsm-2015') {
+    const { loadCheomseongdaeOriginal } = await import('../../content/three-kingdoms/cheomseongdaeOriginal');
+    return loadCheomseongdaeOriginal(new AbortController().signal, withImages);
+  }
   if (model.format === 'preset' && model.preset) {
     const { createPreparedModel } = await import('./preparedModels');
     return createPreparedModel(model.preset, withImages);
@@ -118,6 +130,15 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
   let photoHeight = 1;
   let canvas: HTMLCanvasElement | undefined;
   const stage = new THREE.Group();
+  let lastPlacement: CardPlacement | undefined;
+  const updateCardPlacement = () => {
+    const placement = options.cardPlacement?.() || 'table';
+    if (placement === lastPlacement) return;
+    lastPlacement = placement;
+    const transform = cameraCardTransform(!!options.model, photoHeight, placement);
+    stage.rotation.x = transform.rotationX; stage.position.y = transform.offsetY;
+    stage.position.z = .02;
+  };
   const releaseVideo = () => {
     options.container.querySelectorAll('video').forEach(video => {
       (video.srcObject as MediaStream | null)?.getTracks().forEach(track => track.stop());
@@ -193,10 +214,8 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
       if (disposed) throw new DOMException('Cancelled', 'AbortError');
       mind = new MindARThree({ container: options.container, imageTargetSrc: options.targetFile, maxTrack: 1, uiLoading: 'no', uiScanning: 'no', uiError: 'no' });
       ({ renderer, scene, camera } = mind);
-      // Stand a solid model on the card; keep the photo fallback on its surface.
-      stage.rotation.x = options.model ? Math.PI / 2 : 0;
-      if (!options.model) stage.position.y = -photoHeight / 2;
-      stage.position.z = .02;
+      // A vertical computer screen needs a different display orientation from a desk card.
+      updateCardPlacement();
       const anchor = mind.addAnchor(options.targetIndex);
       anchor.group.add(stage);
       anchor.onTargetFound = () => { if (!disposed) { tracked = true; options.onStatus('found'); } };
@@ -229,8 +248,9 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
       observer.observe(options.container);
     }
     renderer.outputColorSpace = THREE.SRGBColorSpace;
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x63523c, 2.5));
-    const light = new THREE.DirectionalLight(0xffffff, 3);
+    const museumOriginal = options.model?.asset === 'cheomseongdae-nsm-2015';
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x63523c, museumOriginal ? 1 : 2.5));
+    const light = new THREE.DirectionalLight(0xffffff, museumOriginal ? .6 : 3);
     light.position.set(1.5, 3, 2); scene.add(light);
     canvas = renderer.domElement;
     canvas!.addEventListener('pointerdown', pointerDown);
@@ -247,6 +267,7 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
     } else options.onStatus('ready');
     renderer.setAnimationLoop(() => {
       if (disposed) return;
+      if (options.mode === 'camera') updateCardPlacement();
       controls?.update();
       renderer.render(scene, camera);
       const rect = options.container.getBoundingClientRect();

@@ -15,11 +15,24 @@ it('opens a valid independent sample with a matching printable target and existi
   first.ar.points.forEach(point => expect(source).toContain(point.text));
   expect(readFileSync('public/downloads/three-kingdoms/ar/ar-card-03.pdf').subarray(0, 4).toString()).toBe('%PDF');
   expect(first.questions.every(question => first.ar.points.some(point => point.id === question.pointId))).toBe(true);
-  first.ar.model!.parts![0].color = '#ffffff'; first.ar.points[0].text = '내 연습';
-  expect(second.ar.model!.parts![0].color).not.toBe('#ffffff'); expect(second.ar.points[0].text).not.toBe('내 연습');
+  expect(first.ar.model).toMatchObject({ asset: 'cheomseongdae-nsm-2015', format: 'obj', data: '', rotation: [-90, 0, 0] });
+  expect(first.ar.model!.parts).toBeUndefined();
+  first.ar.model!.rotation[0] = 0; first.ar.points[0].text = '내 연습';
+  expect(second.ar.model!.rotation[0]).toBe(-90); expect(second.ar.points[0].text).not.toBe('내 연습');
   // Device read-aloud is not falsely presented as a recorded, submittable group work.
   expect(submissionProblems(second)).toHaveLength(3);
   expect(samplePath('?hub_code=class1&student_id=abc&step=gallery&lesson=6&view=ppt')).toBe('/three-kingdoms/ar-sample?hub_code=class1&student_id=abc');
+});
+
+it('keeps the official sample portable, without accepting unrelated or arbitrary OBJ models', () => {
+  const sample = JSON.parse(JSON.stringify(newSampleProject()));
+  expect(isStudioProject(sample)).toBe(true);
+  sample.heritageId = 2;
+  expect(isStudioProject(sample)).toBe(false);
+  sample.heritageId = 3; sample.ar.model.asset = 'unregistered-model';
+  expect(isStudioProject(sample)).toBe(false);
+  delete sample.ar.model.asset;
+  expect(isStudioProject(sample)).toBe(false);
 });
 
 it('cancels earlier read-aloud callbacks and releases narration ducking when leaving', () => {

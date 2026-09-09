@@ -51,10 +51,11 @@ export function decodeMuseumBmp(buffer: ArrayBuffer) {
   return { pixels, width, height };
 }
 
-export async function loadCheomseongdaeOriginal(signal: AbortSignal) {
-  const [obj, bmp] = await Promise.all([original('obj', 44_426_112, signal), original('bmp', 50_331_702, signal)]);
+export async function loadCheomseongdaeOriginal(signal: AbortSignal, withTexture = true) {
+  const [obj, bmp] = await Promise.all([original('obj', 44_426_112, signal), withTexture ? original('bmp', 50_331_702, signal) : undefined]);
   signal.throwIfAborted();
   const object = new OBJLoader().parse(new TextDecoder().decode(obj));
+  if (!bmp) return object;
   const { pixels, width, height } = decodeMuseumBmp(bmp);
   const texture = new THREE.DataTexture(pixels, width, height, THREE.RGBAFormat);
   texture.colorSpace = THREE.SRGBColorSpace;

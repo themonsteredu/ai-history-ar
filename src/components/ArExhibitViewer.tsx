@@ -1,6 +1,7 @@
 import type { EraId } from "../types/curriculum";
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { safeSourceLink, type ArExhibit, type ExhibitPoint } from '../lib/ar/exhibit';
+import type { CardPlacement } from '../lib/ar/modelScene';
 import ArRecognitionCard from './ArRecognitionCard';
 import '../styles/ar-exhibit.css';
 const HeritageModelView = lazy(() => import('./HeritageModelView'));
@@ -8,6 +9,7 @@ const HeritageModelView = lazy(() => import('./HeritageModelView'));
 export default function ArExhibitViewer({ value, heritage, heritageId, image, eraId = "three-kingdoms", showQuiz = true, showCard = true, sharedClassroom = false, example = false, onReadExample, onStopNarration, onNarrationActivity, onCardFound }: { value: ArExhibit; heritage: string; heritageId: number; eraId?: EraId; image: string; showQuiz?: boolean; showCard?: boolean; sharedClassroom?: boolean; example?: boolean; onReadExample?: (point: ExhibitPoint) => void; onStopNarration?: () => void; onNarrationActivity?: (active: boolean) => void; onCardFound?: () => void }) {
   const [selected, setSelected] = useState(value.points[0].id);
   const [camera, setCamera] = useState(false);
+  const [cardPlacement, setCardPlacement] = useState<CardPlacement>('table');
   const [tracked, setTracked] = useState(false);
   const [answer, setAnswer] = useState('');
   const [message, setMessage] = useState('');
@@ -44,9 +46,9 @@ export default function ArExhibitViewer({ value, heritage, heritageId, image, er
     </div></div>
     {!camera && showCard && <ArRecognitionCard example={example} shared={sharedClassroom} eraId={eraId} heritageId={heritageId} heritage={heritage} />}
     {!value.model && <p className="ar-help">지금은 사진에 설명점과 녹음을 띄우는 AR이에요. 선생님이 3D 유물을 넣으면 입체 모형으로 바뀝니다.</p>}
-    {camera && <p className="ar-help">받은 사진을 자르지 않고 출력한 뒤 카메라에 비춰 주세요. 영상은 저장하지 않습니다.</p>}
+    {camera && <><p className="ar-help">받은 카드 전체를 카메라에 비춰 주세요. 영상은 저장하지 않습니다.</p>{value.model && <div className="ar-maker-actions" role="group" aria-label="카드 놓는 방향"><button type="button" aria-pressed={cardPlacement === 'table'} onClick={() => setCardPlacement('table')}>책상 위 카드</button><button type="button" aria-pressed={cardPlacement === 'upright'} onClick={() => setCardPlacement('upright')}>컴퓨터 화면·세운 카드</button></div>}<p className="ar-help">{cardPlacement === 'table' ? '출력한 카드는 책상에 눕혀 주세요. 화면을 비추고 있다면 ‘컴퓨터 화면·세운 카드’를 눌러 주세요.' : '컴퓨터 화면의 카드나 세워 둔 카드를 비추면 모형도 위로 서 있어요.'}</p></>}
     <div className="ar-maker-layout">
-      {value.model || camera ? <Suspense fallback={<p>AR을 준비해요…</p>}><HeritageModelView eraId={eraId} model={value.model} image={image} points={value.points} selectedId={selected} onSelect={select} targetIndex={heritageId - 1} camera={camera} onTracking={visible => { if (visible && camera && !tracked) callbacks.current.onCardFound?.(); setTracked(visible); }} /></Suspense> : <div className="ar-point-photo"><img src={image} alt={heritage} />{value.points.map((item, index) => <button type="button" className="ar-hotspot" key={item.id} aria-pressed={selected === item.id} aria-label={`${index + 1}번 ${item.title} 해설 듣기`} style={{ left: `${item.photoPosition[0] * 100}%`, top: `${item.photoPosition[1] * 100}%` }} onClick={() => select(item.id)}>{index + 1}</button>)}</div>}
+      {value.model || camera ? <Suspense fallback={<p>AR을 준비해요…</p>}><HeritageModelView eraId={eraId} model={value.model} image={image} points={value.points} selectedId={selected} onSelect={select} targetIndex={heritageId - 1} camera={camera} cardPlacement={cardPlacement} onTracking={visible => { if (visible && camera && !tracked) callbacks.current.onCardFound?.(); setTracked(visible); }} /></Suspense> : <div className="ar-point-photo"><img src={image} alt={heritage} />{value.points.map((item, index) => <button type="button" className="ar-hotspot" key={item.id} aria-pressed={selected === item.id} aria-label={`${index + 1}번 ${item.title} 해설 듣기`} style={{ left: `${item.photoPosition[0] * 100}%`, top: `${item.photoPosition[1] * 100}%` }} onClick={() => select(item.id)}>{index + 1}</button>)}</div>}
       <div className="ar-viewer-reading">
         <div className="ar-point-select" role="group" aria-label="해설 선택">{value.points.map((item, index) => <button disabled={camera && !tracked} type="button" key={item.id} aria-pressed={selected === item.id} onClick={() => select(item.id)}>{index + 1}번 해설</button>)}</div>
         <div aria-live="polite"><h4>{point.title || '설명할 곳'}</h4><p className="ar-reading-text">{point.text || '아직 설명을 쓰지 않았어요.'}</p></div>

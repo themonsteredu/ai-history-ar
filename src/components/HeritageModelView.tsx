@@ -2,17 +2,18 @@ import type { EraId } from "../types/curriculum";
 import { arTargetUrl } from "../content/heritageCatalog";
 import { useEffect, useRef, useState } from 'react';
 import type { ExhibitModel, ExhibitPoint } from '../lib/ar/exhibit';
-import type { ModelScene } from '../lib/ar/modelScene';
+import type { CardPlacement, ModelScene } from '../lib/ar/modelScene';
 
-export default function HeritageModelView({ model, image, points, selectedId, onSelect, onPlace, camera = false, targetIndex, onTracking, eraId = "three-kingdoms" }: {
+export default function HeritageModelView({ model, image, points, selectedId, onSelect, onPlace, camera = false, cardPlacement = 'table', targetIndex, onTracking, eraId = "three-kingdoms" }: {
   model?: ExhibitModel; image: string; points: ExhibitPoint[]; selectedId: string; onSelect: (id: string) => void;
   onPlace?: (position: [number, number, number]) => void; camera?: boolean; targetIndex: number; eraId?: EraId;
   onTracking?: (visible: boolean) => void;
+  cardPlacement?: CardPlacement;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const pins = useRef<Array<HTMLButtonElement | null>>([]);
   const scene = useRef<ModelScene | null>(null);
-  const current = useRef({ points, onPlace, onTracking }); current.current = { points, onPlace, onTracking };
+  const current = useRef({ points, onPlace, onTracking, cardPlacement }); current.current = { points, onPlace, onTracking, cardPlacement };
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState('');
   const [simplePreview, setSimplePreview] = useState(false);
@@ -26,6 +27,7 @@ export default function HeritageModelView({ model, image, points, selectedId, on
       const original = model?.asset === 'cheomseongdae-nsm-2015' ? await import('../content/three-kingdoms/cheomseongdaeOriginal') : undefined;
       return mountModelScene({
       container: surface, model, image, mode: camera ? 'camera' : 'preview',
+      cardPlacement: () => current.current.cardPlacement,
       loadBuiltIn: original?.loadCheomseongdaeOriginal,
       targetFile: arTargetUrl(eraId), targetIndex, signal: abort.signal,
       markers: () => pins.current, points: () => current.current.points,
