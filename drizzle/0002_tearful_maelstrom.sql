@@ -1,0 +1,1 @@
+ALTER TABLE `ar_works` ADD `submitted` integer DEFAULT 0 NOT NULL;

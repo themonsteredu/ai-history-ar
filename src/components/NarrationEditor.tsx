@@ -2,15 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { NarrationRecorder } from '../lib/ar/recorder';
 import type { Narration } from '../lib/ar/exhibit';
 
-export default function NarrationEditor({ value, onChange, onBusy, disabled = false }: { value?: Narration; onChange: (value?: Narration) => void; onBusy: (busy: boolean) => void; disabled?: boolean }) {
+export default function NarrationEditor({ value, onChange, onBusy, disabled = false, onPlayback }: { value?: Narration; onChange: (value?: Narration) => void; onBusy: (busy: boolean) => void; disabled?: boolean; onPlayback?: (active: boolean) => void }) {
   const [state, setState] = useState('idle');
   const [seconds, setSeconds] = useState(0);
   const [error, setError] = useState('');
   const recorder = useRef<NarrationRecorder | null>(null);
   const player = useRef<HTMLAudioElement>(null);
-  const callbacks = useRef({ onChange, onBusy });
-  callbacks.current = { onChange, onBusy };
-  useEffect(() => () => { recorder.current?.dispose(); callbacks.current.onBusy(false); }, []);
+  const callbacks = useRef({ onChange, onBusy, onPlayback });
+  callbacks.current = { onChange, onBusy, onPlayback };
+  useEffect(() => () => { recorder.current?.dispose(); player.current?.pause(); callbacks.current.onBusy(false); callbacks.current.onPlayback?.(false); }, []);
+  useEffect(() => { const audio = player.current; return () => { audio?.pause(); callbacks.current.onPlayback?.(false); }; }, [value?.data]);
   function start() {
     recorder.current?.dispose(); player.current?.pause(); setError('');
     callbacks.current.onBusy(true);
@@ -28,7 +29,7 @@ export default function NarrationEditor({ value, onChange, onBusy, disabled = fa
       {value && <button type="button" disabled={disabled || state !== 'idle'} onClick={() => { player.current?.pause(); onChange(undefined); }}>녹음 지우기</button>}
     </div>
     <p className="ar-help">설명을 읽으며 30초 안으로 녹음해요. 새 녹음이 끝나면 이전 녹음을 바꿔요.</p>
-    {value && <audio ref={player} src={value.data} controls preload="metadata" aria-label="내 녹음 들어보기" onError={() => setError('이 기기에서 녹음을 재생하지 못했어요. 다른 브라우저에서 열거나 다시 녹음해 주세요.')} />}
+    {value && <audio hidden={state !== 'idle'} ref={player} src={value.data} controls preload="metadata" aria-label="내 녹음 들어보기" onPlay={() => { if (state !== 'idle') player.current?.pause(); }} onPlaying={() => { if (state !== 'idle') player.current?.pause(); else onPlayback?.(true); }} onPause={() => onPlayback?.(false)} onEnded={() => onPlayback?.(false)} onError={() => { onPlayback?.(false); setError('이 기기에서 녹음을 재생하지 못했어요. 다른 브라우저에서 열거나 다시 녹음해 주세요.'); }} />}
     {error && <p role="alert" className="ar-error">{error}</p>}
   </div>;
 }

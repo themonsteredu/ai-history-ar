@@ -34,6 +34,18 @@ function disposeObject(root: any) {
 }
 
 async function readModel(model: ExhibitModel) {
+  if (model.format === 'primitives') {
+    const group = new THREE.Group();
+    for (const part of model.parts || []) {
+      const geometry = part.kind === 'box' ? new THREE.BoxGeometry(1, 1, 1) : part.kind === 'cylinder' ? new THREE.CylinderGeometry(.5, .5, 1, 32) : new THREE.TorusGeometry(.4, .1, 12, 32);
+      if (part.kind === 'ring') geometry.rotateX(Math.PI / 2);
+      const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: part.color, roughness: .85, metalness: .05 }));
+      mesh.position.set(...part.position); mesh.scale.set(...part.scale);
+      mesh.rotation.set(...part.rotation.map(value => value * Math.PI / 180));
+      group.add(mesh);
+    }
+    return group;
+  }
   const buffer = dataUrlBytes(model.data);
   if (buffer.byteLength > MAX_MODEL_BYTES) throw new Error('12MB 이하의 3D 모형을 사용해 주세요.');
   let object: any;
@@ -57,6 +69,29 @@ async function readModel(model: ExhibitModel) {
   object.traverse((item: any) => { vertices += item.geometry?.attributes?.position?.count || 0; });
   if (!vertices || vertices > 1_000_000) { disposeObject(object); throw new Error('휴대폰에서 보기에는 모형이 너무 복잡해요. 더 가벼운 파일을 골라 주세요.'); }
   return object;
+}
+
+/** Map a photo tap onto the front of the same fitted model used by the AR viewer. */
+export async function photoToModelPosition(model: ExhibitModel, coordinates: [number, number]): Promise<[number, number, number]> {
+  const content = await readModel(model);
+  try {
+    const oriented = new THREE.Group();
+    oriented.add(content);
+    oriented.rotation.set(...model.rotation.map(degrees => degrees * Math.PI / 180));
+    const bounds = new THREE.Box3().setFromObject(oriented);
+    const size = bounds.getSize(new THREE.Vector3());
+    const extent = Math.max(size.x, size.y, size.z);
+    if (!Number.isFinite(extent) || extent <= 0) throw new Error('모형의 크기를 확인해 주세요.');
+    const center = bounds.getCenter(new THREE.Vector3());
+    oriented.position.set(-center.x, -bounds.min.y, -center.z);
+    const fitted = new THREE.Group(); fitted.scale.setScalar(1 / extent); fitted.add(oriented); fitted.updateMatrixWorld(true);
+    const x = (coordinates[0] - .5) * size.x / extent;
+    const y = (1 - coordinates[1]) * size.y / extent;
+    const ray = new THREE.Raycaster(new THREE.Vector3(x, y, 2), new THREE.Vector3(0, 0, -1));
+    const hit = ray.intersectObject(fitted, true)[0];
+    const position = hit ? hit.point.add(new THREE.Vector3(0, 0, .015)) : new THREE.Vector3(x, y, size.z / extent / 2 + .015);
+    return position.toArray().map((n: number) => Math.round(n * 1000) / 1000) as [number, number, number];
+  } finally { disposeObject(content); }
 }
 
 export async function mountModelScene(options: SceneOptions): Promise<ModelScene> {

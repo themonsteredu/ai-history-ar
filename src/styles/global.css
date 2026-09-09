@@ -829,6 +829,26 @@ input:focus-visible {
   margin-top: 28px;
 }
 
+.era-hero__maker-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  margin-top: 26px;
+}
+
+.era-hero__maker-entry .button {
+  min-height: 48px;
+  color: #173e35;
+  background: #f7e7b7;
+  border-color: #f7e7b7;
+}
+
+.era-hero__maker-entry span {
+  color: #f7f4ec;
+  font-size: 13px;
+}
+
 .era-hero__meta span {
   display: inline-flex;
   align-items: center;
@@ -3141,11 +3161,22 @@ input:focus-visible {
 
   .site-header__inner {
     min-height: 68px;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-block: 10px;
   }
 
   .brand__text small,
-  .site-nav__link:not(.site-nav__teacher) {
+  .site-nav__link:not(.site-nav__teacher):not(.site-nav__maker) {
     display: none;
+  }
+
+  .site-nav__maker {
+    padding-inline: 8px;
+    font-size: 13px;
+    white-space: nowrap;
+    color: var(--green);
+    background: #ece4d2;
   }
 
   .brand__seal {

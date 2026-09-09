@@ -1,5 +1,7 @@
+import { handleStudio } from './arStudio';
 export default {
   async fetch(request, env) {
+    if (new URL(request.url).pathname.startsWith('/api/ar-studio')) return handleStudio(request, env);
     const response = await env.ASSETS.fetch(request);
     if (
       response.status !== 404 ||

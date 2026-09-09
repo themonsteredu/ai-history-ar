@@ -16,6 +16,7 @@ export default function HeritageModelView({ model, image, points, selectedId, on
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState('');
   const rotation = model?.rotation.join(',') || '';
+  const partsVersion = JSON.stringify(model?.parts);
   useEffect(() => {
     const surface = document.createElement('div'); surface.className = 'ar-model-surface'; container.current?.append(surface);
     const abort = new AbortController(); setStatus('loading'); setError(''); current.current.onTracking?.(false);
@@ -37,7 +38,7 @@ export default function HeritageModelView({ model, image, points, selectedId, on
       }
     });
     return () => { abort.abort(); scene.current = null; surface.remove(); };
-  }, [model?.data, model?.format, model?.asset, image, rotation, camera, targetIndex, eraId]);
+  }, [model?.data, model?.format, model?.asset, partsVersion, image, rotation, camera, targetIndex, eraId]);
   return <div className="ar-model-view">
     <div className="ar-model-stage" ref={container} aria-label={camera ? '유산 카드를 비추는 AR 카메라' : '끌어서 돌려 보는 입체 유물'}>
       {points.map((point, index) => <button hidden type="button" className="ar-hotspot" key={point.id} ref={node => { pins.current[index] = node; }} aria-label={`${index + 1}번 ${point.title || '설명'} 열기`} aria-pressed={selectedId === point.id} onClick={() => onSelect(point.id)}>{index + 1}</button>)}

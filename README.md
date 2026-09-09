@@ -1,5 +1,12 @@
 # AI HISTORY AR
 
+## 운영 주소와 배포
+
+- 정식 수업 사이트: https://ai-history-ar.vercel.app
+- 통합 AR 만들기: https://ai-history-ar.vercel.app/three-kingdoms/ar-maker
+- GitHub `themonsteredu/ai-history-ar`의 `main` 변경이 기존 Vercel 프로젝트로 자동 배포됩니다. 별도 Sites 주소의 배포 성공만으로 정식 사이트 반영을 완료했다고 판단하지 않습니다.
+- 사진·해설·녹음·3D 제작과 내 작품 체험은 Vercel에서 사용할 수 있습니다. 현재 모둠 공동 저장·전시 API는 Sites D1/R2 및 교사 인증을 사용하므로, Vercel에서는 서버 연결이 별도로 필요합니다. 기기 임시 저장과 작업 파일 보관을 공동 저장으로 안내하지 않습니다.
+
 ## 진행 중인 삼국시대 학급
 
 2·3차시 통합 수업을 마친 학급은 **4차시부터 같은 모둠 작업을 이어 갑니다.** 지난 검증 활동지 → 근거 표 → 정제 → CODAP 그래프 → 해석 → 근거 두 개의 유추 → AR 전시 순서입니다. [현재 4~10차시 운영 기준](docs/THREE_KINGDOMS_CONTINUITY.md)을 우선 적용합니다.

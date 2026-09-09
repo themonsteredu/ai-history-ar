@@ -4,6 +4,8 @@ import { Icon } from "../components/Icon";
 import { LessonCard } from "../components/LessonCard";
 import { eras, getEra } from "../content/catalog";
 import type { EraId } from "../types/curriculum";
+import { DataInquiryOverview } from '../components/DataInquiryOverview';
+import { StudioOverview } from '../features/ar-studio/StudioOverview';
 
 export function TeacherDashboardPage() {
   const [selectedEraId, setSelectedEraId] = useState<EraId>("three-kingdoms");
@@ -33,8 +35,8 @@ export function TeacherDashboardPage() {
           </div>
           <div className="teacher-hero__summary">
             <div><span>수업 과정</span><strong>2</strong><small>시대</small></div>
-            <div><span>전체 차시</span><strong>{eras.reduce((total, era) => total + era.lessons.length, 0)}</strong><small>차시</small></div>
-            <div><span>현재 자료</span><strong>{worksheetCount}</strong><small>종 구성</small></div>
+            <div><span>현재 수업</span><strong>{selectedEra.id === 'three-kingdoms' ? 6 : selectedEra.lessons.length}</strong><small>차시</small></div>
+            <div><span>기존 보관 자료</span><strong>{worksheetCount}</strong><small>종 구성</small></div>
           </div>
         </div>
       </section>
@@ -50,7 +52,7 @@ export function TeacherDashboardPage() {
                 onClick={() => setSelectedEraId(era.id)}
                 type="button"
               >
-                {era.shortName} {era.lessons.length}차시
+                {era.shortName} {era.id === 'three-kingdoms' ? '6차시 · 데이터와 AR' : `${era.lessons.length}차시`}
               </button>
             ))}
           </div>
@@ -79,7 +81,9 @@ export function TeacherDashboardPage() {
           </div>
         </div>
 
-        {visibleLessons.length > 0 ? (
+        {selectedEra.id === 'three-kingdoms' && <DataInquiryOverview teacher query={query} />}
+        {selectedEra.id === 'three-kingdoms' && <StudioOverview teacher />}
+        {selectedEra.id === 'three-kingdoms' ? <details className="data-inquiry-legacy"><summary>기존 AR·이전 수업 지도안</summary><p>새 데이터 수업은 위의 3차시 자료를 사용합니다. 기존 작업과 AR 수업 자료는 보관합니다.</p><div className="lesson-list lesson-list--teacher">{visibleLessons.map(lesson => <LessonCard era={selectedEra} key={lesson.id} lesson={lesson} mode="teacher" />)}</div></details> : visibleLessons.length > 0 ? (
           <div className="lesson-list lesson-list--teacher">
             {visibleLessons.map((lesson) => <LessonCard era={selectedEra} key={lesson.id} lesson={lesson} mode="teacher" />)}
           </div>

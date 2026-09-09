@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import type { Era, Lesson } from "../types/curriculum";
 import { getLessonActivityModeInfo } from "../content/lesson-helpers";
 import { Icon } from "./Icon";
@@ -12,9 +12,13 @@ interface LessonCardProps {
 
 export function LessonCard({ era, lesson, mode = "student" }: LessonCardProps) {
   const activityMode = getLessonActivityModeInfo(lesson, era.id);
+  const { search } = useLocation();
+  const context = new URLSearchParams(search);
+  context.delete('view');
+  const contextSearch = context.size ? `?${context}` : '';
 
   if (mode === "student") {
-    const path = `${era.route}/lesson/${lesson.id}`;
+    const path = `${era.route}/lesson/${lesson.id}${contextSearch}`;
     return (
       <article className="lesson-card lesson-card--classroom" style={{ "--era-accent": era.accent } as React.CSSProperties}>
         <div className="lesson-card__number" aria-label={`${lesson.id}차시`}>{String(lesson.id).padStart(2, "0")}</div>
@@ -32,7 +36,7 @@ export function LessonCard({ era, lesson, mode = "student" }: LessonCardProps) {
     );
   }
 
-  const path = `/teacher/${era.id}/lesson/${lesson.id}`;
+  const path = `/teacher/${era.id}/lesson/${lesson.id}${contextSearch}`;
 
   return (
     <article className="lesson-card">

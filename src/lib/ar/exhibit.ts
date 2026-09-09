@@ -14,7 +14,8 @@ export interface ExhibitPoint {
 }
 export interface ExhibitModel {
   data: string;
-  format: 'glb' | 'stl' | 'obj';
+  format: 'glb' | 'stl' | 'obj' | 'primitives';
+  parts?: ModelPart[];
   asset?: 'cheomseongdae-nsm-2015';
   name: string;
   credit: string;
@@ -43,13 +44,14 @@ export function isAudioData(value: unknown): value is string {
 export function isArExhibit(value: unknown): value is ArExhibit {
   if (!value || typeof value !== 'object') return false;
   const ar = value as ArExhibit;
-  if (!Array.isArray(ar.points) || ar.points.length !== 2 || !short(ar.question, 300) || !short(ar.answerId, 40)) return false;
+  if (!Array.isArray(ar.points) || ar.points.length < 2 || ar.points.length > 4 || !short(ar.question, 300) || !short(ar.answerId, 40)) return false;
   if (!ar.points.every(point => point && short(point.id, 40) && point.id.trim() && short(point.title, 80) && short(point.text, 1500) && vector(point.position, 3, -3, 3) && vector(point.photoPosition, 2, 0, 1) &&
     (point.narration === undefined || (point.narration && isAudioData(point.narration.data) && typeof point.narration.seconds === 'number' && point.narration.seconds > 0 && point.narration.seconds <= MAX_RECORDING_SECONDS + 1)))) return false;
-  if (new Set(ar.points.map(point => point.id)).size !== 2 || !ar.points.some(point => point.id === ar.answerId)) return false;
+  if (new Set(ar.points.map(point => point.id)).size !== ar.points.length || !ar.points.some(point => point.id === ar.answerId)) return false;
   const model = ar.model;
   return model === undefined || (!!model && typeof model === 'object' && short(model.name, 180) && short(model.credit, 300) && short(model.source, 2000) && vector(model.rotation, 3, -360, 360) &&
-    ((model.asset === 'cheomseongdae-nsm-2015' && model.format === 'obj' && model.data === '') ||
+    ((model.format === 'primitives' && model.asset === undefined && model.data === '' && validParts(model.parts)) ||
+      (model.asset === 'cheomseongdae-nsm-2015' && model.format === 'obj' && model.data === '') ||
       (model.asset === undefined && ['glb', 'stl'].includes(model.format) && short(model.data, Math.ceil(MAX_MODEL_BYTES / 3) * 4 + 100) && /^data:application\/octet-stream;base64,[A-Za-z0-9+/]+={0,2}$/.test(model.data))));
 }
 export function arExhibitReady(ar: ArExhibit) {
@@ -83,3 +85,4 @@ export function validateGlb(buffer: ArrayBuffer) {
   if ((document.extensionsRequired || []).some((name: string) => ['KHR_draco_mesh_compression', 'EXT_meshopt_compression', 'KHR_texture_basisu'].includes(name))) throw new Error('압축하지 않은 GLB 파일을 골라 주세요.');
   return document;
 }
+import { validParts, type ModelPart } from './primitives';

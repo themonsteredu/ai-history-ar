@@ -1,9 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { EraArtwork } from "../components/EraArtwork";
 import { Icon } from "../components/Icon";
 import { eras } from "../content/catalog";
+import { makerPath } from '../features/ar-studio/maker';
 
 export function HomePage() {
+  const { search } = useLocation();
   const scrollToCourses = () => {
     document.getElementById("courses")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -30,15 +32,16 @@ export function HomePage() {
             </h1>
             <p className="home-hero__lead">
               문화유산을 살펴보고, 출처를 확인하고, 우리 말로 설명합니다.<br />
-              삼국시대와 조선시대를 만나는 {eras.reduce((total, era) => total + era.lessons.length, 0)}차시 AR 역사 수업입니다.
+              삼국시대와 조선시대를 만나는 AI·데이터·AR 역사 수업입니다.
             </p>
             <div className="home-hero__actions">
               <button className="button home-hero__primary" type="button" onClick={scrollToCourses}>
                 역사 수업 시작하기 <Icon name="arrow" size={18} />
               </button>
+              <Link className="button home-hero__primary" to={makerPath(search)}>AR 만들기 바로 시작</Link>
               <Link className="home-hero__teacher" to="/teacher"><Icon name="lock" size={15} />설정</Link>
             </div>
-            <p className="home-hero__meta">{eras.map((era) => `${era.shortName} ${era.lessons.length}차시`).join(" · ")} · 6모둠 문화유산 탐구</p>
+            <p className="home-hero__meta">삼국시대 6차시 · 데이터 탐구 3차시 + AR 제작·관람 3차시 · 조선시대 10차시</p>
           </div>
         </div>
       </section>
@@ -61,7 +64,7 @@ export function HomePage() {
               <div className="era-card__body">
                 <p className="era-card__eyebrow">{era.eyebrow}</p>
                 <h3>{era.shortName}</h3>
-                <p>수업 PPT · 활동 화면 · {era.lessons.length}차시</p>
+                <p>수업 PPT · 활동 화면 · {era.id === 'three-kingdoms' ? '40분씩 6차시 · 데이터 탐구와 AR 박물관' : `${era.lessons.length}차시`}</p>
                 <Link className="era-card__link" to={era.route}>수업 열기 <Icon name="arrow" size={19} /></Link>
               </div>
             </article>

@@ -8,6 +8,7 @@ import {
   lessonPptDownloadPath,
 } from "../content/downloads";
 import { NotFoundPage } from "./NotFoundPage";
+import { DataInquiryOverview } from '../components/DataInquiryOverview';
 
 function printableFormat(specialFormat: string | undefined, lessonId: number) {
   if (lessonId === 2) return "모둠별 A4 1쪽";
@@ -47,6 +48,13 @@ export function DownloadCenterPage() {
 
   if (!era) return <NotFoundPage />;
 
+  if (era.id === 'three-kingdoms') return <div className="downloads-page">
+    <section className="downloads-hero"><div className="page-width"><Link className="back-link" to="/teacher">← 교사 설정</Link><p className="eyebrow">삼국시대 · 교사용 다운로드 센터</p><h1>데이터 탐구 3차시 수업 자료</h1><p>수업 화면의 PPT와 인쇄용 활동지를 같은 순서로 사용합니다.</p></div></section>
+    <section className="page-width downloads-content"><DataInquiryOverview teacher />
+      <details className="data-inquiry-legacy"><summary>기존 AR·이전 수업 자료</summary><p>예전 차시 번호를 유지한 자료입니다. 새 데이터 탐구 자료와 구분해서 사용하세요.</p><div className="download-table-wrap"><table className="download-table"><thead><tr><th>기존 차시</th><th>자료</th></tr></thead><tbody>{era.lessons.map(lesson => <tr key={lesson.id}><th>{lesson.id}차시 · {lesson.title}</th><td><div className="download-actions"><a href={lessonDownloadPath(era.id, lesson.id, 'student')} download>학생 PDF</a><a href={lessonDownloadPath(era.id, lesson.id, 'teacher')} download>교사 PDF</a><a href={lessonDownloadPath(era.id, lesson.id, 'bundle')} download>이전 ZIP</a></div></td></tr>)}</tbody></table></div></details>
+    </section>
+  </div>;
+
   const totalFiles = era.lessons.reduce(
     (total, lesson) => total + lesson.downloads.student.length + lesson.downloads.teacher.length,
     0,
@@ -77,7 +85,7 @@ export function DownloadCenterPage() {
           <Icon name="spark" size={22} />
           <div>
             <strong>활동 3개 · 모둠별 A4 한 장 · 흑백 인쇄</strong>
-            <p>{era.id === "three-kingdoms" ? "체크·숫자·핵심 낱말 중심으로 기록합니다. 2·3차시 통합 활동지는 유산별 6종이며, 수업 PPT와 활동지의 1·2·3번 순서가 같습니다." : "체크·숫자·핵심 낱말로 짧게 기록합니다. 2차시는 유산별 6종이며, 3차시에서 자료로 확인합니다. 전 차시 PPT와 활동지의 1·2·3번 순서가 같습니다."}</p>
+            <p>체크·숫자·핵심 낱말로 짧게 기록합니다. 2차시는 유산별 6종이며, 3차시에서 자료로 확인합니다. 전 차시 PPT와 활동지의 1·2·3번 순서가 같습니다.</p>
           </div>
         </div>
         <div className="download-table-wrap">
@@ -94,7 +102,7 @@ export function DownloadCenterPage() {
             <tbody>
               {era.lessons.map((lesson) => (
                 <tr key={lesson.id}>
-                  <th scope="row"><span>{era.id === "three-kingdoms" && lesson.id === 2 ? "2·3" : String(lesson.id).padStart(2, "0")}</span>{lesson.title}</th>
+                  <th scope="row"><span>{String(lesson.id).padStart(2, "0")}</span>{lesson.title}</th>
                   <td>
                     <ul>{lesson.downloads.student.map((item) => <li key={item}>{item}</li>)}</ul>
                     {groupWorksheetLessons[era.id].includes(lesson.id) ? <p style={{ marginTop: "0.55rem", fontWeight: 700 }}>각 모둠 PDF는 A4 세로 1쪽</p> : null}

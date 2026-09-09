@@ -1,10 +1,12 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { makerPath } from '../features/ar-studio/maker';
 
 function navClassName({ isActive }: { isActive: boolean }) {
   return isActive ? "site-nav__link site-nav__link--active" : "site-nav__link";
 }
 
 export function AppShell() {
+  const { search } = useLocation();
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main-content">
@@ -23,6 +25,7 @@ export function AppShell() {
             <NavLink className={navClassName} end to="/">과정 선택</NavLink>
             <NavLink className={navClassName} to="/three-kingdoms">삼국시대</NavLink>
             <NavLink className={navClassName} to="/joseon">조선시대</NavLink>
+            <NavLink className={(state) => `${navClassName(state)} site-nav__maker`} to={makerPath(search)}>AR 만들기</NavLink>
             <NavLink className={({ isActive }) => `${navClassName({ isActive })} site-nav__teacher`} to="/teacher">설정</NavLink>
           </nav>
         </div>

@@ -1,0 +1,27 @@
+import { useEffect, useState } from 'react';
+import { allArCardsUrl } from '../../components/ArRecognitionCard';
+import { studioApi, type Classroom } from './api';
+export function TeacherControls({ initialCode, onCode }: { initialCode: string; onCode: (code: string) => void }) {
+  const [code, setCode] = useState(initialCode); const [room, setRoom] = useState<Classroom>();
+  const [message, setMessage] = useState(''); const [busy, setBusy] = useState(false);
+  const [reports, setReports] = useState<{ name: string; group: number; score: number; total: number; role: string; reflection: string }[]>([]);
+  const [needSignIn, setNeedSignIn] = useState(false);
+  const [members, setMembers] = useState<{ id: string; name: string; group: number; canEdit: number }[]>([]);
+  async function appoint(memberId: string) { if (!room) return; setBusy(true); try { await studioApi(`/rooms/${room.code}/editor`, undefined, { memberId }); await load(room.code); } catch (e) { setMessage(e instanceof Error ? e.message : '담당을 지정하지 못했어요.'); } finally { setBusy(false); } }
+  async function load(value: string) { const data = await studioApi<Classroom & { reports: typeof reports; members: typeof members }>(`/rooms/${value}/teacher`); setRoom(data); setReports(data.reports || []); setMembers(data.members || []); }
+  useEffect(() => { if (!room) return; const timer = window.setInterval(() => { void load(room.code).catch(() => {}); }, 8000); return () => clearInterval(timer); }, [room?.code]);
+  async function prepare() {
+    setBusy(true); setMessage(''); setNeedSignIn(false);
+    try { const data = await studioApi<Classroom>('/rooms', undefined, { code: code.trim().toLowerCase() }); setRoom(data); onCode(data.code); await load(data.code); }
+    catch (e) { setMessage(e instanceof Error ? e.message : '전시관을 준비하지 못했어요.'); setNeedSignIn((e as { status?: number }).status === 401); } finally { setBusy(false); }
+  }
+  async function phase(next: Classroom['phase']) { if (!room) return; setBusy(true); setMessage(''); try { await studioApi(`/rooms/${room.code}/phase`, undefined, { phase: next }); await load(room.code); } catch (e) { setMessage(e instanceof Error ? e.message : '진행 상태를 바꾸지 못했어요.'); } finally { setBusy(false); } }
+  async function graph(file?: File) {
+    if (!room || !file) return;
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 1_500_000) { setMessage('1.5MB 이하 PNG·JPG·WebP 그래프를 골라 주세요.'); return; }
+    setBusy(true);
+    try { const { readDataUrl } = await import('../../lib/ar/exhibit'); await studioApi(`/rooms/${room.code}/graph`, undefined, { data: await readDataUrl(file) }); setMessage('우리 반 공통 그래프를 연결했어요.'); }
+    catch (e) { setMessage(e instanceof Error ? e.message : '그래프를 저장하지 못했어요.'); } finally { setBusy(false); }
+  }
+  return <section><header><h1>우리 반 전시·퀴즈 진행</h1><p>제작을 마친 뒤 전시를 열고, 관람이 끝나면 개인 퀴즈를 시작하세요.</p><a href={allArCardsUrl()} download>책상에 놓을 유물 카드 6종 받기 · A4</a></header><div className="studio-room-form"><label>내 수업코드<input value={code} minLength={4} maxLength={12} autoCapitalize="none" onChange={e => setCode(e.target.value)} /></label><button className="studio-primary" disabled={busy || !/^[a-z0-9]{4,12}$/i.test(code.trim())} onClick={() => { void prepare(); }}>이 코드의 전시관 준비·열기</button></div>{needSignIn && <a href={`/signin-with-chatgpt?return_to=${encodeURIComponent(location.pathname + location.search)}`} target="_top">교사 계정으로 연결하기</a>}{room && <><p className="studio-notice">수업코드 <strong>{room.code}</strong> · {room.phase === 'making' ? '모둠 제작 중' : room.phase === 'visiting' ? 'AR 관람 중' : room.phase === 'quiz' ? '개인 퀴즈 진행 중' : '정답 공개'} · 제출된 작품 {room.gallery.length}개</p><div className="studio-actions"><button disabled={busy || room.phase !== 'making' || !room.gallery.length} onClick={() => { void phase('visiting'); }}>① 전시 시작</button><button disabled={busy || room.phase !== 'visiting'} onClick={() => { void phase('quiz'); }}>② 퀴즈 시작</button><button disabled={busy || room.phase !== 'quiz'} onClick={() => { void phase('review'); }}>③ 답안 마감·정답 공개</button></div><p>전시 시작 뒤에는 제출 작품을 고정해 모든 학생이 같은 내용으로 관람하고 답합니다. 학생들이 역할·배운 점까지 적어 답안을 제출한 뒤 ‘답안 마감·정답 공개’를 누르세요.</p><label className="studio-upload">우리 반 공통 그래프 첨부<input type="file" accept="image/png,image/jpeg,image/webp" disabled={busy || room.phase !== 'making'} onChange={e => { void graph(e.target.files?.[0]); e.target.value = ''; }} /></label><h2>모둠 제출 담당 지정</h2><p>각 모둠에서 작품을 제출할 태블릿 한 대를 선택하세요. 다른 친구들은 자기 태블릿으로 연습하고 관람·퀴즈에 참여합니다.</p><div className="studio-editor-roster">{[1, 2, 3, 4, 5, 6].map(group => <label key={group}>{group}모둠<select disabled={busy || room.phase !== 'making'} value={members.find(m => m.group === group && m.canEdit)?.id || ''} onChange={e => { void appoint(e.target.value); }}><option value="" disabled>제출 담당 선택</option>{members.filter(m => m.group === group).map(m => <option key={m.id} value={m.id}>{m.name}</option>)}</select></label>)}</div><h2>제출된 모둠 작품</h2><ul>{room.gallery.map(work => <li key={work.group}>{work.group}모둠 · {work.title} · 저장본 {work.version}</li>)}</ul><h2>개인 답안·활동 기록</h2>{reports.length ? <div className="studio-table-wrap"><table><thead><tr><th>이름</th><th>모둠</th><th>정답 수</th><th>맡은 일</th><th>배운 점</th></tr></thead><tbody>{reports.map((r, i) => <tr key={i}><td>{r.name}</td><td>{r.group}</td><td>{r.score} / {r.total}</td><td>{r.role}</td><td>{r.reflection}</td></tr>)}</tbody></table></div> : <p>아직 제출된 개인 답안이 없습니다.</p>}</>}{message && <p role="status">{message}</p>}</section>;
+}
