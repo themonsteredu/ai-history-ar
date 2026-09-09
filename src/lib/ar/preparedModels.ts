@@ -123,7 +123,7 @@ export async function createPreparedModel(key: PreparedModelKey, withImages = tr
     box([.09, 1.16, 1.08], [-.75, .66, 0], '#a58c70');
     box([.09, .28, 1.08], [.75, .22, 0], '#a58c70');
     for (let row = 0; row < 5; row++) box([.105, .012, 1.07], [-.751, .20 + row * .205, 0], '#786d5b');
-    const painting = new THREE.Mesh(new THREE.PlaneGeometry(1.32, 1.09), new THREE.MeshBasicMaterial({ color: '#d7c5a0', side: THREE.DoubleSide }));
+    const painting = new THREE.Mesh(new THREE.PlaneGeometry(1.32, 1.09, 8, 8), new THREE.MeshBasicMaterial({ color: '#d7c5a0', side: THREE.DoubleSide }));
     painting.position.set(0, .66, -.449); root.add(painting);
     if (withImages) {
       // Use the existing licensed mural photograph. Geometry-only ray casting never fetches images.

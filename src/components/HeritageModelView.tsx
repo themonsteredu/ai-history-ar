@@ -15,11 +15,12 @@ export default function HeritageModelView({ model, image, points, selectedId, on
   const current = useRef({ points, onPlace, onTracking }); current.current = { points, onPlace, onTracking };
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState('');
+  const [simplePreview, setSimplePreview] = useState(false);
   const rotation = model?.rotation.join(',') || '';
   const partsVersion = JSON.stringify(model?.parts);
   useEffect(() => {
     const surface = document.createElement('div'); surface.className = 'ar-model-surface'; container.current?.append(surface);
-    const abort = new AbortController(); setStatus('loading'); setError(''); current.current.onTracking?.(false);
+    const abort = new AbortController(); setStatus('loading'); setError(''); setSimplePreview(false); current.current.onTracking?.(false);
     void (async () => {
       const { mountModelScene } = await import('../lib/ar/modelScene');
       const original = model?.asset === 'cheomseongdae-nsm-2015' ? await import('../content/three-kingdoms/cheomseongdaeOriginal') : undefined;
@@ -29,12 +30,13 @@ export default function HeritageModelView({ model, image, points, selectedId, on
       targetFile: arTargetUrl(eraId), targetIndex, signal: abort.signal,
       markers: () => pins.current, points: () => current.current.points,
       onPlace: camera ? undefined : position => current.current.onPlace?.(position),
+      onPreviewFallback: () => { if (!abort.signal.aborted) setSimplePreview(true); },
       onStatus: next => { if (!abort.signal.aborted) { setStatus(next); current.current.onTracking?.(next === 'found' || next === 'ready'); } },
       });
     })().then(runtime => { if (abort.signal.aborted) runtime.dispose(); else scene.current = runtime; }).catch(reason => {
       if (!abort.signal.aborted) {
         setStatus('error'); current.current.onTracking?.(false);
-        setError(reason instanceof DOMException && reason.name === 'NotAllowedError' ? '카메라 사용을 허용한 뒤 다시 열어 주세요.' : reason instanceof Error ? reason.message : '입체 유물을 열지 못했어요.');
+        setError(reason instanceof DOMException && reason.name === 'NotAllowedError' ? '카메라 사용을 허용한 뒤 다시 열어 주세요.' : reason instanceof Error && /webgl/i.test(reason.message) ? '이 브라우저에서는 입체 카메라를 열 수 없어요. 다른 브라우저나 태블릿에서 열어 주세요.' : reason instanceof Error ? reason.message : '입체 유물을 열지 못했어요.');
       }
     });
     return () => { abort.abort(); scene.current = null; surface.remove(); };
@@ -48,5 +50,6 @@ export default function HeritageModelView({ model, image, points, selectedId, on
       <p role="status">{status === 'scanning' || status === 'lost' ? '출력한 유산 카드 전체를 카메라에 비춰 주세요.' : status === 'found' ? '카드를 찾았어요! 표시점을 눌러 해설을 들어 보세요.' : !camera ? (onPlace ? '끌어서 돌리고, 설명할 곳을 짧게 눌러요.' : '끌어서 돌려 보고, 표시점을 눌러요.') : ''}</p>
       {!camera && <button type="button" onClick={() => scene.current?.reset()}>처음 방향</button>}
     </div>
+    {simplePreview && <p className="ar-help">간단한 입체 보기예요. 모형을 돌리고 설명점을 찍을 수 있어요. AR 카메라는 그래픽 기능이 지원되는 기기에서 열어 주세요.</p>}
   </div>;
 }

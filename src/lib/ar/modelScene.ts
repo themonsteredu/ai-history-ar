@@ -16,6 +16,7 @@ export interface SceneOptions {
   markers: () => Array<HTMLButtonElement | null>;
   points: () => ExhibitPoint[];
   onStatus: (status: 'ready' | 'scanning' | 'found' | 'lost') => void;
+  onPreviewFallback?: () => void;
   onPlace?: (position: [number, number, number]) => void;
 }
 export interface ModelScene { dispose: () => void; reset: () => void }
@@ -201,7 +202,13 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
       anchor.onTargetFound = () => { if (!disposed) { tracked = true; options.onStatus('found'); } };
       anchor.onTargetLost = () => { if (!disposed) { tracked = false; options.onStatus('lost'); } };
     } else {
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); }
+      catch (error) {
+        if (options.model?.format !== 'preset' && options.model?.format !== 'primitives') throw error;
+        const { createSoftwarePreview } = await import('./softwarePreview');
+        if (disposed) throw new DOMException('Cancelled', 'AbortError');
+        renderer = createSoftwarePreview(); options.onPreviewFallback?.();
+      }
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(40, 1, .01, 50);
