@@ -18,7 +18,12 @@ export async function applyPreparedModel(project: StudioProject): Promise<Studio
   return { ...project, modelChecked: true, pointsChecked: false, ar: { ...project.ar, model, points: project.ar.points.map((point, index) => ({ ...point, position: positions[index] })) } };
 }
 
-export const newPreparedProject = (group = 1, heritageId = 3) => applyPreparedModel(newStudioProject(group, heritageId));
+export function newPreparedProject(group = 1, heritageId = 3) {
+  const project = newStudioProject(group, heritageId);
+  // Spread the starting points across separate mounds instead of stacking them on one low silhouette.
+  if (heritageId === 6) project.ar.points.forEach((point, index) => { point.photoPosition = [[.32, .15], [.72, .57], [.32, .67]][index] as [number, number]; });
+  return applyPreparedModel(project);
+}
 
 /** Only the untouched old starter cube is automatically upgraded; custom models are retained. */
 export const prepareMakerDraft = (project: StudioProject): Promise<StudioProject> =>

@@ -213,6 +213,7 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(40, 1, .01, 50);
       camera.position.set(1.25, 1.05, 1.8);
+      if (options.model && photoHeight < .5) camera.position.multiplyScalar(.7);
       scene.add(stage);
       options.container.append(renderer.domElement);
       controls = new OrbitControls(camera, renderer.domElement);
