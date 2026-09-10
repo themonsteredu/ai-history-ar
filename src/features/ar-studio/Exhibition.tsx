@@ -25,7 +25,7 @@ export function Exhibition({ classroom, session, sound }: { classroom?: Classroo
     if (!session || !group) return; let cancelled = false; setWork(undefined); setError('');
     void studioApi<{ ar: ArExhibit; heritageId: number }>(`/rooms/${session.code}/works/${group}`, session.token).then(value => { if (!cancelled) setWork(value); }).catch(e => { if (!cancelled) setError(e.message); });
     return () => { cancelled = true; sound.narration(false); };
-  }, [group, session?.code, session?.token, sound]);
+  }, [group, session?.code, session?.token, sound, classroom?.gallery.find(item => item.group === group)?.version]);
   const heritage = researchForEra('three-kingdoms').find(h => h.id === work?.heritageId);
   if (cameraWorks) return <Suspense fallback={<p>카메라를 준비해요…</p>}><ClassroomCamera works={cameraWorks} sound={sound} onClose={() => setCameraWorks(undefined)} /></Suspense>;
   return <section><header><h1>우리 반 AR 박물관</h1><p>AR 카메라 열기 → 유물 카드 비추기 → 설명점 눌러 듣기</p></header>{!session ? <p>우리 반 작품을 보려면 위에서 수업코드로 입장해 주세요.</p> : classroom?.phase === 'making' ? <p>선생님이 전시를 준비하고 있어요. 전시가 시작되면 작품을 볼 수 있어요.</p> : <><button className="studio-primary" disabled={preparingCamera || !classroom?.gallery.length} onClick={() => { void startCamera(); }}>{preparingCamera ? '모둠 작품을 불러오는 중…' : 'AR 카메라로 카드 비추기'}</button><p>카드를 바꿔 비추면 해당 유물의 작품을 찾아요. 작품을 먼저 골라서 관람할 수도 있어요.</p><div className="studio-gallery-list">{classroom?.gallery.map(item => <button aria-pressed={group === item.group} key={item.group} onClick={() => setGroup(item.group)}><img src={heritageImageUrl('three-kingdoms', item.heritageId)} alt="" /><span><strong>{item.group}모둠</strong>{item.title}</span></button>)}</div>{!classroom?.gallery.length && <p>아직 전시된 작품이 없어요.</p>}{group && !work && !error && <p role="status">선택한 작품과 녹음을 불러와요…</p>}{error && <p role="alert">{error}</p>}{work && heritage && <Suspense fallback={<p>AR을 준비해요…</p>}><Viewer key={`${session.code}-${group}`} value={work.ar} heritage={heritage.heritage} heritageId={work.heritageId} image={heritageImageUrl('three-kingdoms', work.heritageId)} showQuiz={false} sharedClassroom onNarrationActivity={active => sound.narration(active)} onCardFound={() => sound.effect('found')} /></Suspense>}{classroom?.hasGraph && <details onToggle={e => { if (e.currentTarget.open && !graph) void loadGraph(); }}><summary>우리 반 공통 그래프 보기</summary>{graph ? <img className="studio-class-graph" src={graph} alt="1~6모둠의 자료로 만든 학급 공통 그래프" /> : <p>그래프를 불러와요…</p>}</details>}</>}</section>;
@@ -38,7 +38,7 @@ export function IndividualQuiz({ classroom, session, sound }: { classroom?: Clas
   const [result, setResult] = useState<QuizResult>(); const [error, setError] = useState(''); const [busy, setBusy] = useState(false);
   const [hint, setHint] = useState<{ title: string; text: string; narration?: { data: string } }>();
   const hintAudio = useRef<HTMLAudioElement>(null);
-  const questions = classroom?.questions || [];
+  const questions = result?.questions || classroom?.questions || [];
   useEffect(() => { if (!session) return; try { localStorage.setItem(draftKey, JSON.stringify({ answers, role, reflection })); } catch { /* optional draft only; submitted answers remain on the server */ } }, [answers, role, reflection, draftKey]);
   useEffect(() => { const player = hintAudio.current; return () => { player?.pause(); sound.narration(false); }; }, [hint?.narration?.data, sound]);
   useEffect(() => { if (result?.score !== undefined && result.score > 0) sound.effect('correct'); }, [result?.score, sound]);
@@ -50,7 +50,7 @@ export function IndividualQuiz({ classroom, session, sound }: { classroom?: Clas
   useEffect(() => () => { hintAudio.current?.pause(); sound.narration(false); }, [sound]);
   async function submit() {
     if (!session) return; setBusy(true); setError('');
-    try { const value = await studioApi<QuizResult>(`/rooms/${session.code}/answers`, session.token, { answers, role, reflection }); setResult(value); }
+    try { const value = await studioApi<QuizResult>(`/rooms/${session.code}/answers`, session.token, { answers, role, reflection, questionVersion: classroom?.questionVersion }); setResult(value); }
     catch (e) { setError(e instanceof Error ? e.message : '답안을 저장하지 못했어요.'); } finally { setBusy(false); }
   }
   async function listen(group: number, pointId: string) {

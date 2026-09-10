@@ -7,6 +7,10 @@
   },
   "rewrites": [
     {
+      "source": "/api/ar-studio/:path*",
+      "destination": "https://awjndrxyyqyngybulyor.supabase.co/functions/v1/history-ar/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

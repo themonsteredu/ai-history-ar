@@ -34,7 +34,7 @@ export default function StudioPage({ teacher = false, maker = false }: { teacher
   const transferredDraft = useRef<StudioProject | undefined>(undefined);
   const step = params.get('step') || (teacher ? 'guide' : 'model'); const lesson = Number(params.get('lesson')) || 4;
   const draftKey = `${maker ? 'history-ar-maker' : 'history-ar-studio'}:v1:${code || 'practice'}:${effectiveSession?.memberId || 'local'}`;
-  const canEdit = !classroom || classroom.phase === 'making';
+  const canEdit = !classroom || classroom.phase === 'making' || classroom.mode === 'shared';
   const heritage = researchForEra('three-kingdoms').find(h => h.id === project.heritageId)!;
   function navigate(next: string, lessonId = lesson) { if (recording) return; const query = new URLSearchParams(params); query.set('step', next); query.set('lesson', String(lessonId)); query.delete('view'); setParams(query); }
   function updateCode(value: string) { const query = new URLSearchParams(params); query.set('hub_code', value); setParams(query); setInputCode(value); }
@@ -84,17 +84,28 @@ export default function StudioPage({ teacher = false, maker = false }: { teacher
   useEffect(() => { sound.narration(false); sound.recordingActive(false); }, [step, sound]);
   async function join() {
     setBusy(true); setMessage('');
-    try { const next = await studioApi<StudioSession>('/join', undefined, { code: inputCode.trim().toLowerCase(), name: name.trim(), group: joinGroup });
+    try {
+      const nextCode = inputCode.trim().toLowerCase();
+      const cached = readStudioSession(nextCode);
+      if (cached && cached.name === name.trim() && cached.group === joinGroup) {
+        try {
+          const room = await studioApi<Classroom>(`/rooms/${nextCode}`, cached.token);
+          transferredDraft.current = undefined; setSession(cached); updateCode(cached.code); setClassroom(room);
+          setMessage('전에 입장한 정보로 이어서 열었어요. 우리 반 작품을 보거나 이 태블릿의 작업을 계속할 수 있어요.');
+          return;
+        } catch (error) { if ((error as { status?: number }).status !== 403) throw error; }
+      }
+      const next = await studioApi<StudioSession>('/join', undefined, { code: nextCode, name: name.trim(), group: joinGroup });
       // Carry this tablet's current work into the chosen classroom, without claiming it was submitted.
       const transferred = { ...latest.current, group: next.group };
       keepStudioSession(next); transferredDraft.current = transferred; setSession(next); updateCode(next.code);
-      setMessage('수업에 들어왔어요. 선생님이 모둠 제출 담당을 지정하면 작품을 제출할 수 있어요.');
+      setMessage('수업에 들어왔어요. 모둠 대표는 ‘모둠에 공유’를 누르고, 다른 친구들은 ‘우리 반 작품 보기’를 누르세요.');
       void saveProjectDraft(`${maker ? 'history-ar-maker' : 'history-ar-studio'}:v1:${next.code}:${next.memberId}`, JSON.stringify({ project: transferred, revision: 0 })).catch(() => setMessage('수업에는 입장했어요. 기기 임시 저장이 어려우니 작업 파일을 보관해 주세요.'));
     } catch (e) { setMessage(e instanceof Error ? e.message : '수업에 입장하지 못했어요.'); } finally { setBusy(false); }
   }
   async function submit(final = true) {
     if (!effectiveSession) return; setBusy(true); setMessage('');
-    try { const result = await studioApi<{ version: number }>(`/rooms/${code}/works/${effectiveSession.group}`, effectiveSession.token, { project, expectedVersion: revision, submit: final }); setRevision(result.version); setMessage(final ? '모둠 작품을 제출했어요. 선생님이 전시를 시작하면 다른 태블릿에서도 볼 수 있어요.' : '모둠 작업을 저장했어요. 다음 시간에 같은 수업코드로 이어 할 수 있어요.'); await refresh(); }
+    try { const result = await studioApi<{ version: number; shared?: boolean }>(`/rooms/${code}/works/${effectiveSession.group}`, effectiveSession.token, { project, expectedVersion: revision, submit: final }); setRevision(result.version); setMessage(result.shared ? '모둠 작품과 녹음을 공유했어요. 친구들은 각자 태블릿에서 ‘우리 반 작품 보기’를 눌러 주세요.' : final ? '모둠 작품을 제출했어요. 선생님이 전시를 시작하면 다른 태블릿에서도 볼 수 있어요.' : '모둠 작업을 저장했어요. 다음 시간에 같은 수업코드로 이어 할 수 있어요.'); await refresh(); }
     catch (e) { setMessage(e instanceof Error ? e.message : '작품을 제출하지 못했어요.'); } finally { setBusy(false); }
   }
   async function loadShared() {

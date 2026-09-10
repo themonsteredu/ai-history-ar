@@ -14,6 +14,7 @@ import { photoCoordinates, readyQuestions } from './maker';
 import { QuestionStep } from './NarrationStep';
 import { Exhibition, IndividualQuiz } from './Exhibition';
 import { TeacherControls } from './TeacherControls';
+import { ClassroomEntry } from './ClassroomEntry';
 import './maker.css';
 
 const Viewer = lazy(() => import('../../components/ArExhibitViewer'));
@@ -57,7 +58,7 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
   const [view, setView] = useState<'photo' | 'preview' | 'classroom'>('photo');
   const [selected, setSelected] = useState(project.ar.points[0].id);
   const [placeOnModel, setPlaceOnModel] = useState(true);
-  const [connectOpen, setConnectOpen] = useState(false);
+  const entry = useRef<HTMLDivElement>(null);
   const [showProblems, setShowProblems] = useState(false);
   const [placing, setPlacing] = useState(false);
   const [placed, setPlaced] = useState('');
@@ -68,7 +69,7 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
   const heritage = researchForEra('three-kingdoms').find(item => item.id === project.heritageId)!;
   const image = heritageImageUrl('three-kingdoms', project.heritageId);
   const prepared = preparedHeritage(project.ar.model?.preset);
-  const readonly = !!classroom && classroom.phase !== 'making';
+  const readonly = !!classroom && classroom.phase !== 'making' && classroom.mode !== 'shared';
   const editingDisabled = busy || recording || placing || readonly || !ready;
   const problems = submissionProblems(project);
   const questions = readyQuestions(project);
@@ -121,17 +122,19 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
     finally { if (alive.current) setPlacing(false); }
   }
   function save(final = false) {
-    if (!session) { setConnectOpen(true); props.onMessage('다른 태블릿에서도 열려면 수업코드로 입장해 주세요. 지금 작업은 그대로 유지돼요.'); return; }
-    if (!classroom?.canEdit) { setConnectOpen(true); props.onMessage('모둠 공동 저장은 선생님이 지정한 제출 담당 태블릿에서 할 수 있어요. 내 작업은 파일로 보관할 수 있어요.'); return; }
-    if (final && problems.length) { setShowProblems(true); return; }
+    if (!session) { entry.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }); props.onMessage('다른 태블릿에서도 열려면 위에서 수업코드로 입장해 주세요. 지금 작업은 그대로 유지돼요.'); return; }
+    if (!classroom?.canEdit) { props.onMessage('모둠 작품은 처음 공유한 태블릿에서 저장해요. 여기서는 우리 반 작품을 관람하거나 내 작업을 파일로 보관할 수 있어요.'); return; }
+    if (final && classroom.mode !== 'shared' && problems.length) { setShowProblems(true); return; }
     props.onSave(final);
   }
 
   return <div className="studio-page maker-page page-width">
     <header className="maker-titlebar">
       <div><Link to="/three-kingdoms" onClick={event => { if (recording) event.preventDefault(); }}>← 삼국시대</Link><h1>AR 만들기</h1></div>
-      <div className="maker-title-actions"><span className="maker-draft-label">{session ? `${session.code} · ${session.group}모둠` : '이 기기에서 제작 중'}</span><button disabled={busy || recording || placing || !ready || readonly} onClick={() => save()}>모둠에 저장</button><button className="studio-primary" disabled={recording || placing || !ready} onClick={() => changeView(view === 'preview' ? 'photo' : 'preview')}>{view === 'preview' ? '제작으로 돌아가기' : '내 작품 AR로 보기'}</button></div>
+      <div className="maker-title-actions"><span className="maker-draft-label">{session ? `${session.code} · ${session.group}모둠` : '이 기기에서 제작 중'}</span><button disabled={busy || recording || placing || !ready || readonly || (!!session && !classroom?.canEdit)} onClick={() => save()}>모둠에 공유</button><button className="studio-primary" disabled={busy || recording || placing || !ready} onClick={() => changeView(view === 'preview' ? 'photo' : 'preview')}>{view === 'preview' ? '제작으로 돌아가기' : '내 작품 AR로 보기'}</button></div>
     </header>
+
+    <div ref={entry}><ClassroomEntry session={session} inputCode={props.inputCode} name={props.name} joinGroup={props.joinGroup} disabled={busy || recording || placing || !ready} onInputCode={props.onInputCode} onName={props.onName} onJoinGroup={props.onJoinGroup} onJoin={props.onJoin} onGallery={() => changeView('classroom')} /></div>
 
     <div className="maker-projectbar">
       <label>모둠<select aria-label="제작 모둠" disabled={editingDisabled || !!session} value={project.group} onChange={event => { const group = Number(event.target.value); onChange({ ...project, group }); props.onJoinGroup(group); }}>{[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n}모둠</option>)}</select></label>
@@ -175,8 +178,8 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
         <details className="maker-extra"><summary>사진 카드 출력</summary><ArRecognitionCard heritageId={heritage.id} heritage={heritage.heritage} shared={!!session} /></details>
         <details className="maker-extra"><summary>배경음·효과음</summary><div className="studio-actions"><button disabled={recording} aria-pressed={props.soundOn} onClick={() => props.onSound(!props.soundOn)}>{props.soundOn ? '배경음 끄기' : '배경음 켜기'}</button><label>배경음 크기<input type="range" min={0} max={.5} step={.05} value={props.volume} onChange={event => props.onVolume(Number(event.target.value))} /></label><label><input type="checkbox" disabled={recording} checked={props.effects} onChange={event => props.onEffects(event.target.checked)} />짧은 효과음</label></div><p>해설 중에는 배경음이 작아지고 녹음 중에는 모든 배경 소리가 멈춰요.</p></details>
       </div>
-      <details className="maker-extra" open={connectOpen} onToggle={event => setConnectOpen(event.currentTarget.open)}><summary>{session ? `수업 연결·저장 · ${session.code} · ${session.group}모둠` : '수업코드로 연결·모둠에 저장'}</summary>
-        {!session ? <><div className="studio-room-form"><label>수업코드<input disabled={recording || busy} autoCapitalize="none" maxLength={12} value={props.inputCode} onChange={event => props.onInputCode(event.target.value)} /></label><label>이름 또는 별명<input disabled={recording || busy} maxLength={30} value={props.name} onChange={event => props.onName(event.target.value)} /></label><label>내 모둠<select disabled={recording || busy} value={props.joinGroup} onChange={event => props.onJoinGroup(Number(event.target.value))}>{[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n}모둠</option>)}</select></label><button className="studio-primary" disabled={recording || busy || !props.name.trim() || !/^[a-z0-9]{4,12}$/i.test(props.inputCode.trim())} onClick={props.onJoin}>지금 작품을 가지고 입장</button></div><p>수업 입장 없이도 만들기와 카메라 체험이 가능해요. 다른 태블릿에 공유할 때 연결하세요.</p></> : <><p>{classroom?.canEdit ? '우리 모둠 작품을 저장하고 전시에 제출할 수 있어요.' : '이 태블릿에서도 제작할 수 있어요. 모둠 공동 저장·제출은 선생님이 지정한 담당 태블릿에서 해요.'}</p><div className="studio-actions"><button disabled={editingDisabled || !classroom?.canEdit} onClick={() => save()}>모둠 작업 저장</button><button disabled={editingDisabled || !classroom?.canEdit} onClick={props.onLoadShared}>저장한 우리 모둠 작품 열기</button><button className="studio-primary" disabled={editingDisabled || !classroom?.canEdit} onClick={() => save(true)}>완성 작품을 전시에 제출</button></div>{showProblems && problems.length > 0 && <div className="studio-notice" role="status"><p>전시에 제출하려면 아래 내용을 마쳐 주세요. 저장과 내 작품 체험은 지금도 가능해요.</p><ul>{problems.map(message => <li key={message}>{message}</li>)}</ul></div>}</>}
+      <details className="maker-extra"><summary>모둠 작업 저장·불러오기</summary>
+        {!session ? <p>화면 위의 수업코드 입장칸에서 연결하세요. 지금 작업은 유지돼요.</p> : <><p>{classroom?.canEdit ? '공유하면 친구들의 태블릿에도 작품과 녹음이 나타나요. 퀴즈는 만들지 않아도 돼요.' : '처음 공유한 모둠 대표 태블릿에서 저장해요. 다른 친구들은 ‘우리 반 작품 보기’로 관람하세요.'}</p><div className="studio-actions"><button disabled={editingDisabled || !classroom?.canEdit} onClick={() => save()}>모둠에 공유</button><button disabled={editingDisabled || !classroom?.canEdit} onClick={props.onLoadShared}>저장한 우리 모둠 작품 열기</button></div>{showProblems && problems.length > 0 && <div className="studio-notice" role="status"><ul>{problems.map(message => <li key={message}>{message}</li>)}</ul></div>}</>}
       </details>
       <details className="maker-extra"><summary>작업 파일 보관·불러오기</summary><p>이 기기에는 임시 저장돼요. 수업코드로 저장하거나 작업 파일을 받아 보관해 주세요.</p><div className="studio-actions"><button disabled={recording || busy} onClick={() => downloadProjectFile(JSON.stringify(project), `AR_${project.group}모둠_${heritage.heritage}.json`, 'application/json')}>작업 파일 받기</button><label className="studio-file">작업 파일 열기<input disabled={editingDisabled} type="file" accept=".json,application/json" onChange={event => { props.onImport(event.target.files?.[0]); event.target.value = ''; }} /></label></div></details>
       {props.teacher && <details className="maker-extra"><summary>교사 전시 진행</summary><TeacherControls initialCode={props.code} onCode={props.onCode} /></details>}

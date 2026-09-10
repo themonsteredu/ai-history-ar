@@ -2,8 +2,8 @@ import type { StudioProject } from './project';
 export interface StudioSession { token: string; memberId: string; code: string; group: number; name: string }
 export interface PublicQuestion { id: string; group: number; prompt: string; options: string[]; pointId: string }
 export interface GalleryWork { group: number; heritageId: number; title: string; version: number; updatedAt: string }
-export interface Classroom { code: string; phase: 'making' | 'visiting' | 'quiz' | 'review'; gallery: GalleryWork[]; questions?: PublicQuestion[]; hasGraph?: boolean; teacher?: boolean; canEdit?: boolean }
-export interface QuizResult { submitted: boolean; score?: number; total?: number; details?: { id: string; chosen: number; answer: number; correct: boolean; pointId: string; group: number }[] }
+export interface Classroom { code: string; mode?: 'shared'; questionVersion?: string; phase: 'making' | 'visiting' | 'quiz' | 'review'; gallery: GalleryWork[]; questions?: PublicQuestion[]; hasGraph?: boolean; teacher?: boolean; canEdit?: boolean }
+export interface QuizResult { submitted: boolean; questions?: PublicQuestion[]; questionVersion?: string; score?: number; total?: number; details?: { id: string; chosen: number; answer: number; correct: boolean; pointId: string; group: number }[] }
 export class StudioApiError extends Error { constructor(message: string, public status: number) { super(message); } }
 export async function studioApi<T>(path: string, token?: string, body?: unknown, method?: string): Promise<T> {
   const response = await fetch(`${import.meta.env.BASE_URL}api/ar-studio${path}`, { method: method || (body === undefined ? 'GET' : 'POST'), credentials: 'same-origin', headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) }, body: body === undefined ? undefined : JSON.stringify(body) });
