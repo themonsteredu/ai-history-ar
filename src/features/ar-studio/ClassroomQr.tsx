@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 import { createClassroomQr } from '../../lib/qr/classroomQr';
 import { NumericCodeStatus } from './NumericCodeStatus';
 
-export default function ClassroomQr({ initialCode, onCode }: { initialCode: string; onCode?: (code: string) => void }) {
-  const [code, setCode] = useState(initialCode), [message, setMessage] = useState('');
+export default function ClassroomQr({ code, onCode }: { code: string; onCode: (code: string) => void }) {
+  const [message, setMessage] = useState('');
   const qr = useMemo(() => createClassroomQr(code), [code]);
   async function copyLink() {
     if (!qr) return;
@@ -14,7 +14,7 @@ export default function ClassroomQr({ initialCode, onCode }: { initialCode: stri
     <div className="classroom-qr-info">
       <h3>학생 입장 QR</h3>
       <p>숫자 수업코드를 입력하면 자동 저장되고, 학생 입장 QR도 만들어져요.</p>
-      <label>QR에 넣을 수업코드<input value={code} onChange={event => { const next = event.target.value.trim().toLowerCase(); setCode(next); onCode?.(next); setMessage(''); }} minLength={4} maxLength={12} pattern="[a-z0-9]{4,12}" inputMode="numeric" autoCapitalize="none" autoComplete="off" spellCheck={false} placeholder="숫자 4~12자리" /></label>
+      <label>QR에 넣을 수업코드<input value={code} onChange={event => { onCode(event.target.value.trim().toLowerCase()); setMessage(''); }} minLength={4} maxLength={12} pattern="[a-z0-9]{4,12}" inputMode="numeric" autoCapitalize="none" autoComplete="off" spellCheck={false} placeholder="숫자 4~12자리" /></label>
       <NumericCodeStatus code={code} />
       <p className="maker-entry-help">학생은 태블릿 기본 카메라로 QR을 찍고, 열린 화면에서 이름과 모둠을 고르면 됩니다.</p>
       <p className="maker-entry-help">다른 반과 겹치지 않는 6자리 이상을 권장해요. 같은 숫자 수업은 90일간 이어 쓸 수 있어요. 이 QR은 입장용이며, 유물을 띄우는 AR 사진 카드는 별도예요.</p>

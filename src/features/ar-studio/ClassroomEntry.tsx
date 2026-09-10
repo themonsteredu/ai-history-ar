@@ -18,7 +18,7 @@ export function ClassroomEntry(props: EntryProps) {
       <div className="studio-actions"><button type="button" aria-expanded={showQr} onClick={() => setShowQr(value => !value)}>{showQr ? '입장 QR 닫기' : '학생 입장 QR 만들기'}</button>{session && <><button className="studio-primary" disabled={disabled} onClick={props.onGallery}>우리 반 작품 보기</button><button disabled={disabled} onClick={() => setChanging(value => !value)}>{changing ? '입력칸 닫기' : '입장 정보 바꾸기'}</button></>}</div>
     </div>
     {!session && <p className="maker-entry-help">숫자 4~12자리를 정해 입력하면 이 화면에서 수업코드가 자동 저장돼요. 다른 반과 겹치지 않는 6자리 이상을 권장해요. 기존 <a href="https://hub.moakit.ai/app" target="_blank" rel="noopener noreferrer">수업허브</a> 코드도 사용할 수 있어요.</p>}
-    {showQr && <Suspense fallback={<p role="status">입장 QR을 준비해요…</p>}><ClassroomQr initialCode={session?.code || props.inputCode} onCode={props.onInputCode} /></Suspense>}
+    {showQr && <Suspense fallback={<p role="status">입장 QR을 준비해요…</p>}><ClassroomQr code={props.inputCode} onCode={props.onInputCode} /></Suspense>}
     {(!session || changing) && <form className="studio-room-form" onSubmit={event => { event.preventDefault(); if (!disabled) props.onJoin(); }}>
       <label>수업코드<input required pattern="[a-zA-Z0-9]{4,12}" disabled={disabled} minLength={4} maxLength={12} autoCapitalize="none" spellCheck={false} value={props.inputCode} onChange={event => props.onInputCode(event.target.value.trim())} placeholder="선생님의 참여 코드" /></label>
       <label>이름 또는 별명<input required maxLength={30} disabled={disabled} value={props.name} onChange={event => props.onName(event.target.value)} placeholder="내 이름 또는 별명" /></label>
