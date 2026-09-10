@@ -1,9 +1,13 @@
 import { renderToStaticMarkup } from 'react-dom/server';
+import { MemoryRouter } from 'react-router-dom';
 import { expect, it } from 'vitest';
 import { TeacherRunPanel } from './TeacherRunPanel';
+import type { ComponentProps } from 'react';
 import { readGroupCount, runLessons, sharingStatus } from './teacherRun';
 
 const noop = () => {};
+const render = (props: ComponentProps<typeof TeacherRunPanel>) =>
+  renderToStaticMarkup(<MemoryRouter><TeacherRunPanel {...props} /></MemoryRouter>);
 const session = { code: '250910', group: 1, memberId: 'id', token: 'private-token', name: '선생님' };
 const room = (groups: number[]) => ({ code: '250910', phase: 'quiz' as const, gallery: groups.map(group => ({ group, heritageId: group, title: '전시', version: 1, updatedAt: '' })) });
 
@@ -33,7 +37,7 @@ it('falls back to six groups when nothing valid is stored', () => {
 });
 
 it('tells a teacher without a class code to make one first', () => {
-  const html = renderToStaticMarkup(<TeacherRunPanel code="" onView={noop} />);
+  const html = render({ code: '', onView: noop });
   expect(html).toContain('먼저 수업코드를 정해 주세요');
   expect(html).toContain('학생 입장 QR 만들기');
   expect(html).toContain('1차시 · AR 카드 만들기');
@@ -42,20 +46,20 @@ it('tells a teacher without a class code to make one first', () => {
 });
 
 it('warns while groups are still missing and clears once every group has shared', () => {
-  const waiting = renderToStaticMarkup(<TeacherRunPanel code="250910" session={session} classroom={room([1, 2])} onView={noop} />);
+  const waiting = render({ code: '250910', session, classroom: room([1, 2]), onView: noop });
   expect(waiting).toContain('2 / 6모둠 공유됨');
   expect(waiting).toContain('아직 3, 4, 5, 6모둠이 남았습니다');
   expect(waiting).not.toContain('우리 반 전시·퀴즈 열기');
   expect(waiting).not.toContain('private-token');
 
-  const ready = renderToStaticMarkup(<TeacherRunPanel code="250910" session={session} classroom={room([1, 2, 3, 4, 5, 6])} onView={noop} />);
+  const ready = render({ code: '250910', session, classroom: room([1, 2, 3, 4, 5, 6]), onView: noop });
   expect(ready).toContain('모든 모둠이 공유를 마쳤습니다');
   expect(ready).toContain('우리 반 전시·퀴즈 열기');
   expect(ready).not.toContain('남았습니다');
 });
 
 it('keeps the sharing board unconfirmed until the teacher joins the class', () => {
-  const html = renderToStaticMarkup(<TeacherRunPanel code="250910" onView={noop} />);
+  const html = render({ code: '250910', onView: noop });
   expect(html).toContain('수업코드 저장 완료');
   expect(html).toContain('확인 전');
   expect(html).toContain('모둠에 공유');

@@ -43,3 +43,24 @@ async function writeDraft(key: string, text: string) {
     tx.onerror = tx.onabort = () => { db.close(); reject(tx.error || new Error('임시 저장 공간이 부족합니다.')); };
   });
 }
+
+export interface StoredDraft { key: string; text: string }
+export async function listProjectDrafts(): Promise<StoredDraft[]> {
+  // Read-only recovery: never creates, moves or clears a draft.
+  const db = await database();
+  return await new Promise((resolve, reject) => {
+    const tx = db.transaction('drafts', 'readonly');
+    const store = tx.objectStore('drafts');
+    const keyRequest = store.getAllKeys();
+    const valueRequest = store.getAll();
+    let drafts: StoredDraft[] = [];
+    tx.oncomplete = () => {
+      const keys = keyRequest.result || [];
+      const values = valueRequest.result || [];
+      drafts = keys.map((key, index) => ({ key: String(key), text: values[index] }))
+        .filter((draft): draft is StoredDraft => typeof draft.text === 'string' && draft.text.length > 0);
+      db.close(); resolve(drafts);
+    };
+    tx.onerror = tx.onabort = () => { db.close(); reject(tx.error); };
+  });
+}

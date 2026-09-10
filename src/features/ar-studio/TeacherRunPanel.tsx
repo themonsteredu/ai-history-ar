@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { Classroom, StudioSession } from './api';
 import { GROUP_CHOICES, groupCountKey, readGroupCount, runLessons, sharingStatus } from './teacherRun';
 
@@ -65,6 +66,8 @@ export function TeacherRunPanel({ classroom, session, code, onView }: RunPanelPr
           <li><b>퀴즈는 모둠이 다 공유된 뒤에</b> 시작합니다. 개인 제출은 한 번뿐이고 되돌릴 수 없습니다.</li>
         </ul>
         <div className="studio-actions"><button onClick={() => onView('photo')}>제작 화면 보기</button><button onClick={() => onView('preview')}>내 작품 체험</button></div>
+        <h3>지난 시간 작업을 못 찾을 때</h3>
+        <p className="teacher-run-rescue">학생이 쓰던 태블릿에서 <Link to="/three-kingdoms/ar-rescue">학생 작업 복구</Link>를 열면 그 기기에 남은 작업을 찾아 파일로 꺼낼 수 있습니다. 저장된 내용은 지우지 않습니다.</p>
       </aside>
     </div>
   </section>;
