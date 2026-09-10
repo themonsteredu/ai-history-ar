@@ -144,10 +144,10 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
     <div className="maker-projectbar">
       <label>모둠<select aria-label="제작 모둠" disabled={editingDisabled || !!session} value={project.group} onChange={event => { const group = Number(event.target.value); onChange({ ...project, group }); props.onJoinGroup(group); }}>{[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n}모둠</option>)}</select></label>
       <label>우리 유물<select aria-label="유물 선택" disabled={editingDisabled} value={project.heritageId} onChange={event => { void chooseHeritage(Number(event.target.value)); }}>{researchForEra('three-kingdoms').map(item => <option key={item.id} value={item.id}>{item.heritage}</option>)}</select></label>
-      <p>준비된 모형에 점을 찍고, 설명과 목소리를 붙여요.</p>
+      <p>모형에 점을 찍고 설명과 목소리를 붙여요.</p>
     </div>
     {props.message && <p className="studio-notice" role="status">{props.message}</p>}
-    {readonly && <p className="studio-notice">전시가 시작되어 제출 작품은 고정되어 있어요. 내 작품과 우리 반 전시는 계속 볼 수 있어요.</p>}
+    {readonly && <p className="studio-notice">전시 중이라 제출 작품은 고정됐어요. 관람은 계속 돼요.</p>}
     {!ready ? <p role="status">작업을 불러와요…</p> : <>
       <nav className="maker-viewbar" aria-label="AR 만들기 도구">
         {([['photo', '점 찍기·설명·녹음'], ['preview', '내 작품 체험'], ['classroom', '우리 반 전시·퀴즈']] as const).map(([key, label]) => <button key={key} aria-pressed={view === key} disabled={recording || placing} onClick={() => changeView(key)}>{label}</button>)}
@@ -155,13 +155,13 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
       {view === 'photo' && <section className="maker-photo-layout" aria-label="준비된 유물에 설명점과 녹음 붙이기">
         <div className="maker-visual">
           <div className="maker-surface-heading"><strong>{heritage.heritage}</strong><button disabled={editingDisabled} aria-pressed={placeOnModel} onClick={() => setPlaceOnModel(!placeOnModel)}>{placeOnModel ? '사진에서 보기' : '입체 모형에서 점 찍기'}</button></div>
-          {museumOriginal ? <p className="maker-model-description">국립중앙과학관의 실물 표면 그림이 포함된 첨성대 3D 원본이에요. 설명할 곳을 눌러 점을 붙이세요.</p> : prepared ? <p className="maker-model-description">{prepared.detail}</p> : <p className="maker-model-description">이전에 만든 모형을 열었어요. <button disabled={editingDisabled} onClick={() => { void replaceWithPrepared(); }}>준비된 유물 모형 사용</button></p>}
+          {museumOriginal ? <p className="maker-model-description">국립중앙과학관 첨성대 원본이에요. 설명할 곳을 눌러 점을 붙이세요.</p> : prepared ? <p className="maker-model-description">{prepared.detail}</p> : <p className="maker-model-description">이전 모형이에요. <button disabled={editingDisabled} onClick={() => { void replaceWithPrepared(); }}>준비된 모형 사용</button></p>}
           {placeOnModel ? <Suspense fallback={<p>모형을 열어요…</p>}><HeritageModelView model={project.ar.model} image={image} points={project.ar.points} selectedId={point.id} onSelect={id => { if (!editingDisabled) setSelected(id); }} onPlace={editingDisabled ? undefined : position => updatePoint({ position })} targetIndex={project.heritageId - 1} /></Suspense> : <div className="maker-photo">
             <button type="button" className="maker-photo-surface" aria-label={`${point.title || '선택한 설명점'} 위치를 사진에 찍기`} disabled={editingDisabled} onClick={event => { const coordinates = event.detail === 0 ? [.5, .5] as [number, number] : photoCoordinates(event.clientX, event.clientY, event.currentTarget.getBoundingClientRect()); void placePhoto(coordinates); }}><img src={image} alt={`${heritage.heritage} · 설명할 위치를 눌러 주세요`} draggable={false} /></button>
             {project.ar.points.map((item, index) => <button key={item.id} type="button" className="maker-pin" aria-pressed={point.id === item.id} aria-label={`${index + 1}번 설명점 선택`} disabled={editingDisabled} style={{ left: `${item.photoPosition[0] * 100}%`, top: `${item.photoPosition[1] * 100}%` }} onClick={() => { setSelected(item.id); setPlaced(''); }}>{index + 1}</button>)}
           </div>}
-          <p className="maker-photo-help" role="status">{placing ? '유물과 설명점 위치를 준비해요…' : placed || (placeOnModel ? '번호를 고르고 모형을 톡 누르면 점이 붙어요. 손가락으로 끌어서 돌려볼 수 있어요.' : '번호를 고른 뒤 사진을 누르면 그곳으로 점이 이동해요.')}</p>
-          {prepared && <p className="maker-model-credit">사진 참고 3D 재현 · 실측·스캔 원본은 아니에요. 뒷면·내부와 세부 장식은 추정해 표현했어요. 정확한 모습은 사진과 함께 확인해요.</p>}
+          <p className="maker-photo-help" role="status">{placing ? '준비 중…' : placed || (placeOnModel ? '번호를 고르고 모형을 누르면 점이 붙어요.' : '번호를 고르고 사진을 누르면 점이 옮겨져요.')}</p>
+          {prepared && <p className="maker-model-credit">사진을 참고한 학습용 3D 재현이에요. 실측·스캔 원본은 아니에요.</p>}
           {museumOriginal && <p className="maker-model-credit">{project.ar.model?.credit} · 원본 약 36MB를 처음 한 번 내려받아요. 교체된 모형의 점 위치를 확인해 주세요.</p>}
         </div>
         <aside className="maker-point-editor">
@@ -173,7 +173,7 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
         </aside>
       </section>}
       {view === 'preview' && <section className="maker-preview" aria-label="내 작품 미리보기">
-        <p className="maker-preview-note">유물 모형에 붙인 설명과 녹음으로 체험해요. 제출이나 퀴즈 완성은 필요 없어요.</p>
+        <p className="maker-preview-note">지금 만든 그대로 체험해요.</p>
         <Suspense fallback={<p>내 작품을 열어요…</p>}><Viewer key={project.heritageId} value={project.ar} heritage={heritage.heritage} heritageId={project.heritageId} image={image} showQuiz={false} showCard={false} onNarrationActivity={value => sound.narration(value)} onCardFound={() => sound.effect('found')} /></Suspense>
         {questions.length > 0 && <details className="maker-extra"><summary>내가 만든 퀴즈 풀어보기 · {questions.length}문제</summary><MakerQuiz key={JSON.stringify(questions)} project={project} sound={sound} /></details>}
       </section>}
@@ -182,12 +182,12 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
       <details className="maker-extra maker-question-tools"><summary>퀴즈 만들기 <span>{questions.length}문제 작성</span></summary><QuestionStep project={project} onChange={onChange} onSubmit={() => save(true)} busy={editingDisabled} connected={!!classroom?.canEdit} showSubmission={false} /></details>
       <div className="maker-extras-row">
         <details className="maker-extra"><summary>사진 카드 출력</summary><ArRecognitionCard heritageId={heritage.id} heritage={heritage.heritage} shared={!!session} /></details>
-        <details className="maker-extra"><summary>배경음·효과음</summary><div className="studio-actions"><button disabled={recording} aria-pressed={props.soundOn} onClick={() => props.onSound(!props.soundOn)}>{props.soundOn ? '배경음 끄기' : '배경음 켜기'}</button><label>배경음 크기<input type="range" min={0} max={.5} step={.05} value={props.volume} onChange={event => props.onVolume(Number(event.target.value))} /></label><label><input type="checkbox" disabled={recording} checked={props.effects} onChange={event => props.onEffects(event.target.checked)} />짧은 효과음</label></div><p>해설 중에는 배경음이 작아지고 녹음 중에는 모든 배경 소리가 멈춰요.</p></details>
+        <details className="maker-extra"><summary>배경음·효과음</summary><div className="studio-actions"><button disabled={recording} aria-pressed={props.soundOn} onClick={() => props.onSound(!props.soundOn)}>{props.soundOn ? '배경음 끄기' : '배경음 켜기'}</button><label>배경음 크기<input type="range" min={0} max={.5} step={.05} value={props.volume} onChange={event => props.onVolume(Number(event.target.value))} /></label><label><input type="checkbox" disabled={recording} checked={props.effects} onChange={event => props.onEffects(event.target.checked)} />짧은 효과음</label></div><p>녹음 중에는 배경음이 멈춰요.</p></details>
       </div>
       <details className="maker-extra"><summary>모둠 작업 저장·불러오기</summary>
-        {!session ? <p>화면 위의 수업코드 입장칸에서 연결하세요. 지금 작업은 유지돼요.</p> : <><p>{classroom?.canEdit ? '공유하면 친구들의 태블릿에도 작품과 녹음이 나타나요. 퀴즈는 만들지 않아도 돼요.' : '처음 공유한 모둠 대표 태블릿에서 저장해요. 다른 친구들은 ‘우리 반 작품 보기’로 관람하세요.'}</p><div className="studio-actions"><button disabled={editingDisabled || !classroom?.canEdit} onClick={() => save()}>모둠에 공유</button><button disabled={editingDisabled || !classroom?.canEdit} onClick={props.onLoadShared}>저장한 우리 모둠 작품 열기</button></div>{showProblems && problems.length > 0 && <div className="studio-notice" role="status"><ul>{problems.map(message => <li key={message}>{message}</li>)}</ul></div>}</>}
+        {!session ? <p>위에서 수업코드로 입장하세요.</p> : <><p>{classroom?.canEdit ? '공유하면 친구들 태블릿에도 나타나요.' : '저장은 모둠 대표 태블릿에서 해요.'}</p><div className="studio-actions"><button disabled={editingDisabled || !classroom?.canEdit} onClick={() => save()}>모둠에 공유</button><button disabled={editingDisabled || !classroom?.canEdit} onClick={props.onLoadShared}>저장한 우리 모둠 작품 열기</button></div>{showProblems && problems.length > 0 && <div className="studio-notice" role="status"><ul>{problems.map(message => <li key={message}>{message}</li>)}</ul></div>}</>}
       </details>
-      <details className="maker-extra"><summary>작업 파일 보관·불러오기</summary><p>이 기기에는 임시 저장돼요. 수업코드로 저장하거나 작업 파일을 받아 보관해 주세요.</p><div className="studio-actions"><button disabled={recording || busy} onClick={() => downloadProjectFile(JSON.stringify(project), `AR_${project.group}모둠_${heritage.heritage}.json`, 'application/json')}>작업 파일 받기</button><label className="studio-file">작업 파일 열기<input disabled={editingDisabled} type="file" accept=".json,application/json" onChange={event => { props.onImport(event.target.files?.[0]); event.target.value = ''; }} /></label></div></details>
+      <details className="maker-extra"><summary>작업 파일 보관·불러오기</summary><p>이 기기 저장은 임시예요. 공유하거나 파일로 받아 두세요.</p><div className="studio-actions"><button disabled={recording || busy} onClick={() => downloadProjectFile(JSON.stringify(project), `AR_${project.group}모둠_${heritage.heritage}.json`, 'application/json')}>작업 파일 받기</button><label className="studio-file">작업 파일 열기<input disabled={editingDisabled} type="file" accept=".json,application/json" onChange={event => { props.onImport(event.target.files?.[0]); event.target.value = ''; }} /></label></div></details>
       {props.teacher && <details className="maker-extra"><summary>교사 전시 진행</summary><TeacherControls initialCode={props.code} onCode={props.onCode} /></details>}
     </>}
   </div>;
