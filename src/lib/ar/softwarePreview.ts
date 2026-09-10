@@ -66,6 +66,7 @@ export function createSoftwarePreview() {
         if (triangle.every(point => point[0] < 0) || triangle.every(point => point[0] > width) || triangle.every(point => point[1] < 0) || triangle.every(point => point[1] > height)) continue;
         const material = face.material;
         color.copy(material.color || new THREE.Color('#b7a38a'));
+        if (material.vertexColors && face.color) color.multiply(face.color);
         if (!material.isMeshBasicMaterial) color.multiplyScalar(.48 + Math.max(0, face.normalModel.dot(light)) * .75);
         context.globalAlpha = material.opacity;
         context.fillStyle = color.getStyle(THREE.SRGBColorSpace);
@@ -78,6 +79,11 @@ export function createSoftwarePreview() {
           if (transform) {
             context.save(); context.clip(); context.transform(...transform);
             context.drawImage(picture, 0, 0); context.restore();
+            if (!material.isMeshBasicMaterial) {
+              // Match the simple directional shading on photo surfaces as well as plain ones.
+              const shade = Math.min(1, .50 + Math.abs(face.normalModel.dot(light)) * .5);
+              context.fillStyle = `rgba(0,0,0,${1 - shade})`; context.fill();
+            }
           }
         } else {
           // Cover subpixel antialias gaps while preserving the deliberate gaps between separate stones.

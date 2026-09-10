@@ -14,14 +14,14 @@ var preparedHeritages = [
 		id: 1,
 		key: "samguk-muryeong-v1",
 		name: "무령왕릉",
-		detail: "벽돌 벽과 둥근 천장을 살펴보는 무덤 내부",
+		detail: "사진의 벽돌 질감을 입힌 무덤 내부 · 안이 보이도록 천장과 벽 일부를 열었어요.",
 		image: "muryeong-tomb.jpg"
 	},
 	{
 		id: 2,
 		key: "samguk-incense-v1",
 		name: "백제 금동대향로",
-		detail: "용 받침, 연꽃 몸체, 산 모양 뚜껑과 봉황",
+		detail: "금동 표면, 용 받침, 겹친 연꽃과 산봉우리, 날개를 편 봉황을 살펴봐요.",
 		image: "baekje-incense-burner.jpg"
 	},
 	{
@@ -35,21 +35,21 @@ var preparedHeritages = [
 		id: 4,
 		key: "samguk-crown-v1",
 		name: "신라 금관",
-		detail: "둥근 관테, 가지 장식과 드리개",
+		detail: "얇은 금판, 나뭇가지와 사슴뿔 장식, 곡옥과 길게 늘어진 드리개를 살펴봐요.",
 		image: "silla-crown.jpg"
 	},
 	{
 		id: 5,
 		key: "samguk-mural-v1",
 		name: "고구려 고분벽화",
-		detail: "실제 벽화 사진을 붙인 입체 전시 벽",
+		detail: "실제 벽화 사진을 굴곡이 있는 벽면에 입힌 무덤 내부 재현이에요.",
 		image: "goguryeo-mural.jpg"
 	},
 	{
 		id: 6,
 		key: "samguk-gaya-v1",
 		name: "가야 고분군",
-		detail: "크기가 다른 둥근 봉분들이 모인 풍경",
+		detail: "사진의 잔디 질감을 입힌 봉분과 완만한 지형을 돌려 봐요.",
 		image: "gaya-tombs.jpg"
 	}
 ];
@@ -155,6 +155,35 @@ async function hash(token) {
 function createArSharedHandler(config) {
 	const fetcher = config.fetch || fetch;
 	const joins = /* @__PURE__ */ new Map();
+	const numericRequests = /* @__PURE__ */ new Map();
+	async function rpc(name, payload) {
+		const response = await fetcher(`${config.url}/rest/v1/rpc/${name}`, {
+			method: "POST",
+			signal: AbortSignal.timeout(2e4),
+			headers: {
+				"Content-Type": "application/json",
+				apikey: config.key,
+				Authorization: `Bearer ${config.key}`
+			},
+			body: JSON.stringify(payload)
+		});
+		if (!response.ok) throw new RequestError(503, "공유 서버에 연결하지 못했어요. 현재 작업은 그대로 두고 다시 시도해 주세요.");
+		const value = await response.json();
+		if (!value || typeof value !== "object" || Array.isArray(value)) throw new RequestError(503, "공유 서버 응답을 확인하지 못했어요.");
+		return value;
+	}
+	async function numericRoom(code, request) {
+		const key = request.headers.get("x-forwarded-for") || "shared", now = Date.now();
+		if (numericRequests.size > 1e3) numericRequests.clear();
+		const limit = numericRequests.get(key);
+		if (limit && now - limit.start < 6e4) {
+			if (++limit.count > 180) throw new RequestError(429, "수업코드 저장 요청이 많아요. 잠시 뒤 다시 시도해 주세요.");
+		} else numericRequests.set(key, {
+			start: now,
+			count: 1
+		});
+		return rpc("history_ar_create_numeric_room", { p_code: code });
+	}
 	return async (request) => {
 		const origin = request.headers.get("origin") || "";
 		try {
@@ -178,6 +207,12 @@ function createArSharedHandler(config) {
 			if (!["GET", "POST"].includes(request.method)) throw new RequestError(405, "지원하지 않는 요청입니다.");
 			if (!config.url || !config.key) throw new RequestError(503, "공유 저장 서버 연결을 확인해 주세요.");
 			const input = request.method === "POST" ? await readBody(request) : {};
+			if (path === "/classrooms" && request.method === "POST") {
+				const number = typeof input.code === "string" ? input.code.trim() : "";
+				if (!/^[0-9]{4,12}$/.test(number)) throw new RequestError(400, "숫자 수업코드는 4~12자리로 입력해 주세요.");
+				const { _status, ...result } = await numericRoom(number, request);
+				return json(result, _status || 200, origin);
+			}
 			let action = "";
 			let code = "";
 			let token = request.headers.get("authorization")?.match(/^Bearer ([a-f0-9]{64})$/)?.[1] || "";
@@ -237,25 +272,16 @@ function createArSharedHandler(config) {
 				}
 			}
 			if (!CODE.test(code)) throw new RequestError(400, "수업코드는 영문과 숫자 4~12자로 입력해 주세요.");
-			const response = await fetcher(`${config.url}/rest/v1/rpc/history_ar_dispatch`, {
-				method: "POST",
-				signal: AbortSignal.timeout(2e4),
-				headers: {
-					"Content-Type": "application/json",
-					apikey: config.key,
-					Authorization: `Bearer ${config.key}`
-				},
-				body: JSON.stringify({
-					p_action: action,
-					p_code: code,
-					p_token_hash: await hash(token),
-					p_payload: payload
-				})
+			if (joining && /^[0-9]{4,12}$/.test(code)) {
+				const { _status, ...result } = await numericRoom(code, request);
+				if (_status) return json(result, _status, origin);
+			}
+			const { _status, ...result } = await rpc("history_ar_dispatch", {
+				p_action: action,
+				p_code: code,
+				p_token_hash: await hash(token),
+				p_payload: payload
 			});
-			if (!response.ok) throw new RequestError(503, "공유 서버에 연결하지 못했어요. 현재 작업은 그대로 두고 다시 시도해 주세요.");
-			const value = await response.json();
-			if (!value || typeof value !== "object" || Array.isArray(value)) throw new RequestError(503, "공유 서버 응답을 확인하지 못했어요.");
-			const { _status, ...result } = value;
 			return json(joining && !_status ? {
 				...result,
 				token

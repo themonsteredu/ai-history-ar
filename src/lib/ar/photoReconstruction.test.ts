@@ -56,4 +56,22 @@ describe('photo-reference reconstructions', () => {
       expect(new THREE.Box3().setFromObject(fallback)).toEqual(new THREE.Box3().setFromObject(picking));
     } finally { dispose(picking); dispose(fallback); }
   });
+
+  it('keeps signed extruded brick-face texture triangles from collapsing into single-pixel samples', async () => {
+    vi.spyOn(THREE.TextureLoader.prototype, 'loadAsync').mockImplementation(async () => new THREE.Texture());
+    const root = await createPreparedModel('samguk-muryeong-v1');
+    let capTriangles = 0;
+    try {
+      root.traverse((mesh: InstanceType<typeof THREE.Object3D>) => {
+        if (!(mesh instanceof THREE.Mesh) || !mesh.material.map) return;
+        const normal = mesh.geometry.getAttribute('normal'), uv = mesh.geometry.getAttribute('uv');
+        for (let i = 0; i < normal.count; i += 3) {
+          if (Math.abs(normal.getZ(i)) < .999 || Math.abs(normal.getZ(i + 1)) < .999 || Math.abs(normal.getZ(i + 2)) < .999) continue;
+          const area = (uv.getX(i + 1) - uv.getX(i)) * (uv.getY(i + 2) - uv.getY(i)) - (uv.getX(i + 2) - uv.getX(i)) * (uv.getY(i + 1) - uv.getY(i));
+          expect(Math.abs(area)).toBeGreaterThan(1e-9); capTriangles++;
+        }
+      });
+      expect(capTriangles).toBeGreaterThan(100);
+    } finally { dispose(root); }
+  });
 });

@@ -45,6 +45,11 @@ export async function createPhotoReconstruction(id: number, image: string, withI
     const attr = geometry.getAttribute('position');
     const colors = new Float32Array(attr.count * 3);
     const uv = geometry.getAttribute('uv');
+    let uMin = Infinity, vMin = Infinity, uMax = -Infinity, vMax = -Infinity;
+    if (uv && surface === 'body') for (let i = 0; i < uv.count; i++) {
+      uMin = Math.min(uMin, uv.getX(i)); uMax = Math.max(uMax, uv.getX(i));
+      vMin = Math.min(vMin, uv.getY(i)); vMax = Math.max(vMax, uv.getY(i));
+    }
     for (let i = 0; i < attr.count; i++) {
       const x = attr.getX(i), y = attr.getY(i), z = attr.getZ(i);
       const n = noise(x + position[0], y + position[1], z + position[2]);
@@ -52,10 +57,10 @@ export async function createPhotoReconstruction(id: number, image: string, withI
       const shade = 1 - (n + 1) * (id === 6 ? .13 : .07);
       colors.set([shade, shade, shade], i * 3);
       if (uv && surface === 'body') {
-        // Shape/extrude UVs may lie outside 0..1. Keep every sample inside the selected artifact surface.
-        const u = Math.abs(uv.getX(i)) % 1, v = Math.abs(uv.getY(i)) % 1;
-        // Native normalized UV endpoints must stay at 1, not wrap to 0.
-        const nu = uv.getX(i) === 1 ? 1 : u, nv = uv.getY(i) === 1 ? 1 : v;
+        // Extruded plates have signed UVs. Normalize without folding +/- coordinates
+        // together: folding collapses cap triangles and loses the photographed detail.
+        const nu = (uv.getX(i) - uMin) / (uMax - uMin || 1);
+        const nv = (uv.getY(i) - vMin) / (vMax - vMin || 1);
         uv.setXY(i, photoRect[0] + nu * (photoRect[2] - photoRect[0]), 1 - photoRect[3] + nv * (photoRect[3] - photoRect[1]));
       }
     }

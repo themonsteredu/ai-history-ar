@@ -18,6 +18,50 @@ function setup(value: unknown = { saved: true, version: 1, shared: true }) {
 }
 
 describe('shared classroom Edge API', () => {
+  it('saves numeric classroom codes without a Hub account or exposing a member token', async () => {
+    const api = setup({ code: '001234', saved: true, created: true, mode: 'numeric' });
+    const response = await api.handler(request('/classrooms', { code: ' 001234 ' }, { authorization: '' }));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ code: '001234', saved: true, created: true, mode: 'numeric' });
+    expect(api.fetcher.mock.calls[0][0]).toBe('https://database.example/rest/v1/rpc/history_ar_create_numeric_room');
+    expect(api.sent()).toEqual({ p_code: '001234' });
+  });
+  it('rejects invalid classroom numbers before touching the database', async () => {
+    const api = setup();
+    for (const code of ['123', '1234567890123', 'hub123', 1234, null, '12 34']) {
+      expect((await api.handler(request('/classrooms', { code }))).status).toBe(400);
+    }
+    expect(api.fetcher).not.toHaveBeenCalled();
+  });
+  it('creates a numeric room before joining, then issues the usual private member token', async () => {
+    const api = setup({ code: '001234', group: 1, name: '테스트', memberId: 'member' });
+    api.fetcher.mockResolvedValueOnce(Response.json({ code: '001234', saved: true, created: true, mode: 'numeric' }));
+    const response = await api.handler(request('/join', { code: '001234', name: '테스트', group: 1 }));
+    const value = await response.json();
+    expect(response.status).toBe(200); expect(value.token).toMatch(/^[a-f0-9]{64}$/);
+    expect(api.fetcher.mock.calls.map(call => call[0])).toEqual([
+      'https://database.example/rest/v1/rpc/history_ar_create_numeric_room',
+      'https://database.example/rest/v1/rpc/history_ar_dispatch',
+    ]);
+    expect(api.sent().p_action).toBe('join');
+    expect(api.sent().p_token_hash).not.toBe(value.token);
+  });
+  it('does not join or reopen closed and expired numeric classrooms', async () => {
+    for (const status of [403, 409]) {
+      const api = setup({ _status: status, error: '다른 번호를 입력해 주세요.' });
+      const response = await api.handler(request('/join', { code: '001234', name: '테스트', group: 1 }));
+      expect(response.status).toBe(status);
+      expect(await response.json()).toEqual({ error: '다른 번호를 입력해 주세요.' });
+      expect(api.fetcher).toHaveBeenCalledTimes(1);
+    }
+  });
+  it('limits repeated numeric creation requests without claiming they saved', async () => {
+    const api = setup({ code: '001234', saved: true, created: false, mode: 'numeric' });
+    for (let n = 0; n < 180; n++) expect((await api.handler(request('/classrooms', { code: '001234' }))).status).toBe(200);
+    const response = await api.handler(request('/classrooms', { code: '001234' }));
+    expect(response.status).toBe(429); expect((await response.json()).saved).toBeUndefined();
+    expect(api.fetcher).toHaveBeenCalledTimes(180);
+  });
   it('issues unique student tokens, sending only hashes to the database', async () => {
     const api = setup({ code: 'test01', group: 1, name: '테스트', memberId: 'member' });
     const a = await (await api.handler(request('/join', { code: ' TEST01 ', name: '테스트', group: 1 }))).json();
