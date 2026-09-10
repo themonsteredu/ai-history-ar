@@ -15,6 +15,7 @@ import { QuestionStep } from './NarrationStep';
 import { Exhibition, IndividualQuiz } from './Exhibition';
 import { TeacherControls } from './TeacherControls';
 import { ClassroomEntry } from './ClassroomEntry';
+import { TeacherRunPanel } from './TeacherRunPanel';
 import './maker.css';
 
 const Viewer = lazy(() => import('../../components/ArExhibitViewer'));
@@ -134,6 +135,8 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
       <div><Link to="/three-kingdoms" onClick={event => { if (recording) event.preventDefault(); }}>← 삼국시대</Link><h1>AR 만들기</h1></div>
       <div className="maker-title-actions"><span className="maker-draft-label">{session ? `${session.code} · ${session.group}모둠` : '이 기기에서 제작 중'}</span><button disabled={busy || recording || placing || !ready || readonly || (!!session && !classroom?.canEdit)} onClick={() => save()}>모둠에 공유</button><button className="studio-primary" disabled={busy || recording || placing || !ready} onClick={() => changeView(view === 'preview' ? 'photo' : 'preview')}>{view === 'preview' ? '제작으로 돌아가기' : '내 작품 AR로 보기'}</button></div>
     </header>
+
+    {props.teacher && <TeacherRunPanel classroom={classroom} session={session} code={session?.code || props.code || props.inputCode} onView={changeView} />}
 
     <div ref={entry}><ClassroomEntry session={session} inputCode={props.inputCode} name={props.name} joinGroup={props.joinGroup} disabled={busy || recording || placing || !ready} onInputCode={props.onInputCode} onName={props.onName} onJoinGroup={props.onJoinGroup} onJoin={props.onJoin} onGallery={() => changeView('classroom')} /></div>
 
