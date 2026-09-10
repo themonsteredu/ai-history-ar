@@ -10,7 +10,7 @@ import type { Classroom, StudioSession } from './api';
 import { newPoint, submissionProblems, type StudioProject } from './project';
 import { newPreparedProject, applyPreparedModel, hasStarterModel } from './prepared';
 import { preparedHeritage } from '../../lib/ar/preparedCatalog';
-import { photoCoordinates, readyQuestions } from './maker';
+import { isEmptyProject, photoCoordinates, readyQuestions } from './maker';
 import { QuestionStep } from './NarrationStep';
 import { Exhibition, IndividualQuiz } from './Exhibition';
 import { TeacherControls } from './TeacherControls';
@@ -127,6 +127,7 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
     if (!session) { entry.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }); props.onMessage('다른 태블릿에서도 열려면 위에서 수업코드로 입장해 주세요. 지금 작업은 그대로 유지돼요.'); return; }
     if (!classroom?.canEdit) { props.onMessage('모둠 작품은 처음 공유한 태블릿에서 저장해요. 여기서는 우리 반 작품을 관람하거나 내 작업을 파일로 보관할 수 있어요.'); return; }
     if (final && classroom.mode !== 'shared' && problems.length) { setShowProblems(true); return; }
+    if (isEmptyProject(project) && !window.confirm('이 화면에는 글과 녹음이 없어요. 이대로 공유하면 우리 모둠 작품이 빈 상태로 올라가고, 진짜 작업이 있는 태블릿에서 더 이상 저장할 수 없게 됩니다. 그래도 공유할까요?')) return;
     props.onSave(final);
   }
 

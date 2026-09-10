@@ -34,3 +34,22 @@ describe('integrated AR maker', () => {
     expect(readyQuestions(project)).toHaveLength(1);
   });
 });
+
+it('treats a draft with no writing, recording or question as an empty share', async () => {
+  const { isEmptyProject } = await import('./maker');
+  const { newStudioProject } = await import('./project');
+  const blank = newStudioProject(1, 1);
+  expect(isEmptyProject(blank)).toBe(true);
+
+  const written = newStudioProject(1, 1);
+  written.ar.points[0] = { ...written.ar.points[0], text: '벽돌을 쌓아 올렸습니다.' };
+  expect(isEmptyProject(written)).toBe(false);
+
+  const recorded = newStudioProject(1, 1);
+  recorded.ar.points[1] = { ...recorded.ar.points[1], narration: { data: 'data:audio/mp4;base64,AAAA', seconds: 9 } };
+  expect(isEmptyProject(recorded)).toBe(false);
+
+  const asked = newStudioProject(1, 1);
+  asked.questions[0] = { ...asked.questions[0], prompt: '무엇일까요?', options: ['가', '나', '다'] };
+  expect(isEmptyProject(asked)).toBe(false);
+});

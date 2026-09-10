@@ -48,7 +48,7 @@ export default function RescuePage() {
         </ul>
         <p className="rescue-where">{draft.classCode ? `수업코드 ${draft.classCode}로 작업함` : '수업코드 없이 작업함'}</p>
         <p className="rescue-filename">저장될 파일 이름 · <code>{rescueFileName(draft, index)}</code></p>
-        <div className="studio-actions"><button className="studio-primary" onClick={() => save(draft, index)}>파일로 저장</button></div>
+        <div className="studio-actions"><button className="studio-primary" onClick={() => save(draft, index)}>파일로 저장</button><Link className="rescue-open" to={draft.classCode ? `/three-kingdoms/ar-maker?hub_code=${draft.classCode}` : '/three-kingdoms/ar-maker'}>이 작업이 있는 화면 열기</Link></div>
       </li>)}</ul>
 
       {drafts.length > withWork.length && <details className="maker-extra"><summary>내용이 없는 저장본 {drafts.length - withWork.length}개도 보기</summary>

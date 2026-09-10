@@ -14,3 +14,10 @@ export function photoCoordinates(clientX: number, clientY: number, rect: { left:
 export function readyQuestions(project: StudioProject) {
   return project.questions.filter(q => q.prompt.trim() && q.options.every(option => option.trim()));
 }
+
+// A group's slot is claimed by whichever tablet shares first, so an accidental
+// share from a blank tablet would lock out the one holding the real work.
+export function isEmptyProject(project: StudioProject) {
+  const points = project.ar?.points || [];
+  return !points.some(point => point.title?.trim() || point.text?.trim() || point.narration) && readyQuestions(project).length === 0;
+}
