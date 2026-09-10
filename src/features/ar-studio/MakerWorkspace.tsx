@@ -157,7 +157,7 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
             {project.ar.points.map((item, index) => <button key={item.id} type="button" className="maker-pin" aria-pressed={point.id === item.id} aria-label={`${index + 1}번 설명점 선택`} disabled={editingDisabled} style={{ left: `${item.photoPosition[0] * 100}%`, top: `${item.photoPosition[1] * 100}%` }} onClick={() => { setSelected(item.id); setPlaced(''); }}>{index + 1}</button>)}
           </div>}
           <p className="maker-photo-help" role="status">{placing ? '유물과 설명점 위치를 준비해요…' : placed || (placeOnModel ? '번호를 고르고 모형을 톡 누르면 점이 붙어요. 손가락으로 끌어서 돌려볼 수 있어요.' : '번호를 고른 뒤 사진을 누르면 그곳으로 점이 이동해요.')}</p>
-          {prepared && <p className="maker-model-credit">실물의 특징을 단순화한 학습용 모형이에요. 자세한 모습은 사진과 함께 살펴봐요.</p>}
+          {prepared && <p className="maker-model-credit">사진 참고 3D 재현 · 실측·스캔 원본은 아니에요. 뒷면·내부와 세부 장식은 추정해 표현했어요. 정확한 모습은 사진과 함께 확인해요.</p>}
           {museumOriginal && <p className="maker-model-credit">{project.ar.model?.credit} · 원본 약 36MB를 처음 한 번 내려받아요. 교체된 모형의 점 위치를 확인해 주세요.</p>}
         </div>
         <aside className="maker-point-editor">

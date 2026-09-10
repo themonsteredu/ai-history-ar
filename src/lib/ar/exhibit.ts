@@ -16,6 +16,7 @@ export interface ExhibitModel {
   data: string;
   format: 'glb' | 'stl' | 'obj' | 'primitives' | 'preset';
   preset?: PreparedModelKey;
+  reconstruction?: 'photo-reference-v2';
   parts?: ModelPart[];
   asset?: 'cheomseongdae-nsm-2015';
   name: string;

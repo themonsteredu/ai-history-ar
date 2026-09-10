@@ -57,7 +57,7 @@ export function createSoftwarePreview() {
       const { elements } = projector.projectScene(scene, camera, true, true);
       // The mural lies just in front of its wall. Draw those front-facing image tiles last
       // to avoid coplanar painter-order artifacts in this simplified, depth-buffer-free preview.
-      elements.sort((a: { material?: { map?: unknown } }, b: { material?: { map?: unknown } }) => Number(!!a.material?.map) - Number(!!b.material?.map));
+      elements.sort((a: { material?: { map?: unknown; isMeshBasicMaterial?: boolean } }, b: { material?: { map?: unknown; isMeshBasicMaterial?: boolean } }) => Number(!!a.material?.map && !!a.material.isMeshBasicMaterial) - Number(!!b.material?.map && !!b.material.isMeshBasicMaterial));
       for (const face of elements) {
         if (!face.v3 || !face.material || face.material.opacity === 0) continue;
         const vertices = [face.v1.positionScreen, face.v2.positionScreen, face.v3.positionScreen];

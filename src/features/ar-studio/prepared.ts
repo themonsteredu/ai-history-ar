@@ -1,5 +1,5 @@
 import { researchForEra } from '../../content/heritageCatalog';
-import { preparedModel } from '../../lib/ar/preparedCatalog';
+import { PHOTO_RECONSTRUCTION, preparedModel } from '../../lib/ar/preparedCatalog';
 import { cheomseongdaeModel } from '../../content/three-kingdoms/arModels';
 import { newStudioProject, type StudioProject } from './project';
 
@@ -26,7 +26,8 @@ export function newPreparedProject(group = 1, heritageId = 3) {
   return applyPreparedModel(project);
 }
 
-/** Upgrade the old supplied Cheomseongdae as requested; never replace student-built custom models. */
+/** Upgrade supplied models once; never replace student-built custom models or repeatedly move points. */
 export const prepareMakerDraft = (project: StudioProject): Promise<StudioProject> =>
-  hasStarterModel(project) || (project.heritageId === 3 && project.ar.model?.preset === 'samguk-cheomseongdae-v1')
+  hasStarterModel(project) || (project.ar.model?.format === 'preset' &&
+    (project.heritageId === 3 || project.ar.model.reconstruction !== PHOTO_RECONSTRUCTION))
     ? applyPreparedModel(project) : Promise.resolve(project);

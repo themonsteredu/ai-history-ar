@@ -1,6 +1,7 @@
 import { expect, it, vi } from 'vitest';
 import * as THREE from 'three';
-import { cameraCardTransform, photoToModelPosition } from './modelScene';
+import { cameraCardTransform, disposeObject, photoToModelPosition, readModel } from './modelScene';
+import { preparedHeritages, preparedModel } from './preparedCatalog';
 import { cheomseongdaeModel } from '../../content/three-kingdoms/arModels';
 import { loadCheomseongdaeOriginal } from '../../content/three-kingdoms/cheomseongdaeOriginal';
 
@@ -21,4 +22,15 @@ it('keeps photo-only exhibits flat and centered in both card orientations', () =
 it('maps imported official-sample photo points through the registered mesh without downloading its texture', async () => {
   expect(await photoToModelPosition(cheomseongdaeModel(), [.5, .5])).toEqual([0, .5, .265]);
   expect(loadCheomseongdaeOriginal).toHaveBeenCalledWith(expect.any(AbortSignal), false);
+});
+
+it('the shared classroom/individual loader opens every preset and the registered original, not only primitives', async () => {
+  for (const item of preparedHeritages) {
+    const descriptor = item.id === 3 ? cheomseongdaeModel() : preparedModel(item.id);
+    const content = await readModel(descriptor, false);
+    try {
+      expect(new THREE.Box3().setFromObject(content).isEmpty()).toBe(false);
+      if (item.id !== 3) expect(content.userData.reconstruction).toBe('photo-reference-v2');
+    } finally { disposeObject(content); }
+  }
 });

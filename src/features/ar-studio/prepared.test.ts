@@ -122,4 +122,20 @@ describe('ready-made heritage models', () => {
     expect(upgraded.questions).toEqual(before.questions); expect(old).toEqual(before);
     expect(await prepareMakerDraft(upgraded)).toBe(upgraded);
   });
+
+  it('upgrades each legacy supplied model once, preserving saved explanations, audio and linked questions', async () => {
+    for (const id of [1, 2, 4, 5, 6]) {
+      const old = newStudioProject(id, id); old.ar.model = preparedModel(id);
+      delete old.ar.model.reconstruction;
+      old.ar.points[0].title = '우리 모둠 설명점'; old.ar.points[0].text = '이미 작성한 내용';
+      old.ar.points[0].narration = { data: 'data:audio/wav;base64,UklGRg==', seconds: 2 };
+      old.questions[0].prompt = '남겨 둔 문제';
+      const before = structuredClone(old), upgraded = await prepareMakerDraft(old);
+      expect(upgraded.ar.model?.reconstruction).toBe('photo-reference-v2');
+      expect(upgraded.ar.points.map(({ position: _position, ...point }) => point)).toEqual(before.ar.points.map(({ position: _position, ...point }) => point));
+      expect(upgraded.questions).toEqual(before.questions); expect(old).toEqual(before);
+      expect(isStudioProject(upgraded)).toBe(true);
+      expect(await prepareMakerDraft(upgraded)).toBe(upgraded);
+    }
+  });
 });

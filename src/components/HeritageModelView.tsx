@@ -3,6 +3,7 @@ import { arTargetUrl } from "../content/heritageCatalog";
 import { useEffect, useRef, useState } from 'react';
 import type { ExhibitModel, ExhibitPoint } from '../lib/ar/exhibit';
 import type { CardPlacement, ModelScene } from '../lib/ar/modelScene';
+import { ReconstructionCredit } from './ReconstructionCredit';
 
 export default function HeritageModelView({ model, image, points, selectedId, onSelect, onPlace, camera = false, cardPlacement = 'table', targetIndex, onTracking, eraId = "three-kingdoms" }: {
   model?: ExhibitModel; image: string; points: ExhibitPoint[]; selectedId: string; onSelect: (id: string) => void;
@@ -17,11 +18,12 @@ export default function HeritageModelView({ model, image, points, selectedId, on
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState('');
   const [simplePreview, setSimplePreview] = useState(false);
+  const [textureUnavailable, setTextureUnavailable] = useState(false);
   const rotation = model?.rotation.join(',') || '';
   const partsVersion = JSON.stringify(model?.parts);
   useEffect(() => {
     const surface = document.createElement('div'); surface.className = 'ar-model-surface'; container.current?.append(surface);
-    const abort = new AbortController(); setStatus('loading'); setError(''); setSimplePreview(false); current.current.onTracking?.(false);
+    const abort = new AbortController(); setStatus('loading'); setError(''); setSimplePreview(false); setTextureUnavailable(false); current.current.onTracking?.(false);
     void (async () => {
       const { mountModelScene } = await import('../lib/ar/modelScene');
       const original = model?.asset === 'cheomseongdae-nsm-2015' ? await import('../content/three-kingdoms/cheomseongdaeOriginal') : undefined;
@@ -33,6 +35,7 @@ export default function HeritageModelView({ model, image, points, selectedId, on
       markers: () => pins.current, points: () => current.current.points,
       onPlace: camera ? undefined : position => current.current.onPlace?.(position),
       onPreviewFallback: () => { if (!abort.signal.aborted) setSimplePreview(true); },
+      onTextureUnavailable: () => { if (!abort.signal.aborted) setTextureUnavailable(true); },
       onStatus: next => { if (!abort.signal.aborted) { setStatus(next); current.current.onTracking?.(next === 'found' || next === 'ready'); } },
       });
     })().then(runtime => { if (abort.signal.aborted) runtime.dispose(); else scene.current = runtime; }).catch(reason => {
@@ -53,5 +56,7 @@ export default function HeritageModelView({ model, image, points, selectedId, on
       {!camera && <button type="button" onClick={() => scene.current?.reset()}>처음 방향</button>}
     </div>
     {simplePreview && <p className="ar-help">간단한 입체 보기예요. 모형을 돌리고 설명점을 찍을 수 있어요. AR 카메라는 그래픽 기능이 지원되는 기기에서 열어 주세요.</p>}
+    {textureUnavailable && <p className="ar-help" role="status">사진 표면을 불러오지 못해 모형의 형태만 보여요. 인터넷 연결을 확인하고 화면을 다시 열어 주세요. 설명과 녹음은 유지돼요.</p>}
+    <ReconstructionCredit model={model} />
   </div>;
 }

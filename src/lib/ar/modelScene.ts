@@ -18,6 +18,7 @@ export interface SceneOptions {
   points: () => ExhibitPoint[];
   onStatus: (status: 'ready' | 'scanning' | 'found' | 'lost') => void;
   onPreviewFallback?: () => void;
+  onTextureUnavailable?: () => void;
   onPlace?: (position: [number, number, number]) => void;
 }
 export interface ModelScene { dispose: () => void; reset: () => void }
@@ -29,7 +30,7 @@ export function cameraCardTransform(hasModel: boolean, height: number, placement
   return { rotationX: standingOnTable ? Math.PI / 2 : 0, offsetY: standingOnTable ? 0 : -height / 2 };
 }
 
-function disposeObject(root: any) {
+export function disposeObject(root: any) {
   const disposed = new Set<any>();
   const dispose = (value: any) => { if (value?.dispose && !disposed.has(value)) { disposed.add(value); value.dispose(); } };
   root.traverse((object: any) => {
@@ -42,10 +43,10 @@ function disposeObject(root: any) {
   });
 }
 
-async function readModel(model: ExhibitModel, withImages = true) {
+export async function readModel(model: ExhibitModel, withImages = true, signal = new AbortController().signal) {
   if (model.asset === 'cheomseongdae-nsm-2015') {
     const { loadCheomseongdaeOriginal } = await import('../../content/three-kingdoms/cheomseongdaeOriginal');
-    return loadCheomseongdaeOriginal(new AbortController().signal, withImages);
+    return loadCheomseongdaeOriginal(signal, withImages);
   }
   if (model.format === 'preset' && model.preset) {
     const { createPreparedModel } = await import('./preparedModels');
@@ -125,6 +126,8 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
   let observer: ResizeObserver | undefined;
   let content: any;
   let startingCamera = false;
+  let softwarePreview = false;
+  let environmentTarget: InstanceType<typeof THREE.WebGLRenderTarget> | undefined;
   let tracked = options.mode === 'preview';
   let photoWidth = 1;
   let photoHeight = 1;
@@ -154,6 +157,7 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
     if (mind && !startingCamera) { try { mind.stop(); } catch { /* Camera may already be closed. */ } }
     releaseVideo();
     if (content) disposeObject(content);
+    environmentTarget?.dispose();
     renderer?.dispose();
     if (canvas) { canvas.removeEventListener('pointerdown', pointerDown); canvas.removeEventListener('pointerup', pointerUp); }
     options.markers().forEach(marker => { if (marker) marker.hidden = true; });
@@ -193,6 +197,7 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
       content.position.y = .5;
     }
     if (disposed) { disposeObject(content); throw new DOMException('Cancelled', 'AbortError'); }
+    if (content.userData.photoTextureLoaded === false) options.onTextureUnavailable?.();
     const oriented = new THREE.Group();
     oriented.add(content);
     oriented.rotation.set(...(options.model?.rotation || [0,0,0]).map(degrees => degrees * Math.PI / 180));
@@ -226,7 +231,7 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
         if (options.model?.format !== 'preset' && options.model?.format !== 'primitives') throw error;
         const { createSoftwarePreview } = await import('./softwarePreview');
         if (disposed) throw new DOMException('Cancelled', 'AbortError');
-        renderer = createSoftwarePreview(); options.onPreviewFallback?.();
+        renderer = createSoftwarePreview(); softwarePreview = true; options.onPreviewFallback?.();
       }
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       scene = new THREE.Scene();
@@ -249,8 +254,20 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
     }
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     const museumOriginal = options.model?.asset === 'cheomseongdae-nsm-2015';
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x63523c, museumOriginal ? 1 : 2.5));
-    const light = new THREE.DirectionalLight(0xffffff, museumOriginal ? .6 : 3);
+    const photoReconstruction = !!content.userData.reconstruction;
+    if (photoReconstruction && !softwarePreview) {
+      renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+      if (options.model?.preset === 'samguk-incense-v1' || options.model?.preset === 'samguk-crown-v1') {
+        // Local area lights supply reflections to gold without fetching an external HDRI.
+        const { RoomEnvironment } = await import('three/examples/jsm/environments/RoomEnvironment.js');
+        if (disposed) throw new DOMException('Cancelled', 'AbortError');
+        const room = new RoomEnvironment(), generator = new THREE.PMREMGenerator(renderer);
+        try { environmentTarget = generator.fromScene(room, .04); scene.environment = environmentTarget.texture; }
+        finally { generator.dispose(); room.dispose(); }
+      }
+    }
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x63523c, museumOriginal ? 1 : photoReconstruction ? 1.5 : 2.5));
+    const light = new THREE.DirectionalLight(0xffffff, museumOriginal ? .6 : photoReconstruction ? 2.2 : 3);
     light.position.set(1.5, 3, 2); scene.add(light);
     canvas = renderer.domElement;
     canvas!.addEventListener('pointerdown', pointerDown);

@@ -7,6 +7,7 @@ it('exposes class entry without opening a disclosure or logging into another ser
   const html = renderToStaticMarkup(<ClassroomEntry {...props} />);
   expect(html).toContain('수업코드로 입장'); expect(html).toContain('수업 입장');
   expect(html).not.toContain('<details'); expect(html).toContain('6모둠');
+  expect(html).toContain('https://hub.moakit.ai/app'); expect(html).toContain('수업허브 열기');
 });
 it('gives joined students a direct all-group gallery action', () => {
   const html = renderToStaticMarkup(<ClassroomEntry {...props} session={{ code: 'test01', group: 2, memberId: 'id', token: 'private-token', name: '테스트' }} />);

@@ -5,6 +5,7 @@ declare module "three/examples/jsm/loaders/OBJLoader.js";
 declare module "three/examples/jsm/controls/OrbitControls.js";
 declare module "three/examples/jsm/utils/BufferGeometryUtils.js";
 declare module "three/examples/jsm/renderers/Projector.js";
+declare module "three/examples/jsm/environments/RoomEnvironment.js";
 
 declare module "mind-ar/dist/mindar-image-three.prod.js" {
   export class MindARThree {
