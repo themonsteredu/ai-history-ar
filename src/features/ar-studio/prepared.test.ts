@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import * as THREE from 'three';
 import { isArExhibit } from '../../lib/ar/exhibit';
 import { preparedHeritages, preparedModel } from '../../lib/ar/preparedCatalog';
@@ -7,11 +7,19 @@ import { photoToModelPositions } from '../../lib/ar/modelScene';
 import { applyPreparedModel, hasStarterModel, newPreparedProject, prepareMakerDraft } from './prepared';
 import { isStudioProject, newStudioProject, submissionProblems } from './project';
 
+// Geometry projection unit tests are offline. Original file integrity and BMP decoding
+// are independently covered by cheomseongdaeOriginal.test.ts.
+vi.mock('../../content/three-kingdoms/cheomseongdaeOriginal', async () => {
+  const Three = await import('three');
+  return { loadCheomseongdaeOriginal: async () => new Three.Mesh(new Three.CylinderGeometry(.5, .7, 2, 16), new Three.MeshBasicMaterial()) };
+});
+
 describe('ready-made heritage models', () => {
   it('opens all six heritages as compact, valid and round-trippable projects', async () => {
     for (const heritage of preparedHeritages) {
       const project = await newPreparedProject(heritage.id, heritage.id);
-      expect(project.ar.model?.preset).toBe(heritage.key);
+      if (heritage.id === 3) expect(project.ar.model?.asset).toBe('cheomseongdae-nsm-2015');
+      else expect(project.ar.model?.preset).toBe(heritage.key);
       expect(isStudioProject(project)).toBe(true);
       expect(project.ar.points.every(point => point.position.every(Number.isFinite))).toBe(true);
       const text = JSON.stringify(project);
@@ -22,7 +30,7 @@ describe('ready-made heritage models', () => {
   });
 
   it('rejects unknown, mismatched and mixed model definitions', async () => {
-    const project = await newPreparedProject(1, 3);
+    const project = await newPreparedProject(1, 1);
     const unknown = structuredClone(project);
     (unknown.ar.model as unknown as { preset: string }).preset = 'https://example.com/model.glb';
     expect(isArExhibit(unknown.ar)).toBe(false);
@@ -101,5 +109,17 @@ describe('ready-made heritage models', () => {
     expect(submissionProblems(project)).toEqual([]);
     delete project.ar.points[0].narration;
     expect(submissionProblems(project)).toHaveLength(1);
+  });
+
+  it('upgrades the supplied Cheomseongdae while retaining all writing, audio and question links', async () => {
+    const old = newStudioProject(3, 3); old.ar.model = preparedModel(3);
+    old.ar.points[0].title = '내가 찍은 점'; old.ar.points[0].text = '우리 모둠 설명';
+    old.ar.points[0].narration = { data: 'data:audio/wav;base64,UklGRg==', seconds: 1 };
+    const before = structuredClone(old);
+    const upgraded = await prepareMakerDraft(old);
+    expect(upgraded.ar.model?.asset).toBe('cheomseongdae-nsm-2015');
+    expect(upgraded.ar.points.map(({ position: _position, ...point }) => point)).toEqual(before.ar.points.map(({ position: _position, ...point }) => point));
+    expect(upgraded.questions).toEqual(before.questions); expect(old).toEqual(before);
+    expect(await prepareMakerDraft(upgraded)).toBe(upgraded);
   });
 });

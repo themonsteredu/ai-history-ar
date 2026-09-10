@@ -16,7 +16,7 @@ export function changeParts(project: StudioProject, parts: ModelPart[]): StudioP
 }
 export function submissionProblems(project: StudioProject) {
   const problems: string[] = [];
-  if (!project.modelChecked && project.ar.model?.format !== 'preset') problems.push('모형을 돌려 보고 완성 확인을 눌러 주세요.');
+  if (!project.modelChecked && project.ar.model?.format !== 'preset' && project.ar.model?.asset !== 'cheomseongdae-nsm-2015') problems.push('모형을 돌려 보고 완성 확인을 눌러 주세요.');
   if (!project.pointsChecked) problems.push('설명점의 위치를 확인해 주세요.');
   if (project.ar.points.length < 3 || project.ar.points.length > 4) problems.push('해설은 3~4개를 준비해 주세요.');
   project.ar.points.forEach((p, i) => { if (!p.title.trim() || !p.text.trim() || !p.narration) problems.push(`${i + 1}번 해설의 제목·내용·녹음을 확인해 주세요.`); });

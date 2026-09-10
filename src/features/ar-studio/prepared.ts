@@ -1,5 +1,6 @@
 import { researchForEra } from '../../content/heritageCatalog';
 import { preparedModel } from '../../lib/ar/preparedCatalog';
+import { cheomseongdaeModel } from '../../content/three-kingdoms/arModels';
 import { newStudioProject, type StudioProject } from './project';
 
 export function hasStarterModel(project: StudioProject) {
@@ -12,7 +13,7 @@ export function hasStarterModel(project: StudioProject) {
 /** Preserve the student's point IDs, writing, recordings and quizzes while replacing only the model. */
 export async function applyPreparedModel(project: StudioProject): Promise<StudioProject> {
   const heritage = researchForEra('three-kingdoms').find(item => item.id === project.heritageId)!;
-  const model = preparedModel(project.heritageId, heritage.sources[0].href);
+  const model = project.heritageId === 3 ? cheomseongdaeModel() : preparedModel(project.heritageId, heritage.sources[0].href);
   const { photoToModelPositions } = await import('../../lib/ar/modelScene');
   const positions = await photoToModelPositions(model, project.ar.points.map(point => point.photoPosition));
   return { ...project, modelChecked: true, pointsChecked: false, ar: { ...project.ar, model, points: project.ar.points.map((point, index) => ({ ...point, position: positions[index] })) } };
@@ -25,6 +26,7 @@ export function newPreparedProject(group = 1, heritageId = 3) {
   return applyPreparedModel(project);
 }
 
-/** Only the untouched old starter cube is automatically upgraded; custom models are retained. */
+/** Upgrade the old supplied Cheomseongdae as requested; never replace student-built custom models. */
 export const prepareMakerDraft = (project: StudioProject): Promise<StudioProject> =>
-  hasStarterModel(project) ? applyPreparedModel(project) : Promise.resolve(project);
+  hasStarterModel(project) || (project.heritageId === 3 && project.ar.model?.preset === 'samguk-cheomseongdae-v1')
+    ? applyPreparedModel(project) : Promise.resolve(project);

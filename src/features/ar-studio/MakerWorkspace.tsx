@@ -69,6 +69,7 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
   const heritage = researchForEra('three-kingdoms').find(item => item.id === project.heritageId)!;
   const image = heritageImageUrl('three-kingdoms', project.heritageId);
   const prepared = preparedHeritage(project.ar.model?.preset);
+  const museumOriginal = project.ar.model?.asset === 'cheomseongdae-nsm-2015';
   const readonly = !!classroom && classroom.phase !== 'making' && classroom.mode !== 'shared';
   const editingDisabled = busy || recording || placing || readonly || !ready;
   const problems = submissionProblems(project);
@@ -150,13 +151,14 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
       {view === 'photo' && <section className="maker-photo-layout" aria-label="준비된 유물에 설명점과 녹음 붙이기">
         <div className="maker-visual">
           <div className="maker-surface-heading"><strong>{heritage.heritage}</strong><button disabled={editingDisabled} aria-pressed={placeOnModel} onClick={() => setPlaceOnModel(!placeOnModel)}>{placeOnModel ? '사진에서 보기' : '입체 모형에서 점 찍기'}</button></div>
-          {prepared ? <p className="maker-model-description">{prepared.detail}</p> : <p className="maker-model-description">이전에 만든 모형을 열었어요. <button disabled={editingDisabled} onClick={() => { void replaceWithPrepared(); }}>준비된 유물 모형 사용</button></p>}
+          {museumOriginal ? <p className="maker-model-description">국립중앙과학관의 실물 표면 그림이 포함된 첨성대 3D 원본이에요. 설명할 곳을 눌러 점을 붙이세요.</p> : prepared ? <p className="maker-model-description">{prepared.detail}</p> : <p className="maker-model-description">이전에 만든 모형을 열었어요. <button disabled={editingDisabled} onClick={() => { void replaceWithPrepared(); }}>준비된 유물 모형 사용</button></p>}
           {placeOnModel ? <Suspense fallback={<p>모형을 열어요…</p>}><HeritageModelView model={project.ar.model} image={image} points={project.ar.points} selectedId={point.id} onSelect={id => { if (!editingDisabled) setSelected(id); }} onPlace={editingDisabled ? undefined : position => updatePoint({ position })} targetIndex={project.heritageId - 1} /></Suspense> : <div className="maker-photo">
             <button type="button" className="maker-photo-surface" aria-label={`${point.title || '선택한 설명점'} 위치를 사진에 찍기`} disabled={editingDisabled} onClick={event => { const coordinates = event.detail === 0 ? [.5, .5] as [number, number] : photoCoordinates(event.clientX, event.clientY, event.currentTarget.getBoundingClientRect()); void placePhoto(coordinates); }}><img src={image} alt={`${heritage.heritage} · 설명할 위치를 눌러 주세요`} draggable={false} /></button>
             {project.ar.points.map((item, index) => <button key={item.id} type="button" className="maker-pin" aria-pressed={point.id === item.id} aria-label={`${index + 1}번 설명점 선택`} disabled={editingDisabled} style={{ left: `${item.photoPosition[0] * 100}%`, top: `${item.photoPosition[1] * 100}%` }} onClick={() => { setSelected(item.id); setPlaced(''); }}>{index + 1}</button>)}
           </div>}
           <p className="maker-photo-help" role="status">{placing ? '유물과 설명점 위치를 준비해요…' : placed || (placeOnModel ? '번호를 고르고 모형을 톡 누르면 점이 붙어요. 손가락으로 끌어서 돌려볼 수 있어요.' : '번호를 고른 뒤 사진을 누르면 그곳으로 점이 이동해요.')}</p>
           {prepared && <p className="maker-model-credit">실물의 특징을 단순화한 학습용 모형이에요. 자세한 모습은 사진과 함께 살펴봐요.</p>}
+          {museumOriginal && <p className="maker-model-credit">{project.ar.model?.credit} · 원본 약 36MB를 처음 한 번 내려받아요. 교체된 모형의 점 위치를 확인해 주세요.</p>}
         </div>
         <aside className="maker-point-editor">
           <div className="maker-point-heading"><h2>설명과 목소리</h2><span>{project.ar.points.length}개의 설명점</span></div>

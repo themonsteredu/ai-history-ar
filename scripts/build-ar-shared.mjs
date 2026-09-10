@@ -5,6 +5,6 @@ await build({
   configFile: false,
   build: {
     lib: { entry: 'src/server/arShared.ts', formats: ['es'], fileName: () => 'arShared.js' },
-    outDir: 'supabase/functions/history-ar', emptyOutDir: false, minify: false,
+    outDir: 'supabase/functions/history-ar', emptyOutDir: false, copyPublicDir: false, minify: false,
   },
 });
