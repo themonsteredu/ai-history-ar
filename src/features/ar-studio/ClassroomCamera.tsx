@@ -5,14 +5,18 @@ import type { ArExhibit } from '../../lib/ar/exhibit';
 import type { ExhibitionSound } from '../../lib/ar/sound';
 import { ReconstructionCredit } from '../../components/ReconstructionCredit';
 import { disposeObject, readModel } from '../../lib/ar/modelScene';
+import { cardSlots, readyCards, waitingCards } from './visiting';
 export interface CameraWork { group: number; heritageId: number; ar: ArExhibit }
 
 export default function ClassroomCamera({ works, sound, onClose }: { works: CameraWork[]; sound: ExhibitionSound; onClose: () => void }) {
   const [selectedGroups, setSelectedGroups] = useState<Record<number, number>>({});
+  const slots = cardSlots(works);
+  const ready = readyCards(slots), waiting = waitingCards(slots);
   const choices = Object.fromEntries(works.map(work => [work.heritageId, works.filter(w => w.heritageId === work.heritageId)]));
   const chosen = Object.values(choices).map(list => list.find(w => w.group === selectedGroups[list[0].heritageId]) || list[0]);
   const chosenKey = chosen.map(w => w.group).join(',');
   const [active, setActive] = useState<number | null>(null); const activeRef = useRef<number | null>(null);
+  const [waitingCard, setWaitingCard] = useState(0);
   const [pointId, setPointId] = useState(''); const [error, setError] = useState(''); const [loading, setLoading] = useState(true);
   const [textureMissing, setTextureMissing] = useState(false);
   const surface = useRef<HTMLDivElement>(null); const markers = useRef<Array<HTMLButtonElement | null>>([]); const audio = useRef<HTMLAudioElement>(null);
@@ -28,7 +32,7 @@ export default function ClassroomCamera({ works, sound, onClose }: { works: Came
     const objects: any[] = []; const stages = new Map<number, any>();
     const selectedWorks = new Map(chosen.map(w => [w.group, w]));
     const player = audio.current;
-    setLoading(true); setError(''); setTextureMissing(false); setActive(null); activeRef.current = null;
+    setLoading(true); setError(''); setTextureMissing(false); setActive(null); setWaitingCard(0); activeRef.current = null;
     const releaseVideo = () => element.querySelectorAll('video').forEach(video => { (video.srcObject as MediaStream | null)?.getTracks().forEach(track => track.stop()); video.srcObject = null; });
     const stopCamera = () => { try { mind?.stop(); } catch { /* pending camera permission */ } releaseVideo(); };
     void (async () => {
@@ -55,8 +59,14 @@ export default function ClassroomCamera({ works, sound, onClose }: { works: Came
         content.position.set(-center.x, -box.min.y, -center.z); const fit = new THREE.Group(); fit.scale.setScalar(1 / extent); fit.add(content);
         const stage = new THREE.Group(); stage.add(fit); stage.rotation.x = Math.PI / 2; stage.position.z = .02; stages.set(selected.group, stage);
         const anchor = mind.addAnchor(selected.heritageId - 1); anchor.group.add(stage);
-        anchor.onTargetFound = () => { if (cancelled) return; player?.pause(); sound.narration(false); activeRef.current = selected.group; setActive(selected.group); setPointId(selected.ar.points[0].id); if (player) { player.src = selected.ar.points[0].narration?.data || ''; player.load(); } sound.effect('found'); };
+        anchor.onTargetFound = () => { if (cancelled) return; player?.pause(); sound.narration(false); setWaitingCard(0); activeRef.current = selected.group; setActive(selected.group); setPointId(selected.ar.points[0].id); if (player) { player.src = selected.ar.points[0].narration?.data || ''; player.load(); } sound.effect('found'); };
         anchor.onTargetLost = () => { if (cancelled || activeRef.current !== selected.group) return; player?.pause(); sound.narration(false); activeRef.current = null; setActive(null); };
+      }
+      // A card whose group never shared would otherwise stay silent, looking like a broken camera.
+      for (const slot of waiting) {
+        const anchor = mind.addAnchor(slot.heritageId - 1);
+        anchor.onTargetFound = () => { if (cancelled) return; player?.pause(); sound.narration(false); activeRef.current = null; setActive(null); setWaitingCard(slot.heritageId); };
+        anchor.onTargetLost = () => { if (!cancelled) setWaitingCard(current => current === slot.heritageId ? 0 : current); };
       }
       starting = true; try { await mind.start(); } finally { starting = false; if (cancelled) stopCamera(); }
       if (cancelled) return; setLoading(false);
@@ -80,6 +90,7 @@ export default function ClassroomCamera({ works, sound, onClose }: { works: Came
     if (next.narration && audio.current) { audio.current.src = next.narration.data; void audio.current.play().catch(() => setError('재생 버튼을 눌러 해설을 들어 주세요.')); }
   }
   const heritage = researchForEra('three-kingdoms').find(h => h.id === work?.heritageId)?.heritage;
+  const waitingName = slots.find(slot => slot.heritageId === waitingCard)?.heritage || '이';
   return <section className="studio-auto-camera">
     <div className="studio-actions"><h2>카드를 비추면 작품을 찾아요</h2><button onClick={onClose}>카메라 닫기</button></div>
     {Object.values(choices).filter(list => list.length > 1).map(list =>
@@ -91,7 +102,9 @@ export default function ClassroomCamera({ works, sound, onClose }: { works: Came
     <div className="ar-model-stage studio-camera-stage" ref={surface}>
       {[0, 1, 2, 3].map(i => <button hidden ref={el => { markers.current[i] = el; }} key={i} className="ar-hotspot" aria-label={`${i + 1}번 해설 듣기`} onClick={() => { if (work?.ar.points[i]) select(work.ar.points[i].id); }}>{i + 1}</button>)}
     </div>
-    <p role="status">{loading ? (chosen.some(w => w.ar.model?.asset) ? '모둠 작품을 준비해요. 첨성대 원본은 처음에 약 36MB를 내려받아요…' : '카메라와 모둠 작품을 준비해요…') : error || (work ? `${work.group}모둠 · ${heritage}` : '출력한 유물 카드 전체를 비춰 주세요.')}</p>
+    <p role="status">{loading ? (chosen.some(w => w.ar.model?.asset) ? '모둠 작품을 준비해요. 첨성대 원본은 처음에 약 36MB를 내려받아요…' : '카메라와 모둠 작품을 준비해요…') : error || (work ? `${work.group}모둠 · ${heritage}` : waitingCard ? `${waitingName} 카드예요. 이 유물을 맡은 모둠이 아직 작품을 공유하지 않았어요.` : '관람할 수 있는 카드를 비춰 주세요.')}</p>
+    {!loading && !!waitingCard && <p className="ar-help">그 모둠 태블릿에서 <b>수업 입장 → 모둠에 공유</b>를 누르면 이 카드에서도 바로 보여요. 먼저 다른 카드를 관람하세요.</p>}
+    {!loading && !error && <p className="ar-help">지금 볼 수 있는 카드: <b>{ready.length ? ready.map(slot => `${slot.heritage}(${slot.groups.join('·')}모둠)`).join(', ') : '아직 없어요'}</b>{waiting.length > 0 && <> · 아직 공유 안 된 카드: {waiting.map(slot => slot.heritage).join(', ')}</>}</p>}
     {textureMissing && <p className="ar-help">일부 사진 표면을 불러오지 못해 형태만 표시해요. 인터넷 연결을 확인하고 카메라를 다시 열어 주세요.</p>}
     {work && <div className="studio-camera-reading">
       <div className="studio-tabs">{work.ar.points.map((p, i) => <button aria-pressed={point?.id === p.id} key={p.id} onClick={() => select(p.id)}>해설 {i + 1}</button>)}</div>

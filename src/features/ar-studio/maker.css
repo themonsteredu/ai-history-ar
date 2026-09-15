@@ -69,3 +69,12 @@
 @media(max-width:700px){.rescue-list>li,.rescue-next{padding:15px 16px}.rescue-facts li{flex:1 1 42%}}
 .rescue-filename{margin:6px 0 0;font-size:.82rem;color:#5c544d}.rescue-filename code,.rescue-summary code{padding:2px 7px;border-radius:5px;background:#f1ede8;border:1px solid #ddd6cd;font-size:.85em}
 .rescue-open{display:inline-flex;align-items:center;min-height:44px;padding:8px 15px;border:1px solid #9caaa3;border-radius:8px;color:#173f37;text-decoration:none}
+.maker-share-state{margin:14px 0 0;padding:14px 18px;border-radius:10px;line-height:1.7;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.maker-share-state.is-shared{border:1px solid #a8c9b0;background:#eef6f0;color:#1f5c33}
+.maker-share-state.is-waiting{border:1px solid #d8b27a;background:#fdf4e6;color:#7a4a12}
+.maker-share-state button{margin-left:auto}
+.maker-recover{margin:14px 0 0;padding:14px 18px;border-radius:10px;border:1px solid #c9c3bb;background:#faf9f7;line-height:1.7}
+.maker-recover.is-urgent{border-color:#d8b27a;background:#fdf4e6}
+.maker-recover p{margin:0}
+.maker-recover .studio-actions{padding-block:10px 0}
+.maker-recover button small{font-weight:400;color:#6b635c}
