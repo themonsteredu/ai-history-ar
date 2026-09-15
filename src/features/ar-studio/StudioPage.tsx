@@ -2,7 +2,8 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { researchForEra } from '../../content/heritageCatalog';
 import { downloadProjectFile } from '../../content/three-kingdoms/project';
-import { loadProjectDraft, saveProjectDraft } from '../../lib/projectDraftStore';
+import { listProjectDrafts, loadProjectDraft, saveProjectDraft } from '../../lib/projectDraftStore';
+import { collectDrafts, type DraftSummary } from './rescue';
 import { ExhibitionSound } from '../../lib/ar/sound';
 import { isStudioProject, newStudioProject, type StudioProject } from './project';
 import { prepareMakerDraft } from './prepared';
@@ -114,6 +115,25 @@ export default function StudioPage({ teacher = false, maker = false }: { teacher
     try { const result = await studioApi<{ project: StudioProject; version: number }>(`/rooms/${code}/works/${effectiveSession.group}?draft=1`, effectiveSession.token); if (!isStudioProject(result.project)) throw new Error('작품 형식을 확인하지 못했어요.'); const next = maker ? await prepareMakerDraft(result.project) : result.project; setProject(next); setRevision(result.version); setMessage('제출된 우리 모둠 작품을 열었어요.'); }
     catch (e) { setMessage(e instanceof Error ? e.message : '작품을 열지 못했어요.'); } finally { setBusy(false); }
   }
+  // Work made last lesson sits under this tablet's older draft key, so a blank screen is recoverable here.
+  const [recoverable, setRecoverable] = useState<DraftSummary[]>([]);
+  useEffect(() => {
+    if (!maker || !ready) return; let cancelled = false;
+    void listProjectDrafts()
+      .then(values => { if (!cancelled) setRecoverable(collectDrafts(values).filter(draft => draft.hasWork && draft.key !== draftKey)); })
+      .catch(() => { /* recovery is an extra path; the current draft still works */ });
+    return () => { cancelled = true; };
+  }, [maker, ready, draftKey]);
+  async function recoverDraft(summary: DraftSummary) {
+    if (!window.confirm(`이 태블릿에 남아 있는 ${summary.group || ''}모둠 · ${summary.heritage} 작업을 열까요? 지금 화면의 작업은 사라져요.`)) return;
+    setBusy(true); setMessage('');
+    try {
+      const next = maker ? await prepareMakerDraft(summary.project) : summary.project;
+      setProject({ ...next, group: effectiveSession?.group || next.group }); setRevision(0);
+      setMessage('지난 시간 작업을 열었어요. 확인한 뒤 ‘모둠에 공유’를 눌러 주세요.');
+    } catch { setMessage('지난 작업을 열지 못했어요. 작업 복구 화면에서 파일로 저장해 주세요.'); }
+    finally { setBusy(false); }
+  }
   async function importFile(file?: File) {
     if (!file) return;
     setBusy(true);
@@ -137,6 +157,7 @@ export default function StudioPage({ teacher = false, maker = false }: { teacher
     classroom={classroom} session={effectiveSession} teacher={teacher} code={code} onCode={updateCode}
     inputCode={inputCode} onInputCode={setInputCode} name={name} onName={setName} joinGroup={joinGroup} onJoinGroup={setJoinGroup}
     onJoin={() => { void join(); }} onSave={final => { void submit(!!final); }} onLoadShared={() => { void loadShared(); }} onImport={file => { void importFile(file); }}
+    recoverable={recoverable} onRecover={summary => { void recoverDraft(summary); }}
   />;
   return <main className="studio-page page-width"><header className="studio-header"><Link onClick={e => { if (recording) { e.preventDefault(); setMessage('녹음을 끝낸 뒤 이동해 주세요.'); } }} to={`/three-kingdoms?${homeParams}`}>← 삼국시대 6차시</Link><span>MOA 역사 · 우리 반 AR 박물관</span><Link onClick={e => { if (recording) e.preventDefault(); }} to={samplePath(params.toString())}>예제로 AR 바로 체험</Link><button disabled={recording} onClick={() => navigate('guide')}>수업 안내</button>{teacher && <button disabled={recording} onClick={() => navigate('teacher')}>교사 진행</button>}</header>
     <nav className="studio-steps" aria-label="AR 활동 단계">{steps.map(([key, label], index) => <button disabled={recording} aria-current={step === key ? 'step' : undefined} key={key} onClick={() => navigate(key, key === 'model' ? 4 : ['narration', 'questions'].includes(key) ? 5 : 6)}><span>{index + 1}</span>{label}</button>)}</nav>

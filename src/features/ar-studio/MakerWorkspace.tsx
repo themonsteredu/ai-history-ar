@@ -11,6 +11,8 @@ import { newPoint, submissionProblems, type StudioProject } from './project';
 import { newPreparedProject, applyPreparedModel, hasStarterModel } from './prepared';
 import { preparedHeritage } from '../../lib/ar/preparedCatalog';
 import { isEmptyProject, photoCoordinates, readyQuestions } from './maker';
+import { sharedFromThisTablet } from './visiting';
+import type { DraftSummary } from './rescue';
 import { QuestionStep } from './NarrationStep';
 import { Exhibition, IndividualQuiz } from './Exhibition';
 import { TeacherControls } from './TeacherControls';
@@ -52,6 +54,8 @@ interface MakerWorkspaceProps {
   onSave: (final?: boolean) => void;
   onLoadShared: () => void;
   onImport: (file?: File) => void;
+  recoverable?: DraftSummary[];
+  onRecover?: (summary: DraftSummary) => void;
 }
 
 export function MakerWorkspace(props: MakerWorkspaceProps) {
@@ -75,6 +79,9 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
   const editingDisabled = busy || recording || placing || readonly || !ready;
   const problems = submissionProblems(project);
   const questions = readyQuestions(project);
+  const shared = sharedFromThisTablet(classroom?.gallery, session?.group);
+  const recoverable = props.recoverable || [];
+  const blank = isEmptyProject(project);
 
   function changeView(next: typeof view) {
     if (recording || placing) return;
@@ -148,6 +155,13 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
     </div>
     {props.message && <p className="studio-notice" role="status">{props.message}</p>}
     {readonly && <p className="studio-notice">전시 중이라 제출 작품은 고정됐어요. 관람은 계속 돼요.</p>}
+    {ready && recoverable.length > 0 && <div className={`maker-recover${blank ? ' is-urgent' : ''}`}>
+      <p>{blank ? <><b>지금 화면은 비어 있어요.</b> 이 태블릿에 남아 있는 지난 시간 작업을 열 수 있어요.</> : <><b>이 태블릿에 다른 작업도 남아 있어요.</b> 필요하면 열어서 확인하세요.</>}</p>
+      <div className="studio-actions">{recoverable.slice(0, 3).map(draft => <button key={draft.key} className={blank ? 'studio-primary' : undefined} disabled={editingDisabled} onClick={() => props.onRecover?.(draft)}>{draft.group ? `${draft.group}모둠` : '모둠 미지정'} · {draft.heritage} 열기<small> (녹음 {draft.recordings}개 · 문제 {draft.questions}개)</small></button>)}</div>
+    </div>}
+    {session && classroom && (shared
+      ? <p className="maker-share-state is-shared" role="status"><b>{session.group}모둠 작품이 우리 반에 올라갔어요.</b> 친구들 태블릿에서 카드를 비추면 보여요.</p>
+      : !blank && <p className="maker-share-state is-waiting" role="status"><b>아직 우리 반에 올라가지 않았어요.</b> 이 태블릿에만 있어서 다른 모둠이 {heritage.heritage} 카드를 비춰도 보이지 않아요.{classroom.canEdit ? <button className="studio-primary" disabled={busy || recording || placing || !ready || readonly} onClick={() => save()}>지금 모둠에 공유</button> : <span> 처음 공유한 태블릿에서 눌러 주세요.</span>}</p>)}
     {!ready ? <p role="status">작업을 불러와요…</p> : <>
       <nav className="maker-viewbar" aria-label="AR 만들기 도구">
         {([['photo', '점 찍기·설명·녹음'], ['preview', '내 작품 체험'], ['classroom', '우리 반 전시·퀴즈']] as const).map(([key, label]) => <button key={key} aria-pressed={view === key} disabled={recording || placing} onClick={() => changeView(key)}>{label}</button>)}
