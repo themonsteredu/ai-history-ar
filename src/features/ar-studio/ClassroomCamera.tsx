@@ -4,7 +4,7 @@ import { arTargetUrl, researchForEra } from '../../content/heritageCatalog';
 import type { ArExhibit } from '../../lib/ar/exhibit';
 import type { ExhibitionSound } from '../../lib/ar/sound';
 import { ReconstructionCredit } from '../../components/ReconstructionCredit';
-import { disposeObject, readModel } from '../../lib/ar/modelScene';
+import { cameraCardTransform, disposeObject, readModel, type CardPlacement } from '../../lib/ar/modelScene';
 import { cardSlots, readyCards, waitingCards } from './visiting';
 export interface CameraWork { group: number; heritageId: number; ar: ArExhibit }
 
@@ -17,6 +17,8 @@ export default function ClassroomCamera({ works, sound, onClose }: { works: Came
   const chosenKey = chosen.map(w => w.group).join(',');
   const [active, setActive] = useState<number | null>(null); const activeRef = useRef<number | null>(null);
   const [waitingCard, setWaitingCard] = useState(0);
+  const [cardPlacement, setCardPlacement] = useState<CardPlacement>('table');
+  const placement = useRef<CardPlacement>(cardPlacement); placement.current = cardPlacement;
   const [pointId, setPointId] = useState(''); const [error, setError] = useState(''); const [loading, setLoading] = useState(true);
   const [textureMissing, setTextureMissing] = useState(false);
   const surface = useRef<HTMLDivElement>(null); const markers = useRef<Array<HTMLButtonElement | null>>([]); const audio = useRef<HTMLAudioElement>(null);
@@ -29,7 +31,7 @@ export default function ClassroomCamera({ works, sound, onClose }: { works: Came
     const element = document.createElement('div'); element.className = 'ar-model-surface'; surface.current.append(element);
     let mind: any, renderer: any, cancelled = false, starting = false, environment: any;
     const abort = new AbortController();
-    const objects: any[] = []; const stages = new Map<number, any>();
+    const objects: any[] = []; const stages = new Map<number, any>(); const heights = new Map<number, number>();
     const selectedWorks = new Map(chosen.map(w => [w.group, w]));
     const player = audio.current;
     setLoading(true); setError(''); setTextureMissing(false); setActive(null); setWaitingCard(0); activeRef.current = null;
@@ -57,7 +59,11 @@ export default function ClassroomCamera({ works, sound, onClose }: { works: Came
         const box = new THREE.Box3().setFromObject(content), size = box.getSize(new THREE.Vector3()), center = box.getCenter(new THREE.Vector3());
         const extent = Math.max(size.x, size.y, size.z); if (!Number.isFinite(extent) || extent <= 0) throw new Error('모형의 크기를 확인하지 못했어요.');
         content.position.set(-center.x, -box.min.y, -center.z); const fit = new THREE.Group(); fit.scale.setScalar(1 / extent); fit.add(content);
-        const stage = new THREE.Group(); stage.add(fit); stage.rotation.x = Math.PI / 2; stage.position.z = .02; stages.set(selected.group, stage);
+        const stage = new THREE.Group(); stage.add(fit); stage.position.z = .02;
+        const height = size.y / extent; heights.set(selected.group, height);
+        const start = cameraCardTransform(true, height, placement.current);
+        stage.rotation.x = start.rotationX; stage.position.y = start.offsetY;
+        stages.set(selected.group, stage);
         const anchor = mind.addAnchor(selected.heritageId - 1); anchor.group.add(stage);
         anchor.onTargetFound = () => { if (cancelled) return; player?.pause(); sound.narration(false); setWaitingCard(0); activeRef.current = selected.group; setActive(selected.group); setPointId(selected.ar.points[0].id); if (player) { player.src = selected.ar.points[0].narration?.data || ''; player.load(); } sound.effect('found'); };
         anchor.onTargetLost = () => { if (cancelled || activeRef.current !== selected.group) return; player?.pause(); sound.narration(false); activeRef.current = null; setActive(null); };
@@ -71,8 +77,15 @@ export default function ClassroomCamera({ works, sound, onClose }: { works: Came
       starting = true; try { await mind.start(); } finally { starting = false; if (cancelled) stopCamera(); }
       if (cancelled) return; setLoading(false);
       renderer.setAnimationLoop(() => {
-        if (cancelled) return; renderer.render(mind.scene, mind.camera);
+        if (cancelled) return;
         const current = selectedWorks.get(activeRef.current || -1), stage = stages.get(activeRef.current || -1);
+        if (stage) {
+          // Follow the card the class is actually using: flat on a desk, or upright on a screen.
+          // Set before rendering so the hotspots below read an up-to-date matrix.
+          const transform = cameraCardTransform(true, heights.get(activeRef.current || -1) || 1, placement.current);
+          stage.rotation.x = transform.rotationX; stage.position.y = transform.offsetY;
+        }
+        renderer.render(mind.scene, mind.camera);
         const rect = surface.current?.getBoundingClientRect(), canvasRect = renderer.domElement.getBoundingClientRect();
         markers.current.forEach((button, i) => {
           if (!button) return; const p = current?.ar.points[i]; if (!p || !stage || !rect) { button.hidden = true; return; }
@@ -93,6 +106,11 @@ export default function ClassroomCamera({ works, sound, onClose }: { works: Came
   const waitingName = slots.find(slot => slot.heritageId === waitingCard)?.heritage || '이';
   return <section className="studio-auto-camera">
     <div className="studio-actions"><h2>카드를 비추면 작품을 찾아요</h2><button onClick={onClose}>카메라 닫기</button></div>
+    <div className="ar-maker-actions" role="group" aria-label="카드 놓는 방향">
+      <button type="button" aria-pressed={cardPlacement === 'table'} onClick={() => setCardPlacement('table')}>책상 위 카드</button>
+      <button type="button" aria-pressed={cardPlacement === 'upright'} onClick={() => setCardPlacement('upright')}>컴퓨터 화면·세운 카드</button>
+    </div>
+    <p className="ar-help">{cardPlacement === 'table' ? '출력한 카드는 책상에 눕혀 주세요. 화면 속 카드를 비추고 있다면 ‘컴퓨터 화면·세운 카드’를 눌러 주세요.' : '컴퓨터 화면의 카드나 세워 둔 카드를 비추면 모형도 위로 서 있어요.'}</p>
     {Object.values(choices).filter(list => list.length > 1).map(list =>
       <label key={list[0].heritageId}>같은 유물 카드의 관람 모둠
         <select value={selectedGroups[list[0].heritageId] || list[0].group} onChange={e => setSelectedGroups(old => ({ ...old, [list[0].heritageId]: Number(e.target.value) }))}>
