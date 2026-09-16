@@ -191,7 +191,7 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
         <Suspense fallback={<p>내 작품을 열어요…</p>}><Viewer key={project.heritageId} value={project.ar} heritage={heritage.heritage} heritageId={project.heritageId} image={image} showQuiz={false} showCard={false} onNarrationActivity={value => sound.narration(value)} onCardFound={() => sound.effect('found')} /></Suspense>
         {questions.length > 0 && <details className="maker-extra"><summary>내가 만든 퀴즈 풀어보기 · {questions.length}문제</summary><MakerQuiz key={JSON.stringify(questions)} project={project} sound={sound} /></details>}
       </section>}
-      {view === 'classroom' && <section className="maker-classroom"><Exhibition classroom={classroom} session={session} sound={sound} /><details className="maker-extra"><summary>우리 반 문제 풀기·활동 기록</summary><IndividualQuiz key={session?.memberId || 'practice'} classroom={classroom} session={session} sound={sound} /></details></section>}
+      {view === 'classroom' && <section className="maker-classroom">{session && <p className="maker-visit-link">관람과 퀴즈만 할 친구는 <Link to={`/three-kingdoms/ar-visit?hub_code=${session.code}`}>간단한 관람 화면</Link>에서 하면 더 쉬워요.</p>}<Exhibition classroom={classroom} session={session} sound={sound} /><details className="maker-extra"><summary>우리 반 문제 풀기·활동 기록</summary><IndividualQuiz key={session?.memberId || 'practice'} classroom={classroom} session={session} sound={sound} /></details></section>}
 
       <details className="maker-extra maker-question-tools"><summary>퀴즈 만들기 <span>{questions.length}문제 작성</span></summary><QuestionStep project={project} onChange={onChange} onSubmit={() => save(true)} busy={editingDisabled} connected={!!classroom?.canEdit} showSubmission={false} /></details>
       <div className="maker-extras-row">

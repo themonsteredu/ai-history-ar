@@ -44,13 +44,16 @@ function readEntrySymbol(matrix: boolean[][]) {
 describe('local classroom entry QR', () => {
   it('uses only the fixed public production route and normalized Hub code', () => {
     expect(classroomEntryUrl('  CLASS26  ')).toBe('https://ai-history-ar.vercel.app/three-kingdoms/ar-maker?hub_code=class26');
+    expect(classroomEntryUrl('CLASS26', 'visit')).toBe('https://ai-history-ar.vercel.app/three-kingdoms/ar-visit?hub_code=class26');
+    expect(classroomEntryUrl('CLASS26', 'maker')).toBe(classroomEntryUrl('CLASS26'));
     for (const invalid of ['', 'abc', 'a'.repeat(13), 'ab12&token=x', '<script>', '우리반', 'https://other.test']) {
       expect(classroomEntryUrl(invalid)).toBeUndefined(); expect(createClassroomQr(invalid)).toBeUndefined();
     }
   });
   it('round-trips actual QR module data to the exact entry link for minimum and maximum code lengths', () => {
-    for (const code of ['abcd', 'class26', 'ab12cd34ef56']) {
-      const qr = createClassroomQr(code)!;
+    for (const [code, page] of [['abcd', 'maker'], ['class26', 'visit'], ['ab12cd34ef56', 'visit']] as const) {
+      const qr = createClassroomQr(code, page)!;
+      expect(qr.url).toContain(`ar-${page}`);
       expect(readEntrySymbol(qr.modules)).toBe(qr.url);
       expect(new URL(qr.url).searchParams.size).toBe(1);
       expect(qr.size - qr.modules.length).toBe(8); // Four white modules on every side.

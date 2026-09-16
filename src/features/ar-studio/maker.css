@@ -78,3 +78,8 @@
 .maker-recover p{margin:0}
 .maker-recover .studio-actions{padding-block:10px 0}
 .maker-recover button small{font-weight:400;color:#6b635c}
+.classroom-qr-target{display:flex;gap:8px;margin:12px 0 0}
+.classroom-qr-target button{flex:1;display:grid;gap:2px;padding:10px;border-radius:9px;font-weight:700}
+.classroom-qr-target button[aria-pressed=true]{background:#f1e6df;border-color:#9e6a55;color:#703b2c}
+.classroom-qr-target small{font-weight:400;color:#6b635c}
+.maker-visit-link{margin:0 0 14px;padding:12px 16px;border-radius:9px;background:#f4f1ed;line-height:1.7}

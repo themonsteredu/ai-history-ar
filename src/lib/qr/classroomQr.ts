@@ -1,16 +1,18 @@
 import { qrcodegen } from './vendor/nayuki';
 
-const ENTRY_PAGE = 'https://ai-history-ar.vercel.app/three-kingdoms/ar-maker';
-export function classroomEntryUrl(code: string): string | undefined {
+const SITE = 'https://ai-history-ar.vercel.app/three-kingdoms/';
+/** Making day opens the maker; visiting day opens the two-button visiting screen. */
+export type EntryPage = 'maker' | 'visit';
+export function classroomEntryUrl(code: string, page: EntryPage = 'maker'): string | undefined {
   const normalized = code.trim().toLowerCase();
   if (!/^[a-z0-9]{4,12}$/.test(normalized)) return;
-  const url = new URL(ENTRY_PAGE); url.searchParams.set('hub_code', normalized);
+  const url = new URL(`${SITE}ar-${page === 'visit' ? 'visit' : 'maker'}`); url.searchParams.set('hub_code', normalized);
   return url.href;
 }
 
 /** Pure local encoding: no QR service, credentials, student names or session tokens. */
-export function createClassroomQr(code: string) {
-  const url = classroomEntryUrl(code);
+export function createClassroomQr(code: string, page: EntryPage = 'maker') {
+  const url = classroomEntryUrl(code, page);
   if (!url) return;
   const bytes = Array.from(new TextEncoder().encode(url));
   // Version 5 / medium ECC holds the longest permitted canonical entry URL.

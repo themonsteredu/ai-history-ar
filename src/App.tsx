@@ -15,6 +15,7 @@ const ArPreviewPage = lazy(() => import("./pages/ArPreviewPage"));
 const SampleExhibition = lazy(() => import('./features/ar-studio/SampleExhibition'));
 const StudioPage = lazy(() => import('./features/ar-studio/StudioPage'));
 const RescuePage = lazy(() => import('./features/ar-studio/RescuePage'));
+const VisitPage = lazy(() => import('./features/ar-studio/VisitPage'));
 
 export function App() {
   return (
@@ -26,6 +27,7 @@ export function App() {
         <Route path="three-kingdoms/ar-sample" element={<Suspense fallback={<p>AR 예제를 준비해요…</p>}><SampleExhibition /></Suspense>} />
         <Route path="three-kingdoms/ar-studio" element={<Suspense fallback={<p>AR 제작 수업을 준비해요…</p>}><StudioPage /></Suspense>} />
         <Route path="three-kingdoms/ar-maker" element={<Suspense fallback={<p>AR 만들기를 열어요…</p>}><StudioPage maker /></Suspense>} />
+        <Route path="three-kingdoms/ar-visit" element={<Suspense fallback={<p>우리 반 전시를 열어요…</p>}><VisitPage /></Suspense>} />
         <Route path="three-kingdoms/ar-rescue" element={<Suspense fallback={<p>이 태블릿의 작업을 찾고 있어요…</p>}><RescuePage /></Suspense>} />
         <Route path="joseon/ar-preview" element={<Suspense fallback={<p>AR을 준비하고 있어요…</p>}><ArPreviewPage key="joseon" eraId="joseon" /></Suspense>} />
         <Route path="three-kingdoms/ar-preview" element={<Suspense fallback={<p role="status">첨성대 AR을 준비하고 있어요…</p>}><ArPreviewPage key="three-kingdoms" /></Suspense>} />
