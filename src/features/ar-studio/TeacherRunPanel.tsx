@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Classroom, StudioSession } from './api';
 import { GROUP_CHOICES, groupCountKey, readGroupCount, runLessons, sharingStatus } from './teacherRun';
+import { QuizWorksheet } from './QuizWorksheet';
+import './worksheet.css';
 
 interface RunPanelProps {
   classroom?: Classroom;
@@ -66,6 +68,8 @@ export function TeacherRunPanel({ classroom, session, code, onView }: RunPanelPr
           <li><b>퀴즈는 다 공유된 뒤에.</b> 학생 제출은 한 번뿐입니다.</li>
         </ul>
         <div className="studio-actions"><button onClick={() => onView('photo')}>제작 화면 보기</button><button onClick={() => onView('preview')}>내 작품 체험</button></div>
+        <h3>퀴즈 활동지</h3>
+        <QuizWorksheet classroom={classroom} session={session} />
         <p className="teacher-run-rescue">지난 작업이 안 보이면 그 태블릿에서 <Link to="/three-kingdoms/ar-rescue">학생 작업 복구</Link>를 여세요.</p>
       </aside>
     </div>
