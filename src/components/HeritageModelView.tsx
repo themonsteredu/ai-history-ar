@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { ExhibitModel, ExhibitPoint } from '../lib/ar/exhibit';
 import type { CardPlacement, ModelScene } from '../lib/ar/modelScene';
 import { ReconstructionCredit } from './ReconstructionCredit';
+import { cameraFailureMessage } from '../lib/ar/cameraDiagnosis';
 
 export default function HeritageModelView({ model, image, points, selectedId, onSelect, onPlace, camera = false, cardPlacement = 'table', targetIndex, onTracking, eraId = "three-kingdoms" }: {
   model?: ExhibitModel; image: string; points: ExhibitPoint[]; selectedId: string; onSelect: (id: string) => void;
@@ -41,7 +42,7 @@ export default function HeritageModelView({ model, image, points, selectedId, on
     })().then(runtime => { if (abort.signal.aborted) runtime.dispose(); else scene.current = runtime; }).catch(reason => {
       if (!abort.signal.aborted) {
         setStatus('error'); current.current.onTracking?.(false);
-        setError(reason instanceof DOMException && reason.name === 'NotAllowedError' ? '카메라 사용을 허용한 뒤 다시 열어 주세요.' : reason instanceof Error && /webgl/i.test(reason.message) ? '이 브라우저에서는 입체 카메라를 열 수 없어요. 다른 브라우저나 태블릿에서 열어 주세요.' : reason instanceof Error ? reason.message : '입체 유물을 열지 못했어요.');
+        void cameraFailureMessage(reason, navigator, window.isSecureContext).then(message => setError(message));
       }
     });
     return () => { abort.abort(); scene.current = null; surface.remove(); };

@@ -6,6 +6,7 @@ import type { ExhibitionSound } from '../../lib/ar/sound';
 import { ReconstructionCredit } from '../../components/ReconstructionCredit';
 import { cameraCardTransform, disposeObject, readModel, type CardPlacement } from '../../lib/ar/modelScene';
 import { cardSlots, readyCards, waitingCards } from './visiting';
+import { cameraFailureMessage } from '../../lib/ar/cameraDiagnosis';
 export interface CameraWork { group: number; heritageId: number; ar: ArExhibit }
 
 export default function ClassroomCamera({ works, sound, onClose }: { works: CameraWork[]; sound: ExhibitionSound; onClose: () => void }) {
@@ -95,7 +96,12 @@ export default function ClassroomCamera({ works, sound, onClose }: { works: Came
           button.style.left = `${x}px`; button.style.top = `${y}px`;
         });
       });
-    })().catch(e => { if (!cancelled) { setLoading(false); setError(e instanceof DOMException && e.name === 'NotAllowedError' ? '카메라 사용을 허용한 뒤 다시 시작해 주세요.' : e instanceof Error ? e.message : 'AR 카메라를 열지 못했어요.'); stopCamera(); } });
+    })().catch(e => {
+      if (cancelled) return;
+      setLoading(false); stopCamera();
+      // The AR library rejects with nothing, so ask the camera why before blaming the app.
+      void cameraFailureMessage(e, navigator, window.isSecureContext).then(message => { if (!cancelled) setError(message); });
+    });
     return () => { cancelled = true; abort.abort(); markers.current.forEach(button => { if (button) button.hidden = true; }); player?.pause(); sound.narration(false); renderer?.setAnimationLoop(null); releaseVideo(); if (!starting) stopCamera(); objects.forEach(disposeObject); environment?.dispose(); renderer?.dispose(); element.remove(); };
   }, [works, chosenKey, sound]);
   function select(id: string) {

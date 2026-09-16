@@ -15,5 +15,22 @@ export const sessionKey = (code: string) => `history-ar-studio-session:${code}`;
 export function readStudioSession(code: string): StudioSession | undefined {
   try { const value = JSON.parse(localStorage.getItem(sessionKey(code)) || 'null'); return value?.code === code && typeof value.token === 'string' ? value : undefined; } catch { return undefined; }
 }
-export function keepStudioSession(session: StudioSession) { try { localStorage.setItem(sessionKey(session.code), JSON.stringify(session)); } catch { /* session remains in memory */ } }
+export const sessionHistoryKey = (code: string) => `history-ar-studio-sessions:${code}`;
+/** Only the entry that first shared may change a group's work, so a replaced entry is kept to fall back on. */
+export function readStudioSessions(code: string): StudioSession[] {
+  try {
+    const value = JSON.parse(localStorage.getItem(sessionHistoryKey(code)) || '[]');
+    return Array.isArray(value) ? value.filter(item => item?.code === code && typeof item.token === 'string' && typeof item.memberId === 'string') : [];
+  } catch { return []; }
+}
+export function keepStudioSession(session: StudioSession) {
+  try {
+    const previous = readStudioSession(session.code);
+    if (previous && previous.memberId !== session.memberId) {
+      const kept = [previous, ...readStudioSessions(session.code).filter(item => item.memberId !== previous.memberId)].slice(0, 5);
+      localStorage.setItem(sessionHistoryKey(session.code), JSON.stringify(kept));
+    }
+    localStorage.setItem(sessionKey(session.code), JSON.stringify(session));
+  } catch { /* session remains in memory */ }
+}
 export type { StudioProject };

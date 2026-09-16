@@ -56,6 +56,8 @@ interface MakerWorkspaceProps {
   onImport: (file?: File) => void;
   recoverable?: DraftSummary[];
   onRecover?: (summary: DraftSummary) => void;
+  ownerSession?: StudioSession;
+  onRestoreOwner?: () => void;
 }
 
 export function MakerWorkspace(props: MakerWorkspaceProps) {
@@ -132,7 +134,7 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
   }
   function save(final = false) {
     if (!session) { entry.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }); props.onMessage('다른 태블릿에서도 열려면 위에서 수업코드로 입장해 주세요. 지금 작업은 그대로 유지돼요.'); return; }
-    if (!classroom?.canEdit) { props.onMessage('모둠 작품은 처음 공유한 태블릿에서 저장해요. 여기서는 우리 반 작품을 관람하거나 내 작업을 파일로 보관할 수 있어요.'); return; }
+    if (!classroom?.canEdit) { props.onMessage(`${session.group}모둠 작품은 처음 ‘모둠에 공유’를 누른 태블릿에서만 고칠 수 있어요. 그 태블릿에서 같은 수업코드·같은 이름·같은 모둠으로 들어가 고친 뒤 다시 공유해 주세요. 이 태블릿에서는 관람과 파일 보관만 됩니다.`); return; }
     if (final && classroom.mode !== 'shared' && problems.length) { setShowProblems(true); return; }
     if (isEmptyProject(project) && !window.confirm('이 화면에는 글과 녹음이 없어요. 이대로 공유하면 우리 모둠 작품이 빈 상태로 올라가고, 진짜 작업이 있는 태블릿에서 더 이상 저장할 수 없게 됩니다. 그래도 공유할까요?')) return;
     props.onSave(final);
@@ -141,7 +143,7 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
   return <div className="studio-page maker-page page-width">
     <header className="maker-titlebar">
       <div><Link to="/three-kingdoms" onClick={event => { if (recording) event.preventDefault(); }}>← 삼국시대</Link><h1>AR 만들기</h1></div>
-      <div className="maker-title-actions"><span className="maker-draft-label">{session ? `${session.code} · ${session.group}모둠` : '이 기기에서 제작 중'}</span><button disabled={busy || recording || placing || !ready || readonly || (!!session && !classroom?.canEdit)} onClick={() => save()}>모둠에 공유</button><button className="studio-primary" disabled={busy || recording || placing || !ready} onClick={() => changeView(view === 'preview' ? 'photo' : 'preview')}>{view === 'preview' ? '제작으로 돌아가기' : '내 작품 AR로 보기'}</button></div>
+      <div className="maker-title-actions"><span className="maker-draft-label">{session ? `${session.code} · ${session.group}모둠` : '이 기기에서 제작 중'}</span><button disabled={busy || recording || placing || !ready || readonly} onClick={() => save()}>모둠에 공유</button><button className="studio-primary" disabled={busy || recording || placing || !ready} onClick={() => changeView(view === 'preview' ? 'photo' : 'preview')}>{view === 'preview' ? '제작으로 돌아가기' : '내 작품 AR로 보기'}</button></div>
     </header>
 
     {props.teacher && <TeacherRunPanel classroom={classroom} session={session} code={session?.code || props.code || props.inputCode} onView={changeView} />}
@@ -159,8 +161,9 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
       <p>{blank ? <><b>지금 화면은 비어 있어요.</b> 이 태블릿에 남아 있는 지난 시간 작업을 열 수 있어요.</> : <><b>이 태블릿에 다른 작업도 남아 있어요.</b> 필요하면 열어서 확인하세요.</>}</p>
       <div className="studio-actions">{recoverable.slice(0, 3).map(draft => <button key={draft.key} className={blank ? 'studio-primary' : undefined} disabled={editingDisabled} onClick={() => props.onRecover?.(draft)}>{draft.group ? `${draft.group}모둠` : '모둠 미지정'} · {draft.heritage} 열기<small> (녹음 {draft.recordings}개 · 문제 {draft.questions}개)</small></button>)}</div>
     </div>}
+    {session && classroom && !classroom.canEdit && props.ownerSession && <p className="maker-share-state is-waiting" role="status"><b>이 태블릿에 예전 입장 정보가 남아 있어요.</b> 그 정보로 돌아가면 {session.group}모둠 작품을 고쳐서 다시 공유할 수 있어요.<button className="studio-primary" disabled={busy || recording || placing} onClick={() => props.onRestoreOwner?.()}>{props.ownerSession.name} 이름으로 되돌리기</button></p>}
     {session && classroom && (shared
-      ? <p className="maker-share-state is-shared" role="status"><b>{session.group}모둠 작품이 우리 반에 올라갔어요.</b> 친구들 태블릿에서 카드를 비추면 보여요.</p>
+      ? <p className="maker-share-state is-shared" role="status"><b>{session.group}모둠 작품이 우리 반에 올라갔어요.</b> 친구들 태블릿에서 카드를 비추면 보여요. {classroom.canEdit ? '고칠 곳이 있으면 여기서 고친 뒤 ‘모둠에 공유’를 한 번 더 누르면 바뀝니다.' : '고치는 것은 처음 공유한 태블릿에서만 됩니다. 그 태블릿에서 같은 수업코드·같은 이름으로 들어가 주세요.'}</p>
       : !blank && <p className="maker-share-state is-waiting" role="status"><b>아직 우리 반에 올라가지 않았어요.</b> 이 태블릿에만 있어서 다른 모둠이 {heritage.heritage} 카드를 비춰도 보이지 않아요.{classroom.canEdit ? <button className="studio-primary" disabled={busy || recording || placing || !ready || readonly} onClick={() => save()}>지금 모둠에 공유</button> : <span> 처음 공유한 태블릿에서 눌러 주세요.</span>}</p>)}
     {!ready ? <p role="status">작업을 불러와요…</p> : <>
       <nav className="maker-viewbar" aria-label="AR 만들기 도구">
@@ -199,7 +202,7 @@ export function MakerWorkspace(props: MakerWorkspaceProps) {
         <details className="maker-extra"><summary>배경음·효과음</summary><div className="studio-actions"><button disabled={recording} aria-pressed={props.soundOn} onClick={() => props.onSound(!props.soundOn)}>{props.soundOn ? '배경음 끄기' : '배경음 켜기'}</button><label>배경음 크기<input type="range" min={0} max={.5} step={.05} value={props.volume} onChange={event => props.onVolume(Number(event.target.value))} /></label><label><input type="checkbox" disabled={recording} checked={props.effects} onChange={event => props.onEffects(event.target.checked)} />짧은 효과음</label></div><p>녹음 중에는 배경음이 멈춰요.</p></details>
       </div>
       <details className="maker-extra"><summary>모둠 작업 저장·불러오기</summary>
-        {!session ? <p>위에서 수업코드로 입장하세요.</p> : <><p>{classroom?.canEdit ? '공유하면 친구들 태블릿에도 나타나요.' : '저장은 모둠 대표 태블릿에서 해요.'}</p><div className="studio-actions"><button disabled={editingDisabled || !classroom?.canEdit} onClick={() => save()}>모둠에 공유</button><button disabled={editingDisabled || !classroom?.canEdit} onClick={props.onLoadShared}>저장한 우리 모둠 작품 열기</button></div>{showProblems && problems.length > 0 && <div className="studio-notice" role="status"><ul>{problems.map(message => <li key={message}>{message}</li>)}</ul></div>}</>}
+        {!session ? <p>위에서 수업코드로 입장하세요.</p> : <><p>{classroom?.canEdit ? '공유하면 친구들 태블릿에도 나타나요.' : '저장은 모둠 대표 태블릿에서 해요.'}</p><div className="studio-actions"><button disabled={editingDisabled} onClick={() => save()}>모둠에 공유</button><button disabled={editingDisabled || !classroom?.canEdit} onClick={props.onLoadShared}>저장한 우리 모둠 작품 열기</button></div>{showProblems && problems.length > 0 && <div className="studio-notice" role="status"><ul>{problems.map(message => <li key={message}>{message}</li>)}</ul></div>}</>}
       </details>
       <details className="maker-extra"><summary>작업 파일 보관·불러오기</summary><p>이 기기 저장은 임시예요. 공유하거나 파일로 받아 두세요.</p><div className="studio-actions"><button disabled={recording || busy} onClick={() => downloadProjectFile(JSON.stringify(project), `AR_${project.group}모둠_${heritage.heritage}.json`, 'application/json')}>작업 파일 받기</button><label className="studio-file">작업 파일 열기<input disabled={editingDisabled} type="file" accept=".json,application/json" onChange={event => { props.onImport(event.target.files?.[0]); event.target.value = ''; }} /></label></div></details>
       {props.teacher && <details className="maker-extra"><summary>교사 전시 진행</summary><TeacherControls initialCode={props.code} onCode={props.onCode} /></details>}

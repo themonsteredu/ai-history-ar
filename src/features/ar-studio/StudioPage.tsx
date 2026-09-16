@@ -7,7 +7,7 @@ import { collectDrafts, type DraftSummary } from './rescue';
 import { ExhibitionSound } from '../../lib/ar/sound';
 import { isStudioProject, newStudioProject, type StudioProject } from './project';
 import { prepareMakerDraft } from './prepared';
-import { studioApi, keepStudioSession, readStudioSession, type Classroom, type StudioSession } from './api';
+import { studioApi, keepStudioSession, readStudioSession, readStudioSessions, type Classroom, type StudioSession } from './api';
 import { samplePath } from './sample';
 import { TeacherGuide } from './TeacherGuide';
 import { TeacherControls } from './TeacherControls';
@@ -115,6 +115,31 @@ export default function StudioPage({ teacher = false, maker = false }: { teacher
     try { const result = await studioApi<{ project: StudioProject; version: number }>(`/rooms/${code}/works/${effectiveSession.group}?draft=1`, effectiveSession.token); if (!isStudioProject(result.project)) throw new Error('작품 형식을 확인하지 못했어요.'); const next = maker ? await prepareMakerDraft(result.project) : result.project; setProject(next); setRevision(result.version); setMessage('제출된 우리 모둠 작품을 열었어요.'); }
     catch (e) { setMessage(e instanceof Error ? e.message : '작품을 열지 못했어요.'); } finally { setBusy(false); }
   }
+  // Re-entering with a different name creates a new member, which the server will not let save the
+  // group's work. The tablet still holds the entry that can, so offer it back instead of a dead button.
+  const [ownerSession, setOwnerSession] = useState<StudioSession>();
+  useEffect(() => {
+    setOwnerSession(undefined);
+    if (!effectiveSession || !classroom || classroom.canEdit) return;
+    let cancelled = false;
+    void (async () => {
+      for (const past of readStudioSessions(code)) {
+        if (cancelled) return;
+        if (past.memberId === effectiveSession.memberId || past.group !== effectiveSession.group) continue;
+        try {
+          const room = await studioApi<Classroom>(`/rooms/${code}`, past.token);
+          if (room.canEdit) { if (!cancelled) setOwnerSession(past); return; }
+        } catch { /* that entry is gone; try the next one */ }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [code, effectiveSession?.memberId, effectiveSession?.group, classroom?.canEdit]);
+  function restoreOwner() {
+    if (!ownerSession) return;
+    keepStudioSession(ownerSession); setSession(ownerSession); setOwnerSession(undefined);
+    setMessage('이 태블릿의 예전 입장 정보로 돌아왔어요. 고친 작품을 다시 ‘모둠에 공유’할 수 있어요.');
+  }
+
   // Work made last lesson sits under this tablet's older draft key, so a blank screen is recoverable here.
   const [recoverable, setRecoverable] = useState<DraftSummary[]>([]);
   useEffect(() => {
@@ -158,6 +183,7 @@ export default function StudioPage({ teacher = false, maker = false }: { teacher
     inputCode={inputCode} onInputCode={setInputCode} name={name} onName={setName} joinGroup={joinGroup} onJoinGroup={setJoinGroup}
     onJoin={() => { void join(); }} onSave={final => { void submit(!!final); }} onLoadShared={() => { void loadShared(); }} onImport={file => { void importFile(file); }}
     recoverable={recoverable} onRecover={summary => { void recoverDraft(summary); }}
+    ownerSession={ownerSession} onRestoreOwner={restoreOwner}
   />;
   return <main className="studio-page page-width"><header className="studio-header"><Link onClick={e => { if (recording) { e.preventDefault(); setMessage('녹음을 끝낸 뒤 이동해 주세요.'); } }} to={`/three-kingdoms?${homeParams}`}>← 삼국시대 6차시</Link><span>MOA 역사 · 우리 반 AR 박물관</span><Link onClick={e => { if (recording) e.preventDefault(); }} to={samplePath(params.toString())}>예제로 AR 바로 체험</Link><button disabled={recording} onClick={() => navigate('guide')}>수업 안내</button>{teacher && <button disabled={recording} onClick={() => navigate('teacher')}>교사 진행</button>}</header>
     <nav className="studio-steps" aria-label="AR 활동 단계">{steps.map(([key, label], index) => <button disabled={recording} aria-current={step === key ? 'step' : undefined} key={key} onClick={() => navigate(key, key === 'model' ? 4 : ['narration', 'questions'].includes(key) ? 5 : 6)}><span>{index + 1}</span>{label}</button>)}</nav>
