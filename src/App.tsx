@@ -43,6 +43,7 @@ export function App() {
       <Route path="teacher" element={<TeacherGate />}>
         <Route index element={<TeacherDashboardPage />} />
         <Route path="three-kingdoms/data/:sessionId" element={<DataInquiryLessonPage teacher />} />
+        <Route path="three-kingdoms/ar" element={<Suspense fallback={<p>AR 수업 화면을 열어요…</p>}><TeacherPage /></Suspense>} />
         <Route path="three-kingdoms/ar-studio" element={<Suspense fallback={<p>교사 수업 안내를 준비해요…</p>}><StudioPage teacher /></Suspense>} />
         <Route path="three-kingdoms/ar-maker" element={<Suspense fallback={<p>AR 만들기를 열어요…</p>}><StudioPage teacher maker /></Suspense>} />
         <Route path=":eraSlug/lesson/:lessonId" element={<LessonPage mode="teacher" />} />

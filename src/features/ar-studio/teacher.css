@@ -1,4 +1,6 @@
-.teacher-page{--studio-accent:#743d2c;--studio-line:#d9d6d0;max-width:1040px;word-break:keep-all;padding-bottom:40px}
+.ar-teacher-page{max-width:1040px;padding-bottom:40px}
+.ar-teacher-page,.ar-teacher-panel{--studio-accent:#743d2c;--studio-line:#d9d6d0;word-break:keep-all}
+.ar-teacher-panel-host{padding-top:22px;padding-bottom:26px;border-bottom:1px solid #d9d6d0}
 .teacher-page-head{padding:22px 0 12px;border-bottom:1px solid var(--studio-line)}
 .teacher-page-head h1{margin:2px 0 0;font-size:clamp(1.4rem,3.5vw,2rem)}
 .teacher-classes{margin:18px 0 0;padding:16px 18px;border:1px solid var(--studio-line);border-radius:12px;background:#fff}

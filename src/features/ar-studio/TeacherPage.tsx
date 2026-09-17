@@ -11,8 +11,8 @@ import './teacher.css';
 
 const ClassroomQr = lazy(() => import('./ClassroomQr'));
 
-/** Everything a teacher touches during an AR lesson, on one page, with the classes they registered themselves. */
-export default function TeacherPage() {
+/** Everything a teacher touches during an AR lesson, in one block, with the classes they registered themselves. */
+export function TeacherArPanel() {
   const [params, setParams] = useSearchParams();
   const code = normalizeClassCode(params.get('hub_code') || '');
   const [classes, setClasses] = useState<TeacherClass[]>([]);
@@ -53,7 +53,7 @@ export default function TeacherPage() {
   const waiting = waitingCards(cardSlots(classroom?.gallery));
   const questions = classroom?.questions?.length || 0;
 
-  return <main className="studio-page page-width teacher-page">
+  return <div className="ar-teacher-panel">
     <header className="teacher-page-head"><div><p className="teacher-run-eyebrow">선생님 화면</p><h1>{name ? `${name} · 수업코드 ${code}` : code ? `수업코드 ${code}` : '우리 반 AR 수업'}</h1></div></header>
 
     <section className="teacher-classes" aria-label="내 반 목록">
@@ -98,5 +98,9 @@ export default function TeacherPage() {
       </nav>
     </>}
     {!code && <p className="teacher-page-empty">위에서 반을 등록하거나 누르면 그 반의 QR·모둠 현황·퀴즈 인쇄가 여기에 나옵니다.</p>}
-  </main>;
+  </div>;
+}
+
+export default function TeacherPage() {
+  return <main className="studio-page page-width ar-teacher-page"><TeacherArPanel /></main>;
 }

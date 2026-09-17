@@ -6,6 +6,7 @@ import { eras, getEra } from "../content/catalog";
 import type { EraId } from "../types/curriculum";
 import { DataInquiryOverview } from '../components/DataInquiryOverview';
 import { StudioOverview } from '../features/ar-studio/StudioOverview';
+import { TeacherArPanel } from '../features/ar-studio/TeacherPage';
 
 export function TeacherDashboardPage() {
   const [selectedEraId, setSelectedEraId] = useState<EraId>("three-kingdoms");
@@ -26,6 +27,7 @@ export function TeacherDashboardPage() {
 
   return (
     <div className="teacher-page">
+      <section className="page-width ar-teacher-panel-host" aria-label="AR 수업 진행"><TeacherArPanel /></section>
       <section className="teacher-hero">
         <div className="page-width teacher-hero__grid">
           <div>
