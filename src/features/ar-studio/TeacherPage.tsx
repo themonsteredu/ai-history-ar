@@ -69,7 +69,7 @@ export function TeacherArPanel() {
         <label>수업코드<input value={newCode} inputMode="numeric" autoCapitalize="none" spellCheck={false} maxLength={12} placeholder="예: 5252" onChange={event => setNewCode(event.target.value.trim())} /></label>
         <button type="submit" className="studio-primary" disabled={!newName.trim() || !isClassCode(newCode)}>{classes.length ? '반 추가' : '첫 반 등록'}</button>
       </form>
-      <p className="maker-entry-help">반 이름은 이 기기에만 저장돼요. 학생 작품은 서버에 있고, 지금 서버 규칙으로는 코드를 만든 날부터 90일 보관돼요.</p>
+      <p className="maker-entry-help">반 이름은 이 기기에만 저장돼요. 학생 작품은 서버에 있고, 코드를 지우기 전까지 그대로 남아요.</p>
     </section>
 
     {code && <>
