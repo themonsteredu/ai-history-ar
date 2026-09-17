@@ -14,7 +14,7 @@ it('starts from the teacher own class list and asks for nothing else', () => {
 it('opens a class straight from its code with the print, visit and maker links', () => {
   const html = render('/three-kingdoms/ar-teacher?hub_code=5252');
   expect(html).toContain('수업코드 5252');
-  expect(html).toContain('ar-quiz-print?hub_code=5252');
+  expect(html).toContain('모둠이 만든 문제 모아 인쇄'); expect(html).toContain('퀴즈 활동지 만들기');
   expect(html).toContain('ar-visit?hub_code=5252');
   expect(html).toContain('ar-maker?hub_code=5252');
   expect(html).toContain('모둠 현황');

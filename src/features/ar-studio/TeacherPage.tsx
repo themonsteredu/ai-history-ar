@@ -5,6 +5,8 @@ import { GROUP_CHOICES, groupCountKey, readGroupCount, sharingStatus } from './t
 import { cardSlots, waitingCards } from './visiting';
 import { addTeacherClass, classNameFor, isClassCode, normalizeClassCode, readTeacherClasses, removeTeacherClass, writeTeacherClasses, type TeacherClass } from './teacherClasses';
 import { allArCardsUrl } from '../../components/ArRecognitionCard';
+import { QuizWorksheet } from './QuizWorksheet';
+import './worksheet.css';
 import './studio.css';
 import './maker.css';
 import './teacher.css';
@@ -67,7 +69,7 @@ export function TeacherArPanel() {
         <label>수업코드<input value={newCode} inputMode="numeric" autoCapitalize="none" spellCheck={false} maxLength={12} placeholder="예: 5252" onChange={event => setNewCode(event.target.value.trim())} /></label>
         <button type="submit" className="studio-primary" disabled={!newName.trim() || !isClassCode(newCode)}>{classes.length ? '반 추가' : '첫 반 등록'}</button>
       </form>
-      <p className="maker-entry-help">반 이름과 코드는 이 기기에 저장돼요. 같은 코드는 90일 동안 계속 씁니다.</p>
+      <p className="maker-entry-help">반 이름은 이 기기에만 저장돼요. 학생 작품은 서버에 있고, 지금 서버 규칙으로는 코드를 만든 날부터 90일 보관돼요.</p>
     </section>
 
     {code && <>
@@ -75,7 +77,7 @@ export function TeacherArPanel() {
       <div className="teacher-page-grid">
         <section className="teacher-page-card" aria-label="학생 입장 QR">
           <h2>학생 QR</h2>
-          <Suspense fallback={<p role="status">QR을 준비해요…</p>}><ClassroomQr code={code} onCode={value => { if (isClassCode(value) && normalizeClassCode(value) !== code) open(value); }} /></Suspense>
+          <Suspense fallback={<p role="status">QR을 준비해요…</p>}><ClassroomQr code={code} compact onCode={() => { /* the class list picks the code */ }} /></Suspense>
         </section>
         <section className="teacher-page-card" aria-label="모둠 공유 현황">
           <div className="teacher-run-groups-head"><h2>모둠 현황</h2><label>모둠 수<select value={groupCount} onChange={event => changeGroupCount(Number(event.target.value))}>{GROUP_CHOICES.map(n => <option key={n} value={n}>{n}모둠</option>)}</select></label></div>
@@ -89,8 +91,11 @@ export function TeacherArPanel() {
           <p className="maker-entry-help">문제 {questions}개 공유됨 · 8초마다 새로 확인해요.</p>
         </section>
       </div>
+      <section className="teacher-page-card teacher-page-print" aria-label="모둠 문제 모아 인쇄">
+        <h2>모둠이 만든 문제 모아 인쇄</h2>
+        <QuizWorksheet classroom={classroom} session={session} />
+      </section>
       <nav className="teacher-page-actions" aria-label="바로 가기">
-        <Link className="teacher-page-action is-primary" to={`/three-kingdoms/ar-quiz-print?hub_code=${code}`}><b>퀴즈 PDF</b><span>{questions ? `${questions}문제 인쇄` : '문제가 공유되면 열려요'}</span></Link>
         <Link className="teacher-page-action" to={`/three-kingdoms/ar-visit?hub_code=${code}`}><b>관람 화면</b><span>학생이 보는 화면 그대로</span></Link>
         <Link className="teacher-page-action" to={`/three-kingdoms/ar-maker?hub_code=${code}`}><b>만들기 화면</b><span>모둠 작품 만들기·공유</span></Link>
         <a className="teacher-page-action" href={allArCardsUrl()} download><b>유물 카드 6종</b><span>A4 출력용</span></a>

@@ -19,3 +19,8 @@ it('does not display a misleading QR for invalid or missing codes', () => {
   const html = renderToStaticMarkup(<ClassroomQr code="" onCode={() => {}} />);
   expect(html).toContain('4~12자리'); expect(html).not.toContain('<svg');
 });
+it('keeps the compact QR to the toggle, the code and two actions', () => {
+  const html = renderToStaticMarkup(<ClassroomQr code="class26" compact onCode={() => {}} />);
+  expect(html).toContain('<svg'); expect(html).toContain('링크 복사'); expect(html).toContain('이미지 받기');
+  expect(html).not.toContain('<input'); expect(html).not.toContain('자동 저장');
+});

@@ -25,3 +25,5 @@
 .teacher-page-action b{font-size:1.02rem}.teacher-page-action span{font-size:.82rem;color:#6b635c}
 .teacher-page-empty{margin:24px 0 0;color:#5c544d;line-height:1.7}
 @media(max-width:800px){.teacher-page-grid{grid-template-columns:1fr}.teacher-classes,.teacher-page-card{padding:14px}}
+.teacher-page-print{margin-top:16px}
+.teacher-page-print h2{margin-bottom:6px}
