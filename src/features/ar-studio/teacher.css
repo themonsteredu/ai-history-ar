@@ -1,0 +1,25 @@
+.teacher-page{--studio-accent:#743d2c;--studio-line:#d9d6d0;max-width:1040px;word-break:keep-all;padding-bottom:40px}
+.teacher-page-head{padding:22px 0 12px;border-bottom:1px solid var(--studio-line)}
+.teacher-page-head h1{margin:2px 0 0;font-size:clamp(1.4rem,3.5vw,2rem)}
+.teacher-classes{margin:18px 0 0;padding:16px 18px;border:1px solid var(--studio-line);border-radius:12px;background:#fff}
+.teacher-classes h2{margin:0 0 10px;font-size:1.05rem}
+.teacher-class-list{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.teacher-class-list li{display:flex;align-items:stretch;border:1px solid #c9c3bb;border-radius:10px;overflow:hidden;background:#faf9f7}
+.teacher-class-list li.is-open{border-color:#9e6a55;background:#f1e6df}
+.teacher-class-open{display:grid;gap:1px;padding:8px 14px;border:0;background:none;text-align:left;min-height:52px}
+.teacher-class-open b{font-size:1rem}.teacher-class-open span{font-size:.82rem;color:#6b635c}
+.teacher-class-remove{border:0;border-left:1px solid #ddd6cd;background:none;padding:0 12px;color:#8a6f60;font-size:1.1rem}
+.teacher-class-add{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+.teacher-class-add label{display:grid;gap:5px;font-size:.9rem;font-weight:600;flex:1;min-width:140px}
+.teacher-class-add input{min-height:44px;padding:8px 12px;border:1px solid #b9b2a9;border-radius:8px;font-size:1rem}
+.teacher-page-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px}
+.teacher-page-card{padding:16px 18px;border:1px solid var(--studio-line);border-radius:12px;background:#fff;min-width:0}
+.teacher-page-card h2{margin:0 0 10px;font-size:1.05rem}
+.teacher-page-card .classroom-qr-panel{margin:0}
+.teacher-run-warn.is-ready{border-color:#a8c9b0;background:#eef6f0;color:#1f5c33}
+.teacher-page-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px}
+.teacher-page-action{display:grid;gap:3px;padding:14px 16px;border:1px solid #c9c3bb;border-radius:12px;background:#fff;color:#2f2a26;text-decoration:none;min-height:70px}
+.teacher-page-action.is-primary{border-color:#9e6a55;background:#f1e6df;color:#703b2c}
+.teacher-page-action b{font-size:1.02rem}.teacher-page-action span{font-size:.82rem;color:#6b635c}
+.teacher-page-empty{margin:24px 0 0;color:#5c544d;line-height:1.7}
+@media(max-width:800px){.teacher-page-grid{grid-template-columns:1fr}.teacher-classes,.teacher-page-card{padding:14px}}

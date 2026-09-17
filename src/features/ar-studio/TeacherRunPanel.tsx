@@ -70,6 +70,7 @@ export function TeacherRunPanel({ classroom, session, code, onView }: RunPanelPr
         <div className="studio-actions"><button onClick={() => onView('photo')}>제작 화면 보기</button><button onClick={() => onView('preview')}>내 작품 체험</button></div>
         <h3>퀴즈 활동지</h3>
         <QuizWorksheet classroom={classroom} session={session} />
+        <p className="teacher-run-rescue">QR·모둠 현황·퀴즈 인쇄만 한 화면에서 보려면 <Link to={`/three-kingdoms/ar-teacher${typedCode ? `?hub_code=${typedCode}` : ''}`}>선생님 한 장 화면</Link>을 즐겨찾기 하세요.</p>
         <p className="teacher-run-rescue">지난 작업이 안 보이면 그 태블릿에서 <Link to="/three-kingdoms/ar-rescue">학생 작업 복구</Link>를 여세요.</p>
       </aside>
     </div>
