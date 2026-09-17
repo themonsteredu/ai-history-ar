@@ -6,7 +6,7 @@ import { quizWorksheet, worksheetHasEvidence, worksheetTotal, type WorkPoints, t
 const CHOICES = ['①', '②', '③'];
 
 /** Teacher-side paper copy of the shared quiz, printed from the class the groups already shared into. */
-export function QuizWorksheet({ classroom, session }: { classroom?: Classroom; session?: StudioSession }) {
+export function QuizWorksheet({ classroom, session, auto = false }: { classroom?: Classroom; session?: StudioSession; auto?: boolean }) {
   const [sections, setSections] = useState<WorksheetSection[]>();
   const [evidence, setEvidence] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -19,6 +19,12 @@ export function QuizWorksheet({ classroom, session }: { classroom?: Classroom; s
     return () => document.body.classList.remove('worksheet-print');
   }, [sections]);
 
+  // A print-only page opens straight onto the sheet; nobody should have to find a button first.
+  const built = useRef(false);
+  useEffect(() => {
+    if (!auto || built.current || !session || !classroom?.questions?.length) return;
+    built.current = true; void build();
+  });
   async function build() {
     if (!session || !classroom?.questions?.length) return;
     setBusy(true); setError('');
