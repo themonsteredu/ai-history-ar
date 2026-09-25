@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>인공지능과 역사 홍보영상</title>
+<style>
+@font-face{font-family:"SCDream";src:url(assets/SCDream5.otf);font-weight:500}
+@font-face{font-family:"SCDream";src:url(assets/SCDream6.otf);font-weight:600}
+@font-face{font-family:"SCDream";src:url(assets/SCDream7.otf);font-weight:700}
+@font-face{font-family:"SCDream";src:url(assets/SCDream8.otf);font-weight:800}
+
+:root{--bg:#0d1b18;--ink:#f4efe3;--mute:#a9a592;--mint:#e0b766;--mint2:#c49744;--amber:#e8836b;--red:#c4553d}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{word-break:keep-all;width:1920px;height:1080px;overflow:hidden;background:var(--bg);color:var(--ink);font-family:"SCDream","Pretendard",sans-serif;letter-spacing:-0.02em}
+.stage{position:absolute;inset:0;overflow:hidden;background:radial-gradient(1200px 700px at 80% 20%,#1c3a33 0%,transparent 60%),radial-gradient(900px 600px at 10% 90%,#2a1c16 0%,transparent 60%),var(--bg)}
+.grid{position:absolute;inset:-100px;background-image:linear-gradient(rgba(224,183,102,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(224,183,102,.05) 1px,transparent 1px);background-size:80px 80px}
+.scene{position:absolute;inset:0;opacity:0}
+.a{will-change:transform,opacity}
+/* hero */
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero .shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(13,27,24,.92) 0%,rgba(13,27,24,.55) 45%,rgba(13,27,24,.1) 100%),linear-gradient(0deg,rgba(13,27,24,.85),transparent 40%)}
+.hero .txt{position:absolute;left:140px;top:300px;width:1100px}
+.eyebrow{font-size:30px;font-weight:600;color:var(--mint);letter-spacing:.04em;margin-bottom:28px;display:flex;align-items:center;gap:16px}
+.eyebrow::before{content:"";width:44px;height:3px;background:var(--mint);display:block}
+.big{font-size:104px;font-weight:800;line-height:1.12;letter-spacing:-0.04em}
+.big em{font-style:normal;color:var(--mint)}
+.sub{font-size:38px;font-weight:500;color:#e6dfcc;margin-top:34px;line-height:1.45}
+/* window scenes */
+.cap{position:absolute;left:110px;top:0;bottom:0;width:560px;display:flex;flex-direction:column;justify-content:center}
+.cap .num{font-size:26px;font-weight:700;color:var(--mint);letter-spacing:.08em;margin-bottom:22px}
+.cap h2{font-size:66px;font-weight:800;line-height:1.18;letter-spacing:-0.04em}
+.cap h2 em{font-style:normal;color:var(--mint)}
+.cap p{font-size:31px;font-weight:500;color:#cfc7b2;line-height:1.5;margin-top:30px}
+.chips{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+.chip{font-size:24px;font-weight:600;padding:10px 20px;border-radius:999px;border:1.5px solid rgba(224,183,102,.45);color:var(--mint);background:rgba(224,183,102,.07)}
+.win{position:absolute;left:720px;top:176px;width:1110px;border-radius:22px;overflow:hidden;background:#0f201c;border:1.5px solid rgba(224,183,102,.25);box-shadow:0 40px 120px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.4)}
+.win .bar{height:52px;display:flex;align-items:center;gap:10px;padding:0 22px;background:#15302a;border-bottom:1px solid rgba(224,183,102,.14)}
+.win .bar i{width:14px;height:14px;border-radius:50%;background:#3a4f48;display:block}
+.win .bar span{margin-left:22px;flex:1;height:32px;border-radius:9px;background:#0b1714;color:#a9a592;font-size:19px;display:flex;align-items:center;padding:0 18px;font-weight:500}
+.win .view{position:relative;width:1110px;height:624px;overflow:hidden}
+.win .view img{position:absolute;left:0;top:0;transform-origin:0 0}
+.wide .win{left:360px;top:170px;width:1200px}
+.wide .win .view{width:1200px;height:675px}
+.wide .cap{left:360px;top:52px;bottom:auto;width:1280px;flex-direction:row;align-items:baseline;gap:28px;justify-content:flex-start}
+.wide .cap h2{font-size:58px}
+.wide .cap .num{margin:0}
+.tag{position:absolute;padding:14px 24px;border-radius:14px;background:rgba(13,27,24,.9);border:1.5px solid var(--mint);font-size:27px;font-weight:700;color:var(--mint);box-shadow:0 18px 50px rgba(0,0,0,.5);white-space:nowrap}
+.tag.warn{border-color:var(--amber);color:var(--amber)}
+.tag.red{border-color:var(--red);color:var(--red)}
+.ring{position:absolute;border:3px solid var(--amber);border-radius:18px;box-shadow:0 0 0 6px rgba(255,207,122,.15)}
+/* cases */
+.cases .head{position:absolute;left:0;right:0;top:120px;text-align:center}
+.cases .head h2{font-size:78px;font-weight:800;letter-spacing:-0.04em}
+.cases .head h2 em{font-style:normal;color:var(--mint)}
+.cases .head p{font-size:32px;color:#cfc7b2;margin-top:18px;font-weight:500}
+.cgrid{position:absolute;left:160px;right:160px;top:400px;display:grid;grid-template-columns:repeat(4,1fr);gap:26px}
+.card{height:220px;border-radius:22px;padding:30px 30px;background:linear-gradient(160deg,#183a33,#0f231f);border:1.5px solid rgba(224,183,102,.2);display:flex;flex-direction:column;justify-content:space-between}
+.card b{display:block;margin-bottom:10px;font-size:22px;color:var(--mint);font-weight:700;letter-spacing:.06em}
+.card strong{font-size:36px;font-weight:800;line-height:1.25;letter-spacing:-0.03em}
+.card .ic{font-size:44px;line-height:1}
+.card.hot{border-color:rgba(255,207,122,.55)} .card.hot b{color:var(--amber)}
+/* stats */
+.stats{position:absolute;left:110px;right:110px;bottom:120px;display:flex;gap:26px}
+/* outro */
+.outro{display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding-bottom:90px}
+.logo{display:flex;align-items:center;gap:26px}
+.logo svg{width:110px;height:110px}
+.logo .name{font-size:92px;font-weight:900;letter-spacing:.01em}
+.logo .name small{display:block;font-size:26px;letter-spacing:.3em;color:var(--mint);font-weight:600;margin-top:6px}
+.outro .line{font-size:50px;font-weight:700;margin-top:70px;letter-spacing:-0.03em}
+.outro .line em{font-style:normal;color:var(--mint)}
+.url{margin-top:56px;font-size:40px;font-weight:700;padding:22px 46px;border-radius:999px;background:var(--mint);color:#1d1508;letter-spacing:0}
+.outro .foot{margin-top:40px;font-size:26px;color:var(--mute);font-weight:500}
+.hero img.plane{position:absolute;inset:auto;left:0;width:620px;height:auto;filter:drop-shadow(0 30px 40px rgba(0,0,0,.5))}
+.subs{position:absolute;left:0;right:0;bottom:44px;display:flex;justify-content:center;pointer-events:none}
+.subs span{font-size:40px;font-weight:600;line-height:1.35;color:#fff;background:rgba(8,16,14,.78);padding:14px 34px;border-radius:16px;text-align:center;max-width:1560px;box-shadow:0 10px 40px rgba(0,0,0,.35);letter-spacing:-0.02em}
+.progress{position:absolute;left:0;bottom:0;height:6px;background:var(--mint);opacity:.85}
+
+.hero{background:#0d1b18}
+.hero img#hero-img{left:auto;right:-40px;width:1500px;height:1080px;object-fit:cover;object-position:70% 50%;filter:sepia(.15) contrast(1.05)}
+.hero .shade{background:linear-gradient(90deg,#0d1b18 0%,#0d1b18 30%,rgba(13,27,24,.75) 48%,rgba(13,27,24,.05) 75%),linear-gradient(0deg,rgba(13,27,24,.9),transparent 35%)}
+.big{font-weight:800}
+.cap h2,.cases .head h2{font-weight:800}
+.hcard{border-radius:20px;overflow:hidden;position:relative;height:250px;border:1.5px solid rgba(224,183,102,.25);background:#15302a}
+.hcard img{width:100%;height:100%;object-fit:cover;display:block}
+.hcard .lbl{position:absolute;left:0;right:0;bottom:0;padding:40px 18px 16px;background:linear-gradient(0deg,rgba(8,16,14,.92),transparent)}
+.hcard .lbl b{display:block;font-size:18px;color:var(--mint);letter-spacing:.06em;font-weight:700;margin-bottom:4px}
+.hcard .lbl strong{font-size:27px;font-weight:800;letter-spacing:-0.03em;line-height:1.2}
+.hgrid{position:absolute;left:130px;right:130px;top:330px;display:grid;grid-template-columns:repeat(6,1fr);gap:22px}
+.seal{width:120px;height:120px;border-radius:26px;background:#a94b36;color:#fff;font-size:76px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:serif;box-shadow:0 20px 60px rgba(169,75,54,.35)}
+.win{border-color:rgba(224,183,102,.28)}
+</style></head>
+<body>
+<div class="stage" id="stage">
+  <div class="grid a" id="grid"></div>
+
+  <section class="scene hero" id="s-hero">
+    <img class="a" id="hero-img" src="assets/home-cover-ink-v2.jpg">
+    <div class="shade"></div>
+    <div class="txt">
+      <div class="eyebrow a" data-in="0.3">초등 5학년 · AI·데이터·AR 역사 탐구</div>
+      <div class="big a" data-in="0.7">오늘, 우리 반이<br><em>문화유산 해설사</em>가<br>됩니다</div>
+      <div class="sub a" data-in="1.6">AI의 역사 설명을 믿는 데서 끝내지 않아요</div>
+    </div>
+  </section>
+
+  <section class="scene" id="s-judge">
+    <div class="cap">
+      <div class="num a" data-in="0.2">STEP 1 · 의심하기</div>
+      <h2 class="a" data-in="0.4">AI가 한 말,<br><em>정말 그랬을까?</em></h2>
+      <p class="a" data-in="0.8">수업 PPT로 질문을 열고, AI 문장 6개를 직접 판단해요.</p>
+      <div class="chips a" data-in="1.2"><span class="chip">○ 자료로 확인</span><span class="chip">× 자료와 다름</span><span class="chip">△ 근거 부족</span><span class="chip">? 더 찾아보기</span></div>
+    </div>
+    <div class="win a" data-win><div class="bar"><i></i><i></i><i></i><span id="url-judge">ai-history-ar.vercel.app/joseon/lesson/2</span></div><div class="view"><img id="v-judge"></div></div>
+  </section>
+
+  <section class="scene wide" id="s-table">
+    <div class="cap"><div class="num a" data-in="0.1">STEP 2 · 확인하고 정리하기</div><h2 class="a" data-in="0.3">확인한 문장을 <em>표로</em> 정리해요</h2></div>
+    <div class="win a" data-win><div class="bar"><i></i><i></i><i></i><span>ai-history-ar.vercel.app/joseon/lesson/5</span></div><div class="view"><img id="v-table"></div></div>
+  </section>
+
+  <section class="scene" id="s-graph">
+    <div class="cap">
+      <div class="num a" data-in="0.2">STEP 2 · 그래프 만들기</div>
+      <h2 class="a" data-in="0.4">우리 표가<br><em>그래프</em>로</h2>
+      <p class="a" data-in="0.8">이야기 종류별로 몇 개인지 한눈에 비교하고, 그래프를 보고 설명해요.</p>
+    </div>
+    <div class="win a" data-win><div class="bar"><i></i><i></i><i></i><span>ai-history-ar.vercel.app/joseon/lesson/6</span></div><div class="view"><img id="v-graph"></div></div>
+  </section>
+
+  <section class="scene" id="s-maker">
+    <div class="cap">
+      <div class="num a" data-in="0.2">STEP 3 · 해설사 되기</div>
+      <h2 class="a" data-in="0.4">3D 유물에<br><em>우리 해설</em>을<br>붙여요</h2>
+      <div class="chips a" data-in="0.9"><span class="chip">돌려 보기</span><span class="chip">설명점 찍기</span><span class="chip">해설 쓰기</span><span class="chip">내 목소리 녹음</span></div>
+    </div>
+    <div class="win a" data-win><div class="bar"><i></i><i></i><i></i><span>ai-history-ar.vercel.app/three-kingdoms/ar-maker</span></div><div class="view"><img id="v-maker"></div></div>
+  </section>
+
+  <section class="scene wide" id="s-sample">
+    <div class="cap"><div class="num a" data-in="0.1">AR 예제 체험</div><h2 class="a" data-in="0.3">끌어서 돌려 보고, <em>번호를 눌러</em> 해설 보기</h2></div>
+    <div class="win a" data-win><div class="bar"><i></i><i></i><i></i><span>ai-history-ar.vercel.app/three-kingdoms/ar-sample</span></div><div class="view"><img id="v-sample"></div></div>
+  </section>
+
+  <section class="scene cases" id="s-cards">
+    <div class="head"><h2 class="a" data-in="0.1"><em>12가지</em> 우리 문화유산</h2><p class="a" data-in="0.4">삼국시대 6차시 · 조선시대 10차시 — 6모둠이 하나씩 맡아 탐구해요</p></div>
+    <div class="hgrid">
+      <div class="hcard a" data-in="0.60"><img src="assets/heritage/three-kingdoms/muryeong-tomb.jpg"><div class="lbl"><b>삼국시대</b><strong>무령왕릉</strong></div></div><div class="hcard a" data-in="0.69"><img src="assets/heritage/three-kingdoms/baekje-incense-burner.jpg"><div class="lbl"><b>삼국시대</b><strong>백제 금동대향로</strong></div></div><div class="hcard a" data-in="0.78"><img src="assets/heritage/three-kingdoms/cheomseongdae.jpg"><div class="lbl"><b>삼국시대</b><strong>첨성대</strong></div></div><div class="hcard a" data-in="0.87"><img src="assets/heritage/three-kingdoms/silla-crown.jpg"><div class="lbl"><b>삼국시대</b><strong>신라 금관</strong></div></div><div class="hcard a" data-in="0.96"><img src="assets/heritage/three-kingdoms/goguryeo-mural.jpg"><div class="lbl"><b>삼국시대</b><strong>고구려 고분벽화</strong></div></div><div class="hcard a" data-in="1.05"><img src="assets/heritage/three-kingdoms/gaya-tombs.jpg"><div class="lbl"><b>삼국시대</b><strong>가야 고분군</strong></div></div><div class="hcard a" data-in="1.14"><img src="assets/heritage/joseon/hunminjeongeum.jpg"><div class="lbl"><b>조선시대</b><strong>훈민정음 해례본</strong></div></div><div class="hcard a" data-in="1.23"><img src="assets/heritage/joseon/annals.jpg"><div class="lbl"><b>조선시대</b><strong>조선왕조실록</strong></div></div><div class="hcard a" data-in="1.32"><img src="assets/heritage/joseon/hwaseong.jpg"><div class="lbl"><b>조선시대</b><strong>수원 화성</strong></div></div><div class="hcard a" data-in="1.41"><img src="assets/heritage/joseon/angbuilgu.jpg"><div class="lbl"><b>조선시대</b><strong>자격루·앙부일구</strong></div></div><div class="hcard a" data-in="1.50"><img src="assets/heritage/joseon/jongmyo.jpg"><div class="lbl"><b>조선시대</b><strong>종묘와 종묘제례악</strong></div></div><div class="hcard a" data-in="1.59"><img src="assets/heritage/joseon/nanjung-ilgi.jpg"><div class="lbl"><b>조선시대</b><strong>난중일기</strong></div></div>
+    </div>
+  </section>
+
+  <section class="scene" id="s-teacher">
+    <div class="cap">
+      <div class="num a" data-in="0.2">선생님 화면</div>
+      <h2 class="a" data-in="0.4">수업 자료는<br><em>한 곳에서</em></h2>
+      <p class="a" data-in="0.8">PIN으로 잠긴 교사 화면에서 차시별 운영안과 인쇄 자료를 확인해요.</p>
+      <div class="chips a" data-in="1.2"><span class="chip">수업 PPT</span><span class="chip">A4 활동지 PDF</span><span class="chip">답안</span><span class="chip">전체 ZIP</span></div>
+    </div>
+    <div class="win a" data-win><div class="bar"><i></i><i></i><i></i><span>ai-history-ar.vercel.app/teacher</span></div><div class="view"><img id="v-teacher"></div></div>
+  </section>
+
+  <section class="scene outro" id="s-outro">
+    <div class="logo a" data-in="0.1"><div class="seal">史</div><div class="name" style="text-align:left">인공지능과 역사<small>의심하고 · 확인하고 · 설명하기</small></div></div>
+    <div class="line a" data-in="0.6">기술은 도구로, <em>학생의 검증과 성장</em>을 수업의 결과로</div>
+    <div class="url a" data-in="1.1">ai-history-ar.vercel.app</div>
+    <div class="foot a" data-in="1.5">설치 없이 브라우저에서 바로 · 초등 5학년 문화유산 탐구 수업</div>
+  </section>
+  <div class="subs"><span id="sub"></span></div>
+  <div class="progress" id="prog"></div>
+</div>
+<script src="meta.js"></script>
+<script>
+const FPS = 30;
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const ease = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3)/2;
+const eout = t => 1 - Math.pow(1 - t, 3);
+const lerp = (a, b, t) => a + (b - a) * t;
+// clip: frame dir, count, source width (px of frame), rate, offset seconds
+const CLIPS = window.CLIPS_META || {};
+// view rects in 1600x900 css space: [x,y,w]  (h = w*9/16)
+const SCENES = [
+  { id:'s-hero', dur:5.4 },
+  { id:'s-judge', dur:8.6, img:'v-judge', segs:[
+      { clip:'ppt', from:0.8, rate:1.6, len:2.8, view:[[200,40,1200],[240,70,1120]] },
+      { clip:'judge', from:2.2, rate:1.6, len:5.8, view:[[190,60,1220],[210,150,1120]] } ] },
+  { id:'s-table', dur:6.4, img:'v-table', segs:[
+      { clip:'table', from:1.4, rate:1.25, len:6.4, view:[[190,20,1220],[210,40,1180]] } ] },
+  { id:'s-graph', dur:5.6, img:'v-graph', segs:[
+      { clip:'graph', from:0.8, rate:1.2, len:5.6, view:[[190,40,1220],[300,120,960]] } ] },
+  { id:'s-maker', dur:8.4, img:'v-maker', segs:[
+      { clip:'maker', from:0.5, rate:1.6, len:6.2, view:[[190,40,1220],[215,60,1170]] },
+      { clip:'maker', from:10.6, rate:1, len:2.2, view:[[190,50,1220],[200,90,1120]] } ] },
+  { id:'s-sample', dur:6.4, img:'v-sample', segs:[
+      { clip:'sample', from:0, rate:0.96, len:6.4, view:[[200,20,1200],[215,25,1000]] } ] },
+  { id:'s-cards', dur:5.6 },
+  { id:'s-teacher', dur:6.6, img:'v-teacher', segs:[
+      { clip:'teacher', from:0.3, rate:1.6, len:6.6, view:[[160,0,1280],[190,40,1220]] } ] },
+  { id:'s-outro', dur:6.2 },
+];
+const XF = 0.6; // crossfade
+let acc = 0; for (const s of SCENES) { s.start = acc; acc += s.dur - XF; }
+const TOTAL = acc + XF;
+window.TOTAL = TOTAL;
+const cache = {};
+function src(clip, i) { const c = CLIPS[clip]; i = Math.max(1, Math.min(c.n, i)); return `frames/${clip}/${String(i).padStart(5,'0')}.jpg`; }
+async function setImg(el, url) {
+  if (el.dataset.src === url) return;
+  el.dataset.src = url; el.src = url;
+  try { await el.decode(); } catch {}
+}
+const SUBS = [
+  [0.4,4.5,'AI가 자신 있게 말하면, 모두 사실일까요?'],
+  [4.9,8.7,'수업 PPT로 오늘의 질문을 함께 열고,'],
+  [8.9,12.6,'AI가 한 말 여섯 문장을 ○ × △ ?로 직접 판단해요.'],
+  [13.0,18.2,'확인한 내용은 이야기 종류별로 표에 정리하고, 같은 종류끼리 모아요.'],
+  [18.6,23.2,'버튼 하나로 우리 표가 막대그래프가 돼요.'],
+  [23.6,27.5,'이제 해설사가 될 차례! 준비된 3D 유물을 돌려 보며'],
+  [27.7,31.2,'설명할 곳을 고르고, 친구에게 들려줄 해설을 써요.'],
+  [31.6,36.8,'첨성대 예제로 3D 모형과 해설을 바로 체험할 수도 있어요.'],
+  [37.2,41.8,'삼국시대와 조선시대, 12가지 문화유산을 모둠별로 탐구해요.'],
+  [42.2,47.9,'선생님은 PIN으로 잠긴 화면에서 수업 PPT와 활동지를 내려받아요.'],
+  [48.3,54.0,'의심하고, 확인하고, 설명하기. 인공지능과 역사에서 시작해 보세요.'],
+];
+window.SUBS = SUBS;
+window.render = async function (t) {
+  { const cur = SUBS.find(x => t >= x[0] && t <= x[1]); const el = document.getElementById('sub');
+    if (cur) { el.textContent = cur[2]; const o = Math.min(clamp((t-cur[0])/0.25), clamp((cur[1]-t)/0.25)); el.parentElement.style.opacity = o; el.style.visibility='visible'; }
+    else { el.style.visibility='hidden'; } }
+  document.getElementById('prog').style.width = (t / TOTAL * 100) + '%';
+  document.getElementById('grid').style.transform = `translate(${-(t*6)%80}px, ${-(t*3)%80}px)`;
+  const waits = [];
+  for (const s of SCENES) {
+    const el = document.getElementById(s.id);
+    const lt = t - s.start;
+    if (lt < -0.01 || lt > s.dur + 0.01) { el.style.opacity = 0; el.style.display = 'none'; continue; }
+    el.style.display = '';
+    const fin = s === SCENES[0] ? 1 : clamp(lt / XF), fout = s === SCENES.at(-1) ? clamp((s.dur - lt) / 0.8) : clamp((s.dur - lt) / XF);
+    el.style.opacity = Math.min(fin, fout);
+    // text entrance
+    el.querySelectorAll('[data-in]').forEach(a => {
+      const p = eout(clamp((lt - parseFloat(a.dataset.in)) / 0.7));
+      a.style.opacity = p; a.style.transform = `translateY(${(1 - p) * 34}px)`;
+    });
+    const win = el.querySelector('[data-win]');
+    if (win) { const p = eout(clamp((lt - 0.15) / 0.9)); win.style.opacity = p; win.style.transform = `translateY(${(1-p)*50}px) scale(${lerp(.96,1,p)})`; }
+    if (s.id === 's-hero') {
+      document.getElementById('hero-img').style.transform = `scale(${1.02 + lt * 0.014}) translateX(${-lt*5}px)`;
+    }
+    if (s.segs) {
+      let off = 0, seg = s.segs[0];
+      for (const g of s.segs) { if (lt >= off) seg = g; off += g.len; }
+      let segStart = 0; for (const g of s.segs) { if (g === seg) break; segStart += g.len; }
+      const st = clamp(lt - segStart, 0, seg.len);
+      const frame = Math.round((seg.from + st * seg.rate) * FPS) + 1;
+      const img = document.getElementById(s.img);
+      const box = img.parentElement; const bw = box.clientWidth, bh = box.clientHeight;
+      const k = ease(clamp(st / seg.len));
+      const [a, b] = seg.view;
+      const vx = lerp(a[0], b[0], k), vy = lerp(a[1], b[1], k), vw = lerp(a[2], b[2], k);
+      const sc = bw / vw; // css px -> box px
+      const pxScale = 1600 / CLIPS[seg.clip].w; // frame px -> css px
+      img.style.width = CLIPS[seg.clip].w + 'px';
+      img.style.transform = `translate(${-vx*sc}px, ${-vy*sc}px) scale(${sc*pxScale})`;
+      waits.push(setImg(img, src(seg.clip, frame)));
+    }
+  }
+  await Promise.all(waits);
+};
+</script>
+</body></html>
