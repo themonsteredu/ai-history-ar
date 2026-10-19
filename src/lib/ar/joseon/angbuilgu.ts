@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { ReconstructionBuilder, Vec } from './toolkit';
+import type { PhotoView, ReconstructionBuilder, Vec } from './toolkit';
 
 /**
  * 앙부일구 (Angbuilgu, "cauldron facing the sky" hemispherical sundial) — photo-reference teaching
@@ -274,3 +274,16 @@ export function build(b: ReconstructionBuilder) {
     }
   });
 }
+
+/** How the photo (photos.json, id 4) lies on each region: the view it was taken from and where the region sits in it. */
+export const photoViews: Record<string, PhotoView> = {
+  bowl: { elevation: 50, azimuth: 50, frame: [.098, .035, .902, .735] },
+  'bowl-inside': { elevation: 52, azimuth: 50, frame: [.183, .075, .814, .612] },
+  'bowl-shade': { elevation: 52, azimuth: 50, frame: [.335, .375, .36, .4] },
+  gnomon: { elevation: 45, azimuth: 40, frame: [.26, .282, .51, .642] },
+  stand: { elevation: 35, azimuth: 55, frame: [.164, .603, .31, .882] },
+  'stand-east': { elevation: 30, azimuth: 45, frame: [.694, .622, .825, .905] },
+  'stand-north': { elevation: 35, azimuth: 235, frame: [.164, .603, .31, .882] },
+  'stand-west': { elevation: 30, azimuth: 225, frame: [.694, .622, .825, .905] },
+  'stand-base': { elevation: 35, azimuth: 50, frame: [.3, .76, .325, .785] },
+};

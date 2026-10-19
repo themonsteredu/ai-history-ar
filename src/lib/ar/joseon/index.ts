@@ -1,7 +1,7 @@
 import { JOSEON_RECONSTRUCTION, joseonModel } from './catalog';
-import { ReconstructionBuilder } from './toolkit';
+import { ReconstructionBuilder, type PhotoView } from './toolkit';
 
-const builders: Record<string, () => Promise<{ build: (b: ReconstructionBuilder) => void }>> = {
+const builders: Record<string, () => Promise<{ build: (b: ReconstructionBuilder) => void; photoViews?: Record<string, PhotoView> }>> = {
   cheugugi: () => import('./cheugugi'),
   jagyeongnu: () => import('./jagyeongnu'),
   ganui: () => import('./ganui'),
@@ -14,10 +14,10 @@ const builders: Record<string, () => Promise<{ build: (b: ReconstructionBuilder)
 export async function createJoseonModel(key: string, withImages = true) {
   const info = joseonModel(key);
   if (!info) throw new Error('준비된 유물 모형을 찾지 못했어요.');
-  const { build } = await builders[info.file]();
+  const { build, photoViews } = await builders[info.file]();
   const builder = new ReconstructionBuilder();
   build(builder);
-  const root = await builder.finish(info.photo, withImages);
+  const root = await builder.finish(info.photo && { ...info.photo, views: photoViews || {} }, withImages);
   root.name = `${info.name} · 사진 참고 3D 재현`;
   root.userData.reconstruction = JOSEON_RECONSTRUCTION;
   root.userData.metallic = info.metallic;

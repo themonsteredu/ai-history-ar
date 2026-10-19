@@ -6,7 +6,7 @@ import { NumericCodeStatus } from '../ar-studio/NumericCodeStatus';
 import { addTeacherClass, classNameFor, isClassCode, normalizeClassCode, readTeacherClasses, removeTeacherClass, writeTeacherClasses, type TeacherClass } from '../ar-studio/teacherClasses';
 import { GROUP_CHOICES, groupCountKey, readGroupCount } from '../ar-studio/teacherRun';
 import { forgetOpenSession, joinOpenLesson, loadState, readOpenSession, saveTeacherSet, type OpenItem, type OpenState } from './api';
-import { joseonModelFor } from '../../lib/ar/joseon/catalog';
+import { joseonModelFor, joseonModels, joseonTargets } from '../../lib/ar/joseon/catalog';
 import { ArCard } from './ArCard';
 import { ARTIFACTS, artifactById } from './artifacts';
 import { cardProblems, decisionLabel, isTeacherSet, MAX_TEACHER_QUESTIONS, newQuestion, newTeacherSet, questionsToCheck, readyQuestions, verifyProgress, type GroupCard, type OxQuestion, type TeacherSet, type Verification } from './model';
@@ -67,7 +67,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
   const [error, setError] = useState('');
   const [openGroup, setOpenGroup] = useState<number>();
   const [present, setPresent] = useState<{ verifier: number; target: number }>();
-  const [printing, setPrinting] = useState(false);
+  const [printing, setPrinting] = useState<false | 'groups' | 'targets'>(false);
 
   const refresh = useCallback(async () => {
     if (document.visibilityState === 'hidden') return;
@@ -118,7 +118,8 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
     <section className="oc-panel" aria-label="모둠 현황">
       <div className="oc-board-head"><h2>모둠 현황 <small>6초마다 새로 확인</small></h2>
         <div className="oc-actions"><label className="oc-inline">모둠 수<select value={groupCount} onChange={event => onGroupCount(Number(event.target.value))}>{GROUP_CHOICES.map(n => <option key={n} value={n}>{n}모둠</option>)}</select></label>
-          <button type="button" disabled={!state.cards.some(item => item.data.artifactId)} onClick={() => setPrinting(true)}>AR 카드 인쇄</button></div>
+          <button type="button" disabled={!state.cards.some(item => item.data.artifactId)} onClick={() => setPrinting('groups')}>모둠 카드 인쇄</button>
+          {joseonTargets.ready && <button type="button" onClick={() => setPrinting('targets')}>AR 인식 카드 6종 인쇄</button>}</div>
       </div>
       <div className="oc-board">{groups.map(group => <GroupStatus key={group} group={group} card={cardOf(group)} cardItem={state.cards.find(item => item.data.group === group)}
         checks={state.checks.filter(item => item.data.verifier === group)} cardOf={cardOf} teacherFor={teacherFor}
@@ -134,7 +135,8 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
       <Presentation big check={presentCheck} card={presentCard} questions={questionsToCheck(presentCard, teacherFor(presentCard?.artifactId || 0))} />
     </div>}
 
-    {printing && <div className="oc-print-cards" aria-hidden="true">{state.cards.map(item => item.data).filter(card => card.artifactId).sort((a, b) => a.group - b.group).map(card => <PrintCard key={card.group} code={code} card={card} />)}</div>}
+    {printing === 'targets' && <div className="oc-print-cards" aria-hidden="true">{joseonModels.map(info => <TargetCard key={info.id} artifactId={info.id} />)}</div>}
+    {printing === 'groups' && <div className="oc-print-cards" aria-hidden="true">{state.cards.map(item => item.data).filter(card => card.artifactId).sort((a, b) => a.group - b.group).map(card => <PrintCard key={card.group} code={code} card={card} />)}</div>}
   </>;
 }
 
@@ -233,6 +235,17 @@ function TeacherQuestions({ code, token, sets, cards }: { code: string; token: s
     </div>
     <p className={`oc-save-state is-${draft.state}`} role="status">{saveLabel(draft.state, draft.dirty, draft.savedAt)}{draft.message && ` · ${draft.message}`}</p>
   </section>;
+}
+
+/** The photo the AR camera looks for, printed whole and uncropped so it matches the compiled target. */
+function TargetCard({ artifactId }: { artifactId: number }) {
+  const artifact = artifactById(artifactId)!, photo = joseonModelFor(artifactId)?.photo;
+  if (!photo) return null;
+  return <article className="oc-print-card oc-target-card">
+    <header><b>AR 인식 카드</b><span>{artifact.name}({artifact.hanja})</span></header>
+    <img src={`${import.meta.env.BASE_URL}${photo.path}`} alt={`${artifact.name} 실물 사진`} />
+    <p>‘AR로 보기’에서 이 사진 전체를 카메라에 비추면 사진 위에 입체 모형이 나타나요. 사진: {photo.author} · {photo.license}</p>
+  </article>;
 }
 
 function PrintCard({ code, card }: { code: string; card: GroupCard }) {

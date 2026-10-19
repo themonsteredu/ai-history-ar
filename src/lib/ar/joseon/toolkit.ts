@@ -31,7 +31,7 @@ const PALETTE: Record<Surface, { color: string; roughness: number; metalness: nu
  * the parts the camera saw receive the matching pixels.
  */
 export interface PhotoView { elevation: number; azimuth: number; frame: Rect }
-export interface JoseonPhoto { path: string; source: string; author: string; license: string; licenseUrl: string; views: Record<string, PhotoView> }
+export interface JoseonPhoto { path: string; source: string; author: string; license: string; licenseUrl: string; changes?: string; views: Record<string, PhotoView> }
 
 interface Entry { mesh: Mesh; surface: Surface; region?: string; weather: number }
 

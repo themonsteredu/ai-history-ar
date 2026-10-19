@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import type { ExhibitModel, ExhibitPoint } from '../../lib/ar/exhibit';
-import { joseonModelFor } from '../../lib/ar/joseon/catalog';
+import { joseonModelFor, joseonTargets } from '../../lib/ar/joseon/catalog';
 import { artifactById } from './artifacts';
 import type { CardPoint } from './model';
 import '../../styles/ar-exhibit.css';
@@ -51,12 +51,34 @@ export function PointBubble({ points, selected }: { points: readonly CardPoint[]
 }
 
 /**
- * AR view: the 3D model stands over the live camera picture, so students hold the tablet up and turn
- * the artifact with a finger in the room. When the camera is refused, the model is shown on its own.
+ * AR view. With the printed photo cards ready, the camera finds the card on the desk and stands the model on
+ * it. Otherwise (or by choice) the model stands over the live camera picture and is turned with a finger.
+ * When the camera is refused, the model is shown on its own.
  */
 export function ArCameraView({ artifactId, points, title, onClose }: { artifactId: number; points: readonly CardPoint[]; title: string; onClose: () => void }) {
-  const video = useRef<HTMLVideoElement>(null);
+  const [mode, setMode] = useState<'card' | 'free'>(joseonTargets.ready ? 'card' : 'free');
   const [selected, setSelected] = useState<string>();
+  const model = useMemo(() => artifactModel(artifactId), [artifactId]);
+  const exhibitPoints = useMemo(() => asExhibitPoints(points), [points]);
+  return <div className="oc-ar" role="dialog" aria-modal="true" aria-label={`${title} AR 보기`}>
+    {mode === 'free' ? <FreeCamera artifactId={artifactId} points={points} selected={selected} onSelect={setSelected} /> : <div className="oc-ar-float oc-ar-card">
+      <Suspense fallback={<p className="oc-help" role="status">AR 카메라를 준비해요…</p>}>
+        <HeritageModelView camera model={model} image="" points={exhibitPoints} selectedId={selected || ''} onSelect={setSelected} targetIndex={artifactId - 1} eraId="joseon" targetFile={`${import.meta.env.BASE_URL}${joseonTargets.file}`} />
+      </Suspense>
+    </div>}
+    <div className="oc-ar-top"><b>{title}</b><div className="oc-actions">
+      {joseonTargets.ready && <button type="button" onClick={() => setMode(value => value === 'card' ? 'free' : 'card')}>{mode === 'card' ? '카드 없이 보기' : '인쇄 카드 비추기'}</button>}
+      <button type="button" onClick={onClose}>닫기</button>
+    </div></div>
+    <div className="oc-ar-bottom">
+      {mode === 'card' && <p className="oc-ar-problem">인쇄한 {artifactById(artifactId)?.name} 사진 카드를 카메라에 비추면 카드 위에 모형이 나타나요.</p>}
+      <PointBubble points={points} selected={selected} />
+    </div>
+  </div>;
+}
+
+function FreeCamera({ artifactId, points, selected, onSelect }: { artifactId: number; points: readonly CardPoint[]; selected?: string; onSelect: (id: string) => void }) {
+  const video = useRef<HTMLVideoElement>(null);
   const [problem, setProblem] = useState('');
   useEffect(() => {
     let stream: MediaStream | undefined, stopped = false;
@@ -67,13 +89,9 @@ export function ArCameraView({ artifactId, points, title, onClose }: { artifactI
     }).catch(() => setProblem('카메라를 쓸 수 없어요. 주소창의 카메라 허용을 확인해 주세요. 지금은 입체 모형만 보여 줄게요.'));
     return () => { stopped = true; stream?.getTracks().forEach(track => track.stop()); };
   }, []);
-  return <div className="oc-ar" role="dialog" aria-modal="true" aria-label={`${title} AR 보기`}>
+  return <>
     <video ref={video} className="oc-ar-video" playsInline muted />
-    <div className="oc-ar-top"><b>{title}</b><button type="button" onClick={onClose}>닫기</button></div>
-    <div className="oc-ar-float"><ArCard artifactId={artifactId} points={points} selected={selected} onSelect={setSelected} /></div>
-    <div className="oc-ar-bottom">
-      {problem && <p className="oc-ar-problem">{problem}</p>}
-      <PointBubble points={points} selected={selected} />
-    </div>
-  </div>;
+    <div className="oc-ar-float"><ArCard artifactId={artifactId} points={points} selected={selected} onSelect={onSelect} /></div>
+    {problem && <p className="oc-ar-problem oc-ar-floating">{problem}</p>}
+  </>;
 }
