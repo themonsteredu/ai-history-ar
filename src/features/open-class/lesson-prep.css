@@ -1,0 +1,10 @@
+.oc-prep{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:12px 0 0;padding:10px 14px;border:1px solid #c9ddd5;border-radius:12px;background:#f3f8f5}
+.oc-page .oc-prep button{flex:none;min-height:44px;padding:6px 16px;border:2px solid var(--oc-accent);background:#fff;color:var(--oc-accent);font-weight:800}
+.oc-prep-text{flex:1 1 260px;min-width:0}
+.oc-page .oc-prep-text p{margin:0;font-size:.86rem;line-height:1.5;color:#5d574f}
+.oc-page .oc-prep-text .oc-prep-status{font-size:.92rem;font-weight:700;color:#1d2825}
+.oc-page .oc-prep.is-done .oc-prep-status{color:var(--oc-accent)}
+.oc-page .oc-prep.is-error .oc-prep-status,.oc-page .oc-prep.is-stale .oc-prep-status{color:#8a4b14}
+.oc-page .oc-prep-text .oc-prep-note{color:#6b655c;font-size:.8rem}
+.oc-entry~.oc-prep{max-width:560px}
+@media print{.oc-prep{display:none!important}}

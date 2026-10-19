@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArCard, PointBubble } from './ArCard';
+import { ArCard } from './ArCard';
 import { artifactById } from './artifacts';
 import { copyText } from './clipboard';
 import { buildPrompt, DECISIONS, GEMINI_URL, itemDone, missingParts, newVerifyItem, PROMPT_FIELDS, syncItems, type CheckQuestion, type GroupCard, type PromptParts, type Verification, type VerifyItem } from './model';
@@ -29,7 +29,7 @@ export function VerifyBoard({ draft, card, questions, targets, target, onTarget 
 
     {card && artifact && <>
       <section className="oc-panel oc-verify-card" aria-label="관찰한 카드">
-        <div><ArCard artifactId={card.artifactId} points={card.points} selected={selected} onSelect={setSelected} caption={`${card.group}모둠 · ${artifact.name}`} /><PointBubble points={card.points} selected={selected} /></div>
+        <div><ArCard artifactId={card.artifactId} points={card.points} selected={selected} onSelect={setSelected} caption={`${card.group}모둠 · ${artifact.name}`} /></div>
       </section>
 
       <section className="oc-panel oc-role" aria-labelledby="oc-role-title">

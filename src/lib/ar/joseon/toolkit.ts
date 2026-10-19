@@ -31,7 +31,8 @@ const PALETTE: Record<Surface, { color: string; roughness: number; metalness: nu
  * the parts the camera saw receive the matching pixels.
  */
 export interface PhotoView { elevation: number; azimuth: number; frame: Rect }
-export interface JoseonPhoto { path: string; source: string; author: string; license: string; licenseUrl: string; changes?: string; views: Record<string, PhotoView> }
+/** `path` is the photo as printed on the AR card (and compiled into the camera target); `texture`, when set, is a smaller copy of it for the 3D model. */
+export interface JoseonPhoto { path: string; texture?: string; source: string; author: string; license: string; licenseUrl: string; changes?: string; views: Record<string, PhotoView> }
 
 interface Entry { mesh: Mesh; surface: Surface; region?: string; weather: number }
 
@@ -166,7 +167,7 @@ export class ReconstructionBuilder {
     root.userData.photoPending = !photo;
     if (photo && withImages && [...materials.values()].some(item => item.userData.region)) {
       try {
-        const texture = await new THREE.TextureLoader().loadAsync(`${import.meta.env.BASE_URL}${photo.path}`);
+        const texture = await new THREE.TextureLoader().loadAsync(`${import.meta.env.BASE_URL}${photo.texture || photo.path}`);
         texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 4;
         for (const item of materials.values()) if (item.userData.region) {
           item.map = texture; item.color.set('#ffffff');

@@ -5,11 +5,12 @@ import type { StudioSession } from '../ar-studio/api';
 import { NumericCodeStatus } from '../ar-studio/NumericCodeStatus';
 import { addTeacherClass, classNameFor, isClassCode, normalizeClassCode, readTeacherClasses, removeTeacherClass, writeTeacherClasses, type TeacherClass } from '../ar-studio/teacherClasses';
 import { GROUP_CHOICES, groupCountKey, readGroupCount } from '../ar-studio/teacherRun';
-import { forgetOpenSession, joinOpenLesson, loadState, readOpenSession, saveTeacherSet, type OpenItem, type OpenState } from './api';
+import { forgetOpenSession, joinOpenLesson, latestLoads, loadState, readOpenSession, saveTeacherSet, type OpenItem, type OpenState } from './api';
 import { joseonModelFor, joseonModels, joseonTargets } from '../../lib/ar/joseon/catalog';
 import { ArCard } from './ArCard';
 import { ARTIFACTS, artifactById } from './artifacts';
 import { cardProblems, decisionLabel, isTeacherSet, MAX_TEACHER_QUESTIONS, newQuestion, newTeacherSet, questionsToCheck, readyQuestions, verifyProgress, type GroupCard, type OxQuestion, type TeacherSet, type Verification } from './model';
+import { LessonPrep } from './LessonPrep';
 import { Presentation } from './Presentation';
 import { saveLabel, useSyncedDraft } from './useSyncedDraft';
 import './open-class.css';
@@ -43,6 +44,7 @@ export default function OpenClassTeacher() {
 
   return <div className="oc-page oc-teacher page-width">
     <header className="oc-head"><div><p className="oc-eyebrow">선생님 화면 · 조선시대 공개수업</p><h1>{name ? `${name} · 수업코드 ${code}` : code ? `수업코드 ${code}` : '세종 때 과학 유물 AR 카드'}</h1></div></header>
+    <LessonPrep page="teacher" />
     <section className="oc-panel" aria-label="내 반 목록">
       <h2>내 반</h2>
       {classes.length > 0 && <ul className="oc-class-list">{classes.map(item => <li key={item.code} className={item.code === code ? 'is-open' : undefined}>
@@ -69,21 +71,28 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
   const [present, setPresent] = useState<{ verifier: number; target: number }>();
   const [printing, setPrinting] = useState<false | 'groups' | 'targets'>(false);
 
+  // On slow Wi-Fi a tick waits for the load still running, and a late old reply never replaces a newer one.
+  const [loads] = useState(() => latestLoads());
   const refresh = useCallback(async () => {
     if (document.visibilityState === 'hidden') return;
-    try {
+    const result = await loads(async () => {
       let entry = session || readOpenSession(code);
       if (!entry) entry = await joinOpenLesson(code, '선생님', 1);
       if (entry !== session) setSession(entry);
-      setState(await loadState(code, entry.token)); setError('');
-    } catch (value) {
-      const status = (value as { status?: number }).status;
-      // A stale entry on this device is replaced on the next check instead of failing every time.
-      if (status === 401 || status === 403) { forgetOpenSession(code); setSession(undefined); }
-      setError(value instanceof Error ? value.message : '수업을 열지 못했어요.');
-    }
-  }, [code, session]);
-  useEffect(() => { void refresh(); const timer = window.setInterval(() => { void refresh(); }, 6000); return () => clearInterval(timer); }, [refresh]);
+      return loadState(code, entry.token);
+    });
+    if (!result) return;
+    if (result.ok) { setState(result.value); setError(''); return; }
+    const status = (result.error as { status?: number }).status;
+    // A stale entry on this device is replaced on the next check instead of failing every time.
+    if (status === 401 || status === 403) { forgetOpenSession(code); setSession(undefined); }
+    setError(result.error instanceof Error ? result.error.message : '수업을 열지 못했어요. 잠시 뒤 저절로 다시 해 볼게요.');
+  }, [code, session, loads]);
+  useEffect(() => {
+    const tick = () => { void refresh(); };
+    tick(); const timer = window.setInterval(tick, 6000); window.addEventListener('online', tick);
+    return () => { clearInterval(timer); window.removeEventListener('online', tick); };
+  }, [refresh]);
   useEffect(() => {
     if (!printing) return;
     document.body.classList.add('oc-printing-cards');
