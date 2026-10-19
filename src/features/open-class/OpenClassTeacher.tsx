@@ -19,7 +19,7 @@ export const openClassUrl = (code: string, extra = '') => `${SITE}/joseon/open-c
 const emptyState: OpenState = { cards: [], checks: [], teacher: [] };
 const FLOW = [
   { minutes: 5, who: '선생님', title: '수업코드 QR 띄우기 · 활동 안내', detail: '모둠 태블릿마다 QR을 찍고 이름·모둠을 고르게 해요.' },
-  { minutes: 12, who: '학생', title: 'AR 카드 만들기', detail: '유물 고르기 → 그림에 점 찍고 설명 → OX 문제 2개(추가 가능).' },
+  { minutes: 12, who: '학생', title: 'AR 카드 만들기', detail: '유물 고르기 → 입체 모형에 점 찍고 설명 → OX 문제 2개(추가 가능).' },
   { minutes: 5, who: '학생', title: '다른 모둠 카드 관찰', detail: '‘AR로 보기’로 카드를 살펴보고 설명을 읽어요.' },
   { minutes: 10, who: '학생', title: 'AI로 검증하기', detail: '풀기 → 역할 설정 질문 복사 → 제미나이 → 채택·직접 수정·제외 + 이유 + 정답 해설.' },
   { minutes: 8, who: '모둠', title: '발표', detail: '아래 현황에서 모둠을 눌러 ‘발표 화면’을 크게 띄워요.' },

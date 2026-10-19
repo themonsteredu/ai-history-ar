@@ -15,7 +15,17 @@ export const joseonModels: JoseonModelInfo[] = [
   { id: 4, key: 'joseon-angbuilgu-v1', name: '앙부일구', file: 'angbuilgu', metallic: true, photo: {
     path: 'images/heritage/joseon/angbuilgu.jpg', source: 'https://commons.wikimedia.org/wiki/File:Seoul-Gyeongbokgung-Sundial-02.jpg',
     author: 'Bernat', license: 'CC BY-SA 2.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/2.0/',
-    views: { bowl: { elevation: 42, azimuth: 0, frame: [.098, .033, .905, .73] }, stand: { elevation: 42, azimuth: 0, frame: [.13, .56, .84, .97] } },
+    views: {
+      bowl: { elevation: 50, azimuth: 50, frame: [.098, .035, .902, .735] },
+      'bowl-inside': { elevation: 52, azimuth: 50, frame: [.183, .075, .814, .612] },
+      'bowl-shade': { elevation: 52, azimuth: 50, frame: [.335, .375, .36, .4] },
+      gnomon: { elevation: 45, azimuth: 40, frame: [.26, .282, .51, .642] },
+      stand: { elevation: 35, azimuth: 55, frame: [.164, .603, .31, .882] },
+      'stand-east': { elevation: 30, azimuth: 45, frame: [.694, .622, .825, .905] },
+      'stand-north': { elevation: 35, azimuth: 235, frame: [.164, .603, .31, .882] },
+      'stand-west': { elevation: 30, azimuth: 225, frame: [.694, .622, .825, .905] },
+      'stand-base': { elevation: 35, azimuth: 50, frame: [.3, .76, .325, .785] },
+    },
   } },
   { id: 5, key: 'joseon-honcheonui-v1', name: '혼천의', file: 'honcheonui', metallic: true },
   { id: 6, key: 'joseon-nongsajikseol-v1', name: '농사직설', file: 'nongsajikseol', metallic: false },

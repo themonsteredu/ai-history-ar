@@ -13,7 +13,7 @@ import './open-class.css';
 
 type View = 'make' | 'look' | 'check' | 'present';
 const VIEWS: { id: View; label: string; help: string }[] = [
-  { id: 'make', label: 'AR 카드 만들기', help: '유물 그림에 점을 찍고 OX 문제 만들기' },
+  { id: 'make', label: 'AR 카드 만들기', help: '입체 모형에 점을 찍고 OX 문제 만들기' },
   { id: 'look', label: '다른 모둠 카드 관찰', help: '카드를 AR로 살펴보기' },
   { id: 'check', label: 'AI로 검증하기', help: '풀고 묻고 채택·수정·제외' },
   { id: 'present', label: '발표 정리', help: '문항·이유·정답 해설' },

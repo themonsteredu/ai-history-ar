@@ -8,13 +8,15 @@ type Geometry = InstanceType<typeof THREE.BufferGeometry>;
 type Object3D = InstanceType<typeof THREE.Object3D>;
 type Mesh = InstanceType<typeof THREE.Mesh>;
 
-export type Surface = 'bronze' | 'darkBronze' | 'stone' | 'darkStone' | 'wood' | 'paper' | 'ink' | 'thread' | 'gold' | 'water';
+export type Surface = 'bronze' | 'darkBronze' | 'stone' | 'darkStone' | 'wood' | 'cover' | 'paper' | 'ink' | 'thread' | 'gold' | 'water';
 const PALETTE: Record<Surface, { color: string; roughness: number; metalness: number }> = {
   bronze: { color: '#6f5b43', roughness: .5, metalness: .55 },
   darkBronze: { color: '#3b3632', roughness: .55, metalness: .5 },
   stone: { color: '#c7c1b4', roughness: .95, metalness: 0 },
   darkStone: { color: '#8f897d', roughness: .95, metalness: 0 },
   wood: { color: '#8a5a36', roughness: .8, metalness: 0 },
+  // Gardenia/phellodendron-dyed book cover paper (능화지): ochre, not reddish.
+  cover: { color: '#a8834e', roughness: .9, metalness: 0 },
   paper: { color: '#e4d5b2', roughness: .9, metalness: 0 },
   ink: { color: '#2d2925', roughness: .9, metalness: 0 },
   thread: { color: '#a8322b', roughness: .8, metalness: 0 },
@@ -169,7 +171,8 @@ export class ReconstructionBuilder {
         for (const item of materials.values()) if (item.userData.region) {
           item.map = texture; item.color.set('#ffffff');
           // A photograph already carries its own shading and reflections.
-          item.metalness = Math.min(item.metalness, .25); item.roughness = Math.max(item.roughness, .55); item.needsUpdate = true;
+          // Room reflections would tint the photo blue-grey, so keep them faint.
+          item.metalness = Math.min(item.metalness, .25); item.roughness = Math.max(item.roughness, .55); item.envMapIntensity = .15; item.needsUpdate = true;
         }
         root.userData.photoTextureLoaded = true;
       } catch { root.userData.photoTextureLoaded = false; }
