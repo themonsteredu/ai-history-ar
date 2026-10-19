@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { ReconstructionBuilder, Vec } from './toolkit';
+import type { PhotoView, ReconstructionBuilder, Vec } from './toolkit';
 
 /**
  * 측우기 (Cheugugi) — photo-reference teaching reconstruction of the 공주감영(금영) 측우기
@@ -10,9 +10,8 @@ import type { ReconstructionBuilder, Vec } from './toolkit';
  * - Gauge: bronze cylinder 31.5 cm tall, 15.3 cm across its raised bands, 14 cm inside, closed at the
  *   bottom and open at the top (a flat floor 30.7 cm below the mouth). Three sections (상·중·하단) of
  *   about 10.5 cm each meet at two raised joint bands (마디) with a fine seam line; a band also
- *   thickens the mouth rim. Untextured, the body is dark patinated bronze and the raised bands a little
- *   lighter, as the worn high points are on the real vessel. The engraved inscription (錦營測雨器 …) is
- *   only suggested by thin grooves on the front of the middle section — no characters are modelled.
+ *   thickens the mouth rim. The engraved inscription (錦營測雨器 …) is only suggested by thin grooves on
+ *   the front of the middle section — no characters are modelled.
  * - Pedestal: dressed granite block, 37 cm square body with a cap projecting about 1.2 cm, 45 cm tall,
  *   with the round socket (16 cm across, 4.3 cm deep, as recorded for the 경상감영 측우대) that the gauge
  *   stands in, so its lowest 4.3 cm is hidden in the stone. Its carved lettering (測雨臺 and the dated
@@ -20,25 +19,40 @@ import type { ReconstructionBuilder, Vec } from './toolkit';
  * - Ruler (주척): a thin wooden ruler with 寸 graduations leaning against the right (+x) side of the
  *   pedestal, one end on the ground — the rainwater depth was read with it.
  *
- * Photo regions and the framing each expects (PhotoView in catalog.ts). The toolkit maps the bounding
- * box of ALL of a region's vertices, as seen along the view, onto the frame rect, so every region below
- * holds only surfaces that lie inside its visible outline and the frame is simply drawn tightly around
- * that outline in the photo:
- * - 'gauge': the outside of the vessel above the stone, its joint bands, mouth rim and inscription
- *   grooves. Expects a near-level front photo (elevation about 0–15°, azimuth 0). Frame left/right at
- *   the outer edges of the bands, top at the highest point of the mouth rim (for an elevated photo the
- *   back edge of the rim), bottom where the front of the vessel meets the stone. The foot hidden in the
- *   socket and the inside of the vessel are deliberately NOT in this region, so they do not stretch it.
- * - 'gauge-inside': the inner wall and flat floor of the vessel plus the foot hidden in the socket —
- *   surfaces a museum photo never shows. Optional: give it a tiny frame (about 0.02 × 0.02) on a dark
- *   patch inside the mouth or in shadow on the vessel, so the well takes that colour (like
- *   'bowl-shade' of 앙부일구). Without a view it stays plain dark bronze, which already reads as a
- *   shadowed well.
- * - 'pedestal': the granite block, cap, socket and lettering strokes. Same front photo; frame left/right
- *   at the cap's outer edges (the widest part), top at the back edge of the cap's top surface (its front
- *   edge for a level photo), bottom at the front ground line of the block.
- * - 'ruler': the 주척. Expects a photo of a ruler seen from its graduated face (azimuth about 90°, from
- *   the +x side), framed tightly along its full length; untextured it shows plain wood with ink marks.
+ * Photo (public/images/heritage/joseon-science/cheugugi.jpg, 1280×719): an outdoor bronze replica set
+ * into a flat granite slab, taken from the front and above (about 36° at the mouth, steeper toward the
+ * foot because the camera is close), dry grass behind. Only the gauge and the slab's stone are taken from
+ * it; the model keeps the historical 측우대 block. The toolkit maps the bounding box of ALL of a
+ * region's vertices, as seen along its view, onto the frame rect, so every region holds only surfaces
+ * that lie inside one outline of the photo. Frames below are in photo pixels (x, y from the top left):
+ * - 'gauge-mouth': the whole mouth rim (outer band, flat top, inner chamfer), all round, since the photo
+ *   sees the rim's whole ellipse. Elevation 36° (the rim's ellipse is 0.59 as tall as wide), azimuth 0;
+ *   frame x 552–787 (the rim's outer extremes, a pixel inside so no grass is caught), y 145–298 (back
+ *   edge of the rim top to the lower edge of the rim band at the front).
+ * - 'gauge' / 'gauge-lower': the front half (z ≥ 0) of the vessel above the stone, split at the upper
+ *   joint band because the close camera makes the photo's gauge narrow from 236 px at the rim to 178 px
+ *   at the foot; one orthographic frame would catch the stone beside the lower body. 'gauge' = upper
+ *   section and upper band, elevation 36°, frame x 565–767, y 245–416 (lower edge of the rim band at the
+ *   sides to the lower edge of the upper band at the front). 'gauge-lower' = middle section, inscription
+ *   grooves, lower band and the visible bit of the lower section, elevation 40° (the lower band's arc
+ *   is deeper in the photo), frame x 575–753, y 352–547 (lower edge of the upper band at the sides to
+ *   where the vessel meets the stone at the front). Both frames are drawn a few pixels inside the
+ *   gauge's silhouette so the sides of the model, which take the silhouette's pixels, stay bronze.
+ * - 'gauge-back' / 'gauge-lower-back': the back halves of the same pieces, which the photo never sees.
+ *   The vessel is round, so they take the same frames with the azimuth turned to 180°: the back shows
+ *   the photo's front, with the joint bands at their true height instead of a shifted copy.
+ * - 'gauge-inside': the inner wall and flat floor of the well plus the foot hidden in the socket. The
+ *   photo's open mouth is a near-black well; they take a small swatch of it just below the far rim
+ *   (frame x 620–720, y 152–175), so the open mouth reads as a deep, dark opening from above.
+ * - 'pedestal-top': the cap's top, its edge chamfer, the socket wall and the socket floor. Seen straight
+ *   down (elevation 90°) so the flat stone is not smeared; frame x 200–540, y 450–678, a patch of the
+ *   slab's speckled granite left of the gauge, chosen to be about a square of real stone (about 27 cm)
+ *   in the photo's foreshortening, with no grass, sealant or gauge in it.
+ * - 'pedestal-front' / 'pedestal-side': the block's faces and the cap's sides, front/back (azimuth 0)
+ *   and the two ends (azimuth 90), both level views. They reuse clean granite of the slab, framed to
+ *   the faces' proportions: x 800–1080, y 370–583 (right of the gauge) and x 200–540, y 440–698 (left
+ *   of the gauge). The carved lettering strokes and the ruler keep their plain surfaces ('ruler' has no
+ *   photo view: the photo shows no ruler).
  */
 export function build(b: ReconstructionBuilder) {
   // ---------- 측우대 (granite pedestal) ----------
@@ -56,7 +70,17 @@ export function build(b: ReconstructionBuilder) {
     if (+ex + +ey + +ez !== 1) continue; // keep edge and corner points shared between faces
     bp.setXYZ(k, ex ? x : x + hash(k) * .9, ey ? y : y + hash(k + 7) * .9, ez ? z : z + hash(k + 13) * .9);
   }
-  b.add(body, 'darkStone', { position: [0, bodyH / 2 + .06, 0], region: 'pedestal', weather: .07 });
+  // The faces are split by the photo view that suits them: the box's groups are +x, -x, +y, -y, +z, -z.
+  const faces = (groups: number[]) => {
+    const part = body.clone(), source = body.getIndex()!.array, index: number[] = [];
+    for (const k of groups) { const { start, count } = body.groups[k]; for (let i = start; i < start + count; i++) index.push(source[i]); }
+    part.setIndex(index); part.clearGroups();
+    return part;
+  };
+  const bodyAt: Vec = [0, bodyH / 2 + .06, 0];
+  b.add(faces([4, 5, 2, 3]), 'darkStone', { position: bodyAt, region: 'pedestal-front', weather: .07 });
+  b.add(faces([0, 1]), 'darkStone', { position: bodyAt, region: 'pedestal-side', weather: .07 });
+  body.dispose();
 
   // Projecting cap with the round socket: one lofted surface whose cross-section runs from the socket
   // wall (circle) over the top (blending circle -> square), down the chamfered sides to the underside.
@@ -72,35 +96,43 @@ export function build(b: ReconstructionBuilder) {
     { s: edge, y: top }, { s: capS, y: top - .3 }, { s: capS, y: top - 1.9 }, { s: capS, y: top - 3.5 },
     { s: capS, y: capBottom + .3 }, { s: edge, y: capBottom }, { s: bodyW / 2 - .3, y: capBottom },
   ];
-  const around = 128, positions: number[] = [], index: number[] = [];
-  for (let i = 0; i <= around; i++) {
-    const phi = i / around * Math.PI * 2, cx = Math.sin(phi), cz = Math.cos(phi), m = Math.max(Math.abs(cx), Math.abs(cz));
-    for (const p of loft) {
-      const t = p.t ?? (p.r !== undefined ? 0 : 1), r = p.r ?? 0, s = (p.s ?? 0) / m;
-      const d = r * (1 - t) + s * t;
-      positions.push(cx * d, p.y, cz * d);
+  const around = 128, quarter = around / 4, sideRow = loft.findIndex(p => p.s === capS && p.y === top - .3);
+  // One patch of the loft: columns i0..i1 around (i = 0 is the front, +z) and rows j0..j1 of the profile.
+  // Smooth normals are computed on each indexed patch (and no weathering), so the toolkit keeps them: the
+  // flat top shades evenly, and the cap's corners and top edge stay crisp.
+  const loftPatch = (i0: number, i1: number, j0: number, j1: number) => {
+    const positions: number[] = [], index: number[] = [], rows = j1 - j0 + 1;
+    for (let i = i0; i <= i1; i++) {
+      const phi = i / around * Math.PI * 2, cx = Math.sin(phi), cz = Math.cos(phi), m = Math.max(Math.abs(cx), Math.abs(cz));
+      for (let j = j0; j <= j1; j++) {
+        const p = loft[j], t = p.t ?? (p.r !== undefined ? 0 : 1), r = p.r ?? 0, s = (p.s ?? 0) / m;
+        const d = r * (1 - t) + s * t;
+        positions.push(cx * d, p.y, cz * d);
+      }
     }
+    for (let i = 0; i < i1 - i0; i++) for (let j = 0; j < rows - 1; j++) {
+      const a = i * rows + j, c = (i + 1) * rows + j;
+      index.push(a, c, a + 1, a + 1, c, c + 1);
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geometry.setIndex(index);
+    geometry.computeVertexNormals();
+    return geometry;
+  };
+  // Top (socket wall, top surface and edge chamfer), then the cap's four sides and underside.
+  b.add(loftPatch(0, around, 0, sideRow), 'darkStone', { region: 'pedestal-top' });
+  for (let k = 0; k < 4; k++) {
+    b.add(loftPatch(k * quarter - quarter / 2, k * quarter + quarter / 2, sideRow, loft.length - 1), 'darkStone', { region: k % 2 ? 'pedestal-side' : 'pedestal-front' });
   }
-  const n = loft.length;
-  for (let i = 0; i < around; i++) for (let j = 0; j < n - 1; j++) {
-    const a = i * n + j, c = (i + 1) * n + j;
-    index.push(a, c, a + 1, a + 1, c, c + 1);
-  }
-  const capGeometry = new THREE.BufferGeometry();
-  capGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  capGeometry.setIndex(index);
-  // Smooth normals computed on the indexed loft (and no weathering), so the toolkit keeps them: the flat
-  // top shades evenly instead of showing the circle-to-square slivers as a radial streak pattern.
-  capGeometry.computeVertexNormals();
-  b.add(capGeometry, 'darkStone', { region: 'pedestal' });
   // Socket floor: a plug filling the cap below the 4.3 cm socket; the gauge stands on it.
-  b.cylinder(socketR + .05, socketR + .05, socketFloor - capBottom - .2, [0, (socketFloor + capBottom + .2) / 2, 0], 'darkStone', { region: 'pedestal', segments: 64 });
+  b.cylinder(socketR + .05, socketR + .05, socketFloor - capBottom - .2, [0, (socketFloor + capBottom + .2) / 2, 0], 'darkStone', { region: 'pedestal-top', segments: 64 });
 
   // Carved lettering on the front face, suggested only: a large central column of three cells (測雨臺)
   // and a small dated column of seven cells near the left edge. Each character cell is a dense cluster of
   // short cuts, one per sub-cell of a small grid and kept inside it, so strokes never cross or touch and
   // no character (real or invented, hanja or hangul) can be read. They are sunk into the stone with only
-  // a sliver standing proud of the weathered face, so they read as cut, worn grooves.
+  // a sliver standing proud of the weathered face, so they read as cut, worn grooves (plain dark, no photo).
   b.feature('carved-lettering-suggested');
   const face = bodyW / 2, depth = .34, proud = .09;
   const strokes = (x: number, yTop: number, cell: number, glyph: number, grid: number, width: number, cells: number, seed: number) => {
@@ -114,7 +146,7 @@ export function build(b: ReconstructionBuilder) {
         const len = sub * (.5 + (hash(k + 211) + .5) * .18) - width;
         const cx = x + (col - (grid - 1) / 2) * sub + hash(k + 307) * sub * .08;
         const cy = yc + ((grid - 1) / 2 - row) * sub + hash(k + 401) * sub * .08;
-        b.box([len, width, depth], [cx, cy, face + proud - depth / 2], 'ink', { rotation: [0, 0, tilt], region: 'pedestal', bevel: width * .3 });
+        b.box([len, width, depth], [cx, cy, face + proud - depth / 2], 'ink', { rotation: [0, 0, tilt], bevel: width * .3 });
       }
     }
   };
@@ -123,28 +155,36 @@ export function build(b: ReconstructionBuilder) {
 
   // ---------- 측우기 (bronze rain gauge) ----------
   // Built from separate pieces so each surface keeps its own normals (a single lathe averages them
-  // across the corners, which made the flat floor shade like a dome) and so the photo region holds only
-  // what a photo shows.
+  // across the corners, which made the flat floor shade like a dome) and so each photo region holds only
+  // what one outline of the photo shows.
   const Rw = 7.38, Rb = 7.65, Ri = 7, H = 31.5, floor = .8, g0 = socketFloor, bandH = 1.8;
   const at = (y: number) => g0 + y;
+  // Front (z >= 0) and back halves of a solid of revolution, in their own photo regions.
+  const halves = (profile: Array<[number, number]>, region: string) => {
+    for (const [start, name] of [[-Math.PI / 2, region], [Math.PI / 2, `${region}-back`]] as const) {
+      b.add(new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y)), 36, start, Math.PI), 'darkBronze', { position: [0, g0, 0], region: name });
+    }
+  };
 
   b.feature('three-section-bronze-cylinder');
   // Foot inside the socket (never seen): closed bottom with a slight foot band, up to the stone line.
   b.lathe([[0, 0], [Rb - .2, 0], [Rb, .2], [Rb, 1.2], [Rw, 1.45], [Rw, socketDepth]], 'darkBronze', { position: [0, g0, 0], region: 'gauge-inside', segments: 72 });
-  // Visible wall of the three sections, from the stone line up to the mouth band.
+  // Visible wall of the three sections, from the stone line up to the mouth band; the joint bands sit
+  // between them. The upper section and band are 'gauge', everything below it 'gauge-lower'.
   const joints = [10.5, 21], rimBase = H - 1.55;
-  const spans: Array<[number, number]> = [[socketDepth, joints[0] - bandH / 2], [joints[0] + bandH / 2, joints[1] - bandH / 2], [joints[1] + bandH / 2, rimBase]];
-  for (const [y0, y1] of spans) b.cylinder(Rw, Rw, y1 - y0, [0, at((y0 + y1) / 2), 0], 'darkBronze', { region: 'gauge', segments: 72, open: true });
+  halves([[Rw, socketDepth], [Rw, joints[0] - bandH / 2]], 'gauge-lower');
+  halves([[Rw, joints[0] + bandH / 2], [Rw, joints[1] - bandH / 2]], 'gauge-lower');
+  halves([[Rw, joints[1] + bandH / 2], [Rw, rimBase]], 'gauge');
 
   b.feature('raised-joint-bands-madi');
-  for (const yc of joints) {
-    b.lathe([[Rw, yc - bandH / 2], [Rb, yc - bandH / 2 + .22], [Rb, yc - .09], [Rb - .13, yc], [Rb, yc + .09], [Rb, yc + bandH / 2 - .22], [Rw, yc + bandH / 2]],
-      'bronze', { position: [0, g0, 0], region: 'gauge', segments: 72 });
-  }
+  joints.forEach((yc, k) => {
+    halves([[Rw, yc - bandH / 2], [Rb, yc - bandH / 2 + .22], [Rb, yc - .09], [Rb - .13, yc], [Rb, yc + .09], [Rb, yc + bandH / 2 - .22], [Rw, yc + bandH / 2]],
+      k ? 'gauge' : 'gauge-lower');
+  });
 
   b.feature('open-mouth-for-rain');
   // Thickened mouth rim: outside band, flat top, inner chamfer.
-  b.lathe([[Rw, rimBase], [Rb, rimBase + .23], [Rb, H - .18], [Rb - .18, H], [Ri + .15, H], [Ri, H - .15]], 'bronze', { position: [0, g0, 0], region: 'gauge', segments: 72 });
+  b.lathe([[Rw, rimBase], [Rb, rimBase + .23], [Rb, H - .18], [Rb - .18, H], [Ri + .15, H], [Ri, H - .15]], 'bronze', { position: [0, g0, 0], region: 'gauge-mouth', segments: 72 });
   // Inner wall and flat floor of the well, with a hard corner (tiny bevel) so the floor shades flat.
   b.lathe([[Ri, H - .15], [Ri, floor + .03], [Ri - .03, floor], [0, floor]], 'darkBronze', { position: [0, g0, 0], region: 'gauge-inside', segments: 72 });
 
@@ -156,7 +196,7 @@ export function build(b: ReconstructionBuilder) {
     for (let i = 0; i < count; i++) {
       const y = yTop - cell * (i + .5), r = Rw + .01;
       const pos: Vec = [Math.sin(theta) * r, y, Math.cos(theta) * r];
-      b.box([.12, cell * .7, .08], pos, 'bronze', { rotation: [0, theta, 0], region: 'gauge', bevel: .02 });
+      b.box([.12, cell * .7, .08], pos, 'darkBronze', { rotation: [0, theta, 0], region: 'gauge-lower', bevel: .02 });
     }
   });
 
@@ -175,3 +215,18 @@ export function build(b: ReconstructionBuilder) {
     b.box([.06, .1, len], [thick / 2 + .015, -L / 2 + i * cun, w / 2 - len / 2 - .05], 'ink', { parent: ruler, region: 'ruler', bevel: .01 });
   }
 }
+
+/** Photo regions (see the header comment for what each holds and why). Frames are photo pixels / 1280×719. */
+const px = (left: number, top: number, right: number, bottom: number): [number, number, number, number] =>
+  [left / 1280, top / 719, right / 1280, bottom / 719];
+export const photoViews: Record<string, PhotoView> = {
+  gauge: { elevation: 36, azimuth: 0, frame: px(565, 245, 767, 416) },
+  'gauge-back': { elevation: 36, azimuth: 180, frame: px(565, 245, 767, 416) },
+  'gauge-lower': { elevation: 40, azimuth: 0, frame: px(575, 352, 753, 547) },
+  'gauge-lower-back': { elevation: 40, azimuth: 180, frame: px(575, 352, 753, 547) },
+  'gauge-mouth': { elevation: 36, azimuth: 0, frame: px(552.5, 145.5, 787, 298) },
+  'gauge-inside': { elevation: 36, azimuth: 0, frame: px(620, 152, 720, 175) },
+  'pedestal-top': { elevation: 90, azimuth: 0, frame: px(200, 450, 540, 678) },
+  'pedestal-front': { elevation: 0, azimuth: 0, frame: px(800, 370, 1080, 583) },
+  'pedestal-side': { elevation: 0, azimuth: 90, frame: px(200, 440, 540, 698) },
+};
