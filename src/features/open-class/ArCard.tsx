@@ -59,15 +59,15 @@ export function ArCameraView({ artifactId, points, title, onClose }: { artifactI
   const model = useMemo(() => artifactModel(artifactId), [artifactId]);
   const exhibitPoints = useMemo(() => asExhibitPoints(points), [points]);
   return <div className="oc-ar" role="dialog" aria-modal="true" aria-label={`${title} AR 보기`}>
+    <div className="oc-ar-top"><b>{title}</b><div className="oc-actions">
+      {joseonTargets.ready && <button type="button" onClick={() => setMode(value => value === 'card' ? 'free' : 'card')}>{mode === 'card' ? '카드 없이 보기' : '인쇄 카드 비추기'}</button>}
+      <button type="button" onClick={onClose}>닫기</button>
+    </div></div>
     {mode === 'free' ? <FreeCamera artifactId={artifactId} points={points} selected={selected} onSelect={setSelected} /> : <div className="oc-ar-float oc-ar-card">
       <Suspense fallback={<p className="oc-help" role="status">AR 카메라를 준비해요…</p>}>
         <HeritageModelView camera steady spin bubbles model={model} image="" points={exhibitPoints} selectedId={selected || ''} onSelect={setSelected} targetIndex={artifactId - 1} eraId="joseon" targetFile={`${import.meta.env.BASE_URL}${joseonTargets.file}`} />
       </Suspense>
     </div>}
-    <div className="oc-ar-top"><b>{title}</b><div className="oc-actions">
-      {joseonTargets.ready && <button type="button" onClick={() => setMode(value => value === 'card' ? 'free' : 'card')}>{mode === 'card' ? '카드 없이 보기' : '인쇄 카드 비추기'}</button>}
-      <button type="button" onClick={onClose}>닫기</button>
-    </div></div>
     {mode === 'card' && <div className="oc-ar-bottom"><p className="oc-ar-problem">인쇄한 {artifactById(artifactId)?.name} 사진 카드를 책상에 두고 비추면 카드 위에 모형이 나타나요. 화면을 좌우로 밀면 모형이 돌아가요.</p></div>}
   </div>;
 }

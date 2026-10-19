@@ -98,7 +98,7 @@
 .oc-ar-float{position:relative;z-index:1;flex:1;min-height:0;display:flex;padding:0 10px}
 .oc-ar-float .oc-card{flex:1;display:flex;flex-direction:column;min-height:0}
 .oc-ar-float .ar-model-view{flex:1;display:flex;flex-direction:column;min-height:0}
-.oc-ar-float .ar-model-stage{flex:1;height:auto;min-height:260px;border:0;background:transparent}
+.oc-ar-float .ar-model-stage{flex:1;height:auto;min-height:min(260px,40vh);border:0;background:transparent}
 .oc-ar-float .ar-model-controls p,.oc-ar-float figcaption,.oc-ar-float .oc-credit,.oc-ar-float .ar-help{color:#fff;text-shadow:0 1px 3px #000}
 .oc-ar-bottom{background:linear-gradient(transparent,rgba(0,0,0,.6))}
 .oc-ar .ar-pin-bubble{--pin-bubble-max:300px;--pin-bubble-wide:380px;--pin-bubble-tall:340px;font-size:16px}
