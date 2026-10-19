@@ -61,7 +61,7 @@ export function build(b: ReconstructionBuilder) {
   const E1 = v(0, 0, 1); // east (the front)
   const E2 = v(-Math.sin(phi), Math.cos(phi), 0); // highest point of the equator, above the south horizon
   const R6 = 1, w6 = .045, t6 = .055; // 육합의 rings: centre radius, axial width, radial thickness
-  const RB = 1.072, hB = .21, tB = .034; // 지평환: upright band (hoop) just outside the meridian ring
+  const RB = 1.047, hB = .205, tB = .03, yB = H + .012; // 지평환: upright band (hoop) just outside the meridian ring
   const R3 = .82, w3 = .036, t3 = .05; // 삼진의
   const R4 = .68, w4 = .026, t4 = .045, g4 = .05; // 사유의 double ring, gap g4
   const globeR = .18, collarR = .23;
@@ -112,7 +112,7 @@ export function build(b: ReconstructionBuilder) {
 
   // ---------- 육합의 (fixed outer set) ----------
   b.feature('yukhabui-horizon-meridian-and-equator-rings');
-  b.band(RB, hB, tB, arr(C), 'bronze', { region: 'band', segments: 128 });
+  b.band(RB, hB, tB, [0, yB, 0], 'bronze', { region: 'band', segments: 128 });
   const meridian = frame(C, v(1, 0, 0), v(0, 0, 1));
   ringBand(meridian, R6, w6, t6);
   ringTicks(meridian, R6, t6, w6, 72, 6, [1, -1]);
@@ -134,7 +134,7 @@ export function build(b: ReconstructionBuilder) {
     }
   }
   // Toothed wheel on the northern end of the axis, outside the meridian ring (as on the restoration).
-  const wheelAt = C.clone().addScaledVector(A, R6 + t6 / 2 + .09);
+  const wheelAt = C.clone().addScaledVector(A, R6 + t6 / 2 + .16);
   rod(C.clone().addScaledVector(A, R6), wheelAt, .018, 'bronze', 'rings');
   const teeth = 18, wheelR = .115, wheelShape = new THREE.Shape();
   for (let i = 0; i <= teeth * 4; i++) {
@@ -227,12 +227,12 @@ export function build(b: ReconstructionBuilder) {
     g.setIndex(idx); g.computeVertexNormals();
     return b.add(g, 'bronze', { parent, region });
   };
-  const legTop = H - hB / 2 + .005, r0 = 1.04;
+  const legTop = yB - hB / 2 + .005, r0 = 1.03;
   // [radial x, height y, radial half-width, tangential half-width]: shoulder, knee, shank, ankle.
   const legStations: Array<[number, number, number, number]> = [
-    [r0, legTop, .14, .08], [r0 + .03, 1.3, .155, .085], [r0 + .06, 1.16, .17, .09], [r0 + .065, 1.0, .17, .09],
-    [r0 + .03, .84, .155, .085], [r0 - .02, .68, .13, .075], [r0 - .05, .52, .11, .067], [r0 - .06, .36, .095, .06],
-    [r0 - .055, .24, .09, .058], [r0 - .04, .14, .09, .058],
+    [r0 - .005, legTop, .12, .15], [r0 + .02, 1.3, .15, .13], [r0 + .06, 1.16, .18, .11], [r0 + .075, 1.0, .19, .1],
+    [r0 + .04, .84, .165, .085], [r0 - .01, .68, .13, .068], [r0 - .04, .52, .105, .058], [r0 - .05, .36, .095, .053],
+    [r0 - .045, .24, .095, .05], [r0 - .03, .14, .09, .05],
   ];
   const legRegions = ['leg-fr', 'leg-fl', 'leg-bl', 'leg-br'];
   for (let i = 0; i < 4; i++) {
@@ -240,28 +240,31 @@ export function build(b: ReconstructionBuilder) {
     const g = new THREE.Group(); g.rotation.y = -a; b.root.add(g); // local x = outward, z = tangential
     loft(legStations, g, region);
     // Scrolled foot: a volute lying across the leg, with a curl in relief on each face.
-    const footR = .085, footX = r0 - .02;
-    b.cylinder(footR, footR, .13, [footX, footR, 0], 'bronze', { parent: g, rotation: [Math.PI / 2, 0, 0], region, segments: 22 });
-    for (const s of [-1, 1]) b.ring(.052, .013, [footX, footR, s * .065], 'bronze', { parent: g, rotation: [Math.PI / 2, 0, 0], region, segments: 24, radial: 6, arc: Math.PI * 1.5 });
+    const footR = .08, footX = r0 - .01;
+    b.cylinder(footR, footR, .1, [footX, footR, 0], 'bronze', { parent: g, rotation: [Math.PI / 2, 0, 0], region, segments: 22 });
+    for (const s of [-1, 1]) b.ring(.048, .012, [footX, footR, s * .05], 'bronze', { parent: g, rotation: [Math.PI / 2, 0, 0], region, segments: 24, radial: 6, arc: Math.PI * 1.5 });
   }
   // Central post: round foot, openwork stem (solid here) and a wide cloud cradle under the meridian ring.
   b.lathe([[0, 0], [.17, 0], [.175, .03], [.165, .06], [.13, .085], [.1, .1], [0, .1]], 'bronze', { region: 'post', segments: 32 });
   b.lathe([[0, .09], [.1, .09], [.125, .15], [.13, .21], [.11, .26], [.085, .3], [.1, .335], [0, .335]], 'bronze', { region: 'post', segments: 24 });
-  const rOut = R6 + t6 / 2, tipA = Math.asin(.34 / rOut), cradle = new THREE.Shape();
+  // Cradle outline: hugs the ring's outer edge across the middle, its lip ends just under the ring.
+  const rOut = R6 + t6 / 2, hugA = Math.asin(.29 / rOut), cradle = new THREE.Shape();
   cradle.moveTo(-.18, .32); cradle.lineTo(.18, .32);
-  cradle.quadraticCurveTo(.3, .38, .34, H - rOut * Math.cos(tipA));
-  cradle.absarc(0, H, rOut, -Math.PI / 2 + tipA, -Math.PI / 2 - tipA, true);
-  cradle.quadraticCurveTo(-.3, .38, -.18, .32);
+  cradle.quadraticCurveTo(.3, .37, .34, .485);
+  cradle.lineTo(.29, H - rOut * Math.cos(hugA));
+  cradle.absarc(0, H, rOut, -Math.PI / 2 + hugA, -Math.PI / 2 - hugA, true);
+  cradle.lineTo(-.34, .485);
+  cradle.quadraticCurveTo(-.3, .37, -.18, .32);
   b.extrude(cradle, .14, 'bronze', { position: [0, 0, -.07], region: 'post', bevel: .012 });
 }
 
 /** How the photo (photos.json id 5, 1280×719) lies on each region: the view it was taken from and where the region sits in it. */
 export const photoViews: Record<string, PhotoView> = {
-  'leg-fl': { elevation: 11, azimuth: -2, frame: [.4234, .4534, .4812, .9235] },
-  'leg-fr': { elevation: 11, azimuth: -18, frame: [.7016, .4534, .7719, .9165] },
-  'leg-bl': { elevation: 11, azimuth: -92, frame: [.4234, .4534, .4812, .9235] },
-  'leg-br': { elevation: 11, azimuth: 72, frame: [.7016, .4534, .7719, .9165] },
-  band: { elevation: 1, azimuth: -9, frame: [.4023, .3894, .7469, .4506] },
-  post: { elevation: 15, azimuth: -9, frame: [.5195, .7115, .6227, .8540] },
-  rings: { elevation: 1, azimuth: -9, frame: [.5, .399, .547, .417] },
+  'leg-fl': { elevation: 9, azimuth: -2, frame: [.4227, .4506, .4797, .9235] },
+  'leg-fr': { elevation: 9, azimuth: -22, frame: [.6984, .4492, .7719, .911] },
+  'leg-bl': { elevation: 9, azimuth: -92, frame: [.4227, .4506, .4797, .9235] },
+  'leg-br': { elevation: 9, azimuth: 68, frame: [.6984, .4492, .7719, .911] },
+  band: { elevation: 0, azimuth: -10, frame: [.4023, .3894, .7469, .4506] },
+  post: { elevation: 15, azimuth: -10, frame: [.512, .689, .6252, .8527] },
+  rings: { elevation: 0, azimuth: -10, frame: [.5, .399, .547, .417] },
 };

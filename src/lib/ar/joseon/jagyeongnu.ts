@@ -51,7 +51,7 @@ const SIDE_TOP = BASE + 2.03;       // side pillars' top = small vessels' foot
 const MID_TOP = BASE + 2.31;        // central pillar's top = big vessel's foot
 
 const CYL_X = 0.4, CYL_Z = 0.66;    // inflow cylinder axes
-const SMALL_X = 0.39, SMALL_Z = -0.15; // small vessels / side pillars
+const SMALL_X = 0.42, SMALL_Z = -0.15; // small vessels / side pillars
 const BIG_Z = -0.85;                // big vessel / central pillar
 
 /** Inflow cylinder profile [radius, height]: foot band, the fuller relief zone, a raised band, the plain
@@ -148,9 +148,10 @@ export function build(b: ReconstructionBuilder): void {
 
   // ---------- Stepped base ----------
   // Front slab (apron) the cylinders stand on: its top and front are in the photo.
-  stoneBox(b, 'darkStone', [-1.1, 1.1], [0, BASE], [0.4, 1.07], { front: 'base', top: 'base', back: null });
-  // The same slab running on under and behind the stand (never seen in the photo).
-  stoneBox(b, 'darkStone', [-1.1, 1.1], [0, BASE], [-1.45, 0.4], { front: null });
+  // Its ends take the photo's slab edge too (seen edge-on they get its outermost columns).
+  stoneBox(b, 'darkStone', [-1.1, 1.1], [0, BASE], [0.4, 1.07], { front: 'base', top: 'base', left: 'base', right: 'base', back: null });
+  // A footing course under and just around the stand (never seen in the photo).
+  stoneBox(b, 'darkStone', [-1.02, 1.02], [0, BASE], [-1.34, 0.4], { front: null });
 
   // ---------- Granite block stand: plinth course, body of dressed courses, overhanging cap ----------
   const stand = { front: 'stand', right: 'stand-side', left: 'stand-side', bottom: null } as const;
@@ -160,7 +161,7 @@ export function build(b: ReconstructionBuilder): void {
 
   // ---------- Pillars on the block ----------
   for (const [side, region] of [[-1, 'pillar-left'], [1, 'pillar-right']] as const) {
-    const xs = [SMALL_X - 0.26, SMALL_X + 0.26].map(x => x * side).sort((p, q) => p - q) as [number, number];
+    const xs = [SMALL_X - 0.29, SMALL_X + 0.29].map(x => x * side).sort((p, q) => p - q) as [number, number];
     stoneBox(b, 'darkStone', xs, [STAND_TOP, SIDE_TOP], [SMALL_Z - 0.25, SMALL_Z + 0.25], { front: region, back: region, bottom: null });
   }
   stoneBox(b, 'darkStone', [-0.28, 0.28], [STAND_TOP, MID_TOP], [BIG_Z - 0.3, BIG_Z + 0.3], { front: 'pillar-centre', back: 'pillar-centre', bottom: null });
@@ -184,8 +185,8 @@ export const photoViews: Record<string, PhotoView> = {
   'cylinders-side': { elevation: 0, azimuth: 90, frame: [PHOTO_CYL_L.c - Q * PHOTO_CYL_L.h, CYL_TOP, PHOTO_CYL_L.c + Q * PHOTO_CYL_L.h, CYL_BOTTOM] },
   // The vessels are above the camera: seen from about 12 and 8 degrees below (their rims curve down at
   // the ends in the photo). Frame bottoms run past the visible foot to where the back of the foot falls.
-  'vessel-big': { elevation: -12, azimuth: 0, frame: [0.333, 0.1403, 0.588, 0.3132] },
-  'vessels-small': { elevation: -8, azimuth: 0, frame: [0.2873, 0.207, 0.6863, 0.319] },
+  'vessel-big': { elevation: -12, azimuth: 0, frame: [0.337, 0.1403, 0.584, 0.3132] },
+  'vessels-small': { elevation: -8, azimuth: 0, frame: [0.2923, 0.207, 0.6823, 0.319] },
   'pillar-left': { elevation: 0, azimuth: 0, frame: [0.41, 0.313, 0.453, 0.461] },
   'pillar-right': { elevation: 0, azimuth: 0, frame: [0.523, 0.306, 0.583, 0.461] },
   'pillar-centre': { elevation: 0, azimuth: 0, frame: [0.455, 0.29, 0.52, 0.461] },
@@ -193,5 +194,5 @@ export const photoViews: Record<string, PhotoView> = {
   'stand-hidden': { elevation: 0, azimuth: 0, frame: [0.42, 0.463, 0.59, 0.894] },
   'stand-side': { elevation: 0, azimuth: 90, frame: [0.42, 0.463, 0.59, 0.894] },
   base: { elevation: 35, azimuth: 0, frame: [0.0298, 0.894, 0.9802, 1] },
-  [PLAIN]: { elevation: 40, azimuth: 30, frame: [0.47, 0.585, 0.5, 0.605] },
+  [PLAIN]: { elevation: 40, azimuth: 30, frame: [0.48, 0.59, 0.486, 0.594] },
 };

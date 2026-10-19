@@ -70,17 +70,7 @@ export function build(b: ReconstructionBuilder) {
     if (+ex + +ey + +ez !== 1) continue; // keep edge and corner points shared between faces
     bp.setXYZ(k, ex ? x : x + hash(k) * .9, ey ? y : y + hash(k + 7) * .9, ez ? z : z + hash(k + 13) * .9);
   }
-  // The faces are split by the photo view that suits them: the box's groups are +x, -x, +y, -y, +z, -z.
-  const faces = (groups: number[]) => {
-    const part = body.clone(), source = body.getIndex()!.array, index: number[] = [];
-    for (const k of groups) { const { start, count } = body.groups[k]; for (let i = start; i < start + count; i++) index.push(source[i]); }
-    part.setIndex(index); part.clearGroups();
-    return part;
-  };
-  const bodyAt: Vec = [0, bodyH / 2 + .06, 0];
-  b.add(faces([4, 5, 2, 3]), 'darkStone', { position: bodyAt, region: 'pedestal-front', weather: .07 });
-  b.add(faces([0, 1]), 'darkStone', { position: bodyAt, region: 'pedestal-side', weather: .07 });
-  body.dispose();
+  b.add(body, 'darkStone', { position: [0, bodyH / 2 + .06, 0], region: 'pedestal-side', weather: .07 });
 
   // Projecting cap with the round socket: one lofted surface whose cross-section runs from the socket
   // wall (circle) over the top (blending circle -> square), down the chamfered sides to the underside.
@@ -96,10 +86,10 @@ export function build(b: ReconstructionBuilder) {
     { s: edge, y: top }, { s: capS, y: top - .3 }, { s: capS, y: top - 1.9 }, { s: capS, y: top - 3.5 },
     { s: capS, y: capBottom + .3 }, { s: edge, y: capBottom }, { s: bodyW / 2 - .3, y: capBottom },
   ];
-  const around = 128, quarter = around / 4, sideRow = loft.findIndex(p => p.s === capS && p.y === top - .3);
+  const around = 128, sideRow = loft.findIndex(p => p.s === capS && p.y === top - .3);
   // One patch of the loft: columns i0..i1 around (i = 0 is the front, +z) and rows j0..j1 of the profile.
   // Smooth normals are computed on each indexed patch (and no weathering), so the toolkit keeps them: the
-  // flat top shades evenly, and the cap's corners and top edge stay crisp.
+  // flat top shades evenly, and the cap's top edge stays crisp.
   const loftPatch = (i0: number, i1: number, j0: number, j1: number) => {
     const positions: number[] = [], index: number[] = [], rows = j1 - j0 + 1;
     for (let i = i0; i <= i1; i++) {
@@ -120,11 +110,10 @@ export function build(b: ReconstructionBuilder) {
     geometry.computeVertexNormals();
     return geometry;
   };
-  // Top (socket wall, top surface and edge chamfer), then the cap's four sides and underside.
+  // Top (socket wall, top surface and edge chamfer) seen from above; the cap's sides and underside go
+  // with the block's faces.
   b.add(loftPatch(0, around, 0, sideRow), 'darkStone', { region: 'pedestal-top' });
-  for (let k = 0; k < 4; k++) {
-    b.add(loftPatch(k * quarter - quarter / 2, k * quarter + quarter / 2, sideRow, loft.length - 1), 'darkStone', { region: k % 2 ? 'pedestal-side' : 'pedestal-front' });
-  }
+  b.add(loftPatch(0, around, sideRow, loft.length - 1), 'darkStone', { region: 'pedestal-side' });
   // Socket floor: a plug filling the cap below the 4.3 cm socket; the gauge stands on it.
   b.cylinder(socketR + .05, socketR + .05, socketFloor - capBottom - .2, [0, (socketFloor + capBottom + .2) / 2, 0], 'darkStone', { region: 'pedestal-top', segments: 64 });
 
@@ -132,7 +121,7 @@ export function build(b: ReconstructionBuilder) {
   // and a small dated column of seven cells near the left edge. Each character cell is a dense cluster of
   // short cuts, one per sub-cell of a small grid and kept inside it, so strokes never cross or touch and
   // no character (real or invented, hanja or hangul) can be read. They are sunk into the stone with only
-  // a sliver standing proud of the weathered face, so they read as cut, worn grooves (plain dark, no photo).
+  // a sliver standing proud of the weathered face, so they read as cut, worn grooves (the photo's dark swatch).
   b.feature('carved-lettering-suggested');
   const face = bodyW / 2, depth = .34, proud = .09;
   const strokes = (x: number, yTop: number, cell: number, glyph: number, grid: number, width: number, cells: number, seed: number) => {
@@ -146,7 +135,7 @@ export function build(b: ReconstructionBuilder) {
         const len = sub * (.5 + (hash(k + 211) + .5) * .18) - width;
         const cx = x + (col - (grid - 1) / 2) * sub + hash(k + 307) * sub * .08;
         const cy = yc + ((grid - 1) / 2 - row) * sub + hash(k + 401) * sub * .08;
-        b.box([len, width, depth], [cx, cy, face + proud - depth / 2], 'ink', { rotation: [0, 0, tilt], bevel: width * .3 });
+        b.box([len, width, depth], [cx, cy, face + proud - depth / 2], 'ink', { rotation: [0, 0, tilt], region: 'shadow', bevel: width * .3 });
       }
     }
   };
@@ -159,34 +148,37 @@ export function build(b: ReconstructionBuilder) {
   // what one outline of the photo shows.
   const Rw = 7.38, Rb = 7.65, Ri = 7, H = 31.5, floor = .8, g0 = socketFloor, bandH = 1.8;
   const at = (y: number) => g0 + y;
-  // Front (z >= 0) and back halves of a solid of revolution, in their own photo regions.
-  const halves = (profile: Array<[number, number]>, region: string) => {
-    for (const [start, name] of [[-Math.PI / 2, region], [Math.PI / 2, `${region}-back`]] as const) {
-      b.add(new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y)), 36, start, Math.PI), 'darkBronze', { position: [0, g0, 0], region: name });
-    }
+  // A solid of revolution cut into three 120° sectors (front, right-back, left-back), each in its own
+  // photo region: the photo's front view is reused for each sector, turned to face it.
+  const sectors = (profile: Array<[number, number]>, region: string) => {
+    const third = Math.PI * 2 / 3;
+    [region, `${region}-right`, `${region}-left`].forEach((name, k) => {
+      b.add(new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y)), 24, (k - .5) * third, third), 'darkBronze', { position: [0, g0, 0], region: name });
+    });
   };
 
   b.feature('three-section-bronze-cylinder');
-  // Foot inside the socket (never seen): closed bottom with a slight foot band, up to the stone line.
-  b.lathe([[0, 0], [Rb - .2, 0], [Rb, .2], [Rb, 1.2], [Rw, 1.45], [Rw, socketDepth]], 'darkBronze', { position: [0, g0, 0], region: 'gauge-inside', segments: 72 });
-  // Visible wall of the three sections, from the stone line up to the mouth band; the joint bands sit
-  // between them. The upper section and band are 'gauge', everything below it 'gauge-lower'.
+  // Foot inside the socket (never seen): closed bottom with a slight foot band, up to the stone line,
+  // and the short visible part of the lower section above the stone.
   const joints = [10.5, 21], rimBase = H - 1.55;
-  halves([[Rw, socketDepth], [Rw, joints[0] - bandH / 2]], 'gauge-lower');
-  halves([[Rw, joints[0] + bandH / 2], [Rw, joints[1] - bandH / 2]], 'gauge-lower');
-  halves([[Rw, joints[1] + bandH / 2], [Rw, rimBase]], 'gauge');
+  b.lathe([[0, 0], [Rb - .2, 0], [Rb, .2], [Rb, 1.2], [Rw, 1.45], [Rw, socketDepth]], 'darkBronze', { position: [0, g0, 0], region: 'gauge-foot', segments: 72 });
+  b.lathe([[Rw, socketDepth], [Rw, joints[0] - bandH / 2]], 'darkBronze', { position: [0, g0, 0], region: 'gauge-foot', segments: 72 });
+  // Walls of the middle and upper sections, from the lower joint band up to the mouth band.
+  sectors([[Rw, joints[0] + bandH / 2], [Rw, joints[1] - bandH / 2]], 'gauge-lower');
+  sectors([[Rw, joints[1] + bandH / 2], [Rw, rimBase]], 'gauge');
 
   b.feature('raised-joint-bands-madi');
   joints.forEach((yc, k) => {
-    halves([[Rw, yc - bandH / 2], [Rb, yc - bandH / 2 + .22], [Rb, yc - .09], [Rb - .13, yc], [Rb, yc + .09], [Rb, yc + bandH / 2 - .22], [Rw, yc + bandH / 2]],
+    sectors([[Rw, yc - bandH / 2], [Rb, yc - bandH / 2 + .22], [Rb, yc - .09], [Rb - .13, yc], [Rb, yc + .09], [Rb, yc + bandH / 2 - .22], [Rw, yc + bandH / 2]],
       k ? 'gauge' : 'gauge-lower');
   });
 
   b.feature('open-mouth-for-rain');
   // Thickened mouth rim: outside band, flat top, inner chamfer.
   b.lathe([[Rw, rimBase], [Rb, rimBase + .23], [Rb, H - .18], [Rb - .18, H], [Ri + .15, H], [Ri, H - .15]], 'bronze', { position: [0, g0, 0], region: 'gauge-mouth', segments: 72 });
-  // Inner wall and flat floor of the well, with a hard corner (tiny bevel) so the floor shades flat.
-  b.lathe([[Ri, H - .15], [Ri, floor + .03], [Ri - .03, floor], [0, floor]], 'darkBronze', { position: [0, g0, 0], region: 'gauge-inside', segments: 72 });
+  // Inner wall and flat floor of the well, with a hard corner (tiny bevel) so the floor shades flat;
+  // matte and as dark as the photo's open mouth.
+  b.lathe([[Ri, H - .15], [Ri, floor + .03], [Ri - .03, floor], [0, floor]], 'ink', { position: [0, g0, 0], region: 'shadow', segments: 72 });
 
   // Inscription on the middle section, suggested by five columns (right to left) of thin grooves.
   b.feature('engraved-inscription-suggested');
@@ -212,7 +204,7 @@ export function build(b: ReconstructionBuilder) {
   const cun = 2.07; // one 주척 寸 in cm
   for (let i = 1; i * cun < L - .5; i++) {
     const long = i % 5 === 0, len = long ? w * .7 : w * .35;
-    b.box([.06, .1, len], [thick / 2 + .015, -L / 2 + i * cun, w / 2 - len / 2 - .05], 'ink', { parent: ruler, region: 'ruler', bevel: .01 });
+    b.box([.06, .1, len], [thick / 2 + .015, -L / 2 + i * cun, w / 2 - len / 2 - .05], 'ink', { parent: ruler, region: 'shadow', bevel: .01 });
   }
 }
 
@@ -220,13 +212,15 @@ export function build(b: ReconstructionBuilder) {
 const px = (left: number, top: number, right: number, bottom: number): [number, number, number, number] =>
   [left / 1280, top / 719, right / 1280, bottom / 719];
 export const photoViews: Record<string, PhotoView> = {
-  gauge: { elevation: 36, azimuth: 0, frame: px(565, 245, 767, 416) },
-  'gauge-back': { elevation: 36, azimuth: 180, frame: px(565, 245, 767, 416) },
-  'gauge-lower': { elevation: 40, azimuth: 0, frame: px(575, 352, 753, 547) },
-  'gauge-lower-back': { elevation: 40, azimuth: 180, frame: px(575, 352, 753, 547) },
-  'gauge-mouth': { elevation: 36, azimuth: 0, frame: px(552.5, 145.5, 787, 298) },
-  'gauge-inside': { elevation: 36, azimuth: 0, frame: px(620, 152, 720, 175) },
+  gauge: { elevation: 39, azimuth: 0, frame: px(573.5, 265.5, 760.5, 420) },
+  'gauge-right': { elevation: 39, azimuth: 120, frame: px(573.5, 265.5, 760.5, 420) },
+  'gauge-left': { elevation: 39, azimuth: 240, frame: px(573.5, 265.5, 760.5, 420) },
+  'gauge-lower': { elevation: 43, azimuth: 0, frame: px(582.5, 386, 747, 508.5) },
+  'gauge-lower-right': { elevation: 43, azimuth: 120, frame: px(582.5, 386, 747, 508.5) },
+  'gauge-lower-left': { elevation: 43, azimuth: 240, frame: px(582.5, 386, 747, 508.5) },
+  'gauge-mouth': { elevation: 38, azimuth: 0, frame: px(553, 145, 786.5, 297.5) },
+  'gauge-foot': { elevation: 43, azimuth: 0, frame: px(625, 508, 705, 532) },
+  shadow: { elevation: 38, azimuth: 0, frame: px(635, 160, 705, 180) },
   'pedestal-top': { elevation: 90, azimuth: 0, frame: px(200, 450, 540, 678) },
-  'pedestal-front': { elevation: 0, azimuth: 0, frame: px(800, 370, 1080, 583) },
-  'pedestal-side': { elevation: 0, azimuth: 90, frame: px(200, 440, 540, 698) },
+  'pedestal-side': { elevation: 0, azimuth: 45, frame: px(125, 548, 530, 702) },
 };

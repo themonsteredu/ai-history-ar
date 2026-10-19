@@ -77,17 +77,17 @@ export function build(b: ReconstructionBuilder) {
     return b.add(new THREE.CylinderGeometry(r, r, len, segments, 1, false), surface, { position: arr(mid), rotation: [e.x, e.y, e.z], region });
   };
   /** A thick dragon pillar: a core along the curve with the dragon's body coiling round it. */
-  const pillar = (pts: V3[], region: string, turns: number, phase = 0) => {
-    b.tube(pts.map(arr), .5, 'bronze', { region, segments: 36, radial: 12 });
+  const pillar = (pts: V3[], region: string, turns: number, phase = 0, r = .4) => {
+    b.tube(pts.map(arr), r, 'bronze', { region, segments: 36, radial: 12 });
     const curve = new THREE.CatmullRomCurve3(pts), coil: Vec[] = [];
     const n = 72;
     for (let i = 0; i <= n; i++) {
       const t = .03 + i / n * .92, p = curve.getPoint(t), tan = curve.getTangent(t);
       const side = new THREE.Vector3(0, 0, 1).cross(tan).normalize(), other = tan.clone().cross(side).normalize();
       const a = phase + t * turns * Math.PI * 2;
-      coil.push(arr(p.addScaledVector(side, Math.cos(a) * .44).addScaledVector(other, Math.sin(a) * .44)));
+      coil.push(arr(p.addScaledVector(side, Math.cos(a) * r * .9).addScaledVector(other, Math.sin(a) * r * .9)));
     }
-    b.tube(coil, .2, 'bronze', { region, segments: 150, radial: 8 });
+    b.tube(coil, r * .42, 'bronze', { region, segments: 120, radial: 8 });
   };
   /** A simple dragon head: skull, snout and two swept-back horns; `dir` = ±1 faces −x / +x. */
   const head = (c: V3, dir: number, region: string) => {
@@ -130,8 +130,8 @@ export function build(b: ReconstructionBuilder) {
     const z = s * zc, region = s > 0 ? 'south-front' : 'south-back';
     block(-7.4, z, region, [1.25, .5, 1]); block(-.5, z, region);
     // The corner leg rises steeply, then leans in toward the apex; the middle leg runs straight.
-    pillar([v(-7.35, B + .3, z), v(-6.95, 3.6, z), v(-6.45, 5.2, z), v(-5.4, 8.1, z), v(-4.85, 9.05, z)], region, 2.2, 0);
-    pillar([v(-.5, B + .3, z), v(-2.48, 5.4, z), v(-4.4, 9.0, z)], region, 2.4, 1.3);
+    pillar([v(-7.35, B + .3, z), v(-6.95, 3.6, z), v(-6.45, 5.2, z), v(-5.4, 8.1, z), v(-4.85, 9.05, z)], region, 2.2, 0, .45);
+    pillar([v(-.5, B + .3, z), v(-2.48, 5.4, z), v(-4.4, 9.0, z)], region, 2.4, 1.3, .38);
     b.sphere(.72, [-4.62, 9.05, z], 'bronze', { region, scale: [1.2, .95, 1], segments: 18 });
     head(v(-5.95, 7.55, z + s * .4), -1, region);
   }
@@ -143,8 +143,8 @@ export function build(b: ReconstructionBuilder) {
     const z = s * zc, region = s > 0 ? 'north-front' : 'north-back';
     block(7.45, z, region, [1.9, .55, 1.15]); block(1.2, z, region);
     // The north pillar stands nearly upright, then curls in toward the pole ring (as in the photo).
-    pillar([v(7.3, B + .35, z), v(7.05, 3.7, z), v(6.25, 5.3, z), v(xCross, yCross, s * 4.75), v(4.6, 9.5, s * 2.9), v(T.x + .25, T.y - .15, s * (topR + .3))], region, 3, .6);
-    pillar([v(1.2, B + .3, z), v(2.55, 4.05, z), v(xCross, yCross, s * 4.75)], region, 2, 2.1);
+    pillar([v(7.3, B + .35, z), v(7.05, 3.7, z), v(6.25, 5.3, z), v(xCross, yCross, s * 4.75), v(4.6, 9.5, s * 2.9), v(T.x + .25, T.y - .15, s * (topR + .3))], region, 3, .6, .4);
+    pillar([v(1.2, B + .3, z), v(2.55, 4.05, z), v(xCross, yCross, s * 4.75)], region, 2, 2.1, .38);
     b.sphere(.66, [xCross, yCross, s * 4.75], 'bronze', { region, segments: 16 });
     head(v(3.75, 7.1, s * 5.15), -1, region);
   }
@@ -252,10 +252,10 @@ export function build(b: ReconstructionBuilder) {
  * pair carries its visible front twin's pixels.
  */
 export const photoViews: Record<string, PhotoView> = {
-  'south-front': { elevation: 2, azimuth: 9, frame: [.21, .205, .586, .875] },
-  'south-back': { elevation: -2, azimuth: -9, frame: [.21, .205, .586, .875] },
-  'north-front': { elevation: -4, azimuth: -17, frame: [.59, .084, .956, .878] },
-  'north-back': { elevation: 4, azimuth: 17, frame: [.59, .084, .956, .878] },
+  'south-front': { elevation: 1, azimuth: 11, frame: [.210, .205, .587, .873] },
+  'south-back': { elevation: -1, azimuth: -11, frame: [.210, .205, .587, .873] },
+  'north-front': { elevation: -5, azimuth: -17, frame: [.590, .092, .956, .881] },
+  'north-back': { elevation: 5, azimuth: 17, frame: [.590, .092, .956, .881] },
   crossbar: { elevation: 0, azimuth: -18, frame: [.673, .362, .799, .404] },
   'base-front': { elevation: 20, azimuth: 0, frame: [.158, .858, .991, .922] },
 };
