@@ -67,3 +67,21 @@ describe('Joseon artifact reconstructions', () => {
     try { expect(root.userData.photoTextureLoaded).toBe(false); } finally { dispose(root); }
   });
 });
+
+describe('Joseon artifact photos', () => {
+  it('has one credited, unchanged photo file per artifact', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { createHash } = await import('node:crypto');
+    const photos = (await import('./photos.json')).default as Array<{ id: number; path: string; source: string; author: string; license: string; licenseUrl: string; sha256?: string }>;
+    expect(photos.map(photo => photo.id).sort()).toEqual([1, 2, 3, 4, 5, 6]);
+    for (const photo of photos) {
+      expect(photo.source).toMatch(/^https:\/\/commons\.wikimedia\.org\/wiki\/File:/);
+      expect(photo.author.trim()).not.toBe('');
+      expect(photo.license.trim()).not.toBe('');
+      expect(photo.licenseUrl).toMatch(/^https:\/\//);
+      const bytes = readFileSync(`public/${photo.path}`);
+      if (photo.sha256) expect(createHash('sha256').update(bytes).digest('hex'), photo.path).toBe(photo.sha256);
+    }
+    expect(joseonModels.every(info => info.photo)).toBe(true);
+  });
+});
