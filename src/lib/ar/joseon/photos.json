@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "path": "images/heritage/joseon-science/cheugugi.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:%EC%B8%A1%EC%9A%B0%EA%B8%B0_(1).JPG",
+    "author": "Jocelyndurrey",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "1280×719px로 축소(원본 5456×3064)",
+    "sha256": "1225b25d4af5dc26cfe804adfdf756dc49187e849f3b9f8b1b1fa24584325068"
+  },
+  {
+    "id": 2,
+    "path": "images/heritage/joseon-science/jagyeongnu.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:BoRuGak_Jagyeongnu.JPG",
+    "author": "Gapo",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "changes": "1280×1707px로 축소(원본 1848×2464)",
+    "sha256": "d961e501e5091f2a0e473e21a2d314f2eb3cb989d3fa7a6ca109fe3044176112"
+  },
+  {
+    "id": 3,
+    "path": "images/heritage/joseon-science/ganui.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:%EA%B0%84%EC%9D%98_(5).JPG",
+    "author": "Jocelyndurrey",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "1280×719px로 축소(원본 5456×3064)",
+    "sha256": "7ea45d7edb0d7d360740d3f0e64c72b4d8ff1b08d1b4b99381268c9375999823"
+  },
+  {
+    "id": 4,
+    "path": "images/heritage/joseon/angbuilgu.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Seoul-Gyeongbokgung-Sundial-02.jpg",
+    "author": "Bernat",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+    "changes": "원본 파일 그대로 사용",
+    "sha256": "378ede16b4354fdba68f2de7fcb5fcf4e202a6fcfc560bbcc3e9b31e3dc03faa"
+  },
+  {
+    "id": 5,
+    "path": "images/heritage/joseon-science/honcheonui.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:%ED%98%BC%EC%B2%9C%EC%9D%98_(1).JPG",
+    "author": "Jocelyndurrey",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "1280×719px로 축소(원본 5456×3064)",
+    "sha256": "786c458e58725768c014226c266557f4a66946890ce6447a67bd2e3f1f26b1f7"
+  },
+  {
+    "id": 6,
+    "path": "images/heritage/joseon-science/nongsajikseol.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:%E8%BE%B2%E4%BA%8B%E7%9B%B4%E8%AA%AA_%EB%86%8D%EC%82%AC%EC%A7%81%EC%84%A4.jpg",
+    "author": "e뮤지엄 소장품 사진(책 저자 정초·변효문)",
+    "license": "퍼블릭 도메인",
+    "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "changes": "1280×1362px로 축소(원본 2184×2324)",
+    "sha256": "ac288eafa25d811411a6123256ed4cf6987ada0e4b3df100fc6e53c96e410926"
+  }
+]

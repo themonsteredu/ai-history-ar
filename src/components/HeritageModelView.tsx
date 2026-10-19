@@ -6,10 +6,12 @@ import type { CardPlacement, ModelScene } from '../lib/ar/modelScene';
 import { ReconstructionCredit } from './ReconstructionCredit';
 import { cameraFailureMessage } from '../lib/ar/cameraDiagnosis';
 
-export default function HeritageModelView({ model, image, points, selectedId, onSelect, onPlace, camera = false, cardPlacement = 'table', targetIndex, onTracking, eraId = "three-kingdoms" }: {
+export default function HeritageModelView({ model, image, points, selectedId, onSelect, onPlace, camera = false, cardPlacement = 'table', targetIndex, onTracking, eraId = "three-kingdoms", targetFile }: {
   model?: ExhibitModel; image: string; points: ExhibitPoint[]; selectedId: string; onSelect: (id: string) => void;
   onPlace?: (position: [number, number, number]) => void; camera?: boolean; targetIndex: number; eraId?: EraId;
   onTracking?: (visible: boolean) => void;
+  /** Printed-card targets other than the era's own set (the Joseon open lesson's photo cards). */
+  targetFile?: string;
   cardPlacement?: CardPlacement;
 }) {
   const container = useRef<HTMLDivElement>(null);
@@ -32,7 +34,7 @@ export default function HeritageModelView({ model, image, points, selectedId, on
       container: surface, model, image, mode: camera ? 'camera' : 'preview',
       cardPlacement: () => current.current.cardPlacement,
       loadBuiltIn: original?.loadCheomseongdaeOriginal,
-      targetFile: arTargetUrl(eraId), targetIndex, signal: abort.signal,
+      targetFile: targetFile || arTargetUrl(eraId), targetIndex, signal: abort.signal,
       markers: () => pins.current, points: () => current.current.points,
       onPlace: camera ? undefined : position => current.current.onPlace?.(position),
       onPreviewFallback: () => { if (!abort.signal.aborted) setSimplePreview(true); },
@@ -46,7 +48,7 @@ export default function HeritageModelView({ model, image, points, selectedId, on
       }
     });
     return () => { abort.abort(); scene.current = null; surface.remove(); };
-  }, [model?.data, model?.format, model?.asset, model?.preset, partsVersion, image, rotation, camera, targetIndex, eraId]);
+  }, [model?.data, model?.format, model?.asset, model?.preset, partsVersion, image, rotation, camera, targetIndex, eraId, targetFile]);
   return <div className="ar-model-view">
     <div className="ar-model-stage" ref={container} aria-label={camera ? '유산 카드를 비추는 AR 카메라' : '끌어서 돌려 보는 입체 유물'}>
       {points.map((point, index) => <button hidden type="button" className="ar-hotspot" key={point.id} ref={node => { pins.current[index] = node; }} aria-label={`${index + 1}번 ${point.title || '설명'} 열기`} aria-pressed={selectedId === point.id} onClick={() => onSelect(point.id)}>{index + 1}</button>)}

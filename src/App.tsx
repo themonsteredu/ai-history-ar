@@ -18,6 +18,8 @@ const RescuePage = lazy(() => import('./features/ar-studio/RescuePage'));
 const VisitPage = lazy(() => import('./features/ar-studio/VisitPage'));
 const QuizPrintPage = lazy(() => import('./features/ar-studio/QuizPrintPage'));
 const TeacherPage = lazy(() => import('./features/ar-studio/TeacherPage'));
+const OpenClassPage = lazy(() => import('./features/open-class/OpenClassPage'));
+const OpenClassTeacher = lazy(() => import('./features/open-class/OpenClassTeacher'));
 
 export function App() {
   return (
@@ -38,6 +40,7 @@ export function App() {
         <Route path="three-kingdoms/lesson/:lessonId" element={<LessonPage eraId="three-kingdoms" mode="student" />} />
         <Route path="joseon" element={<EraPage eraId="joseon" />} />
         <Route path="joseon/lesson/:lessonId" element={<LessonPage eraId="joseon" mode="student" />} />
+        <Route path="joseon/open-class" element={<Suspense fallback={<p>공개수업 화면을 열어요…</p>}><OpenClassPage /></Suspense>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
       <Route path="teacher" element={<TeacherGate />}>
@@ -46,6 +49,7 @@ export function App() {
         <Route path="three-kingdoms/ar" element={<Suspense fallback={<p>AR 수업 화면을 열어요…</p>}><TeacherPage /></Suspense>} />
         <Route path="three-kingdoms/ar-studio" element={<Suspense fallback={<p>교사 수업 안내를 준비해요…</p>}><StudioPage teacher /></Suspense>} />
         <Route path="three-kingdoms/ar-maker" element={<Suspense fallback={<p>AR 만들기를 열어요…</p>}><StudioPage teacher maker /></Suspense>} />
+        <Route path="joseon/open-class" element={<Suspense fallback={<p>공개수업 선생님 화면을 열어요…</p>}><OpenClassTeacher /></Suspense>} />
         <Route path=":eraSlug/lesson/:lessonId" element={<LessonPage mode="teacher" />} />
         <Route path=":eraSlug/downloads" element={<DownloadCenterPage />} />
         <Route path="three-kingdoms/tools" element={<TeacherToolSettingsPage />} />

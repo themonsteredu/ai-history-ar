@@ -22,6 +22,10 @@ export function EraPage({ eraId }: { eraId: EraId }) {
             <p className="eyebrow">초등학교 5학년 · {era.shortName} · {era.id === 'three-kingdoms' ? '총 6차시 · 차시당 40분' : `${era.lessons.length}차시`}</p>
             <h1>{era.shortName} 수업</h1>
             <p>차시를 고른 뒤 수업 PPT를 띄우거나 활동 화면을 바로 실행하세요.</p>
+            {era.id === 'joseon' && <div className="era-hero__maker-entry">
+              <Link className="button" to={`/joseon/open-class${search}`}>공개수업 · 과학 유물 AR 카드</Link>
+              <span>유물 카드 만들기 · OX 문제 · AI로 검증하기</span>
+            </div>}
             {era.id === 'three-kingdoms' && <div className="era-hero__maker-entry">
               <Link className="button" to={makerPath(search)}>AR 만들기 바로 시작</Link>
               <span>준비된 유물 고르기 · 점 찍기 · 설명과 녹음</span>

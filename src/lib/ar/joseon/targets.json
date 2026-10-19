@@ -1,0 +1,30 @@
+{
+  "file": "public/ar/joseon-science-targets.mind",
+  "sha256": "61d19b52f01cf802dab622339b95cd29fc8a29336eda70df04b5ac1894e18690",
+  "photos": [
+    {
+      "id": 1,
+      "sha256": "1225b25d4af5dc26cfe804adfdf756dc49187e849f3b9f8b1b1fa24584325068"
+    },
+    {
+      "id": 2,
+      "sha256": "d961e501e5091f2a0e473e21a2d314f2eb3cb989d3fa7a6ca109fe3044176112"
+    },
+    {
+      "id": 3,
+      "sha256": "7ea45d7edb0d7d360740d3f0e64c72b4d8ff1b08d1b4b99381268c9375999823"
+    },
+    {
+      "id": 4,
+      "sha256": "378ede16b4354fdba68f2de7fcb5fcf4e202a6fcfc560bbcc3e9b31e3dc03faa"
+    },
+    {
+      "id": 5,
+      "sha256": "786c458e58725768c014226c266557f4a66946890ce6447a67bd2e3f1f26b1f7"
+    },
+    {
+      "id": 6,
+      "sha256": "ac288eafa25d811411a6123256ed4cf6987ada0e4b3df100fc6e53c96e410926"
+    }
+  ]
+}

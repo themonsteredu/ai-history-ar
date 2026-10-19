@@ -14,12 +14,17 @@ export function classroomEntryUrl(code: string, page: EntryPage = 'maker'): stri
 export function createClassroomQr(code: string, page: EntryPage = 'maker') {
   const url = classroomEntryUrl(code, page);
   if (!url) return;
-  const bytes = Array.from(new TextEncoder().encode(url));
   // Version 5 / medium ECC holds the longest permitted canonical entry URL.
-  const qr = qrcodegen.QrCode.encodeSegments([qrcodegen.QrSegment.makeBytes(bytes)], qrcodegen.QrCode.Ecc.MEDIUM, 5, 5, -1, false);
+  return { ...encodeUrlQr(url, 5, 5), code: code.trim().toLowerCase() };
+}
+
+/** Any site link as a QR, encoded on the device. */
+export function encodeUrlQr(url: string, minVersion = 1, maxVersion = 10) {
+  const bytes = Array.from(new TextEncoder().encode(url));
+  const qr = qrcodegen.QrCode.encodeSegments([qrcodegen.QrSegment.makeBytes(bytes)], qrcodegen.QrCode.Ecc.MEDIUM, minVersion, maxVersion, -1, false);
   const modules = Array.from({ length: qr.size }, (_, y) => Array.from({ length: qr.size }, (_, x) => qr.getModule(x, y)));
   const border = 4, size = qr.size + border * 2;
   const path = modules.flatMap((row, y) => row.flatMap((dark, x) => dark ? [`M${x + border},${y + border}h1v1h-1z`] : [])).join('');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="900" height="900" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${path}" fill="#000"/></svg>`;
-  return { url, code: code.trim().toLowerCase(), size, path, modules, svg };
+  return { url, size, path, modules, svg };
 }
