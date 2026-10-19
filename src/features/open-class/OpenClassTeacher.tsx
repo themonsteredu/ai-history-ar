@@ -6,6 +6,7 @@ import { NumericCodeStatus } from '../ar-studio/NumericCodeStatus';
 import { addTeacherClass, classNameFor, isClassCode, normalizeClassCode, readTeacherClasses, removeTeacherClass, writeTeacherClasses, type TeacherClass } from '../ar-studio/teacherClasses';
 import { GROUP_CHOICES, groupCountKey, readGroupCount } from '../ar-studio/teacherRun';
 import { forgetOpenSession, joinOpenLesson, loadState, readOpenSession, saveTeacherSet, type OpenItem, type OpenState } from './api';
+import { joseonModelFor } from '../../lib/ar/joseon/catalog';
 import { ArCard } from './ArCard';
 import { ARTIFACTS, artifactById } from './artifacts';
 import { cardProblems, decisionLabel, isTeacherSet, MAX_TEACHER_QUESTIONS, newQuestion, newTeacherSet, questionsToCheck, readyQuestions, verifyProgress, type GroupCard, type OxQuestion, type TeacherSet, type Verification } from './model';
@@ -237,10 +238,12 @@ function TeacherQuestions({ code, token, sets, cards }: { code: string; token: s
 function PrintCard({ code, card }: { code: string; card: GroupCard }) {
   const artifact = artifactById(card.artifactId)!;
   const qr = encodeUrlQr(openClassUrl(code, `&view=look&group=${card.group}`));
+  const photo = joseonModelFor(card.artifactId)?.photo;
   return <article className="oc-print-card">
     <header><b>{card.group}모둠 AR 카드</b><span>{artifact.name}({artifact.hanja})</span></header>
-    <ArCard artifactId={card.artifactId} points={card.points} caption={artifact.kind} />
-    <ol>{card.points.map(point => <li key={point.id}><b>{point.title}</b></li>)}</ol>
-    <footer><svg viewBox={`0 0 ${qr.size} ${qr.size}`} shapeRendering="crispEdges"><rect width="100%" height="100%" fill="#fff" /><path d={qr.path} fill="#000" /></svg><p>QR을 찍으면 이 카드의 설명을 AR로 볼 수 있어요.</p></footer>
+    {photo ? <figure className="oc-print-photo"><img src={`${import.meta.env.BASE_URL}${photo.path}`} alt={`${artifact.name} 실물 사진`} /><figcaption>사진: {photo.author} · {photo.license}</figcaption></figure>
+      : <p className="oc-print-nophoto">{artifact.name} 실물 사진은 준비 중이에요. QR로 입체 모형을 보세요.</p>}
+    <ol>{card.points.map(point => <li key={point.id}><b>{point.title}</b> {point.text}</li>)}</ol>
+    <footer><svg viewBox={`0 0 ${qr.size} ${qr.size}`} shapeRendering="crispEdges"><rect width="100%" height="100%" fill="#fff" /><path d={qr.path} fill="#000" /></svg><p>QR을 찍으면 이 카드의 입체 모형과 설명을 AR로 볼 수 있어요.</p></footer>
   </article>;
 }

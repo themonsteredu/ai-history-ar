@@ -15,7 +15,7 @@ function setup(value: unknown = { saved: true, version: 1 }) {
   const handler = createOpenLessonHandler({ url: 'https://database.example', key: 'server-only-secret', teacherPin: '3035', fetch: fetcher });
   return { handler, fetcher, sent: () => JSON.parse(String(fetcher.mock.calls.at(-1)?.[1]?.body)) };
 }
-const card = () => ({ ...newCard(3, 2), points: [newPoint(.5, .5)] });
+const card = () => ({ ...newCard(3, 2), points: [newPoint([0, .5, .2])] });
 
 describe('open lesson Edge API', () => {
   it('reads the class state with the hashed member token only', async () => {

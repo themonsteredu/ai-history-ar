@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { dataUrlBytes, MAX_MODEL_BYTES, validateGlb, type ExhibitModel, type ExhibitPoint } from './exhibit';
+import type { PreparedModelKey } from './preparedCatalog';
 
 export interface SceneOptions {
   container: HTMLDivElement;
@@ -48,9 +49,13 @@ export async function readModel(model: ExhibitModel, withImages = true, signal =
     const { loadCheomseongdaeOriginal } = await import('../../content/three-kingdoms/cheomseongdaeOriginal');
     return loadCheomseongdaeOriginal(signal, withImages);
   }
+  if (model.format === 'preset' && model.preset?.startsWith('joseon-')) {
+    const { createJoseonModel } = await import('./joseon');
+    return createJoseonModel(model.preset, withImages);
+  }
   if (model.format === 'preset' && model.preset) {
     const { createPreparedModel } = await import('./preparedModels');
-    return createPreparedModel(model.preset, withImages);
+    return createPreparedModel(model.preset as PreparedModelKey, withImages);
   }
   if (model.format === 'primitives') {
     const group = new THREE.Group();
@@ -257,7 +262,7 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
     const photoReconstruction = !!content.userData.reconstruction;
     if (photoReconstruction && !softwarePreview) {
       renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
-      if (options.model?.preset === 'samguk-incense-v1' || options.model?.preset === 'samguk-crown-v1') {
+      if (options.model?.preset === 'samguk-incense-v1' || options.model?.preset === 'samguk-crown-v1' || content.userData.metallic) {
         // Local area lights supply reflections to gold without fetching an external HDRI.
         const { RoomEnvironment } = await import('three/examples/jsm/environments/RoomEnvironment.js');
         if (disposed) throw new DOMException('Cancelled', 'AbortError');

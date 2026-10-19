@@ -101,7 +101,7 @@ var text = (v, max) => typeof v === "string" && v.length <= max;
 var id = (v) => typeof v === "string" && v.length > 0 && v.length <= 40;
 var group = (v) => Number.isInteger(v) && Number(v) >= 1 && Number(v) <= 6;
 var ox = (v) => v === "O" || v === "X";
-var unit = (v) => typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 1;
+var vector = (v) => Array.isArray(v) && v.length === 3 && v.every((n) => typeof n === "number" && Number.isFinite(n) && n >= -3 && n <= 3);
 var artifact = (v) => ARTIFACTS.some((item) => item.id === v);
 function isQuestion(q) {
 	const v = q;
@@ -110,7 +110,7 @@ function isQuestion(q) {
 var uniqueIds = (list) => new Set(list.map((item) => item.id)).size === list.length;
 function isGroupCard(value) {
 	const v = value;
-	return !!v && typeof v === "object" && v.version === 1 && group(v.group) && (v.artifactId === 0 || artifact(v.artifactId)) && text(v.members, 100) && Array.isArray(v.points) && v.points.length <= 6 && uniqueIds(v.points) && v.points.every((p) => p && id(p.id) && unit(p.x) && unit(p.y) && text(p.title, 40) && text(p.text, 400)) && Array.isArray(v.questions) && v.questions.length <= 5 && uniqueIds(v.questions) && v.questions.every(isQuestion);
+	return !!v && typeof v === "object" && v.version === 1 && group(v.group) && (v.artifactId === 0 || artifact(v.artifactId)) && text(v.members, 100) && Array.isArray(v.points) && v.points.length <= 6 && uniqueIds(v.points) && v.points.every((p) => p && id(p.id) && vector(p.position) && text(p.title, 40) && text(p.text, 400)) && Array.isArray(v.questions) && v.questions.length <= 5 && uniqueIds(v.questions) && v.questions.every(isQuestion);
 }
 function isTeacherSet(value) {
 	const v = value;

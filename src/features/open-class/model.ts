@@ -2,7 +2,8 @@ import { ARTIFACTS } from './artifacts';
 
 export type Ox = 'O' | 'X';
 export type Decision = 'adopt' | 'revise' | 'exclude';
-export interface CardPoint { id: string; x: number; y: number; title: string; text: string }
+/** A place on the artifact's 3D model (model space, as the viewer reports a tap) and what the group wrote about it. */
+export interface CardPoint { id: string; position: [number, number, number]; title: string; text: string }
 export interface OxQuestion { id: string; statement: string; answer: Ox; explanation: string; pointId: string }
 export interface GroupCard { version: 1; group: number; artifactId: number; members: string; points: CardPoint[]; questions: OxQuestion[] }
 export interface TeacherSet { version: 1; artifactId: number; questions: OxQuestion[] }
@@ -24,7 +25,7 @@ export const DECISIONS: { id: Decision; label: string; help: string }[] = [
 export const decisionLabel = (id: Decision | '') => DECISIONS.find(item => item.id === id)?.label || '판단 전';
 
 const uid = () => (globalThis.crypto?.randomUUID?.() || `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`).slice(0, 36);
-export const newPoint = (x: number, y: number): CardPoint => ({ id: uid(), x, y, title: '', text: '' });
+export const newPoint = (position: [number, number, number]): CardPoint => ({ id: uid(), position, title: '', text: '' });
 export const newQuestion = (): OxQuestion => ({ id: uid(), statement: '', answer: 'O', explanation: '', pointId: '' });
 export const newCard = (group: number, artifactId = 0): GroupCard => ({ version: 1, group, artifactId, members: '', points: [], questions: [newQuestion(), newQuestion()] });
 export const newTeacherSet = (artifactId: number): TeacherSet => ({ version: 1, artifactId, questions: [] });
@@ -37,7 +38,7 @@ const text = (v: unknown, max: number) => typeof v === 'string' && v.length <= m
 const id = (v: unknown) => typeof v === 'string' && v.length > 0 && v.length <= 40;
 const group = (v: unknown) => Number.isInteger(v) && Number(v) >= 1 && Number(v) <= 6;
 const ox = (v: unknown) => v === 'O' || v === 'X';
-const unit = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1;
+const vector = (v: unknown) => Array.isArray(v) && v.length === 3 && v.every(n => typeof n === 'number' && Number.isFinite(n) && n >= -3 && n <= 3);
 const artifact = (v: unknown) => ARTIFACTS.some(item => item.id === v);
 function isQuestion(q: unknown): q is OxQuestion {
   const v = q as OxQuestion;
@@ -49,7 +50,7 @@ export function isGroupCard(value: unknown): value is GroupCard {
   const v = value as GroupCard;
   return !!v && typeof v === 'object' && v.version === 1 && group(v.group) && (v.artifactId === 0 || artifact(v.artifactId)) && text(v.members, 100) &&
     Array.isArray(v.points) && v.points.length <= MAX_POINTS && uniqueIds(v.points) &&
-    v.points.every(p => p && id(p.id) && unit(p.x) && unit(p.y) && text(p.title, 40) && text(p.text, 400)) &&
+    v.points.every(p => p && id(p.id) && vector(p.position) && text(p.title, 40) && text(p.text, 400)) &&
     Array.isArray(v.questions) && v.questions.length <= MAX_QUESTIONS && uniqueIds(v.questions) && v.questions.every(isQuestion);
 }
 export function isTeacherSet(value: unknown): value is TeacherSet {

@@ -57,13 +57,14 @@
 .oc-look summary{cursor:pointer;font-weight:700}
 .oc-look ul,.oc-look ol{margin:8px 0 0;padding-left:20px;line-height:1.7}
 
-.oc-card{margin:0}
-.oc-card-stage{position:relative;border:2px solid #d9cfba;border-radius:12px;overflow:hidden;background:#f6efe1;touch-action:manipulation}
-.oc-card.is-placing .oc-card-stage{border-color:var(--oc-accent);box-shadow:0 0 0 4px rgba(31,90,79,.2);cursor:crosshair}
-.oc-art{display:block;width:100%;height:auto}
-.oc-page button.oc-pin,.oc-pin{position:absolute;transform:translate(-50%,-50%);display:grid;place-content:center;width:34px;height:34px;min-height:0;padding:0;border:3px solid #fff;border-radius:50%;background:#c2453a;color:#fff;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.35)}
-.oc-page button.oc-pin.is-selected,.oc-pin.is-selected{background:var(--oc-accent);transform:translate(-50%,-50%) scale(1.18)}
-.oc-card figcaption{margin-top:6px;font-size:.85rem;color:#5d574f;text-align:center}
+.oc-card{margin:0;min-width:0}
+.oc-card .ar-model-stage{border:2px solid #d9cfba}
+.oc-card.is-placing .ar-model-stage{border-color:var(--oc-accent);box-shadow:0 0 0 4px rgba(31,90,79,.2);cursor:crosshair}
+.oc-card .ar-model-controls p{margin:6px 0}
+.oc-card .ar-model-controls button{min-height:36px;padding:4px 12px}
+.oc-card figcaption{margin-top:4px;font-size:.85rem;color:#5d574f;text-align:center}
+.oc-credit{margin:4px 0 0;font-size:.76rem;color:#6b655c;text-align:center}
+.oc-credit a{color:inherit;text-decoration:underline}
 .oc-bubble{margin:10px 0 0;padding:12px 14px;border-radius:12px;background:#fffdf6;border:1px solid #e3d6b8}
 .oc-bubble p{margin:4px 0 0}
 .oc-bubble.is-empty{color:#6b655c;font-size:.9rem}
@@ -97,15 +98,14 @@
 .oc-ar-top,.oc-ar-bottom{position:relative;z-index:2;padding:12px 16px}
 .oc-ar-top{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(rgba(0,0,0,.55),transparent)}
 .oc-page .oc-ar button,.oc-ar button{color:#1d2825;background:#fff}
-.oc-ar-float{position:relative;z-index:1;flex:1;display:grid;place-content:center;padding:10px;transition:transform .2s}
-.oc-ar-float .oc-card{width:min(86vw,560px);filter:drop-shadow(0 18px 30px rgba(0,0,0,.5));animation:oc-float 4s ease-in-out infinite}
-.oc-ar-float .oc-card figcaption{color:#fff;text-shadow:0 1px 3px #000}
+.oc-ar-float{position:relative;z-index:1;flex:1;min-height:0;display:flex;padding:0 10px}
+.oc-ar-float .oc-card{flex:1;display:flex;flex-direction:column;min-height:0}
+.oc-ar-float .ar-model-view{flex:1;display:flex;flex-direction:column;min-height:0}
+.oc-ar-float .ar-model-stage{flex:1;height:auto;min-height:260px;border:0;background:transparent}
+.oc-ar-float .ar-model-controls p,.oc-ar-float figcaption,.oc-ar-float .oc-credit,.oc-ar-float .ar-help{color:#fff;text-shadow:0 1px 3px #000}
 .oc-ar-bottom{background:linear-gradient(transparent,rgba(0,0,0,.6))}
 .oc-ar-bottom .oc-bubble{color:#2c2620;max-width:640px;margin:0 auto}
 .oc-ar-problem{margin:0 auto 8px;max-width:640px;font-size:.9rem}
-.oc-ar-zoom{display:flex;justify-content:center;gap:8px;margin-top:8px}
-@keyframes oc-float{0%,100%{transform:translateY(0) rotateX(6deg)}50%{transform:translateY(-8px) rotateX(2deg)}}
-@media (prefers-reduced-motion:reduce){.oc-ar-float .oc-card{animation:none}}
 
 .oc-gallery-list{display:flex;flex-wrap:wrap;gap:8px}
 .oc-page .oc-gallery-list button{display:grid;justify-items:start;gap:1px;text-align:left;min-width:130px}
@@ -241,8 +241,10 @@
   body.oc-printing-cards .oc-print-cards{display:block}
   .oc-print-card{break-after:page;padding:6mm 0}
   .oc-print-card header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4mm;font-size:16pt}
-  .oc-print-card .oc-card{max-width:170mm;margin:0 auto}
-  .oc-print-card .oc-pin{box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .oc-print-photo{margin:0 auto;max-width:170mm}
+  .oc-print-photo img{display:block;width:100%;max-height:120mm;object-fit:contain}
+  .oc-print-photo figcaption{font-size:8pt;color:#555}
+  .oc-print-nophoto{padding:20mm 0;text-align:center;border:1px dashed #999}
   .oc-print-card ol{columns:2;margin:4mm 0;font-size:11pt}
   .oc-print-card footer{display:flex;align-items:center;gap:6mm;margin-top:4mm}
   .oc-print-card footer svg{width:36mm;height:36mm}

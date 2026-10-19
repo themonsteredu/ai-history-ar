@@ -3,7 +3,7 @@ import { buildPrompt, cardProblems, emptyParts, isGroupCard, isTeacherSet, isVer
 
 function readyCard(): GroupCard {
   const card = newCard(2, 1);
-  card.points = [{ ...newPoint(.5, .3), title: '빗물 받는 그릇', text: '쇠로 만든 둥근 통이에요.' }, { ...newPoint(.5, .8), title: '돌 받침', text: '그릇을 올려 두는 받침이에요.' }];
+  card.points = [{ ...newPoint([0, .7, .1]), title: '빗물 받는 그릇', text: '쇠로 만든 둥근 통이에요.' }, { ...newPoint([0, .2, .3]), title: '돌 받침', text: '그릇을 올려 두는 받침이에요.' }];
   card.questions = card.questions.map((q, i) => ({ ...q, statement: i ? '측우기 받침은 나무로 만들었다.' : '측우기는 비의 양을 잰다.', answer: i ? 'X' : 'O', explanation: '카드 설명에 있어요.', pointId: card.points[i].id }));
   return card;
 }
@@ -21,10 +21,11 @@ describe('open lesson card', () => {
   it('rejects cards the server should not keep', () => {
     expect(isGroupCard({ ...readyCard(), group: 7 })).toBe(false);
     expect(isGroupCard({ ...readyCard(), artifactId: 9 })).toBe(false);
-    expect(isGroupCard({ ...readyCard(), points: Array.from({ length: 7 }, () => newPoint(.1, .1)) })).toBe(false);
+    expect(isGroupCard({ ...readyCard(), points: Array.from({ length: 7 }, () => newPoint([0, .1, .1])) })).toBe(false);
     expect(isGroupCard({ ...readyCard(), questions: [{ ...newQuestion(), answer: '△' }] })).toBe(false);
     expect(isGroupCard({ ...readyCard(), questions: Array.from({ length: 6 }, newQuestion) })).toBe(false);
-    expect(isGroupCard({ ...readyCard(), points: [{ ...newPoint(1.2, .5) }] })).toBe(false);
+    expect(isGroupCard({ ...readyCard(), points: [{ ...newPoint([0, 4, 0]) }] })).toBe(false);
+    expect(isGroupCard({ ...readyCard(), points: [{ id: 'old', x: .5, y: .5, title: '', text: '' }] })).toBe(false);
   });
 });
 

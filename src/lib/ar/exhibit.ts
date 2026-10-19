@@ -15,7 +15,8 @@ export interface ExhibitPoint {
 export interface ExhibitModel {
   data: string;
   format: 'glb' | 'stl' | 'obj' | 'primitives' | 'preset';
-  preset?: PreparedModelKey;
+  /** A Three Kingdoms prepared model, or a Joseon open-lesson model key (`joseon-…`). */
+  preset?: PreparedModelKey | JoseonModelKey;
   reconstruction?: 'photo-reference-v2';
   parts?: ModelPart[];
   asset?: 'cheomseongdae-nsm-2015';
@@ -90,3 +91,4 @@ export function validateGlb(buffer: ArrayBuffer) {
 }
 import { validParts, type ModelPart } from './primitives';
 import { preparedHeritage, type PreparedModelKey } from './preparedCatalog';
+import type { JoseonModelKey } from './joseon/catalog';

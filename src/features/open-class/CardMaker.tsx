@@ -20,10 +20,10 @@ export function CardMaker({ draft, taken }: { draft: Draft; taken: Map<number, n
   const changeQuestion = (id: string, next: Partial<OxQuestion>) => draft.update(current => ({ ...current, questions: current.questions.map(q => q.id === id ? { ...q, ...next } : q) }));
   const selectedPoint = card.points.find(point => point.id === selected);
 
-  function place(x: number, y: number) {
-    if (moving && selected) { draft.update(current => ({ ...current, points: current.points.map(p => p.id === selected ? { ...p, x, y } : p) })); setMoving(false); return; }
+  function place(position: [number, number, number]) {
+    if (moving && selected) { draft.update(current => ({ ...current, points: current.points.map(p => p.id === selected ? { ...p, position } : p) })); setMoving(false); return; }
     if (card.points.length >= MAX_POINTS) return;
-    const point = newPoint(x, y);
+    const point = newPoint(position);
     draft.update(current => ({ ...current, points: [...current.points, point] }));
     setSelected(point.id); setPlacing(false);
   }
@@ -45,14 +45,14 @@ export function CardMaker({ draft, taken }: { draft: Draft; taken: Map<number, n
     </section>
 
     {artifact && <section className="oc-panel" aria-labelledby="oc-points">
-      <h2 id="oc-points"><span className="oc-step">2</span>그림에서 위치를 눌러 설명 쓰기</h2>
-      <p className="oc-help">‘점 추가’를 누른 뒤 그림에서 설명하고 싶은 곳을 누르세요. 점은 {MAX_POINTS}개까지 찍을 수 있어요.</p>
+      <h2 id="oc-points"><span className="oc-step">2</span>입체 모형에서 위치를 눌러 설명 쓰기</h2>
+      <p className="oc-help">손가락으로 끌면 모형이 돌아가요. ‘점 추가’를 누른 뒤 모형에서 설명하고 싶은 곳을 짧게 누르세요. 점은 {MAX_POINTS}개까지 찍을 수 있어요.</p>
       <details className="oc-look"><summary>어디를 볼까요? 관찰 힌트</summary><ul>{artifact.look.map(item => <li key={item}>{item}</li>)}</ul></details>
       <div className="oc-maker-card">
         <div>
-          <ArCard artifactId={card.artifactId} points={card.points} selected={selected} onSelect={id => { setSelected(id); setPlacing(false); setMoving(false); }} onPlace={place} placing={placing || moving} />
+          <ArCard artifactId={card.artifactId} points={card.points} selected={selected} onSelect={id => { setSelected(id); setPlacing(false); setMoving(false); }} onPlace={placing || moving ? place : undefined} />
           <div className="oc-actions">
-            <button type="button" className="oc-primary" disabled={card.points.length >= MAX_POINTS} aria-pressed={placing} onClick={() => { setPlacing(value => !value); setMoving(false); }}>{placing ? '그림에서 위치를 누르세요' : '＋ 점 추가'}</button>
+            <button type="button" className="oc-primary" disabled={card.points.length >= MAX_POINTS} aria-pressed={placing} onClick={() => { setPlacing(value => !value); setMoving(false); }}>{placing ? '모형에서 위치를 누르세요' : '＋ 점 추가'}</button>
             <button type="button" onClick={() => setAr(true)} disabled={!card.points.length}>AR로 미리 보기</button>
           </div>
         </div>
@@ -64,13 +64,13 @@ export function CardMaker({ draft, taken }: { draft: Draft; taken: Map<number, n
             </div>
             <textarea aria-label={`${index + 1}번 점 설명`} value={point.text} maxLength={400} rows={3} placeholder="조사한 내용을 우리 말로 써요. (예: 쇠로 만든 둥근 통에 빗물을 받았어요.)" onChange={event => draft.update(current => ({ ...current, points: current.points.map(p => p.id === point.id ? { ...p, text: event.target.value } : p) }))} />
             {point.id === selected && <div className="oc-point-tools">
-              <button type="button" aria-pressed={moving} onClick={() => { setMoving(value => !value); setPlacing(false); }}>{moving ? '그림에서 새 위치를 누르세요' : '위치 옮기기'}</button>
+              <button type="button" aria-pressed={moving} onClick={() => { setMoving(value => !value); setPlacing(false); }}>{moving ? '모형에서 새 위치를 누르세요' : '위치 옮기기'}</button>
               <button type="button" className="oc-danger" onClick={() => { if (window.confirm(`${index + 1}번 점을 지울까요?`)) removePoint(point.id); }}>점 지우기</button>
             </div>}
           </div>)}
         </div>
       </div>
-      {selectedPoint && moving && <p className="oc-help" role="status">{card.points.indexOf(selectedPoint) + 1}번 점을 옮길 곳을 그림에서 누르세요.</p>}
+      {selectedPoint && moving && <p className="oc-help" role="status">{card.points.indexOf(selectedPoint) + 1}번 점을 옮길 곳을 모형에서 누르세요.</p>}
     </section>}
 
     {artifact && <section className="oc-panel" aria-labelledby="oc-quiz">
