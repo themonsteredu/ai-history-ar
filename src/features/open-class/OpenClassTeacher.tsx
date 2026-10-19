@@ -10,6 +10,7 @@ import { joseonModelFor, joseonModels, joseonTargets } from '../../lib/ar/joseon
 import { ArCard } from './ArCard';
 import { ARTIFACTS, artifactById } from './artifacts';
 import { cardProblems, decisionLabel, isTeacherSet, MAX_TEACHER_QUESTIONS, newQuestion, newTeacherSet, questionsToCheck, readyQuestions, verifyProgress, type GroupCard, type OxQuestion, type TeacherSet, type Verification } from './model';
+import { LessonPrep } from './LessonPrep';
 import { Presentation } from './Presentation';
 import { saveLabel, useSyncedDraft } from './useSyncedDraft';
 import './open-class.css';
@@ -43,6 +44,7 @@ export default function OpenClassTeacher() {
 
   return <div className="oc-page oc-teacher page-width">
     <header className="oc-head"><div><p className="oc-eyebrow">선생님 화면 · 조선시대 공개수업</p><h1>{name ? `${name} · 수업코드 ${code}` : code ? `수업코드 ${code}` : '세종 때 과학 유물 AR 카드'}</h1></div></header>
+    <LessonPrep page="teacher" />
     <section className="oc-panel" aria-label="내 반 목록">
       <h2>내 반</h2>
       {classes.length > 0 && <ul className="oc-class-list">{classes.map(item => <li key={item.code} className={item.code === code ? 'is-open' : undefined}>
