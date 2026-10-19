@@ -32,11 +32,12 @@
   {
     "id": 4,
     "path": "images/heritage/joseon/angbuilgu.jpg",
+    "texture": "images/heritage/joseon-science/angbuilgu.jpg",
     "source": "https://commons.wikimedia.org/wiki/File:Seoul-Gyeongbokgung-Sundial-02.jpg",
     "author": "Bernat",
     "license": "CC BY-SA 2.0",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
-    "changes": "원본 파일 그대로 사용",
+    "changes": "인쇄 카드는 원본 파일 그대로, 입체 모형 무늬는 1280×960px로 축소(원본 2272×1704)",
     "sha256": "378ede16b4354fdba68f2de7fcb5fcf4e202a6fcfc560bbcc3e9b31e3dc03faa"
   },
   {

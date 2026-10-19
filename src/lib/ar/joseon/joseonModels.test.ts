@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as THREE from 'three';
 import { createJoseonModel } from '.';
-import { joseonModels } from './catalog';
+import { joseonModels, joseonTextureUrl } from './catalog';
 
 afterEach(() => vi.restoreAllMocks());
 function dispose(root: InstanceType<typeof THREE.Group>) {
@@ -46,7 +46,8 @@ describe('Joseon artifact reconstructions', () => {
       try {
         if (info.photo) {
           expect(loader).toHaveBeenCalledTimes(1);
-          expect(loader).toHaveBeenCalledWith(expect.stringContaining(info.photo.path));
+          expect(loader).toHaveBeenCalledWith(joseonTextureUrl(info));
+          expect(joseonTextureUrl(info)).toMatch(new RegExp(`${info.photo.texture || info.photo.path}$`));
           let mapped = 0;
           root.traverse((mesh: InstanceType<typeof THREE.Object3D>) => {
             if (!(mesh instanceof THREE.Mesh) || !mesh.material.map) return;
@@ -83,6 +84,34 @@ describe('Joseon artifact photos', () => {
       if (photo.sha256) expect(createHash('sha256').update(bytes).digest('hex'), photo.path).toBe(photo.sha256);
     }
     expect(joseonModels.every(info => info.photo)).toBe(true);
+  });
+});
+
+/** Width and height from a JPEG's frame header. */
+function jpegSize(bytes: Uint8Array) {
+  for (let i = 2; i + 8 < bytes.length;) {
+    if (bytes[i] !== 0xff) { i++; continue; }
+    const marker = bytes[i + 1];
+    if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) return { width: bytes[i + 7] << 8 | bytes[i + 8], height: bytes[i + 5] << 8 | bytes[i + 6] };
+    i += 2 + (bytes[i + 2] << 8 | bytes[i + 3]);
+  }
+  throw new Error('JPEG 크기를 읽지 못했어요.');
+}
+
+describe('Joseon model textures', () => {
+  it('paints a large photo from a smaller copy with the same framing, and keeps the printed photo as is', async () => {
+    const { readFileSync } = await import('node:fs');
+    const photos = (await import('./photos.json')).default as Array<{ id: number; path: string; texture?: string }>;
+    expect(photos.find(photo => photo.id === 4)?.texture).toBe('images/heritage/joseon-science/angbuilgu.jpg');
+    for (const photo of photos) {
+      const printed = readFileSync(`public/${photo.path}`), texture = readFileSync(`public/${photo.texture || photo.path}`);
+      expect(texture.length, photo.path).toBeLessThan(700_000);
+      const a = jpegSize(printed), b = jpegSize(texture);
+      expect(b.width, photo.path).toBeLessThanOrEqual(1280);
+      // Photo regions are placed in 0..1 photo coordinates, so only the aspect ratio has to match.
+      expect(Math.abs(a.width / a.height - b.width / b.height), photo.path).toBeLessThan(.005);
+      if (photo.texture) expect(texture.length).toBeLessThan(printed.length / 4);
+    }
   });
 });
 

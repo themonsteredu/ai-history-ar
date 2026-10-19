@@ -30,4 +30,6 @@ export const joseonTargets = { ready: true, file: 'ar/joseon-science-targets.min
 export type JoseonModelKey = string;
 export const joseonModel = (key: unknown) => joseonModels.find(item => item.key === key);
 export const joseonModelFor = (artifactId: number) => joseonModels.find(item => item.id === artifactId);
+/** The image the 3D model is painted with (a smaller copy when the printed photo is large), for loading or prefetching. Same rule as ReconstructionBuilder.finish. */
+export const joseonTextureUrl = (info: JoseonModelInfo): string | undefined => info.photo && `${import.meta.env.BASE_URL}${info.photo.texture || info.photo.path}`;
 export const isJoseonModelKey = (key: unknown): key is JoseonModelKey => !!joseonModel(key);
