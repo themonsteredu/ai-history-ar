@@ -63,7 +63,7 @@ export function ArCameraView({ artifactId, points, title, onClose }: { artifactI
   return <div className="oc-ar" role="dialog" aria-modal="true" aria-label={`${title} AR 보기`}>
     {mode === 'free' ? <FreeCamera artifactId={artifactId} points={points} selected={selected} onSelect={setSelected} /> : <div className="oc-ar-float oc-ar-card">
       <Suspense fallback={<p className="oc-help" role="status">AR 카메라를 준비해요…</p>}>
-        <HeritageModelView camera model={model} image="" points={exhibitPoints} selectedId={selected || ''} onSelect={setSelected} targetIndex={artifactId - 1} eraId="joseon" targetFile={`${import.meta.env.BASE_URL}${joseonTargets.file}`} />
+        <HeritageModelView camera steady spin model={model} image="" points={exhibitPoints} selectedId={selected || ''} onSelect={setSelected} targetIndex={artifactId - 1} eraId="joseon" targetFile={`${import.meta.env.BASE_URL}${joseonTargets.file}`} />
       </Suspense>
     </div>}
     <div className="oc-ar-top"><b>{title}</b><div className="oc-actions">
@@ -71,7 +71,7 @@ export function ArCameraView({ artifactId, points, title, onClose }: { artifactI
       <button type="button" onClick={onClose}>닫기</button>
     </div></div>
     <div className="oc-ar-bottom">
-      {mode === 'card' && <p className="oc-ar-problem">인쇄한 {artifactById(artifactId)?.name} 사진 카드를 카메라에 비추면 카드 위에 모형이 나타나요.</p>}
+      {mode === 'card' && <p className="oc-ar-problem">인쇄한 {artifactById(artifactId)?.name} 사진 카드를 책상에 두고 비추면 카드 위에 모형이 나타나요. 화면을 좌우로 밀면 모형이 돌아가요.</p>}
       <PointBubble points={points} selected={selected} />
     </div>
   </div>;

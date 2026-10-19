@@ -252,5 +252,6 @@
   .oc-print-card footer svg{width:36mm;height:36mm}
 }
 .oc-ar-card .ar-model-stage{background:#111}
+.oc-ar-card .ar-model-surface{touch-action:none}
 .oc-ar-floating{position:absolute;left:16px;right:16px;bottom:120px;z-index:3;text-align:center;color:#fff;text-shadow:0 1px 3px #000}
 .oc-ar-top .oc-actions{margin:0}
