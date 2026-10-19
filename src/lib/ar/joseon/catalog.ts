@@ -26,7 +26,7 @@ export const joseonModels: JoseonModelInfo[] = [
   { id: 6, key: 'joseon-nongsajikseol-v1', name: '농사직설', file: 'nongsajikseol', metallic: false },
 ].map(item => ({ ...item, photo: photoFor(item.id) }));
 /** Printed photo cards for camera tracking: one compiled target per artifact, in id order. */
-export const joseonTargets = { ready: false, file: 'ar/joseon-science-targets.mind' };
+export const joseonTargets = { ready: true, file: 'ar/joseon-science-targets.mind' };
 export type JoseonModelKey = string;
 export const joseonModel = (key: unknown) => joseonModels.find(item => item.key === key);
 export const joseonModelFor = (artifactId: number) => joseonModels.find(item => item.id === artifactId);

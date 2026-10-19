@@ -43,5 +43,10 @@ await compiler.compileImageTargets(images, progress => { const tick=Math.floor(p
 const bytes = compiler.exportData();
 await fs.writeFile(path.join(root, 'public/ar/joseon-science-targets.mind'), bytes);
 const data = compiler.importData(bytes);
+// Record which photo bytes the targets were built from, so a changed photo without a rebuild fails the tests.
+const { createHash } = await import('node:crypto');
+const sha = buffer => createHash('sha256').update(buffer).digest('hex');
+const photos = await Promise.all(sources.map(async source => ({ id: source.id, sha256: sha(await fs.readFile(path.join(root, 'public', source.path))) })));
+await fs.writeFile(path.join(root, 'src/lib/ar/joseon/targets.json'), JSON.stringify({ file: 'public/ar/joseon-science-targets.mind', sha256: sha(Buffer.from(bytes)), photos }, null, 2) + '\n');
 if (data.length !== 6) throw new Error('Expected six compiled heritage targets');
 console.log(`Saved six Joseon science AR targets (${bytes.length} bytes).`);

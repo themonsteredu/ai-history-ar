@@ -85,3 +85,15 @@ describe('Joseon artifact photos', () => {
     expect(joseonModels.every(info => info.photo)).toBe(true);
   });
 });
+
+describe('printed AR cards', () => {
+  it('were compiled from exactly the current six photos', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { createHash } = await import('node:crypto');
+    const sha = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex');
+    const targets = (await import('./targets.json')).default;
+    const photos = (await import('./photos.json')).default as Array<{ id: number; path: string }>;
+    expect(sha(readFileSync(targets.file))).toBe(targets.sha256);
+    expect(targets.photos).toEqual([...photos].sort((a, b) => a.id - b.id).map(photo => ({ id: photo.id, sha256: sha(readFileSync(`public/${photo.path}`)) })));
+  });
+});
