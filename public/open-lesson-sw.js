@@ -2,7 +2,9 @@
  * Offline help for the Joseon open lesson only. '수업 준비하기' registers this file with the lesson page's
  * own path as its scope (/joseon/open-class or /teacher/joseon/open-class), so no other page is controlled.
  *
- * - Page loads: network first; after 3.5 s or with no network, the saved app shell (index.html).
+ * - Page loads: network first; after 3.5 s or with no network, the saved app shell (index.html). A page load
+ *   refreshes the saved shell of the same build only; a new build's shell is saved by '수업 준비하기' after
+ *   all of its files, so the saved shell never points at files that are not on the tablet.
  * - /assets/ (hashed names, never change): saved copy first, saved on first use.
  * - Photos, .mind, fonts, json, icons: the saved copy when there is one, checked for a newer one in the
  *   background; files that were never saved go to the network as usual.
@@ -34,6 +36,10 @@ self.addEventListener('activate', event => {
 });
 
 const isAsset = url => new URL(url).pathname.startsWith(`${BASE}assets/`);
+// The host answers any missing file (an old build's, after a deploy) with index.html.
+const isPage = response => (response.headers.get('content-type') || '').includes('text/html');
+/** The build an index.html starts: its entry script's address. */
+const entryOf = html => { const src = /<script\b[^>]*\bsrc="([^"]+)"/i.exec(html); return src ? new URL(src[1], SHELL).href : ''; };
 
 self.addEventListener('fetch', event => {
   const { request } = event;
@@ -46,17 +52,21 @@ self.addEventListener('fetch', event => {
 });
 
 /** Every lesson address serves the same index.html, so one saved copy opens any of them. */
-async function saveShell(response) {
+async function saveShell(html) {
   // A fresh Response drops `redirected` (refused for a page load) and the network's encoding headers.
-  const copy = new Response(await response.blob(), { headers: { 'content-type': 'text/html; charset=utf-8' } });
-  await (await caches.open(FILES)).put(SHELL, copy);
+  await (await caches.open(FILES)).put(SHELL, new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8' } }));
+}
+
+async function refreshShell(response) {
+  const html = await response.text(), saved = await caches.match(SHELL, { cacheName: FILES });
+  if (!saved || entryOf(await saved.text()) === entryOf(html)) await saveShell(html);
 }
 
 function navigate(event) {
   const network = Promise.resolve(event.preloadResponse).catch(() => undefined)
     .then(preloaded => preloaded || fetch(event.request))
     .then(response => {
-      if (response.ok && (response.headers.get('content-type') || '').includes('text/html')) event.waitUntil(saveShell(response.clone()).catch(() => undefined));
+      if (response.ok && isPage(response)) event.waitUntil(refreshShell(response.clone()).catch(() => undefined));
       return response;
     });
   event.waitUntil(network.catch(() => undefined));
@@ -72,7 +82,7 @@ async function fromAssets(event) {
   const saved = await cache.match(event.request, { ignoreVary: true });
   if (saved) return saved;
   const response = await fetch(event.request);
-  if (response.ok) event.waitUntil(cache.put(event.request, response.clone()).catch(() => undefined));
+  if (response.ok && !isPage(response)) event.waitUntil(cache.put(event.request, response.clone()).catch(() => undefined));
   return response;
 }
 
@@ -92,7 +102,7 @@ function sameFile(saved, response) {
 
 async function refresh(cache, url, saved) {
   const response = await fetch(url, { cache: 'no-cache' });
-  if (response.ok && !sameFile(saved, response)) await cache.put(url, response);
+  if (response.ok && !isPage(response) && !sameFile(saved, response)) await cache.put(url, response);
 }
 
 self.addEventListener('message', event => {
@@ -109,37 +119,48 @@ function lessonUrl(value) {
 }
 
 async function prepare({ urls, page, build }, port) {
-  const list = [...new Set(urls.map(lessonUrl).filter(Boolean))];
+  const list = [...new Set(urls.map(lessonUrl).filter(Boolean))], rest = list.filter(url => url !== SHELL);
   const [assets, files] = await Promise.all([caches.open(ASSETS), caches.open(FILES)]);
-  let done = 0, next = 0, failed = 0;
+  let done = 0, next = 0, failed = 0, shell;
+  if (list.includes(SHELL)) {
+    try { shell = await (await usable(fetch(SHELL, { cache: 'no-cache' }), true)).text(); } catch { failed++; }
+    // A page opened before the last deploy lists the old build's files: it has to be reloaded first.
+    if (shell !== undefined && build && entryOf(shell) !== build) { port.postMessage({ type: 'error', reason: 'outdated' }); return; }
+  }
   const report = () => port.postMessage({ type: 'progress', done, total: list.length });
   report();
   // Four at a time: quick on good Wi-Fi without crowding out the other tablets.
   const worker = async () => {
-    while (next < list.length) {
-      const url = list[next++];
+    while (next < rest.length) {
+      const url = rest[next++];
       try { await store(url, assets, files); }
       catch (error) { if (error && error.name === 'QuotaExceededError') throw error; failed++; }
       done++; report();
     }
   };
-  await Promise.all(Array.from({ length: Math.min(4, list.length) }, worker));
-  // Old builds' files go only after a complete run, when the saved shell already points at the new ones.
-  if (!failed && (page === 'student' || page === 'teacher') && list.includes(SHELL)) await prune(page, build, list, assets, files);
+  await Promise.all(Array.from({ length: Math.min(4, rest.length) }, worker));
+  // The shell and the removal of old builds' files wait for a complete run, so an offline reload always finds the files its shell asks for.
+  if (!failed && shell !== undefined) {
+    await saveShell(shell); done++; report();
+    if (page === 'student' || page === 'teacher') await prune(page, build, list, assets, files);
+  }
   port.postMessage({ type: 'done', done, total: list.length, failed });
+}
+
+/** An answer worth keeping: the page when `html` is asked for, otherwise the file itself and not index.html in its place. */
+async function usable(answer, html = false) {
+  const response = await answer;
+  if (!response.ok || isPage(response) !== html) throw new Error(`HTTP ${response.status}`);
+  return response;
 }
 
 async function store(url, assets, files) {
   if (isAsset(url)) {
     if (await assets.match(url)) return;
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return assets.put(url, response);
+    return assets.put(url, await usable(fetch(url)));
   }
   // Unhashed files may have changed in place, so ask the server (a cheap 304 when they have not).
-  const response = await fetch(url, { cache: 'no-cache' });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  if (url === SHELL) return saveShell(response);
+  const response = await usable(fetch(url, { cache: 'no-cache' }));
   const saved = await files.match(url);
   if (!saved || !sameFile(saved, response)) await files.put(url, response);
 }

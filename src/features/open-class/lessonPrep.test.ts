@@ -61,6 +61,7 @@ describe('what the button says', () => {
     expect(prepStatusText({ kind: 'error', reason: 'offline' })).toContain('인터넷이 안 돼요');
     expect(prepStatusText({ kind: 'error', reason: 'full' })).toContain('저장 공간');
     expect(prepStatusText({ kind: 'stale' })).toContain('한 번 더 눌러');
+    expect(prepStatusText({ kind: 'error', reason: 'outdated' })).toContain('새로 고친 뒤');
     expect(prepStatusText({ kind: 'idle' })).toContain('수업 전에 한 번');
   });
 

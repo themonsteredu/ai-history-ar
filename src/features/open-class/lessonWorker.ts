@@ -57,7 +57,7 @@ function askWorker(worker: ServiceWorker, page: PrepPage, urls: string[], onProg
       wait();
       if (data?.type === 'progress') onProgress(data.done, data.total);
       else if (data?.type === 'done') { finish(); resolve({ failed: Number(data.failed) || 0 }); }
-      else if (data?.type === 'error') { finish(); reject(new PrepError(data.reason === 'full' ? 'full' : 'failed')); }
+      else if (data?.type === 'error') { finish(); reject(new PrepError(data.reason === 'full' || data.reason === 'outdated' ? data.reason : 'failed')); }
     };
     wait();
     worker.postMessage({ type: 'prepare', page, build: currentBuild(), urls }, [channel.port2]);

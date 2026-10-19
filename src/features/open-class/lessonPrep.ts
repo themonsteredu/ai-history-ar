@@ -1,6 +1,6 @@
 /** Pure parts of '수업 준비하기' (keeping the lesson on the tablet): which files to keep and what to tell the class. */
 export type PrepPage = 'student' | 'teacher';
-export type PrepProblem = 'offline' | 'partial' | 'full' | 'failed';
+export type PrepProblem = 'offline' | 'partial' | 'full' | 'outdated' | 'failed';
 export type PrepStatus =
   | { kind: 'idle' } | { kind: 'working'; done: number; total: number } | { kind: 'done'; at: Date }
   | { kind: 'stale' } | { kind: 'unsupported' } | { kind: 'error'; reason: PrepProblem; missing?: number };
@@ -61,6 +61,7 @@ export function prepStatusText(status: PrepStatus, now = new Date()) {
       if (status.reason === 'offline') return '지금은 인터넷이 안 돼요. 인터넷이 될 때 다시 눌러 주세요.';
       if (status.reason === 'partial') return `파일 ${status.missing || 0}개를 받지 못했어요. 인터넷이 잘 될 때 한 번 더 눌러 주세요.`;
       if (status.reason === 'full') return '태블릿 저장 공간이 모자라요. 안 쓰는 사진이나 앱을 지우고 다시 눌러 주세요.';
+      if (status.reason === 'outdated') return '사이트가 새로 바뀌었어요. 화면을 새로 고친 뒤 다시 눌러 주세요.';
       return '준비하지 못했어요. 화면을 새로 고친 뒤 다시 눌러 주세요.';
     default: return '수업 전에 한 번 눌러 두면 인터넷이 느려도 화면과 3D·AR이 열려요.';
   }

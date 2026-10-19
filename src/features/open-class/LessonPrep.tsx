@@ -19,7 +19,7 @@ export function LessonPrep({ page }: { page: PrepPage }) {
     <div className="oc-prep-text">
       <p className="oc-prep-status" role="status">{prepStatusText(status)}</p>
       {page === 'teacher' && <p>수업 전에 모둠 태블릿마다 학생 화면에서 한 번씩 눌러 주세요. 여기서 누르면 이 기기의 선생님 화면이 준비돼요.</p>}
-      <p className="oc-prep-note">반에 저장하기, 다른 모둠 카드, 선생님 현황, 제미나이는 인터넷이 있어야 해요.</p>
+      <p className="oc-prep-note">수업 들어가기, 반에 저장하기, 다른 모둠 카드, 선생님 현황, 제미나이는 인터넷이 있어야 해요.</p>
     </div>
   </section>;
 }
