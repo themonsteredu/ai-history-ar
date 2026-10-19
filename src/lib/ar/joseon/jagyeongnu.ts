@@ -121,7 +121,7 @@ function stoneBox(b: ReconstructionBuilder, surface: Surface, [x0, x1]: [number,
 
 /** A bronze vessel of revolution standing on (x, y, z). */
 function vessel(b: ReconstructionBuilder, profile: Array<[number, number]>, R: number, H: number, at: Vec, region: string, segments: number) {
-  b.lathe(profile.map(([r, h]) => [Math.max(r * R, 1e-4), h * H] as [number, number]), 'bronze', { position: at, region, segments });
+  b.lathe(profile.map(([r, h]) => [Math.max(r * R, 1e-4), h * H] as [number, number]), 'darkStone', { position: at, region, segments });
 }
 
 /** A tall inflow cylinder in four quarters: front and back take the front view, the sides a side view. */
