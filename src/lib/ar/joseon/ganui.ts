@@ -252,10 +252,10 @@ export function build(b: ReconstructionBuilder) {
  * pair carries its visible front twin's pixels.
  */
 export const photoViews: Record<string, PhotoView> = {
-  'south-front': { elevation: 4, azimuth: 10, frame: [.2, .19, .6, .87] },
-  'south-back': { elevation: 4, azimuth: 170, frame: [.2, .19, .6, .87] },
-  'north-front': { elevation: 4, azimuth: -18, frame: [.58, .12, .91, .87] },
-  'north-back': { elevation: 4, azimuth: 198, frame: [.58, .12, .91, .87] },
-  crossbar: { elevation: 2, azimuth: -20, frame: [.655, .35, .8, .41] },
-  'base-front': { elevation: 0, azimuth: 0, frame: [.155, .862, .995, .925] },
+  'south-front': { elevation: 2, azimuth: 9, frame: [.21, .205, .586, .875] },
+  'south-back': { elevation: -2, azimuth: -9, frame: [.21, .205, .586, .875] },
+  'north-front': { elevation: -4, azimuth: -17, frame: [.59, .084, .956, .878] },
+  'north-back': { elevation: 4, azimuth: 17, frame: [.59, .084, .956, .878] },
+  crossbar: { elevation: 0, azimuth: -18, frame: [.673, .362, .799, .404] },
+  'base-front': { elevation: 20, azimuth: 0, frame: [.158, .858, .991, .922] },
 };
