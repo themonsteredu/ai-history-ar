@@ -4,6 +4,7 @@ import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { dataUrlBytes, MAX_MODEL_BYTES, validateGlb, type ExhibitModel, type ExhibitPoint } from './exhibit';
 import type { PreparedModelKey } from './preparedCatalog';
+import { followPose, steadyTrackingFilter } from './steadyPose';
 
 export interface SceneOptions {
   container: HTMLDivElement;
@@ -21,6 +22,10 @@ export interface SceneOptions {
   onPreviewFallback?: () => void;
   onTextureUnavailable?: () => void;
   onPlace?: (position: [number, number, number]) => void;
+  /** Camera mode: damp tracking shake so a model on a still card stands steady. */
+  steady?: boolean;
+  /** Camera mode: a sideways swipe turns the model on the card like a turntable. */
+  spin?: boolean;
 }
 export interface ModelScene { dispose: () => void; reset: () => void }
 
@@ -137,7 +142,14 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
   let photoWidth = 1;
   let photoHeight = 1;
   let canvas: HTMLCanvasElement | undefined;
+  let pointerTarget: HTMLElement | undefined;
   const stage = new THREE.Group();
+  // The model and its pins live in `spinner`, so turning it on the card turns the pins with it.
+  const spinner = new THREE.Group(); stage.add(spinner);
+  let follower: InstanceType<typeof THREE.Group> | undefined;
+  let followed: any;
+  let freshPose = true, lastFrame = 0;
+  let spinFrom: number | undefined;
   let lastPlacement: CardPlacement | undefined;
   const updateCardPlacement = () => {
     const placement = options.cardPlacement?.() || 'table';
@@ -164,7 +176,10 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
     if (content) disposeObject(content);
     environmentTarget?.dispose();
     renderer?.dispose();
-    if (canvas) { canvas.removeEventListener('pointerdown', pointerDown); canvas.removeEventListener('pointerup', pointerUp); }
+    if (pointerTarget) {
+      pointerTarget.removeEventListener('pointerdown', pointerDown); pointerTarget.removeEventListener('pointerup', pointerUp);
+      pointerTarget.removeEventListener('pointermove', pointerMove); pointerTarget.removeEventListener('pointercancel', pointerEnd);
+    }
     options.markers().forEach(marker => { if (marker) marker.hidden = true; });
     options.signal.removeEventListener('abort', dispose);
     // The container belongs to this instance; it is never shared with a replacement scene.
@@ -178,15 +193,28 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
   let pointerStart: { x: number; y: number } | undefined;
   const raycaster = new THREE.Raycaster();
   const point = new THREE.Vector3();
-  const pointerDown = (event: PointerEvent) => { pointerStart = { x: event.clientX, y: event.clientY }; };
+  const pointerDown = (event: PointerEvent) => {
+    pointerStart = { x: event.clientX, y: event.clientY };
+    if (options.spin && options.mode === 'camera') spinFrom = event.clientX;
+  };
+  const pointerMove = (event: PointerEvent) => {
+    if (spinFrom === undefined || !pointerStart) return;
+    // Capture only once it is clearly a swipe, so a tap on a numbered pin still reaches the pin.
+    if (Math.abs(event.clientX - pointerStart.x) > 7 && !pointerTarget?.hasPointerCapture(event.pointerId)) {
+      try { pointerTarget?.setPointerCapture(event.pointerId); } catch { /* still spins while over the view */ }
+    }
+    spinner.rotation.y += (event.clientX - spinFrom) * .012; spinFrom = event.clientX;
+  };
+  const pointerEnd = () => { spinFrom = undefined; };
   const pointerUp = (event: PointerEvent) => {
+    pointerEnd();
     if (!options.onPlace || !pointerStart || !canvas || Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y) > 7) return;
     pointerStart = undefined;
     const rect = canvas.getBoundingClientRect();
     raycaster.setFromCamera(new THREE.Vector2((event.clientX - rect.left) / rect.width * 2 - 1, -(event.clientY - rect.top) / rect.height * 2 + 1), camera);
     const hit = raycaster.intersectObject(stage, true)[0];
     if (hit) {
-      const position = stage.worldToLocal(hit.point.clone());
+      const position = spinner.worldToLocal(hit.point.clone());
       options.onPlace([position.x, position.y, position.z].map(n => Math.round(n * 1000) / 1000) as [number, number, number]);
     }
   };
@@ -217,17 +245,20 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
     oriented.position.set(-center.x, -box.min.y, -center.z);
     const fitted = new THREE.Group();
     fitted.scale.setScalar(1 / extent);
-    fitted.add(oriented); stage.add(fitted);
+    fitted.add(oriented); spinner.add(fitted);
 
     if (options.mode === 'camera') {
       const { MindARThree } = await import('mind-ar/dist/mindar-image-three.prod.js');
       if (disposed) throw new DOMException('Cancelled', 'AbortError');
-      mind = new MindARThree({ container: options.container, imageTargetSrc: options.targetFile, maxTrack: 1, uiLoading: 'no', uiScanning: 'no', uiError: 'no' });
+      mind = new MindARThree({ container: options.container, imageTargetSrc: options.targetFile, maxTrack: 1, uiLoading: 'no', uiScanning: 'no', uiError: 'no', ...(options.steady ? steadyTrackingFilter : {}) });
       ({ renderer, scene, camera } = mind);
       // A vertical computer screen needs a different display orientation from a desk card.
       updateCardPlacement();
       const anchor = mind.addAnchor(options.targetIndex);
-      anchor.group.add(stage);
+      if (options.steady) {
+        // The stage follows a smoothed copy of the card pose instead of the raw, slightly noisy one.
+        follower = new THREE.Group(); follower.visible = false; follower.add(stage); scene.add(follower); followed = anchor.group;
+      } else anchor.group.add(stage);
       anchor.onTargetFound = () => { if (!disposed) { tracked = true; options.onStatus('found'); } };
       anchor.onTargetLost = () => { if (!disposed) { tracked = false; options.onStatus('lost'); } };
     } else {
@@ -275,8 +306,12 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
     const light = new THREE.DirectionalLight(0xffffff, museumOriginal ? .6 : photoReconstruction ? 2.2 : 3);
     light.position.set(1.5, 3, 2); scene.add(light);
     canvas = renderer.domElement;
-    canvas!.addEventListener('pointerdown', pointerDown);
-    canvas!.addEventListener('pointerup', pointerUp);
+    // MindAR lays a CSS layer over its canvas, so camera mode listens on the whole view; taps for placing stay on the canvas.
+    pointerTarget = options.mode === 'camera' ? options.container : canvas;
+    pointerTarget!.addEventListener('pointerdown', pointerDown);
+    pointerTarget!.addEventListener('pointerup', pointerUp);
+    pointerTarget!.addEventListener('pointermove', pointerMove);
+    pointerTarget!.addEventListener('pointercancel', pointerEnd);
     if (options.mode === 'camera') {
       startingCamera = true;
       try { await mind.start(); }
@@ -290,6 +325,11 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
     renderer.setAnimationLoop(() => {
       if (disposed) return;
       if (options.mode === 'camera') updateCardPlacement();
+      if (follower && followed) {
+        const now = performance.now(), seconds = lastFrame ? (now - lastFrame) / 1000 : 0; lastFrame = now;
+        if (followed.visible) { followPose(follower, followed.matrix, seconds, freshPose); freshPose = false; follower.visible = true; }
+        else { follower.visible = false; freshPose = true; }
+      }
       controls?.update();
       renderer.render(scene, camera);
       const rect = options.container.getBoundingClientRect();
@@ -300,13 +340,13 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
         if (!marker) return;
         if (options.model) point.set(...hotspot.position);
         else point.set((hotspot.photoPosition[0] - .5) * photoWidth, (1 - hotspot.photoPosition[1]) * photoHeight, .005);
-        point.applyMatrix4(stage.matrixWorld).project(camera);
+        point.applyMatrix4(spinner.matrixWorld).project(camera);
         const x = (point.x + 1) / 2 * canvasRect.width + canvasRect.left - rect.left;
         const y = (1 - point.y) / 2 * canvasRect.height + canvasRect.top - rect.top;
         marker.hidden = !tracked || point.z < -1 || point.z > 1 || x < 22 || x > rect.width - 22 || y < 22 || y > rect.height - 22;
         marker.style.left = `${x}px`; marker.style.top = `${y}px`;
       });
     });
-    return { dispose, reset: () => controls?.reset() };
+    return { dispose, reset: () => { controls?.reset(); spinner.rotation.y = 0; } };
   } catch (error) { dispose(); throw error; }
 }
