@@ -5,6 +5,7 @@ import { forgetOpenSession, joinOpenLesson, latestLoads, loadState, readOpenSess
 import { artifactById } from './artifacts';
 import { CardGallery } from './CardGallery';
 import { CardMaker } from './CardMaker';
+import { LessonPrep } from './LessonPrep';
 import { isGroupCard, isVerification, newCard, newVerification, questionsToCheck, type GroupCard, type Verification } from './model';
 import { Presentation } from './Presentation';
 import { useSyncedDraft } from './useSyncedDraft';
@@ -51,6 +52,7 @@ export default function OpenClassPage() {
       <button className="oc-big" type="submit" disabled={busy || !name.trim() || !/^[a-z0-9]{4,12}$/i.test(inputCode.trim())}>{busy ? '들어가는 중…' : '수업 들어가기'}</button>
     </form>
     {error && <p className="oc-notice" role="alert">{error}</p>}
+    <LessonPrep page="student" />
     <p className="oc-foot"><Link to="/joseon">조선시대 수업으로 돌아가기</Link></p>
   </main>;
 
@@ -112,6 +114,7 @@ function Lesson({ session, onLeave }: { session: StudioSession; onLeave: () => v
       <div><p className="oc-eyebrow">조선시대 공개수업 · 수업코드 {code}</p><h1>세종 때 과학 유물 AR 카드</h1></div>
       <p className="oc-me"><b>{group}모둠</b> · {session.name}{myCard.artifactId ? ` · ${artifactById(myCard.artifactId)?.name}` : ''}<button type="button" className="oc-link" onClick={() => { if (window.confirm('이 태블릿의 입장 정보를 지우고 다시 들어갈까요? 쓴 내용은 남아 있어요.')) onLeave(); }}>다시 입장</button></p>
     </header>
+    <LessonPrep page="student" />
     <nav className="oc-tabs" aria-label="오늘 할 일">{VIEWS.map((item, index) => <button key={item.id} type="button" aria-pressed={view === item.id} onClick={() => go(item.id)}><b>{index + 1}</b><span>{item.label}</span><small>{item.help}</small></button>)}</nav>
     {error && <p className="oc-notice" role="alert">{error}{error.includes('다시 입장') && <button type="button" className="oc-link" onClick={onLeave}>다시 입장하기</button>}</p>}
     {!loaded && !error && <p className="oc-help" role="status">우리 반 카드를 불러오고 있어요…</p>}
