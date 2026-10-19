@@ -8,6 +8,19 @@ const CONFLICT = '다른 태블릿에서 먼저 저장했어요. 어느 쪽을 �
 export const RETRY_CAP = 20_000;
 /** Wait before the next automatic save: the usual pause, then twice as long after each failure in a row (2.5 s, 5 s, 10 s, 20 s…), so a room of tablets does not flood weak Wi-Fi. */
 export const retryDelay = (failures: number, delay = 2500) => Math.min(delay * 2 ** Math.max(0, failures - 1), Math.max(delay, RETRY_CAP));
+const canonical = (value: unknown) => JSON.stringify(value, (_key, item: unknown) => item && typeof item === 'object' && !Array.isArray(item)
+  ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) : item);
+/** Same content, whatever order the class server gives the keys back in. */
+export const sameContent = (a: unknown, b: unknown) => a === b || canonical(a) === canonical(b);
+/**
+ * A newer class version that holds what this tablet has, or sent since its last confirmed save, is this tablet's own
+ * save whose answer was lost (cut off on slow Wi-Fi), not another tablet's: carry on from it instead of asking which to keep.
+ */
+export function ownNewerVersion<T>(now: Stored<T>, server: OpenItem<T>, sent: readonly { key: string; data: T }[]): Stored<T> | undefined {
+  const same = sameContent(server.data, now.data);
+  if (same || sent.some(item => item.key === now.key && sameContent(server.data, item.data))) return { ...now, base: server.version, dirty: !same };
+}
+const stamp = () => new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
 
 /**
  * One editable item (a card, a check record, a teacher set) kept on the tablet and saved to the class.
@@ -35,6 +48,7 @@ export function useSyncedDraft<T>(options: {
   const keyRef = useRef(draftKey); keyRef.current = draftKey;
   const saving = useRef(false);
   const failures = useRef(0);
+  const sent = useRef<{ key: string; data: T }[]>([]);
   const keep = (next: Stored<T>) => { const { key, ...value } = next; writeDraft(key, value); };
 
   // A different item (another class, group or card) starts from its own draft.
@@ -46,7 +60,14 @@ export function useSyncedDraft<T>(options: {
   useEffect(() => {
     const current = latest.current;
     if (!server || current.key !== draftKey || server.version <= current.base) return;
+    const own = current.dirty && ownNewerVersion(current, server, sent.current);
     if (!current.dirty) { const next = { key: draftKey, data: server.data, base: server.version, dirty: false }; setStored(next); keep(next); }
+    else if (own) {
+      setStored(own); keep(own);
+      if (!own.dirty) setSavedAt(stamp());
+      // A save still out sets the state itself when it ends.
+      if (!saving.current) { setState(own.dirty ? 'idle' : 'saved'); setMessage(''); }
+    }
     else { setState('conflict'); setMessage(CONFLICT); }
   }, [server?.version, draftKey]);
 
@@ -60,19 +81,23 @@ export function useSyncedDraft<T>(options: {
     if (saving.current || current.key !== keyRef.current || (!force && (!current.dirty || state === 'conflict'))) return;
     if (canSave && !canSave(current.data)) return;
     saving.current = true; setState('saving'); setMessage('');
+    if (!sent.current.some(item => item.key === current.key && item.data === current.data)) sent.current = [...sent.current.slice(-7), { key: current.key, data: current.data }];
     try {
       const base = force && server ? Math.max(server.version, current.base) : current.base;
       const result = await save(current.data, base);
-      failures.current = 0;
+      failures.current = 0; sent.current = sent.current.filter(item => item.key !== current.key);
       const now = latest.current;
       // If the screen moved to another item while saving, only that saved item's own draft is updated.
       const next = now.key === current.key ? { ...now, base: result.version, dirty: now.data !== current.data } : { ...current, base: result.version, dirty: false };
       keep(next);
-      if (now.key === current.key) { setStored(next); setState('saved'); setSavedAt(new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })); }
+      if (now.key === current.key) { setStored(next); setState('saved'); setSavedAt(stamp()); }
     } catch (error) {
       const status = (error as { status?: number }).status;
       if (status !== 409) failures.current++;
-      if (latest.current.key !== current.key) return;
+      const now = latest.current;
+      if (now.key !== current.key) return;
+      // A class poll moved this copy on while the save was out (it got through, only its answer was lost), so there is nothing to report.
+      if (now.base !== current.base) { setState(now.dirty ? 'idle' : 'saved'); return; }
       if (status === 409) { setState('conflict'); setMessage(CONFLICT); }
       else { setState('error'); setMessage(error instanceof Error ? error.message : '저장하지 못했어요. 쓴 내용은 이 기기에 남아 있어요.'); }
     } finally { saving.current = false; }
