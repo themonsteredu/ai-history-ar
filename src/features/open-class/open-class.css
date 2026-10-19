@@ -65,9 +65,6 @@
 .oc-card figcaption{margin-top:4px;font-size:.85rem;color:#5d574f;text-align:center}
 .oc-credit{margin:4px 0 0;font-size:.76rem;color:#6b655c;text-align:center}
 .oc-credit a{color:inherit;text-decoration:underline}
-.oc-bubble{margin:10px 0 0;padding:12px 14px;border-radius:12px;background:#fffdf6;border:1px solid #e3d6b8}
-.oc-bubble p{margin:4px 0 0}
-.oc-bubble.is-empty{color:#6b655c;font-size:.9rem}
 
 .oc-maker-card{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
 .oc-point-list{display:grid;gap:10px}
@@ -104,7 +101,7 @@
 .oc-ar-float .ar-model-stage{flex:1;height:auto;min-height:260px;border:0;background:transparent}
 .oc-ar-float .ar-model-controls p,.oc-ar-float figcaption,.oc-ar-float .oc-credit,.oc-ar-float .ar-help{color:#fff;text-shadow:0 1px 3px #000}
 .oc-ar-bottom{background:linear-gradient(transparent,rgba(0,0,0,.6))}
-.oc-ar-bottom .oc-bubble{color:#2c2620;max-width:640px;margin:0 auto}
+.oc-ar .ar-pin-bubble{--pin-bubble-max:300px;--pin-bubble-wide:380px;--pin-bubble-tall:340px;font-size:16px}
 .oc-ar-problem{margin:0 auto 8px;max-width:640px;font-size:.9rem}
 
 .oc-gallery-list{display:flex;flex-wrap:wrap;gap:8px}

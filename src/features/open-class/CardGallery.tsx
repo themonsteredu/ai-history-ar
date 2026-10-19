@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArCard, ArCameraView, PointBubble } from './ArCard';
+import { ArCard, ArCameraView } from './ArCard';
 import { artifactById } from './artifacts';
 import type { OpenItem } from './api';
 import { readyQuestions, type GroupCard } from './model';
@@ -22,7 +22,6 @@ export function CardGallery({ cards, myGroup, onCheck, initialGroup }: { cards: 
     {current ? <section className="oc-panel oc-observe" aria-label={`${current.group}모둠 카드`}>
       <div className="oc-observe-card">
         <ArCard artifactId={current.artifactId} points={current.points} selected={selected} onSelect={setSelected} caption={`${current.group}모둠 · ${artifactById(current.artifactId)?.name}`} />
-        <PointBubble points={current.points} selected={selected} />
       </div>
       <div className="oc-actions">
         <button type="button" className="oc-primary" onClick={() => setAr(true)}>AR로 보기 (카메라)</button>

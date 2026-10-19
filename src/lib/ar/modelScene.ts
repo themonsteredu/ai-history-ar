@@ -5,6 +5,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { dataUrlBytes, MAX_MODEL_BYTES, validateGlb, type ExhibitModel, type ExhibitPoint } from './exhibit';
 import type { PreparedModelKey } from './preparedCatalog';
 import { followPose, steadyTrackingFilter } from './steadyPose';
+import { pinBubbleLayout, type PinBubbleLayout } from './pinBubble';
 
 export interface SceneOptions {
   container: HTMLDivElement;
@@ -151,6 +152,16 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
   let freshPose = true, lastFrame = 0;
   let spinFrom: number | undefined;
   let lastPlacement: CardPlacement | undefined;
+  const bubbles = new WeakMap<HTMLElement, PinBubbleLayout>();
+  // Runs every frame, so only the values that changed are written.
+  const placeBubble = (marker: HTMLElement, x: number, y: number, width: number, height: number) => {
+    const before = bubbles.get(marker), next = pinBubbleLayout(x, y, width, height, before?.side);
+    if (next.side !== before?.side) marker.dataset.bubble = next.side;
+    for (const [key, property] of [['maxWidth', '--bubble-w'], ['maxHeight', '--bubble-h'], ['from', '--bubble-from'], ['to', '--bubble-to']] as const) {
+      if (next[key] !== before?.[key]) marker.style.setProperty(property, `${next[key]}px`);
+    }
+    bubbles.set(marker, next);
+  };
   const updateCardPlacement = () => {
     const placement = options.cardPlacement?.() || 'table';
     if (placement === lastPlacement) return;
@@ -345,6 +356,9 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
         const y = (1 - point.y) / 2 * canvasRect.height + canvasRect.top - rect.top;
         marker.hidden = !tracked || point.z < -1 || point.z > 1 || x < 22 || x > rect.width - 22 || y < 22 || y > rect.height - 22;
         marker.style.left = `${x}px`; marker.style.top = `${y}px`;
+        // An open speech bubble rides inside its pin; a fresh one starts without last time's side.
+        if (!marker.lastElementChild) bubbles.delete(marker);
+        else if (!marker.hidden) placeBubble(marker, x, y, rect.width, rect.height);
       });
     });
     return { dispose, reset: () => { controls?.reset(); spinner.rotation.y = 0; } };
