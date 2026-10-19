@@ -49,11 +49,11 @@ export function build(b: ReconstructionBuilder) {
   const phi = 37.5 * Math.PI / 180, cp = Math.cos(phi), sp = Math.sin(phi);
   /** Polar axis (toward the north celestial pole) and the in-meridian / east–west directions normal to it. */
   const axis = v(cp, sp, 0), ax = v(sp, -cp, 0), az = v(0, 0, 1);
-  const PS = v(-3.1, 6.55, 0); // south bearing: centre of the 백각환
-  const dBaek = 3.6, dTop = 4.2; // from the 사유환 centre along the axis to the 백각환 / north pole ring
-  const C = PS.clone().addScaledVector(axis, dBaek);
-  const T = C.clone().addScaledVector(axis, dTop);
-  const xCross = 4.84, yCross = 7.55; // where the north pillars cross their middle legs
+  const C = v(-.35, 8.9, 0); // centre of the 사유환
+  const dBaek = 3.6, dTop = 4; // from the 사유환 centre along the axis to the 백각환 / north pole ring
+  const PS = C.clone().addScaledVector(axis, -dBaek); // south bearing: centre of the 백각환
+  const T = C.clone().addScaledVector(axis, dTop); // north bearing: centre of the pole ring
+  const xCross = 5.15, yCross = 7.55; // where the north pillars cross their middle legs
 
   /** Many small oriented boxes merged into one geometry (graduation ticks); `s` holds half sizes along u, v, u×v. */
   type Tick = { c: V3; u: V3; v: V3; s: [number, number, number] };
@@ -95,7 +95,8 @@ export function build(b: ReconstructionBuilder) {
     b.sphere(.42, [c.x + dir * .75, c.y + .22, c.z], 'bronze', { region, scale: [1.3, .75, .8], segments: 14 });
     for (const s of [-1, 1]) rod(v(c.x - dir * .1, c.y + .4, c.z + s * .25), v(c.x - dir * .85, c.y + 1.05, c.z + s * .35), .07, 'bronze', region, 8);
   };
-  const block = (x: number, z: number, region: string) => b.box([1.15, .3, 1.05], [x, B + .15, z], 'bronze', { region, bevel: .03 });
+  /** The bronze pedestal under a pillar foot, sitting on the frame bar a little in from its outer edge. */
+  const block = (x: number, z: number, region: string, size: Vec = [1.25, .45, 1]) => b.box(size, [x, B + size[1] / 2, z - Math.sign(z) * .12], 'bronze', { region, bevel: .03 });
 
   // ---------- 趺: base frame with the levelling water channel ----------
   b.feature('base-frame-with-water-channel');
@@ -120,19 +121,19 @@ export function build(b: ReconstructionBuilder) {
   }
   // Inner beams: three cross beams and two long beams, a little lower than the frame.
   const beamH = frameH - .06, beamY = footH + plinthH + beamH / 2;
-  for (const x of [-3.9, -.85, 3.8]) b.box([.42, beamH, W - 2 * bw], [x, beamY, 0], 'darkBronze', { bevel: .015 });
+  for (const x of [-3.9, -.85, 3.3]) b.box([.42, beamH, W - 2 * bw], [x, beamY, 0], 'darkBronze', { bevel: .015 });
   for (const sz of [-1, 1]) b.box([L - 2 * bw, beamH, .38], [0, beamY, sz * 1.7], 'darkBronze', { bevel: .015 });
 
   // ---------- south support: a dragon A-frame on each long side ----------
   b.feature('south-dragon-a-frames');
-  const apex = v(-4.4, 9.2, 0);
   for (const s of [1, -1]) {
     const z = s * zc, region = s > 0 ? 'south-front' : 'south-back';
-    block(-7.25, z, region); block(-.4, z, region);
-    pillar([v(-7.25, B + .2, z), v(-6.0, 5.4, z), v(-4.78, 9.1, z)], region, 2.2, 0);
-    pillar([v(-.4, B + .2, z), v(-2.05, 5.6, z), v(-4.05, 9.1, z)], region, 2.4, 1.3);
-    b.sphere(.74, [apex.x, apex.y, z], 'bronze', { region, scale: [1.25, .95, 1], segments: 18 });
-    head(v(-5.55, 7.45, z + s * .35), -1, region);
+    block(-7.4, z, region, [1.25, .5, 1]); block(-.5, z, region);
+    // The corner leg rises steeply, then leans in toward the apex; the middle leg runs straight.
+    pillar([v(-7.35, B + .3, z), v(-6.95, 3.6, z), v(-6.45, 5.2, z), v(-5.4, 8.1, z), v(-4.85, 9.05, z)], region, 2.2, 0);
+    pillar([v(-.5, B + .3, z), v(-2.48, 5.4, z), v(-4.4, 9.0, z)], region, 2.4, 1.3);
+    b.sphere(.72, [-4.62, 9.05, z], 'bronze', { region, scale: [1.2, .95, 1], segments: 18 });
+    head(v(-5.95, 7.55, z + s * .4), -1, region);
   }
 
   // ---------- 북극운가주: north pillars, their middle legs and the dragon cross beam ----------
@@ -140,11 +141,12 @@ export function build(b: ReconstructionBuilder) {
   const topR = 1.15, topRadial = .2, topAxial = .3;
   for (const s of [1, -1]) {
     const z = s * zc, region = s > 0 ? 'north-front' : 'north-back';
-    block(7.0, z, region); block(.65, z, region);
-    pillar([v(7.0, B + .2, z), v(6.0, 4.6, z), v(xCross, yCross, s * 4.72), v(3.95, 9.8, s * 3.5), v(T.x + .05, T.y - .15, s * (topR + .45))], region, 3, .6);
-    pillar([v(.65, B + .2, z), v(2.75, 4.65, z), v(xCross, yCross, s * 4.72)], region, 2, 2.1);
-    b.sphere(.66, [xCross, yCross, s * 4.72], 'bronze', { region, segments: 16 });
-    head(v(3.75, 7.1, s * 5.05), -1, region);
+    block(7.45, z, region, [1.9, .55, 1.15]); block(1.2, z, region);
+    // The north pillar stands nearly upright, then curls in toward the pole ring (as in the photo).
+    pillar([v(7.3, B + .35, z), v(7.05, 3.7, z), v(6.25, 5.3, z), v(xCross, yCross, s * 4.75), v(4.6, 9.5, s * 2.9), v(T.x + .25, T.y - .15, s * (topR + .3))], region, 3, .6);
+    pillar([v(1.2, B + .3, z), v(2.55, 4.05, z), v(xCross, yCross, s * 4.75)], region, 2, 2.1);
+    b.sphere(.66, [xCross, yCross, s * 4.75], 'bronze', { region, segments: 16 });
+    head(v(3.75, 7.1, s * 5.15), -1, region);
   }
   b.tube([[xCross, yCross, -4.6], [xCross, yCross, 0], [xCross, yCross, 4.6]], .34, 'bronze', { region: 'crossbar', segments: 24, radial: 12 });
 
@@ -159,7 +161,7 @@ export function build(b: ReconstructionBuilder) {
   b.band(topR, topAxial, topRadial, [0, dTop, 0], 'darkBronze', { parent: polar });
   for (const a of [Math.PI / 4, -Math.PI / 4]) b.box([2 * topR, topAxial * .7, .14], [0, dTop, 0], 'darkBronze', { parent: polar, rotation: [0, a, 0], bevel: .02 });
   b.cylinder(.22, .22, topAxial + .12, [0, dTop, 0], 'darkBronze', { parent: polar, segments: 20 });
-  for (const sz of [-1, 1]) rod(world(0, dTop, sz * (topR + topRadial / 2 - .04)), v(T.x + .05, T.y - .15, sz * (topR + .3)), .14, 'darkBronze');
+  for (const sz of [-1, 1]) rod(world(0, dTop, sz * (topR + topRadial / 2 - .04)), v(T.x + .25, T.y - .15, sz * (topR + .3)), .14, 'darkBronze');
 
   // ---------- 극축 + 사유환 with 규형 ----------
   b.feature('polar-axis-at-seoul-latitude');
@@ -193,7 +195,7 @@ export function build(b: ReconstructionBuilder) {
   for (const a of [0, Math.PI / 2]) b.box([2 * baekIn + .04, baekAxial * .9, .16], [0, -dBaek, 0], 'darkBronze', { parent: polar, rotation: [0, a, 0], bevel: .02 });
   b.cylinder(.2, .2, baekAxial + .06, [0, -dBaek, 0], 'darkBronze', { parent: polar, segments: 18 });
   // East and west pins from the ring out to the middle legs of the south A-frames.
-  for (const sz of [-1, 1]) rod(world(0, -dBaek, sz * (baekOuter - .05)), v(PS.x + .15, PS.y, sz * (zc - .35)), .13, 'darkBronze');
+  for (const sz of [-1, 1]) rod(world(0, -dBaek, sz * (baekOuter - .05)), v(PS.x, PS.y, sz * (zc - .35)), .13, 'darkBronze');
   const jeokRadial = .22, jeokAxial = .18, jeokR = baekIn + jeokRadial / 2, jeokY = -dBaek + baekAxial / 2 + jeokAxial / 2 + .002;
   b.band(jeokR, jeokAxial, jeokRadial, [0, jeokY, 0], 'darkBronze', { parent: polar, segments: 96 });
   // Two 界衡 sighting bars turning on the 적도환 about the south pivot.
@@ -206,12 +208,14 @@ export function build(b: ReconstructionBuilder) {
 
   // ---------- 입운의: 지평환 (horizon ring) and 입운환 (vertical ring) between the north legs ----------
   b.feature('ipunhwan-vertical-ring-in-jipyeonghwan-horizon-ring');
-  const xa = 3.9, jipR = 3.2, topBar = 6.25;
-  b.band(jipR, .2, .34, [xa, B + .1, 0], 'darkBronze', { segments: 96 });
-  b.cylinder(.08, .08, topBar - B, [xa, (topBar + B) / 2, 0], 'darkBronze', { segments: 12 });
-  const ipR = 2.05, ipY = B + .32 + ipR;
+  const xa = 3.3, jipR = 3.45, beamTop = B - .06, ipR = 2.25, ipY = beamTop + .3 + ipR;
+  b.band(jipR, .2, .34, [xa, beamTop + .1, 0], 'darkBronze', { segments: 96 });
+  // The vertical ring turns on an upright axle stepped into the cross beam (no upper support shows in the photo).
+  b.cylinder(.08, .08, 2 * ipR + .5, [xa, beamTop + (2 * ipR + .5) / 2, 0], 'darkBronze', { segments: 12 });
+  b.cylinder(.22, .26, .25, [xa, beamTop + .125, 0], 'darkBronze', { segments: 16 });
   b.band(ipR, .09, .2, [xa, ipY, 0], 'darkBronze', { rotation: [0, -.28, Math.PI / 2], segments: 80 });
-  b.cylinder(.09, .09, 2 * zc - .9, [xa, topBar, 0], 'darkBronze', { rotation: [Math.PI / 2, 0, 0], segments: 12 });
+  // A sighting bar across the vertical ring, pivoting on the axle.
+  b.box([.12, .08, 2 * ipR - .2], [xa, ipY, 0], 'darkBronze', { rotation: [.5, -.28, 0], bevel: .01 });
 
   // ---------- graduations (thin ticks only) ----------
   const tickList: Tick[] = [];
