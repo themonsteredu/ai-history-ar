@@ -112,7 +112,20 @@ export function build(b: ReconstructionBuilder) {
 
   // ---------- 육합의 (fixed outer set) ----------
   b.feature('yukhabui-horizon-meridian-and-equator-rings');
-  b.band(RB, hB, tB, [0, yB, 0], 'bronze', { region: 'band', segments: 128 });
+  // The band is built as four quarter arcs: the east and west quarters (front and back) take the photo
+  // as seen, the north and south quarters take the same patina seen from their own side, so the ends
+  // are not smeared by the edge-on view.
+  const bandArc = (from: number, to: number, region: string) => {
+    const shape = new THREE.Shape();
+    shape.absarc(0, 0, RB + tB / 2, from, to, false);
+    shape.absarc(0, 0, RB - tB / 2, to, from, true);
+    const g = new THREE.ExtrudeGeometry(shape, { depth: hB, bevelEnabled: false, curveSegments: 32 });
+    g.translate(0, 0, -hB / 2); g.rotateX(Math.PI / 2);
+    b.add(g, 'bronze', { position: [0, yB, 0], region });
+  };
+  const q = Math.PI / 4;
+  bandArc(q, 3 * q, 'band'); bandArc(5 * q, 7 * q, 'band'); // front (east, +z) and back (west) quarters
+  bandArc(-q, q, 'band-ends'); bandArc(3 * q, 5 * q, 'band-ends'); // north (+x) and south quarters
   const meridian = frame(C, v(1, 0, 0), v(0, 0, 1));
   ringBand(meridian, R6, w6, t6);
   ringTicks(meridian, R6, t6, w6, 72, 6, [1, -1]);
@@ -194,23 +207,23 @@ export function build(b: ReconstructionBuilder) {
 
   // ---------- stand: four carved scroll legs and a central cradle post ----------
   b.feature('four-carved-dragon-scroll-legs-and-cradle-post');
-  /** Solid lofted along a centre line in the local x/y plane; each station is [x, y, a, b]: an ellipse with
-   *  half-width a in that plane and b along z. Stations are smoothed with a Catmull-Rom spline. */
-  const loft = (stations: Array<[number, number, number, number]>, parent: Obj, region: string, steps = 5, radial = 18) => {
+  /** Solid lofted along a centre line in the local x/y plane; each station is [x, y, a, b, z]: an ellipse
+   *  centred at (x, y, z) with half-width a in the x/y plane and b along z. Smoothed with a Catmull-Rom spline. */
+  const loft = (stations: Array<[number, number, number, number, number]>, parent: Obj, region: string, steps = 4, radial = 18) => {
     const cr = (p0: number, p1: number, p2: number, p3: number, t: number) => .5 * (2 * p1 + (p2 - p0) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t + (3 * p1 - p0 - 3 * p2 + p3) * t * t * t);
     const pts: number[][] = [];
     for (let i = 0; i < stations.length - 1; i++) for (let k = 0; k < steps; k++) {
       const s = [stations[Math.max(0, i - 1)], stations[i], stations[i + 1], stations[Math.min(stations.length - 1, i + 2)]];
-      pts.push([0, 1, 2, 3].map(c => cr(s[0][c], s[1][c], s[2][c], s[3][c], k / steps)));
+      pts.push([0, 1, 2, 3, 4].map(c => cr(s[0][c], s[1][c], s[2][c], s[3][c], k / steps)));
     }
     pts.push([...stations[stations.length - 1]]);
     const pos: number[] = [], idx: number[] = [], n = pts.length;
     for (let i = 0; i < n; i++) {
-      const [x, y, a, bb] = pts[i], p0 = pts[Math.max(0, i - 1)], p1 = pts[Math.min(n - 1, i + 1)];
+      const [x, y, a, bb, z] = pts[i], p0 = pts[Math.max(0, i - 1)], p1 = pts[Math.min(n - 1, i + 1)];
       const l = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]) || 1, nx = (p1[1] - p0[1]) / l, ny = -(p1[0] - p0[0]) / l;
       for (let j = 0; j <= radial; j++) {
         const t = j / radial * Math.PI * 2;
-        pos.push(x + nx * a * Math.cos(t), y + ny * a * Math.cos(t), bb * Math.sin(t));
+        pos.push(x + nx * a * Math.cos(t), y + ny * a * Math.cos(t), z + bb * Math.sin(t));
       }
     }
     for (let i = 0; i < n - 1; i++) for (let j = 0; j < radial; j++) {
@@ -219,7 +232,7 @@ export function build(b: ReconstructionBuilder) {
     }
     for (const i of [0, n - 1]) { // flat caps
       const centre = pos.length / 3;
-      pos.push(pts[i][0], pts[i][1], 0);
+      pos.push(pts[i][0], pts[i][1], pts[i][4]);
       for (let j = 0; j < radial; j++) idx.push(centre, i * (radial + 1) + j, i * (radial + 1) + j + 1);
     }
     const g = new THREE.BufferGeometry();
@@ -227,44 +240,52 @@ export function build(b: ReconstructionBuilder) {
     g.setIndex(idx); g.computeVertexNormals();
     return b.add(g, 'bronze', { parent, region });
   };
-  const legTop = yB - hB / 2 + .005, r0 = 1.03;
-  // [radial x, height y, radial half-width, tangential half-width]: shoulder, knee, shank, ankle.
-  const legStations: Array<[number, number, number, number]> = [
-    [r0 - .005, legTop, .12, .15], [r0 + .02, 1.3, .15, .13], [r0 + .06, 1.16, .18, .11], [r0 + .075, 1.0, .19, .1],
-    [r0 + .04, .84, .165, .085], [r0 - .01, .68, .13, .068], [r0 - .04, .52, .105, .058], [r0 - .05, .36, .095, .053],
-    [r0 - .045, .24, .095, .05], [r0 - .03, .14, .09, .05],
+  const legTop = yB - hB / 2 + .005;
+  // [radial x, height y, radial half-width, tangential half-width, tangential offset z], fitted to both front
+  // legs in the photo: broad shoulder under the band, deep knee, slimmer shank, and a slight twist so the
+  // foot sits a little to one side (the same way on every leg).
+  const legStations: Array<[number, number, number, number, number]> = [
+    [1.035, legTop, .12, .062, -.042], [1.038, 1.39, .128, .066, -.04], [1.052, 1.33, .148, .09, -.033],
+    [1.069, 1.25, .165, .117, -.024], [1.094, 1.12, .172, .15, -.006], [1.115, 1.0, .167, .152, -.007],
+    [1.12, .88, .16, .14, -.008], [1.102, .76, .156, .118, -.001], [1.066, .64, .146, .099, .009],
+    [1.025, .52, .12, .108, .028], [.994, .4, .092, .1, .042], [.988, .28, .097, .078, .04], [.997, .16, .095, .072, .043],
   ];
   const legRegions = ['leg-fr', 'leg-fl', 'leg-bl', 'leg-br'];
   for (let i = 0; i < 4; i++) {
     const a = Math.PI / 4 + i * Math.PI / 2, region = legRegions[i];
     const g = new THREE.Group(); g.rotation.y = -a; b.root.add(g); // local x = outward, z = tangential
-    loft(legStations, g, region);
+    // The legs come in mirror pairs (front-left/back-right and front-right/back-left twist opposite ways),
+    // so the whole stand is mirror-symmetric front to back and left to right.
+    const hand = i % 2 ? 1 : -1;
+    loft(legStations.map(([x, y, ra, rb, z]) => [x, y, ra, rb, z * hand] as [number, number, number, number, number]), g, region);
     // Scrolled foot: a volute lying across the leg, with a curl in relief on each face.
-    const footR = .08, footX = r0 - .01;
-    b.cylinder(footR, footR, .1, [footX, footR, 0], 'bronze', { parent: g, rotation: [Math.PI / 2, 0, 0], region, segments: 22 });
-    for (const s of [-1, 1]) b.ring(.048, .012, [footX, footR, s * .05], 'bronze', { parent: g, rotation: [Math.PI / 2, 0, 0], region, segments: 24, radial: 6, arc: Math.PI * 1.5 });
+    const footR = .088, footX = 1.018, footZ = .043 * hand;
+    b.cylinder(footR, footR, .1, [footX, footR, footZ], 'bronze', { parent: g, rotation: [Math.PI / 2, 0, 0], region, segments: 22 });
+    for (const s of [-1, 1]) b.ring(.054, .012, [footX, footR, footZ + s * .05], 'bronze', { parent: g, rotation: [Math.PI / 2, 0, 0], region, segments: 24, radial: 6, arc: Math.PI * 1.5 });
   }
   // Central post: round foot, openwork stem (solid here) and a wide cloud cradle under the meridian ring.
-  b.lathe([[0, 0], [.17, 0], [.175, .03], [.165, .06], [.13, .085], [.1, .1], [0, .1]], 'bronze', { region: 'post', segments: 32 });
-  b.lathe([[0, .09], [.1, .09], [.125, .15], [.13, .21], [.11, .26], [.085, .3], [.1, .335], [0, .335]], 'bronze', { region: 'post', segments: 24 });
+  b.lathe([[0, 0], [.158, 0], [.163, .03], [.153, .06], [.12, .085], [.095, .1], [0, .1]], 'bronze', { region: 'post-foot', segments: 32 });
+  b.lathe([[0, .09], [.095, .09], [.115, .15], [.12, .21], [.105, .26], [.085, .3], [.1, .335], [0, .335]], 'bronze', { region: 'post-foot', segments: 24 });
   // Cradle outline: hugs the ring's outer edge across the middle, its lip ends just under the ring.
   const rOut = R6 + t6 / 2, hugA = Math.asin(.29 / rOut), cradle = new THREE.Shape();
-  cradle.moveTo(-.18, .32); cradle.lineTo(.18, .32);
-  cradle.quadraticCurveTo(.3, .37, .34, .485);
+  cradle.moveTo(-.17, .32); cradle.lineTo(.17, .32);
+  cradle.quadraticCurveTo(.27, .35, .3, .45); cradle.lineTo(.315, .5);
   cradle.lineTo(.29, H - rOut * Math.cos(hugA));
   cradle.absarc(0, H, rOut, -Math.PI / 2 + hugA, -Math.PI / 2 - hugA, true);
-  cradle.lineTo(-.34, .485);
-  cradle.quadraticCurveTo(-.3, .37, -.18, .32);
+  cradle.lineTo(-.315, .5); cradle.lineTo(-.3, .45);
+  cradle.quadraticCurveTo(-.27, .35, -.17, .32);
   b.extrude(cradle, .14, 'bronze', { position: [0, 0, -.07], region: 'post', bevel: .012 });
 }
 
 /** How the photo (photos.json id 5, 1280×719) lies on each region: the view it was taken from and where the region sits in it. */
 export const photoViews: Record<string, PhotoView> = {
-  'leg-fl': { elevation: 9, azimuth: -2, frame: [.4227, .4506, .4797, .9235] },
-  'leg-fr': { elevation: 9, azimuth: -22, frame: [.6984, .4492, .7719, .911] },
-  'leg-bl': { elevation: 9, azimuth: -92, frame: [.4227, .4506, .4797, .9235] },
-  'leg-br': { elevation: 9, azimuth: 68, frame: [.6984, .4492, .7719, .911] },
-  band: { elevation: 0, azimuth: -10, frame: [.4023, .3894, .7469, .4506] },
-  post: { elevation: 15, azimuth: -10, frame: [.512, .689, .6252, .8527] },
+  'leg-fl': { elevation: 8, azimuth: -1, frame: [.4219, .4534, .482, .911] },
+  'leg-fr': { elevation: 8, azimuth: 1, frame: [.482, .4534, .4219, .911] },
+  'leg-bl': { elevation: 8, azimuth: -179, frame: [.482, .4534, .4219, .911] },
+  'leg-br': { elevation: 8, azimuth: 179, frame: [.4219, .4534, .482, .911] },
+  band: { elevation: 0, azimuth: -10, frame: [.4336, .3894, .7156, .4506] },
+  'band-ends': { elevation: 0, azimuth: 80, frame: [.4336, .3894, .7156, .4506] },
+  post: { elevation: 12, azimuth: -9, frame: [.5203, .6926, .6172, .7608] },
+  'post-foot': { elevation: 16, azimuth: -10, frame: [.5508, .7413, .5844, .8512] },
   rings: { elevation: 0, azimuth: -10, frame: [.5, .399, .547, .417] },
 };

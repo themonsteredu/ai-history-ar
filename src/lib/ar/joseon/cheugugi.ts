@@ -20,39 +20,50 @@ import type { PhotoView, ReconstructionBuilder, Vec } from './toolkit';
  *   pedestal, one end on the ground — the rainwater depth was read with it.
  *
  * Photo (public/images/heritage/joseon-science/cheugugi.jpg, 1280×719): an outdoor bronze replica set
- * into a flat granite slab, taken from the front and above (about 36° at the mouth, steeper toward the
- * foot because the camera is close), dry grass behind. Only the gauge and the slab's stone are taken from
- * it; the model keeps the historical 측우대 block. The toolkit maps the bounding box of ALL of a
- * region's vertices, as seen along its view, onto the frame rect, so every region holds only surfaces
- * that lie inside one outline of the photo. Frames below are in photo pixels (x, y from the top left):
+ * into a flat granite slab, taken from the front and above, dry grass behind. The camera is close, so the
+ * view steepens toward the foot (the rim's ellipse is seen from about 37°, the joint bands from about
+ * 43–44°) and the gauge narrows in the photo from 236 px across at the rim to 168 px at the foot; the
+ * photo is also turned about 1° (the right ends of the band arcs sit lower). Only the gauge and the
+ * slab's stone are taken from it; the model keeps the historical 측우대 block. The toolkit maps the
+ * bounding box of ALL of a region's vertices, as seen along its view, onto the frame rect, so every
+ * region holds only surfaces that lie inside one outline of the photo. Frames below are in photo pixels
+ * (x, y from the top left; `px()` divides them by 1280×719):
  * - 'gauge-mouth': the whole mouth rim (outer band, flat top, inner chamfer), all round, since the photo
- *   sees the rim's whole ellipse. Elevation 36° (the rim's ellipse is 0.59 as tall as wide), azimuth 0;
- *   frame x 552–787 (the rim's outer extremes, a pixel inside so no grass is caught), y 145–298 (back
- *   edge of the rim top to the lower edge of the rim band at the front).
- * - 'gauge' / 'gauge-lower': the front half (z ≥ 0) of the vessel above the stone, split at the upper
- *   joint band because the close camera makes the photo's gauge narrow from 236 px at the rim to 178 px
- *   at the foot; one orthographic frame would catch the stone beside the lower body. 'gauge' = upper
- *   section and upper band, elevation 36°, frame x 565–767, y 245–416 (lower edge of the rim band at the
- *   sides to the lower edge of the upper band at the front). 'gauge-lower' = middle section, inscription
- *   grooves, lower band and the visible bit of the lower section, elevation 40° (the lower band's arc
- *   is deeper in the photo), frame x 575–753, y 352–547 (lower edge of the upper band at the sides to
- *   where the vessel meets the stone at the front). Both frames are drawn a few pixels inside the
- *   gauge's silhouette so the sides of the model, which take the silhouette's pixels, stay bronze.
- * - 'gauge-back' / 'gauge-lower-back': the back halves of the same pieces, which the photo never sees.
- *   The vessel is round, so they take the same frames with the azimuth turned to 180°: the back shows
- *   the photo's front, with the joint bands at their true height instead of a shifted copy.
- * - 'gauge-inside': the inner wall and flat floor of the well plus the foot hidden in the socket. The
- *   photo's open mouth is a near-black well; they take a small swatch of it just below the far rim
- *   (frame x 620–720, y 152–175), so the open mouth reads as a deep, dark opening from above.
+ *   sees the rim's whole ellipse. Elevation 37°, azimuth 0; frame x 553–786.5 (the rim's outer
+ *   extremes, about a pixel inside so no grass is caught), y 145–297.5 (back edge of the rim top to the
+ *   lower edge of the rim band at the front).
+ * - 'gauge' / 'gauge-lower': the front 120° (±60° about +z) of the vessel wall and joint bands. A
+ *   region reaching the sides (±90°) would take the photo's silhouette pixels, where the band arcs turn
+ *   vertical, so the bands were smeared into V shapes and stone crept in; ±60° keeps every sample well
+ *   inside the gauge. Two heights, because one orthographic frame cannot follow the photo's taper:
+ *   'gauge' = upper section and upper band, elevation 43°, frame x 575.5–757.5 (where the upper band's
+ *   ±60° points are in the photo), y 280.75–418.25; 'gauge-lower' = middle section, inscription grooves
+ *   and lower band, elevation 44°, frame x 586–744.5 (the lower band's ±60° points), y 395.5–507. The
+ *   frames were fitted so the photo's joint bands land on the modelled bands (within about 2 px), with
+ *   each frame's top a little below the rim band / upper band so the light lips under them in the
+ *   photo do not bend into the wall at the sector edges. Azimuth 1.25° rather than 0 compensates the
+ *   photo's slight turn.
+ * - 'gauge-right' / 'gauge-left', 'gauge-lower-right' / 'gauge-lower-left': the other two 120° sectors
+ *   (60°–180° and 180°–300°), which the photo never sees. The vessel is round, so they take the same
+ *   frames with the azimuth turned by 120° and 240°: each shows the photo's front, bands at their true
+ *   height. The seams at 60°, 180° and 300° can show a faint step where the photo's lit left side meets
+ *   its darker right side.
+ * - 'gauge-foot': the short visible part of the lower section above the stone (and the foot hidden in
+ *   the socket). The photo's lower section narrows into its mortar ring, so it takes a small swatch of
+ *   that plain dark bronze (frame x 625–705, y 508–532) instead of a projection that would catch mortar.
+ * - 'shadow': the inner wall and flat floor of the well, plus the carved lettering strokes and the
+ *   ruler's graduations. A small swatch of the photo's near-black open mouth just below the far rim
+ *   (frame x 635–705, y 160–180), matte, so the open mouth reads as a deep, dark well from above and
+ *   the cut strokes and ink marks stay dark.
  * - 'pedestal-top': the cap's top, its edge chamfer, the socket wall and the socket floor. Seen straight
- *   down (elevation 90°) so the flat stone is not smeared; frame x 200–540, y 450–678, a patch of the
- *   slab's speckled granite left of the gauge, chosen to be about a square of real stone (about 27 cm)
- *   in the photo's foreshortening, with no grass, sealant or gauge in it.
- * - 'pedestal-front' / 'pedestal-side': the block's faces and the cap's sides, front/back (azimuth 0)
- *   and the two ends (azimuth 90), both level views. They reuse clean granite of the slab, framed to
- *   the faces' proportions: x 800–1080, y 370–583 (right of the gauge) and x 200–540, y 440–698 (left
- *   of the gauge). The carved lettering strokes and the ruler keep their plain surfaces ('ruler' has no
- *   photo view: the photo shows no ruler).
+ *   down (elevation 90°) so the flat stone is not smeared; frame x 200–532, y 452–675, a patch of the
+ *   slab's speckled granite left of the gauge, about a square of real stone (about 27 cm) in the
+ *   photo's foreshortening, with no grass, sealant or gauge in it.
+ * - 'pedestal-side': the block's four faces and the cap's sides, as one level view from azimuth 45°
+ *   (every face is seen at 45°, and the texture runs on round each corner without a seam). Frame
+ *   x 125–530, y 548–702: clean granite of the slab's near left corner, about twice as wide as deep in
+ *   real stone so each face gets an even (if coarser) grain.
+ * - 'ruler' has no photo view (the photo shows no ruler): the ruler stays plain wood.
  */
 export function build(b: ReconstructionBuilder) {
   // ---------- 측우대 (granite pedestal) ----------
@@ -212,15 +223,15 @@ export function build(b: ReconstructionBuilder) {
 const px = (left: number, top: number, right: number, bottom: number): [number, number, number, number] =>
   [left / 1280, top / 719, right / 1280, bottom / 719];
 export const photoViews: Record<string, PhotoView> = {
-  gauge: { elevation: 39, azimuth: 0, frame: px(573.5, 265.5, 760.5, 420) },
-  'gauge-right': { elevation: 39, azimuth: 120, frame: px(573.5, 265.5, 760.5, 420) },
-  'gauge-left': { elevation: 39, azimuth: 240, frame: px(573.5, 265.5, 760.5, 420) },
-  'gauge-lower': { elevation: 43, azimuth: 0, frame: px(582.5, 386, 747, 508.5) },
-  'gauge-lower-right': { elevation: 43, azimuth: 120, frame: px(582.5, 386, 747, 508.5) },
-  'gauge-lower-left': { elevation: 43, azimuth: 240, frame: px(582.5, 386, 747, 508.5) },
-  'gauge-mouth': { elevation: 38, azimuth: 0, frame: px(553, 145, 786.5, 297.5) },
-  'gauge-foot': { elevation: 43, azimuth: 0, frame: px(625, 508, 705, 532) },
-  shadow: { elevation: 38, azimuth: 0, frame: px(635, 160, 705, 180) },
-  'pedestal-top': { elevation: 90, azimuth: 0, frame: px(200, 450, 540, 678) },
+  gauge: { elevation: 43, azimuth: 1.25, frame: px(575.5, 280.75, 757.5, 418.25) },
+  'gauge-right': { elevation: 43, azimuth: 121.25, frame: px(575.5, 280.75, 757.5, 418.25) },
+  'gauge-left': { elevation: 43, azimuth: 241.25, frame: px(575.5, 280.75, 757.5, 418.25) },
+  'gauge-lower': { elevation: 44, azimuth: 1.25, frame: px(586, 395.5, 744.5, 507) },
+  'gauge-lower-right': { elevation: 44, azimuth: 121.25, frame: px(586, 395.5, 744.5, 507) },
+  'gauge-lower-left': { elevation: 44, azimuth: 241.25, frame: px(586, 395.5, 744.5, 507) },
+  'gauge-mouth': { elevation: 37, azimuth: 0, frame: px(553, 145, 786.5, 297.5) },
+  'gauge-foot': { elevation: 44, azimuth: 0, frame: px(625, 508, 705, 532) },
+  shadow: { elevation: 37, azimuth: 0, frame: px(635, 160, 705, 180) },
+  'pedestal-top': { elevation: 90, azimuth: 0, frame: px(200, 452, 532, 675) },
   'pedestal-side': { elevation: 0, azimuth: 45, frame: px(125, 548, 530, 702) },
 };

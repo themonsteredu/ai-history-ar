@@ -14,27 +14,30 @@ type Obj = InstanceType<typeof THREE.Object3D>;
  *
  * What is modelled:
  * - Base (趺): a long dark-bronze frame (bars with the levelling water channel 水渠 cut along their top,
- *   shown dry as in the photo), two long and three cross beams inside, a lower plinth band, short stone
- *   feet and the stone floor visible through the grid.
+ *   shown dry as in the photo), two long and three cross beams inside, a lower plinth band, short feet
+ *   and the stone paving visible through the grid; bronze pedestals under every pillar foot.
  * - South support: on each long side a dragon-wrapped A-frame (one leg from the south corner, one from
- *   the middle of the base) with a dragon head at the apex; the 백각환 is pinned to the middle legs at
- *   its east and west points.
+ *   the middle of the base) meeting at the apex, a dragon head reaching south from the corner leg; the
+ *   백각환 is pinned to the middle legs at its east and west points.
  * - North support (북극운가주): two tall dragon pillars from the north corners curving inward to the
- *   north pole ring (정극환 자리) that holds the north pivot, each braced by a second dragon leg from
- *   the middle of the base; a dragon cross beam (橫輄) joins the two crossings.
- * - Polar axis (극축) tilted 37.5° (latitude of Seoul), rising to the north. On it: the 사유환 (四游雙環,
+ *   north pole ring that holds the north pivot, each braced by a second dragon leg (with a head) from
+ *   the middle of the base; a dragon cross beam (橫輄) joins the two crossings. Pillar thickness and
+ *   paths follow the photo (traced through a camera matched to it), drawn a little slimmer than the
+ *   bronze so that their photo texture never reaches past the real outline.
+ * - Polar axis (극축) tilted 37.5° (latitude of Seoul), rising to the north (the photo's restoration
+ *   reads a little steeper; the latitude is kept because it is the lesson). On it: the 사유환 (四游雙環,
  *   two thin rings joined at the cardinal points) with its straight braces (直距) and the sighting bar
  *   규형 (窺衡) set across them, shown turned a little out of the meridian as in the photo; at the south
  *   end the fixed 백각환 (百刻環) with the 적도환 (赤道環) and two 界衡 bars on it.
  * - Between the north legs: the altazimuth part (立運儀) — the flat horizon ring 지평환 (陰緯環) lying on
- *   the beams and the vertical 입운환 (立運環) turning on an upright axle inside it; the axle's upper
- *   pivot bar between the middle legs is inferred (hidden in the photo).
+ *   the beams and the vertical 입운환 (立運環) turning on an upright axle inside it; the bracket holding
+ *   the axle's upper pivot under the dragon cross beam is inferred (a dragon head hides it in the photo).
  * - Graduations are suggested only by thin ticks (5-degree marks, the 28 lunar-mansion divisions, 100 刻
  *   with 12 hour divisions). No characters are modelled. The dragons are suggested by a body coiling
- *   round each pillar and a simple head; their scales come from the photo.
+ *   round each pillar and two simple heads; their scales and clouds come from the photo.
  *
- * Photo regions (see photoViews below): only the thick dragon pillars, the dragon cross beam and the
- * front face of the base are textured from the photo, each from the direction the camera saw it. The
+ * Photo regions (see photoViews below): only the thick dragon pillars, their heads, the dragon cross beam
+ * and the front face of the base are textured from the photo, each from the direction the camera saw it. The
  * rings, thin bars and the inside of the base have the building, trees and sky behind them in the photo,
  * so they keep the plain dark bronze surface (they are dark iron-grey in the photo too). The back pair
  * of each support is hidden in the photo and takes its front twin's pixels through a mirrored view.
@@ -85,22 +88,22 @@ export function build(b: ReconstructionBuilder) {
       const t = .03 + i / n * .92, p = curve.getPoint(t), tan = curve.getTangent(t);
       const side = new THREE.Vector3(0, 0, 1).cross(tan).normalize(), other = tan.clone().cross(side).normalize();
       const a = phase + t * turns * Math.PI * 2;
-      coil.push(arr(p.addScaledVector(side, Math.cos(a) * r * .9).addScaledVector(other, Math.sin(a) * r * .9)));
+      coil.push(arr(p.addScaledVector(side, Math.cos(a) * r * .85).addScaledVector(other, Math.sin(a) * r * .85)));
     }
-    b.tube(coil, r * .42, 'bronze', { region, segments: 120, radial: 8 });
+    b.tube(coil, r * .35, 'bronze', { region, segments: 110, radial: 8 });
   };
-  /** A simple dragon head: skull, snout and two swept-back horns; `dir` = ±1 faces −x / +x. */
-  const head = (c: V3, dir: number, region: string) => {
-    b.sphere(.62, arr(c), 'bronze', { region, scale: [1.1, 1, .85], segments: 16 });
-    b.sphere(.42, [c.x + dir * .75, c.y + .22, c.z], 'bronze', { region, scale: [1.3, .75, .8], segments: 14 });
-    for (const s of [-1, 1]) rod(v(c.x - dir * .1, c.y + .4, c.z + s * .25), v(c.x - dir * .85, c.y + 1.05, c.z + s * .35), .07, 'bronze', region, 8);
+  /** A simple dragon head sticking out from a pillar: skull, snout and two swept-back horns; `dir` = −1 faces south (−x). */
+  const head = (c: V3, dir: number, region: string, size = 1) => {
+    b.sphere(.55 * size, arr(c), 'bronze', { region, scale: [1.15, 1.15, .85], segments: 16 });
+    b.sphere(.38 * size, [c.x + dir * .62 * size, c.y - .12 * size, c.z], 'bronze', { region, scale: [1.3, .85, .8], segments: 14 });
+    for (const s of [-1, 1]) rod(v(c.x - dir * .1 * size, c.y + .5 * size, c.z + s * .2), v(c.x - dir * .5 * size, c.y + .95 * size, c.z + s * .3), .06, 'darkBronze', undefined, 8);
   };
   /** The bronze pedestal under a pillar foot, sitting on the frame bar a little in from its outer edge. */
-  const block = (x: number, z: number, region: string, size: Vec = [1.25, .45, 1]) => b.box(size, [x, B + size[1] / 2, z - Math.sign(z) * .12], 'bronze', { region, bevel: .03 });
+  const block = (x: number, z: number, size: Vec = [1.25, .45, 1]) => b.box(size, [x, B + size[1] / 2, z - Math.sign(z) * .12], 'darkBronze', { bevel: .03 });
 
   // ---------- 趺: base frame with the levelling water channel ----------
   b.feature('base-frame-with-water-channel');
-  for (const x of [-7.7, -2.6, 2.6, 7.7]) for (const sz of [-1, 1]) b.box([1.2, footH, 1.1], [x, footH / 2, sz * (hz - .45)], 'stone', { bevel: .1 });
+  for (const x of [-7.7, -2.6, 2.6, 7.7]) for (const sz of [-1, 1]) b.box([1.2, footH, 1.1], [x, footH / 2, sz * (hz - .45)], 'darkBronze', { bevel: .1 });
   const pY = footH + plinthH / 2;
   for (const sz of [-1, 1]) b.box([L + .3, plinthH, .8], [0, pY, sz * (hz + .15 - .4)], 'darkBronze', { bevel: .02 });
   for (const sx of [-1, 1]) b.box([.8, plinthH, W + .3 - 1.6], [sx * (hx + .15 - .4), pY, 0], 'darkBronze', { bevel: .02 });
@@ -108,10 +111,10 @@ export function build(b: ReconstructionBuilder) {
   // Frame bars with the channel: a bar, then an outer and an inner lip with the dry channel between them.
   const chD = .1, lipW = .19, barH = frameH - chD, barY = footH + plinthH + barH / 2, lipY = B - chD / 2;
   for (const sz of [-1, 1]) {
-    const region = sz > 0 ? 'base-front' : undefined, z = sz * zc;
-    b.box([L, barH, bw], [0, barY, z], 'darkBronze', { region, bevel: .015 });
-    b.box([L, chD, lipW], [0, lipY, z + sz * (bw - lipW) / 2], 'darkBronze', { region, bevel: .01 });
-    b.box([L - 2 * bw + 2 * lipW, chD, lipW], [0, lipY, z - sz * (bw - lipW) / 2], 'darkBronze', { region, bevel: .01 });
+    const z = sz * zc;
+    b.box([L, barH, bw], [0, barY, z], 'darkBronze', { region: sz > 0 ? 'base-front' : undefined, bevel: .015 });
+    b.box([L, chD, lipW], [0, lipY, z + sz * (bw - lipW) / 2], 'darkBronze', { bevel: .01 });
+    b.box([L - 2 * bw + 2 * lipW, chD, lipW], [0, lipY, z - sz * (bw - lipW) / 2], 'darkBronze', { bevel: .01 });
   }
   for (const sx of [-1, 1]) {
     const x = sx * (hx - bw / 2);
@@ -121,34 +124,39 @@ export function build(b: ReconstructionBuilder) {
   }
   // Inner beams: three cross beams and two long beams, a little lower than the frame.
   const beamH = frameH - .06, beamY = footH + plinthH + beamH / 2;
-  for (const x of [-3.9, -.85, 3.3]) b.box([.42, beamH, W - 2 * bw], [x, beamY, 0], 'darkBronze', { bevel: .015 });
+  for (const x of [-3.9, -.85, 4.45]) b.box([.42, beamH, W - 2 * bw], [x, beamY, 0], 'darkBronze', { bevel: .015 });
   for (const sz of [-1, 1]) b.box([L - 2 * bw, beamH, .38], [0, beamY, sz * 1.7], 'darkBronze', { bevel: .015 });
 
   // ---------- south support: a dragon A-frame on each long side ----------
   b.feature('south-dragon-a-frames');
   for (const s of [1, -1]) {
     const z = s * zc, region = s > 0 ? 'south-front' : 'south-back';
-    block(-7.4, z, region, [1.25, .5, 1]); block(-.5, z, region);
+    block(-7.4, z, [1.25, .5, 1]); block(-.5, z);
     // The corner leg rises steeply, then leans in toward the apex; the middle leg runs straight.
-    pillar([v(-7.35, B + .3, z), v(-6.95, 3.6, z), v(-6.45, 5.2, z), v(-5.4, 8.1, z), v(-4.85, 9.05, z)], region, 2.2, 0, .45);
-    pillar([v(-.5, B + .3, z), v(-2.48, 5.4, z), v(-4.4, 9.0, z)], region, 2.4, 1.3, .38);
-    b.sphere(.72, [-4.62, 9.05, z], 'bronze', { region, scale: [1.2, .95, 1], segments: 18 });
-    head(v(-5.95, 7.55, z + s * .4), -1, region);
+    pillar([v(-7.35, B + .3, z), v(-6.95, 3.6, z), v(-6.45, 5.2, z), v(-5.4, 8.1, z), v(-4.8, 8.8, z)], region, 2.2, 0, .39);
+    pillar([v(-.5, B + .3, z), v(-2.4, 5.2, z), v(-4.45, 8.45, z)], region, 2.4, 1.3, .3);
+    b.sphere(.5, [-4.85, 8.75, z], 'bronze', { region, scale: [1.05, .9, 1], segments: 18 });
+    b.sphere(.3, [-4.45, 8.45, z], 'bronze', { region, segments: 12 });
+    head(v(-6.35, 7.45, z + s * .4), -1, region);
   }
 
   // ---------- 북극운가주: north pillars, their middle legs and the dragon cross beam ----------
   b.feature('north-dragon-pillars-and-pole-ring');
   const topR = 1.15, topRadial = .2, topAxial = .3;
   for (const s of [1, -1]) {
-    const z = s * zc, region = s > 0 ? 'north-front' : 'north-back';
-    block(7.45, z, region, [1.9, .55, 1.15]); block(1.2, z, region);
+    const z = s * zc, region = s > 0 ? 'north-front' : 'north-back', mid = s > 0 ? 'north-mid-front' : 'north-mid-back', top = s > 0 ? 'north-top-front' : 'north-top-back';
+    block(7.45, z, [1.9, .55, 1.15]); block(1.2, z);
     // The north pillar stands nearly upright, then curls in toward the pole ring (as in the photo).
-    pillar([v(7.3, B + .35, z), v(7.05, 3.7, z), v(6.25, 5.3, z), v(xCross, yCross, s * 4.75), v(4.6, 9.5, s * 2.9), v(T.x + .25, T.y - .15, s * (topR + .3))], region, 3, .6, .4);
-    pillar([v(1.2, B + .3, z), v(2.55, 4.05, z), v(xCross, yCross, s * 4.75)], region, 2, 2.1, .38);
-    b.sphere(.66, [xCross, yCross, s * 4.75], 'bronze', { region, segments: 16 });
-    head(v(3.75, 7.1, s * 5.15), -1, region);
+    pillar([v(7.25, B + .35, z), v(6.97, 3.7, z), v(6.17, 5.3, z), v(xCross, yCross, s * 4.75)], region, 2, .6, .29);
+    pillar([v(xCross, yCross, s * 4.75), v(4.6, 9.5, s * 2.9), v(T.x + .25, T.y - .15, s * (topR + .3))], top, 1.2, .2, .29);
+    b.sphere(.3, [T.x + .25, T.y - .15, s * (topR + .3)], 'darkBronze', { segments: 14 });
+    pillar([v(1.2, B + .3, z), v(2.55, 4.05, z), v(xCross, yCross, s * 4.75)], mid, 2, 2.1, .3);
+    b.sphere(.35, [xCross, yCross, s * 4.75], 'bronze', { region, segments: 16 });
+    head(v(3.35, 6.9, s * 5.1), -1, mid, .8);
+    rod(v(3.5, 6.95, s * 5.0), v(4.5, 7.2, s * 4.8), .26, 'bronze', mid, 12); // neck back into the leg
   }
-  b.tube([[xCross, yCross, -4.6], [xCross, yCross, 0], [xCross, yCross, 4.6]], .34, 'bronze', { region: 'crossbar', segments: 24, radial: 12 });
+  // The dragon cross beam is textured with the front middle leg (the photo sees both from the same side).
+  b.tube([[xCross, yCross, -4.6], [xCross, yCross, 0], [xCross, yCross, 4.6]], .34, 'bronze', { region: 'north-mid-front', segments: 24, radial: 12 });
 
   // ---------- polar frame: local y = polar axis, local z = east–west ----------
   const polar = new THREE.Group();
@@ -208,14 +216,16 @@ export function build(b: ReconstructionBuilder) {
 
   // ---------- 입운의: 지평환 (horizon ring) and 입운환 (vertical ring) between the north legs ----------
   b.feature('ipunhwan-vertical-ring-in-jipyeonghwan-horizon-ring');
-  const xa = 3.3, jipR = 3.45, beamTop = B - .06, ipR = 2.25, ipY = beamTop + .3 + ipR;
+  const xa = 4.45, jipR = 3.4, beamTop = B - .06, ipR = 2.3, ipY = beamTop + .25 + ipR, pivotY = yCross - .36;
   b.band(jipR, .2, .34, [xa, beamTop + .1, 0], 'darkBronze', { segments: 96 });
-  // The vertical ring turns on an upright axle stepped into the cross beam (no upper support shows in the photo).
-  b.cylinder(.08, .08, 2 * ipR + .5, [xa, beamTop + (2 * ipR + .5) / 2, 0], 'darkBronze', { segments: 12 });
+  // The vertical ring turns on an upright axle: stepped into the cross beam below, and above held in a
+  // bracket under the dragon cross beam (inferred; a dragon head hides that spot in the photo).
+  b.cylinder(.08, .08, pivotY - beamTop, [xa, (pivotY + beamTop) / 2, 0], 'darkBronze', { segments: 12 });
   b.cylinder(.22, .26, .25, [xa, beamTop + .125, 0], 'darkBronze', { segments: 16 });
-  b.band(ipR, .09, .2, [xa, ipY, 0], 'darkBronze', { rotation: [0, -.28, Math.PI / 2], segments: 80 });
+  b.box([xCross - xa + .25, .14, .2], [(xCross + xa) / 2 + .05, pivotY, 0], 'darkBronze', { bevel: .02 });
+  b.band(ipR, .09, .2, [xa, ipY, 0], 'darkBronze', { rotation: [0, -.66, Math.PI / 2], segments: 80 });
   // A sighting bar across the vertical ring, pivoting on the axle.
-  b.box([.12, .08, 2 * ipR - .2], [xa, ipY, 0], 'darkBronze', { rotation: [.5, -.28, 0], bevel: .01 });
+  b.box([.12, .08, 2 * ipR - .2], [xa, ipY, 0], 'darkBronze', { rotation: [.5, -.66, 0], bevel: .01 });
 
   // ---------- graduations (thin ticks only) ----------
   const tickList: Tick[] = [];
@@ -244,18 +254,24 @@ export function build(b: ReconstructionBuilder) {
 }
 
 /**
- * Where each textured part sits in the photo (ganui.jpg, the 영릉 restoration seen from the east side,
- * a little south of the middle, the camera about 6 尺 above the base). The frames were fitted by
- * projecting the model through a pinhole camera matched to the photo (base corners, ring outlines and
- * pillar feet) and choosing, per region, the view direction whose straight projection lands closest.
- * Back regions use the mirrored direction (azimuth 180° − front) and the same frame, so the hidden back
- * pair carries its visible front twin's pixels.
+ * Where each textured part sits in the photo (ganui.jpg: the 영릉 restoration seen from the east, the
+ * camera a little south of the middle and about 6 尺 above the base). The frames were fitted by
+ * projecting the model through a pinhole camera matched to the photo (base outline, ring outlines and
+ * pillar paths) and choosing, per region, the straight view direction that lands closest to it; the
+ * north pillar is split at the crossing because its upper part curls back toward the pole ring.
+ * The back pair of each support is hidden in the photo: each '-back' region uses the mirrored direction
+ * (elevation and azimuth negated) with the same frame, so it carries its front twin's pixels.
+ * Not textured (plain bronze, as dark as the photo shows them): all rings and thin bars, which have the
+ * building, trees or sky behind them; pedestals, horns and the rest of the base.
  */
 export const photoViews: Record<string, PhotoView> = {
-  'south-front': { elevation: 1, azimuth: 11, frame: [.210, .205, .587, .873] },
-  'south-back': { elevation: -1, azimuth: -11, frame: [.210, .205, .587, .873] },
-  'north-front': { elevation: -5, azimuth: -17, frame: [.590, .092, .956, .881] },
-  'north-back': { elevation: 5, azimuth: 17, frame: [.590, .092, .956, .881] },
-  crossbar: { elevation: 0, azimuth: -18, frame: [.673, .362, .799, .404] },
-  'base-front': { elevation: 20, azimuth: 0, frame: [.158, .858, .991, .922] },
+  'south-front': { elevation: 0, azimuth: 13, frame: [.226, .249, .565, .858] },
+  'south-back': { elevation: 0, azimuth: -13, frame: [.226, .249, .565, .858] },
+  'north-front': { elevation: 8, azimuth: -27, frame: [.784, .351, .912, .848] },
+  'north-back': { elevation: -8, azimuth: 27, frame: [.784, .351, .912, .848] },
+  'north-top-front': { elevation: 2, azimuth: -25, frame: [.662, .124, .809, .384] },
+  'north-top-back': { elevation: -2, azimuth: 25, frame: [.662, .124, .809, .384] },
+  'north-mid-front': { elevation: 0, azimuth: -16, frame: [.616, .355, .814, .856] },
+  'north-mid-back': { elevation: 0, azimuth: 16, frame: [.616, .355, .814, .856] },
+  'base-front': { elevation: 20, azimuth: 0, frame: [.156, .866, .994, .922] },
 };
