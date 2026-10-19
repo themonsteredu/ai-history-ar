@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import type { StudioSession } from '../ar-studio/api';
-import { forgetOpenSession, joinOpenLesson, loadState, readOpenSession, saveCard, saveCheck, type OpenState } from './api';
+import { forgetOpenSession, joinOpenLesson, latestLoads, loadState, readOpenSession, saveCard, saveCheck, type OpenState } from './api';
 import { artifactById } from './artifacts';
 import { CardGallery } from './CardGallery';
 import { CardMaker } from './CardMaker';
@@ -67,16 +67,22 @@ function Lesson({ session, onLeave }: { session: StudioSession; onLeave: () => v
   const [error, setError] = useState('');
   const [target, setTarget] = useState(0);
 
+  // On slow Wi-Fi a tick waits for the load still running, and a late old reply never replaces a newer one.
+  const [loads] = useState(() => latestLoads());
   const refresh = useCallback(async () => {
     if (document.visibilityState === 'hidden') return;
-    try { setState(await loadState(code, token)); setLoaded(true); setError(''); }
-    catch (value) {
-      const status = (value as { status?: number }).status;
-      if (status === 401 || status === 403) { setError('입장 정보가 바뀌었어요. 다시 입장해 주세요.'); return; }
-      setError(value instanceof Error ? value.message : '불러오지 못했어요.');
-    }
-  }, [code, token]);
-  useEffect(() => { void refresh(); const timer = window.setInterval(() => { void refresh(); }, 6000); return () => clearInterval(timer); }, [refresh]);
+    const result = await loads(() => loadState(code, token));
+    if (!result) return;
+    if (result.ok) { setState(result.value); setLoaded(true); setError(''); return; }
+    const status = (result.error as { status?: number }).status;
+    if (status === 401 || status === 403) { setError('입장 정보가 바뀌었어요. 다시 입장해 주세요.'); return; }
+    setError(result.error instanceof Error ? result.error.message : '우리 반 카드를 새로 받지 못했어요. 잠시 뒤 저절로 다시 받아요.');
+  }, [code, token, loads]);
+  useEffect(() => {
+    const tick = () => { void refresh(); };
+    tick(); const timer = window.setInterval(tick, 6000); window.addEventListener('online', tick);
+    return () => { clearInterval(timer); window.removeEventListener('online', tick); };
+  }, [refresh]);
 
   const go = (next: View, extra: Record<string, string> = {}) => { const value = new URLSearchParams(params); value.set('view', next); value.delete('group'); Object.entries(extra).forEach(([k, v]) => value.set(k, v)); setParams(value); window.scrollTo({ top: 0 }); };
 

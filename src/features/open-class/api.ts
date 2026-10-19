@@ -5,12 +5,47 @@ export interface OpenItem<T> { key: string; version: number; data: T; updatedAt:
 export interface OpenState { cards: OpenItem<GroupCard>[]; checks: OpenItem<Verification>[]; teacher: OpenItem<TeacherSet>[] }
 interface RawState { items: ({ kind: 'card' | 'verify' | 'teacher' } & OpenItem<unknown>)[] }
 
+/** School Wi-Fi can stall a request for minutes; after this long it is given up and tried again later. */
+export const OPEN_API_TIMEOUT = 15_000;
+/** Status of a request that never got an answer (offline, cut off or too slow), so 401/403/409 handling stays as it is. */
+export const NO_ANSWER = 0;
+const noAnswer = (save: boolean, slow: boolean) => new StudioApiError(save
+  ? `인터넷이 ${slow ? '느려서' : '잘 안 돼서'} 아직 저장하지 못했어요. 쓴 내용은 이 태블릿에 남아 있어요.`
+  : `인터넷이 ${slow ? '느려서' : '잘 안 돼서'} 우리 반 카드를 새로 받지 못했어요. 잠시 뒤 저절로 다시 받아요.`, NO_ANSWER);
+
 async function openApi<T>(path: string, token: string, body?: unknown): Promise<T> {
-  const response = await fetch(`${import.meta.env.BASE_URL}api/open-lesson${path}`, { method: body === undefined ? 'GET' : 'POST', credentials: 'same-origin',
-    headers: { Authorization: `Bearer ${token}`, ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) }, body: body === undefined ? undefined : JSON.stringify(body) });
-  const value = await response.json().catch(() => ({}));
-  if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) throw new StudioApiError(value.error || '저장 서버에 연결하지 못했어요. 쓴 내용은 이 기기에 남아 있어요.', response.status);
-  return value as T;
+  const controller = new AbortController(), timer = setTimeout(() => controller.abort(), OPEN_API_TIMEOUT);
+  try {
+    const response = await fetch(`${import.meta.env.BASE_URL}api/open-lesson${path}`, { method: body === undefined ? 'GET' : 'POST', credentials: 'same-origin', signal: controller.signal,
+      headers: { Authorization: `Bearer ${token}`, ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) }, body: body === undefined ? undefined : JSON.stringify(body) });
+    const value = await response.json().catch(() => ({}));
+    // A body cut off by the timeout must not pass for an empty answer.
+    if (controller.signal.aborted) throw noAnswer(body !== undefined, true);
+    if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) throw new StudioApiError(value.error || '저장 서버에 연결하지 못했어요. 쓴 내용은 이 기기에 남아 있어요.', response.status);
+    return value as T;
+  } catch (error) {
+    // The browser's own wording ('Failed to fetch', 'The user aborted a request') is English and means nothing to a student.
+    throw error instanceof StudioApiError ? error : noAnswer(body !== undefined, controller.signal.aborted);
+  } finally { clearTimeout(timer); }
+}
+
+export type Loaded<T> = { ok: true; value: T } | { ok: false; error: unknown };
+/**
+ * Keeps class polling calm on slow Wi-Fi: a call made while the last load is still running is skipped
+ * (unless that one has hung past `staleAfter`), and an answer is handed back only when no later-started
+ * load has been shown yet, so an old reply never replaces a newer one. Skipped or outdated calls give undefined.
+ */
+export function latestLoads(staleAfter = 30_000, now = () => Date.now()) {
+  let started = 0, shown = 0, busyUntil = 0;
+  return async <T>(load: () => Promise<T>): Promise<Loaded<T> | undefined> => {
+    if (now() < busyUntil) return;
+    const ticket = ++started; busyUntil = now() + staleAfter;
+    let result: Loaded<T>;
+    try { result = { ok: true, value: await load() }; } catch (error) { result = { ok: false, error }; }
+    if (ticket === started) busyUntil = 0;
+    if (ticket < shown) return;
+    shown = ticket; return result;
+  };
 }
 
 export async function loadState(code: string, token: string): Promise<OpenState> {
@@ -32,7 +67,9 @@ export function readOpenSession(code: string): StudioSession | undefined {
 }
 export function forgetOpenSession(code: string) { try { localStorage.removeItem(sessionKey(code)); } catch { /* nothing kept */ } }
 export async function joinOpenLesson(code: string, name: string, group: number) {
-  const session = await studioApi<StudioSession>('/join', undefined, { code, name, group });
+  const session = await studioApi<StudioSession>('/join', undefined, { code, name, group }).catch((error: unknown) => {
+    throw error instanceof StudioApiError ? error : new StudioApiError('인터넷이 잘 안 돼서 수업에 들어가지 못했어요. 인터넷이 되는지 확인해 주세요.', NO_ANSWER);
+  });
   try { localStorage.setItem(sessionKey(session.code), JSON.stringify(session)); } catch { /* kept for this visit */ }
   return session;
 }
