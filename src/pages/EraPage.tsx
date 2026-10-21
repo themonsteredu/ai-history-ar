@@ -25,7 +25,7 @@ export function EraPage({ eraId }: { eraId: EraId }) {
             <p>차시를 고른 뒤 수업 PPT를 띄우거나 활동 화면을 바로 실행하세요.</p>
             {era.id === 'joseon' && <div className="era-hero__maker-entry">
               <Link className="button" to={`/joseon/open-class${search}`}>공개수업 · 과학 유물 AR 카드</Link>
-              <span>유물 카드 만들기 · OX 문제 · AI로 검증하기</span>
+              <span>사전 제작 카드 발표 · AI 문제 2개 · 자료로 검증</span>
             </div>}
             {era.id === 'three-kingdoms' && <div className="era-hero__maker-entry">
               <Link className="button" to={makerPath(search)}>AR 만들기 바로 시작</Link>

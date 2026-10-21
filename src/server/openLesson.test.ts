@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createOpenLessonHandler } from './openLesson';
-import { newCard, newPoint, newVerification } from '../features/open-class/model';
+import { newCard, newPoint, newSelfVerification, newVerification } from '../features/open-class/model';
 
 const token = 'b'.repeat(64);
 function request(path: string, body?: unknown, headers: Record<string, string> = {}) {
@@ -45,6 +45,12 @@ describe('open lesson Edge API', () => {
     const api = setup();
     expect((await api.handler(request('/rooms/5252/verify/3', { data: newVerification(1, 3), expectedVersion: 2 }))).status).toBe(200);
     expect(api.sent().p_payload).toMatchObject({ kind: 'verify', key: '1:3', expectedVersion: 2 });
+  });
+  it('allows explicitly marked own-group AI checks while rejecting unmarked self checks', async () => {
+    const api = setup();
+    expect((await api.handler(request('/rooms/5252/verify/2', {data:newSelfVerification(2),expectedVersion:0}))).status).toBe(200);
+    expect(api.sent().p_payload).toMatchObject({kind:'verify',key:'2:2'});
+    expect((await api.handler(request('/rooms/5252/verify/2', {data:newVerification(2,2),expectedVersion:0}))).status).toBe(400);
   });
   it('lets only the teacher PIN save teacher questions', async () => {
     const api = setup();

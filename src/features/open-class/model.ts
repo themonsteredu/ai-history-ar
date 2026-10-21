@@ -14,7 +14,9 @@ export interface VerifyItem {
   solved: Ox | ''; why: string; curious: string; asked: boolean; aiAnswer: string;
   decision: Decision | ''; revised: string; revisedAnswer: Ox | ''; reason: string; explanation: string;
 }
-export interface Verification { version: 1; verifier: number; target: number; parts: PromptParts; items: VerifyItem[] }
+export interface LessonNotes { feature: string; use: string; benefit: string; source: string; listening: string[]; learned: string; caution: string }
+export const emptyLessonNotes = (): LessonNotes => ({ feature: '', use: '', benefit: '', source: '', listening: Array(6).fill(''), learned: '', caution: '' });
+export interface Verification { mode?: 'self'; selfQuestions?: OxQuestion[]; notes?: LessonNotes; version: 1; verifier: number; target: number; parts: PromptParts; items: VerifyItem[] }
 
 export const MIN_POINTS = 2, MAX_POINTS = 6, MIN_QUESTIONS = 2, MAX_QUESTIONS = 5, MAX_TEACHER_QUESTIONS = 5;
 export const DECISIONS: { id: Decision; label: string; help: string }[] = [
@@ -60,7 +62,9 @@ export function isTeacherSet(value: unknown): value is TeacherSet {
 }
 export function isVerification(value: unknown): value is Verification {
   const v = value as Verification, p = v?.parts;
-  return !!v && typeof v === 'object' && v.version === 1 && group(v.verifier) && group(v.target) && v.verifier !== v.target &&
+  return !!v && typeof v === 'object' && v.version === 1 && group(v.verifier) && group(v.target) && (v.mode === 'self' ? v.verifier === v.target : v.mode === undefined && v.verifier !== v.target) &&
+    (v.mode !== 'self' || (Array.isArray(v.selfQuestions) && v.selfQuestions.length === 2 && uniqueIds(v.selfQuestions) && v.selfQuestions.every(isQuestion))) &&
+    (v.notes === undefined || (!!v.notes && ['feature','use','benefit','source','learned','caution'].every(k => text(v.notes![k as keyof Omit<LessonNotes, 'listening'>], 600)) && Array.isArray(v.notes.listening) && v.notes.listening.length === 6 && v.notes.listening.every(x => text(x, 300)))) &&
     !!p && typeof p === 'object' && text(p.role, 200) && text(p.situation, 300) && text(p.style, 200) &&
     Array.isArray(v.items) && v.items.length <= MAX_QUESTIONS + MAX_TEACHER_QUESTIONS && new Set(v.items.map(i => i?.questionId)).size === v.items.length &&
     v.items.every(i => i && id(i.questionId) && (i.source === 'student' || i.source === 'teacher') && (i.solved === '' || ox(i.solved)) && text(i.why, 300) && text(i.curious, 300) &&
@@ -76,9 +80,6 @@ export function cardProblems(card: GroupCard) {
   const written = card.points.filter(p => p.title.trim() && p.text.trim());
   if (written.length < MIN_POINTS) problems.push(`유물 사진에 설명 점을 ${MIN_POINTS}개 이상 찍고 제목·설명을 써 주세요.`);
   card.points.forEach((p, i) => { if (!p.title.trim() || !p.text.trim()) problems.push(`${i + 1}번 점의 제목과 설명을 채워 주세요.`); });
-  const ready = readyQuestions(card.questions);
-  if (ready.length < MIN_QUESTIONS) problems.push(`OX 문제를 ${MIN_QUESTIONS}개 이상 만들어 주세요.`);
-  card.questions.forEach((q, i) => { if (q.statement.trim() && !q.explanation.trim()) problems.push(`${i + 1}번 문제의 정답 이유를 써 주세요.`); });
   return problems;
 }
 
@@ -100,7 +101,7 @@ export const itemDone = (item: VerifyItem) => !!item.solved && !!item.decision &
 export function verifyProgress(verification: Verification | undefined, total: number) {
   const items = verification?.items || [];
   const count = (decision: Decision) => items.filter(item => item.decision === decision).length;
-  return { total, solved: items.filter(i => i.solved).length, asked: items.filter(i => i.asked || i.aiAnswer.trim()).length, done: items.filter(itemDone).length, adopt: count('adopt'), revise: count('revise'), exclude: count('exclude') };
+  return { total, solved: items.filter(i => i.solved).length, asked: items.filter(i => i.asked || i.aiAnswer.trim()).length, done: items.filter(i => verification?.mode === 'self' ? selfItemDone(i) : itemDone(i)).length, adopt: count('adopt'), revise: count('revise'), exclude: count('exclude') };
 }
 
 // ---- the question to Gemini ----
@@ -129,3 +130,16 @@ export function buildPrompt(parts: PromptParts, q: PromptQuestion) {
   return lines.join('\n');
 }
 export const missingParts = (parts: PromptParts) => PROMPT_FIELDS.filter(f => !parts[f.key].trim()).map(f => f.label);
+
+
+export const newSelfVerification = (group: number): Verification => ({ ...newVerification(group, group), mode: 'self', selfQuestions: [newQuestion(), newQuestion()], notes: emptyLessonNotes() });
+export const selfQuestions = (check?: Verification): CheckQuestion[] => readyQuestions(check?.selfQuestions || []).map(q => ({ ...q, source: 'student' as const }));
+export const selfItemDone = (item: VerifyItem) => !!item.why.trim() && (item.decision === 'exclude' ? !!item.reason.trim() && !!item.explanation.trim() : itemDone(item));
+export function buildCreationPrompt(parts: PromptParts, card: GroupCard) {
+  const name = ARTIFACTS.find(a => a.id === card.artifactId)?.name || '우리 모둠 유물';
+  return [parts.role.trim() && `[역할] ${parts.role.trim()}`, parts.situation.trim() && `[상황] ${parts.situation.trim()}`,
+    `[주제] ${name}의 특징, 쓰임, 백성 생활에 준 도움`,
+    '[우리 모둠이 조사한 내용 - 정확성은 자료로 다시 확인할 예정]', ...card.points.map(p => `${p.title}: ${p.text}`),
+    '[요청] 초등학교 5학년 친구들에게 낼 OX 문제를 정확히 2개 만들어 줘. 각 문항마다 문장, AI가 제안한 정답(O/X), 해설을 적어 줘. 한 문항에는 한 가지 사실만 담아 줘. 확실하지 않은 내용은 확실하지 않다고 밝혀 줘.',
+    parts.style.trim() && `[답하는 방법] ${parts.style.trim()}`].filter(Boolean).join('\n');
+}

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArCard, ArCameraView } from './ArCard';
 import { ARTIFACTS, artifactById } from './artifacts';
-import { cardProblems, MAX_POINTS, MAX_QUESTIONS, MIN_QUESTIONS, newPoint, newQuestion, type GroupCard, type OxQuestion } from './model';
+import { cardProblems, MAX_POINTS, newPoint, type GroupCard } from './model';
 import { saveLabel } from './useSyncedDraft';
 import type { useSyncedDraft } from './useSyncedDraft';
 
@@ -17,7 +17,6 @@ export function CardMaker({ draft, taken }: { draft: Draft; taken: Map<number, n
   const artifact = artifactById(card.artifactId);
   const problems = cardProblems(card);
   const change = (next: Partial<GroupCard>) => draft.update(current => ({ ...current, ...next }));
-  const changeQuestion = (id: string, next: Partial<OxQuestion>) => draft.update(current => ({ ...current, questions: current.questions.map(q => q.id === id ? { ...q, ...next } : q) }));
   const selectedPoint = card.points.find(point => point.id === selected);
 
   function place(position: [number, number, number]) {
@@ -73,26 +72,11 @@ export function CardMaker({ draft, taken }: { draft: Draft; taken: Map<number, n
       {selectedPoint && moving && <p className="oc-help" role="status">{card.points.indexOf(selectedPoint) + 1}번 점을 옮길 곳을 모형에서 누르세요.</p>}
     </section>}
 
-    {artifact && <section className="oc-panel" aria-labelledby="oc-quiz">
-      <h2 id="oc-quiz"><span className="oc-step">3</span>카드 내용으로 OX 문제 만들기</h2>
-      <p className="oc-help">기본 {MIN_QUESTIONS}문제를 만들고, 더 만들고 싶으면 {MAX_QUESTIONS}문제까지 추가해요. 다른 모둠이 카드를 보고 풀 수 있게 만들어요.</p>
-      <ol className="oc-questions">{card.questions.map((q, index) => <li key={q.id} className="oc-question">
-        <div className="oc-question-head"><b>{index + 1}번 문제</b>{card.questions.length > MIN_QUESTIONS && <button type="button" className="oc-danger" onClick={() => draft.update(current => ({ ...current, questions: current.questions.filter(item => item.id !== q.id) }))}>문제 빼기</button>}</div>
-        <label className="oc-field">문장<textarea value={q.statement} maxLength={200} rows={2} placeholder={`예: ${artifact.name}은 세종 때 만들었다.`} onChange={event => changeQuestion(q.id, { statement: event.target.value })} /></label>
-        <div className="oc-ox-row"><span>정답</span>
-          {(['O', 'X'] as const).map(value => <button key={value} type="button" className={`oc-ox oc-ox--${value}`} aria-pressed={q.answer === value} onClick={() => changeQuestion(q.id, { answer: value })}>{value}</button>)}
-          <label className="oc-inline">근거가 있는 점<select value={q.pointId} onChange={event => changeQuestion(q.id, { pointId: event.target.value })}><option value="">고르기</option>{card.points.map((p, i) => <option key={p.id} value={p.id}>{i + 1}번 {p.title || ''}</option>)}</select></label>
-        </div>
-        <label className="oc-field">정답인 이유<input value={q.explanation} maxLength={400} placeholder="왜 O(또는 X)인지 한 문장으로 써요." onChange={event => changeQuestion(q.id, { explanation: event.target.value })} /></label>
-      </li>)}</ol>
-      {card.questions.length < MAX_QUESTIONS && <button type="button" onClick={() => draft.update(current => ({ ...current, questions: [...current.questions, newQuestion()] }))}>＋ 문제 추가 ({card.questions.length}/{MAX_QUESTIONS})</button>}
-    </section>}
-
     <section className="oc-save" aria-label="카드 저장">
       <p className={`oc-save-state is-${draft.state}`} role="status">{saveLabel(draft.state, draft.dirty, draft.savedAt)}{draft.message && ` · ${draft.message}`}</p>
       {draft.state === 'conflict' && <div className="oc-actions"><button type="button" onClick={draft.takeServer}>다른 태블릿 것 불러오기</button><button type="button" className="oc-primary" onClick={draft.keepMine}>이 태블릿 것으로 저장</button></div>}
       {draft.state !== 'conflict' && <button type="button" className="oc-primary" disabled={draft.state === 'saving'} onClick={() => { void draft.saveNow(true); }}>지금 우리 반에 저장</button>}
-      {problems.length > 0 ? <details className="oc-todo"><summary>아직 남은 일 {problems.length}가지</summary><ul>{problems.map(item => <li key={item}>{item}</li>)}</ul></details> : <p className="oc-done">카드 완성! 다른 모둠이 관찰하고 문제를 풀 수 있어요.</p>}
+      {problems.length > 0 ? <details className="oc-todo"><summary>아직 남은 일 {problems.length}가지</summary><ul>{problems.map(item => <li key={item}>{item}</li>)}</ul></details> : <p className="oc-done">사전 카드 준비 완료! 공개수업에서는 이 카드로 발표하고 AI 문제를 만들어요.</p>}
     </section>
     {ar && artifact && <ArCameraView artifactId={card.artifactId} points={card.points} title={`${card.group}모둠 · ${artifact.name}`} onClose={() => setAr(false)} />}
   </div>;

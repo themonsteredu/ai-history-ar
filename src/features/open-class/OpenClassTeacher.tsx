@@ -9,7 +9,7 @@ import { forgetOpenSession, joinOpenLesson, latestLoads, loadState, readOpenSess
 import { joseonModelFor, joseonModels, joseonTargets } from '../../lib/ar/joseon/catalog';
 import { ArCard } from './ArCard';
 import { ARTIFACTS, artifactById } from './artifacts';
-import { cardProblems, decisionLabel, isTeacherSet, MAX_TEACHER_QUESTIONS, newQuestion, newTeacherSet, questionsToCheck, readyQuestions, verifyProgress, type GroupCard, type OxQuestion, type TeacherSet, type Verification } from './model';
+import { cardProblems, decisionLabel, isTeacherSet, MAX_TEACHER_QUESTIONS, newQuestion, newTeacherSet, questionsToCheck, selfQuestions, readyQuestions, verifyProgress, type GroupCard, type OxQuestion, type TeacherSet, type Verification } from './model';
 import { LessonPrep } from './LessonPrep';
 import { Presentation } from './Presentation';
 import { saveLabel, useSyncedDraft } from './useSyncedDraft';
@@ -19,12 +19,13 @@ const SITE = 'https://ai-history-ar.vercel.app';
 export const openClassUrl = (code: string, extra = '') => `${SITE}/joseon/open-class?code=${encodeURIComponent(code)}${extra}`;
 const emptyState: OpenState = { cards: [], checks: [], teacher: [] };
 const FLOW = [
-  { minutes: 5, who: '선생님', title: '수업코드 QR 띄우기 · 활동 안내', detail: '모둠 태블릿마다 QR을 찍고 이름·모둠을 고르게 해요.' },
-  { minutes: 12, who: '학생', title: 'AR 카드 만들기', detail: '유물 고르기 → 입체 모형에 점 찍고 설명 → OX 문제 2개(추가 가능).' },
-  { minutes: 5, who: '학생', title: '다른 모둠 카드 관찰', detail: '‘AR로 보기’로 카드를 살펴보고 설명을 읽어요.' },
-  { minutes: 10, who: '학생', title: 'AI로 검증하기', detail: '풀기 → 역할 설정 질문 복사 → 제미나이 → 채택·직접 수정·제외 + 이유 + 정답 해설.' },
-  { minutes: 8, who: '모둠', title: '발표', detail: '아래 현황에서 모둠을 눌러 ‘발표 화면’을 크게 띄워요.' },
+ {minutes:3,who:'선생님',title:'활동 안내',detail:'AR 카드는 사전에 제작합니다. 당일에는 발표부터 시작해요.'},
+ {minutes:10,who:'모둠',title:'AR 카드 발표',detail:'특징·쓰임·백성 생활에 준 도움·출처를 설명하고 친구 발표를 핵심어로 기록해요.'},
+ {minutes:15,who:'학생',title:'AI 문제 2개 만들고 자료로 검증',detail:'AI에 질문 → 초안 2개 → 교과서·참고 자료 대조 → 채택·수정·제외와 근거.'},
+ {minutes:9,who:'모둠',title:'검증한 퀴즈 발표',detail:'친구들이 먼저 답하고, 출제 모둠이 정답·근거 공개 버튼으로 해설해요.'},
+ {minutes:3,who:'학생',title:'배움 정리',detail:'알게 된 점과 AI 정보를 확인해야 하는 까닭을 적어요.'},
 ];
+const inquiryQuestions=(check:Verification|undefined,card:GroupCard|undefined,teacher:TeacherSet|undefined)=>check?.mode==='self'?selfQuestions(check):questionsToCheck(card,teacher);
 
 /** Teacher screen for the Joseon open lesson: progress of every group, how they are checking, and the teacher's own OX questions. */
 export default function OpenClassTeacher() {
@@ -119,7 +120,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
         <a className="oc-qr-link" href={openClassUrl(code)} target="_blank" rel="noopener noreferrer">{openClassUrl(code)}</a>
       </section>
       <section className="oc-panel oc-flow" aria-label="40분 진행 순서">
-        <h2>40분 진행 순서</h2>
+        <h2>40분 진행 순서</h2><a href={`${import.meta.env.BASE_URL}downloads/joseon/open-class/student-worksheet.pdf`} download>공개수업 활동지 PDF</a>
         <ol>{FLOW.map(step => <li key={step.title}><span>{step.minutes}분 · {step.who}</span><b>{step.title}</b><small>{step.detail}</small></li>)}</ol>
       </section>
     </div>
@@ -137,11 +138,11 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
     </section>
     {openGroup && <GroupDetail group={openGroup} card={cardOf(openGroup)} checks={state.checks.filter(item => item.data.verifier === openGroup)} cardOf={cardOf} teacherFor={teacherFor} />}
 
-    {session && <TeacherQuestions code={code} token={session.token} sets={state.teacher} cards={state.cards.map(item => item.data)} />}
+    {session && <details className="oc-panel"><summary>이전 수업용 · 선생님 OX 문제</summary><p>이번 공개수업은 모둠이 AI로 만든 2문항만 검증합니다. 아래 문제는 이전 방식의 기록입니다.</p><TeacherQuestions code={code} token={session.token} sets={state.teacher} cards={state.cards.map(item => item.data)} /></details>}
 
     {present && <div className="oc-present-modal" role="dialog" aria-modal="true" aria-label="발표 화면">
       <div className="oc-present-modal-bar"><b>{present.verifier}모둠 발표</b><div className="oc-actions"><button type="button" onClick={() => window.print()}>인쇄</button><button type="button" className="oc-primary" onClick={() => setPresent(undefined)}>닫기</button></div></div>
-      <Presentation big check={presentCheck} card={presentCard} questions={questionsToCheck(presentCard, teacherFor(presentCard?.artifactId || 0))} />
+      <Presentation big check={presentCheck} card={presentCard} questions={inquiryQuestions(presentCheck || undefined, presentCard || undefined, teacherFor(presentCard?.artifactId || 0))} />
     </div>}
 
     {printing === 'targets' && <div className="oc-print-cards" aria-hidden="true">{joseonModels.map(info => <TargetCard key={info.id} artifactId={info.id} />)}</div>}
@@ -171,12 +172,12 @@ function GroupStatus({ group, card, cardItem, checks, cardOf, teacherFor, open, 
     </dl>
     {checks.length === 0 ? <p className="oc-group-check is-none">검증: 아직 시작 전</p> : checks.map(item => {
       const target = cardOf(item.data.target);
-      const total = questionsToCheck(target, teacherFor(target?.artifactId || 0)).length;
+      const total = item.data.mode==='self'?2:inquiryQuestions(item.data,target,teacherFor(target?.artifactId || 0)).length;
       const progress = verifyProgress(item.data, total);
       return <div key={item.key} className="oc-group-check">
         <p><b>{total && progress.done === total ? '검증 완료' : '검증 중'} → {item.data.target}모둠 {artifactById(target?.artifactId || 0)?.name || ''}</b> <small>{time(item.updatedAt)}</small></p>
         <div className="oc-meter" aria-label={`완료 ${progress.done} / ${total}`}><span style={{ width: `${total ? (progress.done / total) * 100 : 0}%` }} /></div>
-        <p className="oc-group-nums">풀이 {progress.solved}/{total} · AI 질문 {progress.asked} · 완료 {progress.done}<br /><span className="is-adopt">채택 {progress.adopt}</span> <span className="is-revise">수정 {progress.revise}</span> <span className="is-exclude">제외 {progress.exclude}</span></p>
+        <p className="oc-group-nums">자료 확인 {progress.done}/{total} · 판단 완료 {progress.done}<br /><span className="is-adopt">채택 {progress.adopt}</span> <span className="is-revise">수정 {progress.revise}</span> <span className="is-exclude">제외 {progress.exclude}</span></p>
         <button type="button" onClick={() => onPresent(item.data.target)}>발표 화면</button>
       </div>;
     })}
@@ -197,12 +198,12 @@ function GroupDetail({ group, card, checks, cardOf, teacherFor }: { group: numbe
         {card && <><h3>만든 OX 문제</h3><ol className="oc-group-qs">{readyQuestions(card.questions).map(q => <li key={q.id}>“{q.statement}” <b>{q.answer}</b> <small>{q.explanation}</small></li>)}</ol></>}
         {problems.length > 0 && <p className="oc-help is-warn">남은 일: {problems.join(' ')}</p>}
         {checks.map(item => <div key={item.key} className="oc-group-verify">
-          <h3>{item.data.target}모둠 카드 검증 기록</h3>
+          {item.data.notes&&<div><p>특징: {item.data.notes.feature}</p><p>쓰임: {item.data.notes.use}</p><p>생활에 준 도움: {item.data.notes.benefit}</p><p>출처: {item.data.notes.source}</p><p>배운 점: {item.data.notes.learned}</p><p>AI 확인이 필요한 까닭: {item.data.notes.caution}</p></div>}<h3>{item.data.mode==='self'?'우리 모둠 AI 문제':`${item.data.target}모둠 카드`} 검증 기록</h3>
           <p className="oc-help">AI 역할: {item.data.parts.role || '(아직 안 씀)'} · 상황: {item.data.parts.situation || '(아직 안 씀)'} · 답 방법: {item.data.parts.style || '(아직 안 씀)'}</p>
-          <ol>{questionsToCheck(cardOf(item.data.target), teacherFor(cardOf(item.data.target)?.artifactId || 0)).map(q => {
+          <ol>{inquiryQuestions(item.data,cardOf(item.data.target), teacherFor(cardOf(item.data.target)?.artifactId || 0)).map(q => {
             const row = item.data.items.find(value => value.questionId === q.id);
             return <li key={q.id}><p>“{q.statement}” {q.source === 'teacher' && <span className="oc-badge is-teacher">선생님 출제</span>} → 풀이 <b>{row?.solved || '-'}</b> · 판단 <b className={`is-${row?.decision || 'none'}`}>{decisionLabel(row?.decision || '')}</b></p>
-              {row?.aiAnswer && <p className="oc-help">AI: {row.aiAnswer}</p>}
+              {row?.why && <p className="oc-help">확인 자료: {row.why}</p>}{row?.aiAnswer && <p className="oc-help">AI: {row.aiAnswer}</p>}
               {row?.decision === 'revise' && <p className="oc-help">고친 문장: “{row.revised}” ({row.revisedAnswer || '?'})</p>}
               {row?.reason && <p className="oc-help">이유: {row.reason}</p>}
               {row?.explanation && <p className="oc-help">정답 해설: {row.explanation}</p>}

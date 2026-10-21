@@ -51,7 +51,7 @@ begin
     if item_kind='card' then
       if key<>member.group_no::text then return jsonb_build_object('_status',403,'error','우리 모둠 카드만 저장할 수 있어요.'); end if;
     elsif item_kind='verify' then
-      if key !~ '^[1-6]:[1-6]$' or split_part(key,':',1)<>member.group_no::text or split_part(key,':',1)=split_part(key,':',2) then
+      if key !~ '^[1-6]:[1-6]$' or split_part(key,':',1)<>member.group_no::text or (split_part(key,':',1)=split_part(key,':',2) and coalesce(p_payload->'data'->>'mode','')<>'self') then
         return jsonb_build_object('_status',403,'error','우리 모둠의 검증 기록만 저장할 수 있어요.');
       end if;
     elsif item_kind='teacher' then

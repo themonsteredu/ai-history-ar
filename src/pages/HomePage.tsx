@@ -16,7 +16,7 @@ export function HomePage() {
         <div>
           <p className="eyebrow">공개수업 바로가기 · 40분</p>
           <h2 id="open-class-entry-title">세종 때 과학 유물 AR 탐구</h2>
-          <p>AR 카드 만들기 → OX 문제 풀기 → AI로 검증하기 → 발표</p>
+          <p>사전 제작 AR 카드 발표 → AI 문제를 자료로 검증 → 퀴즈 발표</p>
         </div>
         <div className="open-class-entry__actions">
           <Link className="button button--primary" to="/joseon/open-class">학생 입장 <Icon name="arrow" size={18} /></Link>

@@ -5,7 +5,7 @@ import type { OpenItem } from './api';
 import { readyQuestions, type GroupCard } from './model';
 
 /** Step 2: look at the other groups' cards, on screen or floating over the camera. */
-export function CardGallery({ cards, myGroup, onCheck, initialGroup }: { cards: OpenItem<GroupCard>[]; myGroup: number; onCheck: (group: number) => void; initialGroup?: number }) {
+export function CardGallery({ cards, myGroup, onCheck, initialGroup }: { cards: OpenItem<GroupCard>[]; myGroup: number; onCheck?: (group: number) => void; initialGroup?: number }) {
   const visible = cards.filter(item => item.data.artifactId).sort((a, b) => a.data.group - b.data.group);
   const [open, setOpen] = useState<number | undefined>(initialGroup);
   const [selected, setSelected] = useState<string>();
@@ -25,7 +25,7 @@ export function CardGallery({ cards, myGroup, onCheck, initialGroup }: { cards: 
       </div>
       <div className="oc-actions">
         <button type="button" className="oc-primary" onClick={() => setAr(true)}>AR로 보기 (카메라)</button>
-        {current.group !== myGroup && <button type="button" onClick={() => onCheck(current.group)}>이 카드 검증하러 가기 →</button>}
+        {onCheck && current.group !== myGroup && <button type="button" onClick={() => onCheck(current.group)}>이 카드 검증하러 가기 →</button>}
       </div>
       <details className="oc-look" open><summary>설명 전체 보기</summary><ol>{current.points.map(point => <li key={point.id}><b>{point.title}</b> {point.text}</li>)}</ol></details>
       {ar && <ArCameraView artifactId={current.artifactId} points={current.points} title={`${current.group}모둠 · ${artifactById(current.artifactId)?.name}`} onClose={() => setAr(false)} />}

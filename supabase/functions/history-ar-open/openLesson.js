@@ -118,7 +118,14 @@ function isTeacherSet(value) {
 }
 function isVerification(value) {
 	const v = value, p = v?.parts;
-	return !!v && typeof v === "object" && v.version === 1 && group(v.verifier) && group(v.target) && v.verifier !== v.target && !!p && typeof p === "object" && text(p.role, 200) && text(p.situation, 300) && text(p.style, 200) && Array.isArray(v.items) && v.items.length <= 10 && new Set(v.items.map((i) => i?.questionId)).size === v.items.length && v.items.every((i) => i && id(i.questionId) && (i.source === "student" || i.source === "teacher") && (i.solved === "" || ox(i.solved)) && text(i.why, 300) && text(i.curious, 300) && typeof i.asked === "boolean" && text(i.aiAnswer, 800) && (i.decision === "" || DECISIONS.some((d) => d.id === i.decision)) && text(i.revised, 200) && (i.revisedAnswer === "" || ox(i.revisedAnswer)) && text(i.reason, 400) && text(i.explanation, 600));
+	return !!v && typeof v === "object" && v.version === 1 && group(v.verifier) && group(v.target) && (v.mode === "self" ? v.verifier === v.target : v.mode === void 0 && v.verifier !== v.target) && (v.mode !== "self" || Array.isArray(v.selfQuestions) && v.selfQuestions.length === 2 && uniqueIds(v.selfQuestions) && v.selfQuestions.every(isQuestion)) && (v.notes === void 0 || !!v.notes && [
+		"feature",
+		"use",
+		"benefit",
+		"source",
+		"learned",
+		"caution"
+	].every((k) => text(v.notes[k], 600)) && Array.isArray(v.notes.listening) && v.notes.listening.length === 6 && v.notes.listening.every((x) => text(x, 300))) && !!p && typeof p === "object" && text(p.role, 200) && text(p.situation, 300) && text(p.style, 200) && Array.isArray(v.items) && v.items.length <= 10 && new Set(v.items.map((i) => i?.questionId)).size === v.items.length && v.items.every((i) => i && id(i.questionId) && (i.source === "student" || i.source === "teacher") && (i.solved === "" || ox(i.solved)) && text(i.why, 300) && text(i.curious, 300) && typeof i.asked === "boolean" && text(i.aiAnswer, 800) && (i.decision === "" || DECISIONS.some((d) => d.id === i.decision)) && text(i.revised, 200) && (i.revisedAnswer === "" || ox(i.revisedAnswer)) && text(i.reason, 400) && text(i.explanation, 600));
 }
 //#endregion
 //#region src/server/openLesson.ts
