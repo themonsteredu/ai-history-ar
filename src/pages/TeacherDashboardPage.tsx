@@ -1,3 +1,4 @@
+import { JoseonCourseOverview } from '../components/JoseonCourseOverview';
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "../components/Icon";
@@ -37,7 +38,7 @@ export function TeacherDashboardPage() {
           </div>
           <div className="teacher-hero__summary">
             <div><span>수업 과정</span><strong>2</strong><small>시대</small></div>
-            <div><span>현재 수업</span><strong>{selectedEra.id === 'three-kingdoms' ? 6 : selectedEra.lessons.length}</strong><small>차시</small></div>
+            <div><span>현재 수업</span><strong>{6}</strong><small>차시</small></div>
             <div><span>기존 보관 자료</span><strong>{worksheetCount}</strong><small>종 구성</small></div>
           </div>
         </div>
@@ -54,7 +55,7 @@ export function TeacherDashboardPage() {
                 onClick={() => setSelectedEraId(era.id)}
                 type="button"
               >
-                {era.shortName} {era.id === 'three-kingdoms' ? '6차시 · 데이터와 AR' : `${era.lessons.length}차시`}
+                {era.shortName} {'6차시 · 데이터와 AR'}
               </button>
             ))}
           </div>
@@ -83,12 +84,13 @@ export function TeacherDashboardPage() {
           </div>
         </div>
 
+        {selectedEra.id === 'joseon' && <JoseonCourseOverview teacher query={query} />}
         {selectedEra.id === 'three-kingdoms' && <DataInquiryOverview teacher query={query} />}
         {selectedEra.id === 'three-kingdoms' && <StudioOverview teacher />}
         {selectedEra.id === 'three-kingdoms' ? <details className="data-inquiry-legacy"><summary>기존 AR·이전 수업 지도안</summary><p>새 데이터 수업은 위의 3차시 자료를 사용합니다. 기존 작업과 AR 수업 자료는 보관합니다.</p><div className="lesson-list lesson-list--teacher">{visibleLessons.map(lesson => <LessonCard era={selectedEra} key={lesson.id} lesson={lesson} mode="teacher" />)}</div></details> : visibleLessons.length > 0 ? (
-          <div className="lesson-list lesson-list--teacher">
+          <details className="data-inquiry-legacy"><summary>이전 10차시 지도안·저장 작업</summary><div className="lesson-list lesson-list--teacher">
             {visibleLessons.map((lesson) => <LessonCard era={selectedEra} key={lesson.id} lesson={lesson} mode="teacher" />)}
-          </div>
+          </div></details>
         ) : (
           <div className="empty-state">
             <strong>검색 결과가 없습니다.</strong>

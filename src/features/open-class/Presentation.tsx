@@ -1,3 +1,4 @@
+import { WorksheetHeader } from '../../components/WorksheetHeader';
 import { artifactById } from './artifacts';
 import { decisionLabel, type CheckQuestion, type GroupCard, type Verification } from './model';
 
@@ -8,6 +9,7 @@ export function Presentation({ check, card, questions, big }: { check?: Verifica
   const rows = questions.map(question => ({ question, item: check.items.find(item => item.questionId === question.id) }));
   const count = (id: string) => rows.filter(row => row.item?.decision === id).length;
   return <article className={`oc-present${big ? ' is-big' : ''}`}>
+    <WorksheetHeader subject="조선 과학 유물 · AI 검증 발표" lesson="공개수업" objective="AI의 답을 근거와 비교하여 판단하고 그 이유를 설명할 수 있어요." />
     <header><p>{check.verifier}모둠 발표</p><h2>{card.group}모둠의 ‘{artifact?.name}’ 카드를 검증했어요</h2>
       <ul className="oc-present-count"><li className="is-adopt">채택 {count('adopt')}</li><li className="is-revise">직접 수정 {count('revise')}</li><li className="is-exclude">제외 {count('exclude')}</li></ul>
     </header>

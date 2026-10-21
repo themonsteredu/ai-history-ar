@@ -12,6 +12,17 @@ export function HomePage() {
 
   return (
     <>
+      <section className="open-class-entry page-width" aria-labelledby="open-class-entry-title">
+        <div>
+          <p className="eyebrow">공개수업 바로가기 · 40분</p>
+          <h2 id="open-class-entry-title">세종 때 과학 유물 AR 탐구</h2>
+          <p>AR 카드 만들기 → OX 문제 풀기 → AI로 검증하기 → 발표</p>
+        </div>
+        <div className="open-class-entry__actions">
+          <Link className="button button--primary" to="/joseon/open-class">학생 입장 <Icon name="arrow" size={18} /></Link>
+          <Link className="button button--outline" to="/teacher/joseon/open-class">교사 화면 <Icon name="lock" size={15} /></Link>
+        </div>
+      </section>
       <section className="home-hero">
         <div className="home-hero__visual" aria-hidden="true">
           <img
@@ -41,7 +52,7 @@ export function HomePage() {
               <Link className="button home-hero__primary" to={makerPath(search)}>AR 만들기 바로 시작</Link>
               <Link className="home-hero__teacher" to="/teacher"><Icon name="lock" size={15} />설정</Link>
             </div>
-            <p className="home-hero__meta">삼국시대 6차시 · 데이터 탐구 3차시 + AR 제작·관람 3차시 · 조선시대 10차시</p>
+            <p className="home-hero__meta">삼국시대 6차시 · 데이터 탐구 3차시 + AR 제작·관람 3차시 · 조선시대 6차시</p>
           </div>
         </div>
       </section>
@@ -64,7 +75,7 @@ export function HomePage() {
               <div className="era-card__body">
                 <p className="era-card__eyebrow">{era.eyebrow}</p>
                 <h3>{era.shortName}</h3>
-                <p>수업 PPT · 활동 화면 · {era.id === 'three-kingdoms' ? '40분씩 6차시 · 데이터 탐구와 AR 박물관' : `${era.lessons.length}차시`}</p>
+                <p>수업 PPT · 활동 화면 · {era.id === 'three-kingdoms' ? '40분씩 6차시 · 데이터 탐구와 AR 박물관' : '40분씩 6차시 · 데이터 탐구와 AR 박물관'}</p>
                 <Link className="era-card__link" to={era.route}>수업 열기 <Icon name="arrow" size={19} /></Link>
               </div>
             </article>

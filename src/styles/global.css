@@ -3167,7 +3167,7 @@ input:focus-visible {
   }
 
   .brand__text small,
-  .site-nav__link:not(.site-nav__teacher):not(.site-nav__maker) {
+  .site-nav__link:not(.site-nav__teacher):not(.site-nav__maker):not(.site-nav__open-class) {
     display: none;
   }
 
@@ -9671,3 +9671,13 @@ input:focus-visible {
     break-inside: avoid;
   }
 }
+
+/* Keep the open lesson visible at the front door, including tablet/mobile. */
+.open-class-entry{margin-top:24px;margin-bottom:24px;padding:24px 28px;background:#eef3e7;border:2px solid #426044;border-radius:16px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.open-class-entry h2{font-size:clamp(22px,3vw,30px);margin:6px 0 10px}
+.open-class-entry p{margin:0;line-height:1.65}
+.open-class-entry__actions{display:flex;gap:12px;flex-shrink:0;flex-wrap:wrap}
+.site-nav__open-class{font-weight:800;color:#355437}
+@media(max-width:760px){.open-class-entry{flex-direction:column;align-items:stretch;padding:20px}.open-class-entry__actions .button{flex:1;white-space:nowrap}.site-nav{flex-wrap:wrap}.site-nav__open-class{display:inline-flex}}
+
+.course-slide{margin:24px 0;padding:clamp(24px,5vw,70px);min-height:480px;background:#f4f5ed;color:#203d32;line-height:1.7}.course-slide h2{font-size:clamp(28px,4vw,46px);margin:12px 0 35px}.course-slide p{font-size:clamp(18px,2.5vw,28px)}.course-slide:fullscreen{overflow:auto;padding:7vh 7vw}.course-slide:fullscreen p{font-size:3vw}

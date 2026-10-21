@@ -11,6 +11,7 @@ import { TeacherDashboardPage } from "./pages/TeacherDashboardPage";
 import { TeacherToolSettingsPage } from "./pages/TeacherToolSettingsPage";
 import { DataInquiryLessonPage } from './pages/DataInquiryLessonPage';
 
+const JoseonCoursePage = lazy(() => import('./pages/JoseonCoursePage'));
 const ArPreviewPage = lazy(() => import("./pages/ArPreviewPage"));
 const SampleExhibition = lazy(() => import('./features/ar-studio/SampleExhibition'));
 const StudioPage = lazy(() => import('./features/ar-studio/StudioPage'));
@@ -38,6 +39,7 @@ export function App() {
         <Route path="joseon/ar-preview" element={<Suspense fallback={<p>AR을 준비하고 있어요…</p>}><ArPreviewPage key="joseon" eraId="joseon" /></Suspense>} />
         <Route path="three-kingdoms/ar-preview" element={<Suspense fallback={<p role="status">첨성대 AR을 준비하고 있어요…</p>}><ArPreviewPage key="three-kingdoms" /></Suspense>} />
         <Route path="three-kingdoms/lesson/:lessonId" element={<LessonPage eraId="three-kingdoms" mode="student" />} />
+        <Route path="joseon/course/:sessionId" element={<Suspense fallback={<p>수업을 준비해요…</p>}><JoseonCoursePage /></Suspense>} />
         <Route path="joseon" element={<EraPage eraId="joseon" />} />
         <Route path="joseon/lesson/:lessonId" element={<LessonPage eraId="joseon" mode="student" />} />
         <Route path="joseon/open-class" element={<Suspense fallback={<p>공개수업 화면을 열어요…</p>}><OpenClassPage /></Suspense>} />
@@ -49,6 +51,7 @@ export function App() {
         <Route path="three-kingdoms/ar" element={<Suspense fallback={<p>AR 수업 화면을 열어요…</p>}><TeacherPage /></Suspense>} />
         <Route path="three-kingdoms/ar-studio" element={<Suspense fallback={<p>교사 수업 안내를 준비해요…</p>}><StudioPage teacher /></Suspense>} />
         <Route path="three-kingdoms/ar-maker" element={<Suspense fallback={<p>AR 만들기를 열어요…</p>}><StudioPage teacher maker /></Suspense>} />
+        <Route path="joseon/course/:sessionId" element={<Suspense fallback={<p>수업을 준비해요…</p>}><JoseonCoursePage teacher /></Suspense>} />
         <Route path="joseon/open-class" element={<Suspense fallback={<p>공개수업 선생님 화면을 열어요…</p>}><OpenClassTeacher /></Suspense>} />
         <Route path=":eraSlug/lesson/:lessonId" element={<LessonPage mode="teacher" />} />
         <Route path=":eraSlug/downloads" element={<DownloadCenterPage />} />

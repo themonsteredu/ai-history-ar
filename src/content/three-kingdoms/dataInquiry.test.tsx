@@ -28,10 +28,10 @@ describe('Three Kingdoms revised data inquiry integration', () => {
     expect(html).toContain('teaching.pptx');
     expect(html).toContain('student-2.pdf');
   });
-  it('shows shared-class CODAP instructions and preserves context on completion', () => {
+  it('opens the built-in table and graph workspace and preserves context on completion', () => {
     const html = renderToStaticMarkup(<MemoryRouter initialEntries={['/three-kingdoms/data/3?view=activity&hub_code=CLASS&student_id=student']}><Routes><Route path="/three-kingdoms/data/:sessionId" element={<DataInquiryLessonPage />} /></Routes></MemoryRouter>);
-    expect(html).toContain('모둠별 그래프 대신, 학급 그래프 하나');
-    expect(html).toContain('Local File');
+    expect(html).toContain('표를 불러오는 중');
+    expect(html).not.toContain('codap.concord.org');
     expect(html).toContain('href="/three-kingdoms?hub_code=CLASS&amp;student_id=student"');
     expect(html).toContain('student-3.pdf');
   });

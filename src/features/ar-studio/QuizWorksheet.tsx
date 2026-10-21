@@ -1,3 +1,4 @@
+import { WorksheetHeader } from '../../components/WorksheetHeader';
 import { useEffect, useRef, useState } from 'react';
 import type { ArExhibit } from '../../lib/ar/exhibit';
 import { studioApi, type Classroom, type StudioSession } from './api';
@@ -62,7 +63,7 @@ export function QuizWorksheet({ classroom, session, auto = false }: { classroom?
 
     <article className="quiz-print">
       <header className="quiz-print-head">
-        <h1>우리 반 AR 박물관 퀴즈</h1>
+        <WorksheetHeader subject="우리 반 AR 박물관 퀴즈" lesson="6차시" objective="해설에서 근거를 찾아 관람 문제를 해결할 수 있어요." />
         <div className="quiz-print-fields"><span>이름 ______________</span><span>모둠 ______</span><span>날짜 ____ / ____</span></div>
         <p>다른 모둠의 AR 작품을 보고 해설을 들은 뒤, 알맞은 답의 번호를 적어 보세요. 모두 {total}문제입니다.</p>
       </header>
