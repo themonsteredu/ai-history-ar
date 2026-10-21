@@ -74,8 +74,25 @@ export async function joinOpenLesson(code: string, name: string, group: number) 
   return session;
 }
 
+/** One-time cleanup requested by the teacher for the example lesson, 2026-10-21.
+ * Keep the room and entry session; only remove its old open-lesson drafts.
+ */
+export function clearRequestedExampleDrafts(key: string) {
+  if (!key.startsWith('12345:')) return;
+  const marker = 'history-ar-open-reset:12345:2026-10-21';
+  try {
+    if (localStorage.getItem(marker)) return;
+    const keys = Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i));
+    for (const storedKey of keys) {
+      if (storedKey?.startsWith('history-ar-open-draft:12345:')) localStorage.removeItem(storedKey);
+    }
+    localStorage.setItem(marker, 'done');
+  } catch { /* Storage unavailable: there is no readable persisted draft to restore. */ }
+}
+
 /** Drafts stay on the tablet so nothing typed is lost when the network drops mid-lesson. */
 export function readDraft<T>(key: string, check: (value: unknown) => value is T): T | undefined {
+  clearRequestedExampleDrafts(key);
   try { const value = JSON.parse(localStorage.getItem(`history-ar-open-draft:${key}`) || 'null'); return check(value) ? value : undefined; } catch { return undefined; }
 }
 export function writeDraft(key: string, value: unknown) { try { localStorage.setItem(`history-ar-open-draft:${key}`, JSON.stringify(value)); } catch { /* still in memory */ } }

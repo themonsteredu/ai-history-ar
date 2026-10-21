@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StudioApiError } from '../ar-studio/api';
-import { joinOpenLesson, latestLoads, loadState, NO_ANSWER, OPEN_API_TIMEOUT, saveCard } from './api';
+import { clearRequestedExampleDrafts, joinOpenLesson, latestLoads, loadState, NO_ANSWER, OPEN_API_TIMEOUT, saveCard } from './api';
 import { newCard } from './model';
 
 const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'content-type': 'application/json' } });
@@ -107,5 +107,31 @@ describe('latestLoads', () => {
     await latest(async () => 'fresh');
     late.reject(new Error('timeout'));
     await expect(lateRun).resolves.toBeUndefined();
+  });
+});
+
+
+describe('requested example cleanup', () => {
+  it('clears only code 12345 once and preserves newly written work and other rooms', () => {
+    const values = new Map<string, string>([
+      ['history-ar-open-draft:12345:card:1', 'old card'],
+      ['history-ar-open-draft:12345:verify:1:2', 'old check'],
+      ['history-ar-open-draft:12345:teacher:1', 'old teacher set'],
+      ['history-ar-open-draft:123456:card:1', 'another room'],
+      ['history-ar-open-session:12345', 'entry'],
+    ]);
+    vi.stubGlobal('localStorage', { get length() { return values.size; }, key: (i: number) => [...values.keys()][i] ?? null,
+      getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => values.set(key, value), removeItem: (key: string) => values.delete(key) });
+    clearRequestedExampleDrafts('9999:card:1');
+    expect(values.size).toBe(5);
+    clearRequestedExampleDrafts('12345:card:1');
+    expect(values.has('history-ar-open-draft:12345:card:1')).toBe(false);
+    expect(values.has('history-ar-open-draft:12345:verify:1:2')).toBe(false);
+    expect(values.has('history-ar-open-draft:12345:teacher:1')).toBe(false);
+    expect(values.get('history-ar-open-draft:123456:card:1')).toBe('another room');
+    expect(values.get('history-ar-open-session:12345')).toBe('entry');
+    values.set('history-ar-open-draft:12345:card:1', 'new card');
+    clearRequestedExampleDrafts('12345:card:1');
+    expect(values.get('history-ar-open-draft:12345:card:1')).toBe('new card');
   });
 });
