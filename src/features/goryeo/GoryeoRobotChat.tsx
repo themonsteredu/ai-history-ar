@@ -7,6 +7,14 @@ import './goryeo-chat.css';
 type Message = { id: number; role: 'student' | 'robot'; text: string };
 type PendingReply = { id: number; text: string; isFirst: boolean };
 
+const sourceLinks = /(https:\/\/[^\s]+)/g;
+const displayReply = (text: string) => text.replace(sourceLinks, '공식 자료 보기 ↗');
+function renderReply(text: string) {
+  return text.split(sourceLinks).map((part, index) => part.startsWith('https://')
+    ? <a key={index} href={part} target="_blank" rel="noreferrer">공식 자료 보기 ↗</a>
+    : part);
+}
+
 function isAnswerCheck(message: string) {
   const compact = message.replace(/\s+/g, '');
   return /(?:내답|제답|이답|답이|내선택|내가|제가).{0,40}(?:맞|틀|정답|옳)/.test(compact)
@@ -36,7 +44,7 @@ export default function GoryeoRobotChat({ artifact, question, questionIndex, cho
 
   useEffect(() => {
     if (!pending) return;
-    const chars = Array.from(pending.text);
+    const chars = Array.from(displayReply(pending.text));
     let count = 0;
     setVisibleCount(0);
     const timer = window.setInterval(() => {
@@ -87,7 +95,8 @@ export default function GoryeoRobotChat({ artifact, question, questionIndex, cho
       }
       return;
     }
-    const response = answerGoryeoChat({ artifact, question, questionIndex, choice, message });
+    const lastRobotMessage = [...messages].reverse().find(item => item.role === 'robot')?.text;
+    const response = answerGoryeoChat({ artifact, question, questionIndex, choice, message, lastRobotMessage });
     setDraft('');
     queue(message, response);
   };
@@ -95,14 +104,11 @@ export default function GoryeoRobotChat({ artifact, question, questionIndex, cho
   return <div className="goryeo-chat">
     <div className="goryeo-chat-robot">
       <img src={`${import.meta.env.BASE_URL}images/goryeo-cards/evidence-robot.png`} alt="탐구 로봇" />
-      <div><strong>탐구 로봇</strong><p>궁금한 것을 물어봐요!</p></div>
+      <strong>탐구 로봇</strong>
     </div>
-    <p className="goryeo-chat-note">이 로봇은 미리 준비한 정보로 대화하는 수업 시뮬레이션이에요. 모르는 질문에는 모른다고 말해요. 로봇의 설명을 근거 자료와 비교해 보세요.</p>
-    <p className="goryeo-chat-note">다른 문제를 선택하거나 내 답을 바꾸면 대화는 새로 시작해요.</p>
     <div ref={logRef} className="goryeo-chat-window" role="log" aria-label="탐구 로봇과의 대화" aria-live="polite" aria-relevant="additions">
-      <div className="goryeo-chat-welcome">안녕! {artifact.short} 모둠 {questionIndex + 1}번에 대해 함께 이야기해요.<br />궁금한 것을 물어봐 줘!</div>
-      {messages.map(message => <div key={message.id} className={`goryeo-chat-line goryeo-chat-line--${message.role}`}><span className="goryeo-chat-speaker">{message.role === 'robot' ? '탐구 로봇' : '나'}</span><p>{message.text}</p></div>)}
-      {pending && <div className="goryeo-chat-line goryeo-chat-line--robot"><span className="goryeo-chat-speaker">탐구 로봇</span><p aria-hidden="true">{Array.from(pending.text).slice(0, visibleCount).join('')}<span className="goryeo-chat-cursor">▍</span></p><span className="goryeo-chat-sr">로봇이 답변을 쓰고 있어요.</span></div>}
+      {messages.map(message => <div key={message.id} className={`goryeo-chat-line goryeo-chat-line--${message.role}`}><span className="goryeo-chat-speaker">{message.role === 'robot' ? '탐구 로봇' : '나'}</span><p>{message.role === 'robot' ? renderReply(message.text) : message.text}</p></div>)}
+      {pending && <div className="goryeo-chat-line goryeo-chat-line--robot"><span className="goryeo-chat-speaker">탐구 로봇</span><p aria-hidden="true">{Array.from(displayReply(pending.text)).slice(0, visibleCount).join('')}<span className="goryeo-chat-cursor">▍</span></p><span className="goryeo-chat-sr">로봇이 답변을 쓰고 있어요.</span></div>}
     </div>
     {!started && <button type="button" className="oc-primary goryeo-chat-start" disabled={!enabled || !!pending} onClick={start}>내 답이 맞니?</button>}
     <form className="goryeo-chat-compose" onSubmit={send}>
