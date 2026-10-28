@@ -1,0 +1,13 @@
+.goryeo-scanner{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;background:#152a25;color:#fff;overflow:auto}
+.goryeo-scanner-top{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.6rem 1rem;background:#152a25}
+.goryeo-scanner-top button,.goryeo-scanner-bottom button{border:1px solid #c7d8cd;border-radius:9px;padding:.55rem .8rem;background:#fff;color:#183b31;font:inherit;cursor:pointer}
+.goryeo-scanner-stage{position:relative;flex:1 0 min(52vh,480px);height:auto;min-height:250px;border-radius:0;background:#18201e;touch-action:none}
+.goryeo-scanner-bottom{padding:.65rem 1rem max(.8rem,env(safe-area-inset-bottom));background:#152a25;line-height:1.45}
+.goryeo-scanner-bottom p{margin:.35rem 0;font-size:.9rem}
+.goryeo-scanner-bottom a{color:#d6efc8}
+.goryeo-scanner-reading .goryeo-ar-points{display:flex;gap:.5rem;margin:.5rem 0}
+.goryeo-scanner-reading .goryeo-ar-points button[aria-pressed=true]{background:#f6cd79;border-color:#f6cd79}
+.goryeo-scanner-bottom .goryeo-scanner-detail{padding:.65rem;border-radius:9px;background:#f5f7ec;color:#19382f;font-size:1rem}
+.goryeo-scanner-bottom .goryeo-scanner-quiz{margin:.4rem 0;background:#f6cd79;border-color:#f6cd79;font-weight:700}
+.goryeo-scanner-bottom .goryeo-scanner-credit{font-size:.73rem;color:#d2dfd5}
+@media(max-width:600px){.goryeo-scanner-stage{flex-basis:42vh;min-height:210px}.goryeo-scanner-bottom{padding:.55rem .8rem max(.7rem,env(safe-area-inset-bottom))}}
