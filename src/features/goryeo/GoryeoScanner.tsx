@@ -170,7 +170,7 @@ export default function GoryeoScanner({ onClose, onDetected, onQuiz }: {
         <p>{artifact.id === 'buddha' ? '선생님이 미리 완성한 시범 카드의 설명 3개를 눌러 읽어요.' : '학생이 미리 완성한 카드의 설명 3개를 눌러 읽어요.'}</p>
         <div className="goryeo-ar-points" aria-label="AR 카드 설명 번호">{points.map((item, index) => <button type="button" key={item.id} aria-pressed={pointId === item.id} onClick={() => setPointId(item.id)}>{index + 1}번</button>)}</div>
         {point && <p className="goryeo-scanner-detail" aria-live="polite"><b>{point.title}</b> · {point.text}</p>}
-        {onQuiz && <button className="goryeo-scanner-quiz" onClick={onQuiz}>닫고 이 유물 OX 풀기 →</button>}
+        {onQuiz && <button className="goryeo-scanner-quiz" onClick={onQuiz}>닫고 전체 모둠 OX 풀기 →</button>}
         <p className="goryeo-scanner-credit">{reconstructions.has(artifact.id) ? '사진을 참고한 학습용 3D 재현 · 보이지 않는 부분은 추정' : '3D: 국립중앙박물관 · 공공누리 제1유형 · 웹용 변환'} · <a href={photos[artifact.id].source} target="_blank" rel="noreferrer">사진 출처</a>{artifact.id === 'tripitaka' && <> · 복제 경판 사진: <a href="https://commons.wikimedia.org/wiki/File:Korea-Haeinsa_Tripitaka_Koreana_woodblock_2770-06a.jpg" target="_blank" rel="noreferrer">Steve46814 / Wikimedia Commons</a> · CC BY-SA 3.0</>}</p>
       </div>}
     </div>
