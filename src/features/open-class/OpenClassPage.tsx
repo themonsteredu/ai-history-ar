@@ -5,7 +5,7 @@ import { forgetOpenSession, joinOpenLesson, latestLoads, loadState, readOpenSess
 
 import { CardGallery } from './CardGallery';
 import { CardMaker } from './CardMaker';
-import { LessonPrep } from './LessonPrep';
+import { LessonPrep } from './LessonPreparation';
 import { isGroupCard, isVerification, newCard, newSelfVerification, selfQuestions, type GroupCard, type Verification } from './model';
 import { Presentation } from './Presentation';
 import { useSyncedDraft } from './useSyncedDraft';

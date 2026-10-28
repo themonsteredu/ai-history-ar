@@ -55,6 +55,18 @@ export async function readModel(model: ExhibitModel, withImages = true, signal =
     const { loadCheomseongdaeOriginal } = await import('../../content/three-kingdoms/cheomseongdaeOriginal');
     return loadCheomseongdaeOriginal(signal, withImages);
   }
+  if (model.asset === 'goryeo-buddha') {
+    const { createBuddhaModel } = await import('./goryeo/buddha');
+    return createBuddhaModel();
+  }
+  if (model.asset === 'goryeo-type') {
+    const { createTypeModel } = await import('./goryeo/type');
+    return createTypeModel();
+  }
+  if (model.asset === 'goryeo-tripitaka') {
+    const { createTripitakaModel } = await import('./goryeo/tripitaka');
+    return createTripitakaModel();
+  }
   if (model.format === 'preset' && model.preset?.startsWith('joseon-')) {
     const { createJoseonModel } = await import('./joseon');
     return createJoseonModel(model.preset, withImages);
@@ -75,7 +87,18 @@ export async function readModel(model: ExhibitModel, withImages = true, signal =
     }
     return group;
   }
-  const buffer = dataUrlBytes(model.data);
+  const preparedFiles: Record<string,string> = {
+    'goryeo-vase': 'ar/goryeo-models/vase.glb',
+    'goryeo-incense': 'ar/goryeo-models/incense.glb',
+    'goryeo-lacquer': 'ar/goryeo-models/lacquer.glb',
+  };
+  const preparedFile = model.asset && preparedFiles[model.asset];
+  let buffer: ArrayBuffer;
+  if (preparedFile) {
+    const response = await fetch(`${import.meta.env.BASE_URL}${preparedFile}`, { signal });
+    if (!response.ok) throw new Error('박물관 3D 자료를 불러오지 못했어요.');
+    buffer = await response.arrayBuffer();
+  } else buffer = dataUrlBytes(model.data);
   if (buffer.byteLength > MAX_MODEL_BYTES) throw new Error('12MB 이하의 3D 모형을 사용해 주세요.');
   let object: any;
   if (model.format === 'glb') {
@@ -255,7 +278,10 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
     const center = box.getCenter(new THREE.Vector3());
     oriented.position.set(-center.x, -box.min.y, -center.z);
     const fitted = new THREE.Group();
-    fitted.scale.setScalar(1 / extent);
+    // Museum scans fill the printed card too closely when viewed from above.
+    // Keep a little space around them in camera mode; the preview stays full-size.
+    const cameraScale = options.mode === 'camera' && options.model?.asset?.startsWith('goryeo-') ? .42 : 1;
+    fitted.scale.setScalar(cameraScale / extent);
     fitted.add(oriented); spinner.add(fitted);
 
     if (options.mode === 'camera') {

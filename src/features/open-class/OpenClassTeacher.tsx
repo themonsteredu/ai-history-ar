@@ -10,7 +10,7 @@ import { joseonModelFor, joseonModels, joseonTargets } from '../../lib/ar/joseon
 import { ArCard } from './ArCard';
 import { ARTIFACTS, artifactById } from './artifacts';
 import { cardProblems, decisionLabel, isTeacherSet, MAX_TEACHER_QUESTIONS, newQuestion, newTeacherSet, questionsToCheck, selfQuestions, readyQuestions, verifyProgress, type GroupCard, type OxQuestion, type TeacherSet, type Verification } from './model';
-import { LessonPrep } from './LessonPrep';
+import { LessonPrep } from './LessonPreparation';
 import { Presentation } from './Presentation';
 import { saveLabel, useSyncedDraft } from './useSyncedDraft';
 import './open-class.css';

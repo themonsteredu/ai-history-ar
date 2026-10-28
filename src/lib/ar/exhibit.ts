@@ -19,7 +19,7 @@ export interface ExhibitModel {
   preset?: PreparedModelKey | JoseonModelKey;
   reconstruction?: 'photo-reference-v2';
   parts?: ModelPart[];
-  asset?: 'cheomseongdae-nsm-2015';
+  asset?: 'cheomseongdae-nsm-2015' | 'goryeo-vase' | 'goryeo-incense' | 'goryeo-lacquer' | 'goryeo-buddha' | 'goryeo-type' | 'goryeo-tripitaka';
   name: string;
   credit: string;
   source: string;

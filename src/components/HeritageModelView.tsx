@@ -65,10 +65,10 @@ export default function HeritageModelView({ model, image, points, selectedId, on
   return <div className="ar-model-view">
     <div className="ar-model-stage" ref={container} aria-label={camera ? '유산 카드를 비추는 AR 카메라' : '끌어서 돌려 보는 입체 유물'}>
       {points.map((point, index) => { const open = showBubble && selectedId === point.id; return <button hidden type="button" className="ar-hotspot" key={point.id} ref={node => { pins.current[index] = node; }} aria-label={`${index + 1}번 ${point.title || '설명'} 열기`} aria-pressed={selectedId === point.id} aria-expanded={bubbles ? open : undefined} aria-describedby={open ? bubbleId : undefined} onClick={() => pick(point.id)}>{index + 1}{open && <span className="ar-pin-bubble" id={bubbleId}><b>{point.title || '제목 없음'}</b><span className={point.text ? undefined : 'is-empty'}>{point.text || '아직 설명이 없어요.'}</span></span>}</button>; })}
-      {(status === 'loading' || status === 'error') && <p className="ar-model-notice" role="status">{error || (model?.asset ? '공식 첨성대 모형을 준비해요. 처음에는 약 36MB를 내려받아요…' : camera ? '카메라와 입체 유물을 준비해요…' : '입체 유물을 불러와요…')}</p>}
+      {(status === 'loading' || status === 'error') && <p className="ar-model-notice" role="status">{error || (model?.asset === 'cheomseongdae-nsm-2015' ? '공식 첨성대 모형을 준비해요. 처음에는 약 36MB를 내려받아요…' : camera ? '카메라와 입체 유물을 준비해요…' : '입체 유물을 불러와요…')}</p>}
     </div>
     <div className="ar-model-controls">
-      <p role="status">{status === 'scanning' || status === 'lost' ? '출력한 유산 카드 전체를 카메라에 비춰 주세요.' : status === 'found' ? (bubbles ? `카드를 찾았어요!${spin ? ' 좌우로 밀면 모형이 돌아요.' : ''}${pinHint}` : spin ? '카드를 찾았어요! 화면을 좌우로 밀면 모형이 카드 위에서 돌아가요.' : '카드를 찾았어요! 표시점을 눌러 해설을 들어 보세요.') : !camera ? (onPlace ? '끌어서 돌리고, 설명할 곳을 짧게 눌러요.' : bubbles ? `끌어서 돌려 보세요.${pinHint}` : '끌어서 돌려 보고, 표시점을 눌러요.') : ''}</p>
+      <p role="status">{status === 'scanning' || status === 'lost' ? '출력한 유산 카드 전체를 카메라에 비춰 주세요.' : status === 'found' ? (bubbles ? `카드를 찾았어요!${spin ? ' 좌우로 밀면 모형이 돌아요.' : ''}${pinHint}` : spin ? '카드를 찾았어요! 화면을 좌우로 밀면 모형이 카드 위에서 돌아가요.' : '카드를 찾았어요! 표시점을 눌러 해설을 들어 보세요.') : !camera ? (onPlace ? '끌어서 돌리고, 설명할 곳을 짧게 눌러요.' : bubbles ? `끌어서 돌려 보세요.${pinHint}` : points.length ? '끌어서 돌려 보고, 표시점을 눌러요.' : '끌어서 돌려 보세요.') : ''}</p>
       {(!camera || spin) && <button type="button" onClick={() => scene.current?.reset()}>처음 방향</button>}
     </div>
     {simplePreview && <p className="ar-help">간단한 입체 보기예요. 모형을 돌리고 설명점을 찍을 수 있어요. AR 카메라는 그래픽 기능이 지원되는 기기에서 열어 주세요.</p>}

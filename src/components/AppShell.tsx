@@ -25,6 +25,7 @@ export function AppShell() {
             <NavLink className={navClassName} end to="/">과정 선택</NavLink>
             <NavLink className={navClassName} to="/three-kingdoms">삼국시대</NavLink>
             <NavLink className={(state) => `${navClassName(state)} site-nav__open-class`} to="/joseon/open-class">공개수업</NavLink>
+            <NavLink className={navClassName} to="/goryeo">고려유물수업</NavLink>
             <NavLink className={navClassName} end to="/joseon">조선시대</NavLink>
             <NavLink className={(state) => `${navClassName(state)} site-nav__maker`} to={makerPath(search)}>AR 만들기</NavLink>
             <NavLink className={({ isActive }) => `${navClassName({ isActive })} site-nav__teacher`} to="/teacher">설정</NavLink>
