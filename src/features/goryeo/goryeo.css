@@ -2,3 +2,8 @@
 .goryeo-real-photo{margin:0;background:#edeae4;border-radius:14px;overflow:hidden;text-align:center}.goryeo-real-photo img{display:block;width:100%;height:clamp(300px,45vw,480px);object-fit:contain}.goryeo-real-photo figcaption{padding:9px 14px;font-size:.8rem;color:#504c45;background:#f8f6f1}.goryeo-ar-credit{font-size:.75rem}
 .goryeo-real-model{margin:0;min-width:0}.goryeo-real-model .ar-model-stage{border:1px solid #d4cec1;border-radius:14px;background:#eeeae3}.goryeo-real-model figcaption{text-align:center;color:#5d574f;font-size:.8rem}
 .goryeo-photo-compare{margin-top:12px;color:#315f50;font-size:.9rem}.goryeo-photo-compare summary{cursor:pointer;font-weight:700;padding:8px 0}.goryeo-photo-compare .goryeo-real-photo img{height:250px}
+
+.goryeo-sample-note{padding:12px;border-radius:10px;background:#edf5ef;font-weight:700;color:#285b4a}.goryeo-point-list{margin-top:15px;padding:15px;border:1px solid #c9ded1;border-radius:12px;background:#f7fbf8}.goryeo-point-list>p{margin:0 0 10px}.goryeo-point-buttons{display:flex;gap:7px;flex-wrap:wrap}.goryeo-point-buttons button[aria-pressed=true]{background:#1f5a4f;color:white;border-color:#1f5a4f}.goryeo-point-detail{min-height:70px;line-height:1.6}.goryeo-point-detail p{margin:12px 0}
+.goryeo-page .ar-pin-bubble{pointer-events:none}
+
+.goryeo-ar-points{display:flex;gap:8px;justify-content:center}.goryeo-ar-points button{min-width:60px}.goryeo-ar-points button[aria-pressed=true]{background:#1f5a4f;color:#fff}.goryeo-ar-detail{margin:8px 0;padding:8px 12px;background:#fffef9;color:#1d2825;text-shadow:none;border-radius:10px;font-size:.9rem;line-height:1.4}
