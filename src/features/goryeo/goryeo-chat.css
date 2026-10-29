@@ -24,3 +24,17 @@
 @media (prefers-reduced-motion: reduce) { .goryeo-chat-cursor { animation: none; } }
 
 .goryeo-chat-line--robot a{color:#1b6754;text-decoration:underline;font-weight:700}
+
+/* Keep messages and the composer usable when zoomed or on a narrow tablet. */
+.goryeo-chat, .goryeo-chat-window, .goryeo-chat-line, .goryeo-chat-compose { min-width: 0; }
+.goryeo-chat-window { max-width: 100%; }
+.goryeo-chat-welcome, .goryeo-chat-line p { overflow-wrap: anywhere; }
+.goryeo-chat-compose input { max-width: 100%; }
+@media (max-width: 600px) {
+  .goryeo-chat-compose input { font-size: 16px; }
+  .goryeo-chat-window { height: clamp(240px, 38vh, 300px); }
+}
+@media (max-width: 320px) {
+  .goryeo-chat-compose { flex-wrap: wrap; }
+  .goryeo-chat-compose input { flex-basis: 100%; }
+}

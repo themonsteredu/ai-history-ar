@@ -11,3 +11,13 @@
 .goryeo-scanner-bottom .goryeo-scanner-quiz{margin:.4rem 0;background:#f6cd79;border-color:#f6cd79;font-weight:700}
 .goryeo-scanner-bottom .goryeo-scanner-credit{font-size:.73rem;color:#d2dfd5}
 @media(max-width:600px){.goryeo-scanner-stage{flex-basis:42vh;min-height:210px}.goryeo-scanner-bottom{padding:.55rem .8rem max(.7rem,env(safe-area-inset-bottom))}}
+
+/* The full-screen camera also needs usable controls in landscape on tablets. */
+.goryeo-scanner { height: 100dvh; overscroll-behavior: contain; }
+.goryeo-scanner-top { flex-wrap: wrap; padding-top: max(.6rem, env(safe-area-inset-top)); }
+.goryeo-scanner-stage { min-width: 0; }
+.goryeo-scanner-bottom { flex: 0 0 auto; overflow-wrap: anywhere; }
+.goryeo-scanner-reading .goryeo-ar-points { flex-wrap: wrap; }
+@media (max-height: 500px) and (orientation: landscape) {
+  .goryeo-scanner-stage { flex-basis: 38vh; min-height: 150px; }
+}

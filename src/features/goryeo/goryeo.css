@@ -100,3 +100,43 @@
 }
 
 .goryeo-quiz-group{margin:20px 0;padding:18px 20px;border:1px solid #d8e5db;border-radius:16px;background:#fbfdfa}.goryeo-quiz-group h3{margin-top:0}.goryeo-quiz-group h3 small{display:block;margin-top:4px;color:#61766b;font-size:.8rem;font-weight:500}.goryeo-robot-verification{margin:20px 0;padding:20px;border:1px solid #d8e5db;border-radius:16px;background:#f8fbf8}.goryeo-robot-verification fieldset{border:0;margin:14px 0;padding:0}.goryeo-robot-verification fieldset button{margin:5px 8px 0 0}.goryeo-robot-verification button[aria-pressed=true]{background:#1f5a4f;color:#fff;border-color:#1f5a4f}
+
+/* Layouts for touch screens and long student-written responses. */
+.goryeo-page { overflow-wrap: anywhere; }
+.goryeo-page .goryeo-split { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.goryeo-page .goryeo-split > * { min-width: 0; }
+.goryeo-page .goryeo-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.goryeo-page .goryeo-steps button { min-width: 0; text-align: center; line-height: 1.35; }
+.goryeo-page .goryeo-quiz-group, .goryeo-page .goryeo-robot-verification { min-width: 0; }
+.goryeo-page .goryeo-actions > *, .goryeo-page .goryeo-point-buttons > * { max-width: 100%; }
+.goryeo-page .oc-field, .goryeo-page .oc-field > * { min-width: 0; max-width: 100%; }
+.goryeo-print-page { overflow-wrap: anywhere; }
+@media (max-width: 1024px) {
+  .goryeo-page .goryeo-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .goryeo-page .goryeo-split { gap: 18px; align-items: start; }
+}
+@media (max-width: 850px) {
+  .goryeo-page .goryeo-split { grid-template-columns: minmax(0, 1fr); }
+  .goryeo-page .goryeo-real-model { max-width: 680px; margin-inline: auto; }
+}
+@media (max-width: 600px) {
+  .goryeo-page .goryeo-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+  .goryeo-page .goryeo-steps button { padding: 8px; font-size: .9rem; }
+  .goryeo-page .goryeo-hero { margin-top: 14px; padding: 18px; }
+  .goryeo-page .goryeo-hero h1 { font-size: clamp(1.7rem, 8vw, 2.1rem); }
+  .goryeo-page .goryeo-quiz-group, .goryeo-page .goryeo-robot-verification { padding: 14px; }
+  .goryeo-page .goryeo-point-list { padding: 12px; }
+  .goryeo-page input, .goryeo-page textarea, .goryeo-page select { font-size: 16px; }
+}
+@media (max-width: 370px) {
+  .goryeo-page .goryeo-actions { align-items: stretch; }
+  .goryeo-page .goryeo-actions button { flex: 1 1 100%; }
+}
+.goryeo-session{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0}.goryeo-session button{padding:6px 10px;font-size:.9rem}.goryeo-submit-panel{padding:18px;margin:20px 0;border:1px solid #c9ded1;border-radius:14px;background:#f4faf5}.goryeo-submit-panel>p{line-height:1.6}.goryeo-submission-preview{margin:12px 0}.goryeo-submission-preview summary{font-weight:700;cursor:pointer}.goryeo-submission-preview article{padding:12px;margin:10px 0;border-radius:10px;background:#fff;overflow-wrap:anywhere}.goryeo-submission-preview article h4,.goryeo-submission-preview article p{margin:6px 0;line-height:1.55;white-space:pre-wrap}
+@media print {
+  body:has(.goryeo-print) .goryeo-print-page.is-evidence { padding: 0; font-size: 11.5pt; line-height: 1.55; }
+  .is-evidence h1 { font-size: 16pt; margin: 0 0 3mm; line-height: 1.3; }
+  .goryeo-evidence-guide { margin: 0 0 3mm; font-size: 10pt; }
+  .goryeo-evidence-reading p { margin: 0 0 2mm; text-indent: 1em; }
+  .goryeo-evidence-sources { border-top: 1px solid #888; padding-top: 2mm; margin-top: 2mm; font-size: 8pt; line-height: 1.3; overflow-wrap: anywhere; }
+}
