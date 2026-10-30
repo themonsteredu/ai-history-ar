@@ -5,6 +5,7 @@ import { TeacherGate } from "./components/TeacherGate";
 import { DownloadCenterPage } from "./pages/DownloadCenterPage";
 import { EraPage } from "./pages/EraPage";
 import { HomePage } from "./pages/HomePage";
+import { ClassSelectionPage } from "./pages/ClassSelectionPage";
 import { LessonPage } from "./pages/LessonPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { TeacherDashboardPage } from "./pages/TeacherDashboardPage";
@@ -28,6 +29,7 @@ export function App() {
     <Routes>
       <Route element={<AppShell />}>
         <Route index element={<HomePage />} />
+        <Route path="classes" element={<ClassSelectionPage />} />
         <Route path="three-kingdoms" element={<EraPage eraId="three-kingdoms" />} />
         <Route path="three-kingdoms/data/:sessionId" element={<DataInquiryLessonPage />} />
         <Route path="three-kingdoms/ar-sample" element={<Suspense fallback={<p>AR 예제를 준비해요…</p>}><SampleExhibition /></Suspense>} />

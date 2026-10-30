@@ -31,7 +31,7 @@ export function TeacherShell({ onLock }: TeacherShellProps) {
             <NavLink className={teacherNavClassName} to="/teacher/joseon/downloads">조선 활동지</NavLink>
           </nav>
           <div className="teacher-workspace-actions">
-            <Link className="teacher-workspace-actions__student" to="/">학생 화면</Link>
+            <Link className="teacher-workspace-actions__student" title="교사 확인 중에는 학생 화면에서 전체 메뉴를 볼 수 있어요" to="/classes">학생 화면</Link>
             <button className="teacher-workspace-actions__lock" onClick={onLock} type="button">
               <Icon name="lock" size={16} />잠그기
             </button>

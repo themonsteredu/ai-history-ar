@@ -1,12 +1,14 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { makerPath } from '../features/ar-studio/maker';
+import { readTeacherAccess } from '../auth/teacherAccess';
 
 function navClassName({ isActive }: { isActive: boolean }) {
   return isActive ? "site-nav__link site-nav__link--active" : "site-nav__link";
 }
 
 export function AppShell() {
-  const { search } = useLocation();
+  const { search, pathname } = useLocation();
+  const teacherVerified = readTeacherAccess(window.sessionStorage);
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main-content">
@@ -21,14 +23,14 @@ export function AppShell() {
               <small>의심하고 · 확인하고 · 설명하기</small>
             </span>
           </NavLink>
-          <nav aria-label="주요 메뉴" className="site-nav">
-            <NavLink className={navClassName} end to="/">과정 선택</NavLink>
-            <NavLink className={navClassName} to="/three-kingdoms">삼국시대</NavLink>
-            <NavLink className={(state) => `${navClassName(state)} site-nav__open-class`} to="/joseon/open-class">공개수업</NavLink>
-            <NavLink className={navClassName} to="/goryeo">고려유물수업</NavLink>
-            <NavLink className={navClassName} end to="/joseon">조선시대</NavLink>
-            <NavLink className={(state) => `${navClassName(state)} site-nav__maker`} to={makerPath(search)}>AR 만들기</NavLink>
-            <NavLink className={({ isActive }) => `${navClassName({ isActive })} site-nav__teacher`} to="/teacher">설정</NavLink>
+          <nav aria-label="주요 메뉴" className={`site-nav${teacherVerified ? ' site-nav--teacher-open' : ''}`}>
+            {teacherVerified && <NavLink className={navClassName} end to="/">과정 선택</NavLink>}
+            {teacherVerified && <NavLink className={navClassName} to="/three-kingdoms">삼국시대</NavLink>}
+            <NavLink className={({ isActive }) => `${navClassName({ isActive: isActive || pathname === '/goryeo' || pathname.startsWith('/joseon/open-class') })} site-nav__open-class`} to="/classes">수업</NavLink>
+            {teacherVerified && <NavLink className={navClassName} to="/goryeo">고려유물수업</NavLink>}
+            {teacherVerified && <NavLink className={navClassName} end to="/joseon">조선시대</NavLink>}
+            {teacherVerified && <NavLink className={(state) => `${navClassName(state)} site-nav__maker`} to={makerPath(search)}>AR 만들기</NavLink>}
+            <NavLink className={({ isActive }) => `${navClassName({ isActive })} site-nav__teacher`} to="/teacher">교사설정</NavLink>
           </nav>
         </div>
       </header>
