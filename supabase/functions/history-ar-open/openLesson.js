@@ -118,7 +118,7 @@ function isTeacherSet(value) {
 }
 function isVerification(value) {
 	const v = value, p = v?.parts;
-	return !!v && typeof v === "object" && v.version === 1 && group(v.verifier) && group(v.target) && (v.mode === "self" ? v.verifier === v.target : v.mode === void 0 && v.verifier !== v.target) && (v.mode !== "self" || Array.isArray(v.selfQuestions) && v.selfQuestions.length === 2 && uniqueIds(v.selfQuestions) && v.selfQuestions.every(isQuestion)) && (v.notes === void 0 || !!v.notes && [
+	return !!v && typeof v === "object" && v.version === 1 && group(v.verifier) && group(v.target) && (v.mode === "self" ? v.verifier === v.target : v.mode === void 0 && v.verifier !== v.target) && (v.mode !== "self" || Array.isArray(v.selfQuestions) && [2, 3].includes(v.selfQuestions.length) && uniqueIds(v.selfQuestions) && v.selfQuestions.every(isQuestion)) && (v.notes === void 0 || !!v.notes && [
 		"feature",
 		"use",
 		"benefit",

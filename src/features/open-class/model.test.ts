@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildCreationPrompt, newSelfVerification, selfItemDone, selfQuestions, buildPrompt, cardProblems, emptyParts, isGroupCard, isTeacherSet, isVerification, itemDone, missingParts, newCard, newPoint, newQuestion, newVerification, newVerifyItem, questionsToCheck, syncItems, verifyProgress, type GroupCard } from './model';
+import { buildCreationPrompt, inquirySlots, newSelfVerification, selfItemDone, selfQuestions, buildPrompt, cardProblems, emptyParts, isGroupCard, isTeacherSet, isVerification, itemDone, missingParts, newCard, newPoint, newQuestion, newVerification, newVerifyItem, questionsToCheck, syncItems, verifyProgress, type GroupCard } from './model';
 
 function readyCard(): GroupCard {
   const card = newCard(2, 1);
@@ -69,9 +69,17 @@ describe('checking another group card', () => {
 
 
 describe('own-group AI inquiry', () => {
- it('accepts exactly two AI drafts for our own group without allowing unmarked self checks', () => {
+ it('accepts three AI drafts and existing two-draft records without allowing unmarked self checks', () => {
    const check = newSelfVerification(2);
    expect(isVerification(check)).toBe(true);
+   expect(check.selfQuestions).toHaveLength(3);
+   const old = {...check, selfQuestions: check.selfQuestions!.slice(0,2)};
+   expect(isVerification(old)).toBe(true);
+   const slots = inquirySlots(old);
+   expect(slots).toHaveLength(3);
+   expect(slots.slice(0,2)).toEqual(old.selfQuestions);
+   expect(inquirySlots(old)[2].id).toBe(slots[2].id);
+   expect(isVerification({...old, selfQuestions: slots})).toBe(true);
    expect(isVerification({...check, target:3})).toBe(false);
    expect(isVerification({...check, mode:undefined})).toBe(false);
    expect(isVerification({...check,selfQuestions:[newQuestion()]})).toBe(false);
@@ -84,6 +92,7 @@ describe('own-group AI inquiry', () => {
    expect(selfItemDone({...item,why:'교과서 10쪽과 박물관 자료를 확인함'})).toBe(true);
    const check = newSelfVerification(2);check.selfQuestions![0].statement='AI 초안';
    expect(selfQuestions(check)).toHaveLength(1);
-   const prompt=buildCreationPrompt(emptyParts(),readyCard());expect(prompt).toContain('정확히 2개');expect(prompt).toContain('정확성은 자료로 다시 확인');
+   const prompt=buildCreationPrompt(emptyParts(),readyCard());expect(prompt).toContain('정확히 3개');expect(prompt).toContain('정확성은 자료로 다시 확인');expect(prompt).toContain('정확히 1문항');expect(prompt).toContain('정답이 X인 문장');
+   const preview=buildCreationPrompt(emptyParts(),readyCard(),false);expect(preview).toContain('정확히 3개');expect(preview).not.toContain('의도적으로');
  });
 });
