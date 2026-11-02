@@ -23,13 +23,10 @@ export function TeacherShell({ onLock }: TeacherShellProps) {
             </span>
           </Link>
           <nav aria-label="교사용 메뉴" className="teacher-nav">
-            <NavLink className={teacherNavClassName} to="/teacher/three-kingdoms/ar">AR 수업</NavLink>
-            <NavLink className={teacherNavClassName} to="/teacher/joseon/open-class">조선 공개수업</NavLink>
-            <NavLink className={teacherNavClassName} to="/teacher/goryeo/open-class">고려 공개수업</NavLink>
-            <NavLink className={teacherNavClassName} end to="/teacher">지도안</NavLink>
-            <NavLink className={teacherNavClassName} to="/teacher/three-kingdoms/tools">외부 도구</NavLink>
-            <NavLink className={teacherNavClassName} to="/teacher/three-kingdoms/downloads">삼국 활동지</NavLink>
-            <NavLink className={teacherNavClassName} to="/teacher/joseon/downloads">조선 활동지</NavLink>
+            <NavLink className={teacherNavClassName} end to="/teacher">수업별 설정</NavLink>
+            <Link className="teacher-nav__link" to="/teacher?course=three-kingdoms">삼국시대</Link>
+            <Link className="teacher-nav__link" to="/teacher?course=goryeo">고려시대</Link>
+            <Link className="teacher-nav__link" to="/teacher?course=joseon">조선시대</Link>
           </nav>
           <div className="teacher-workspace-actions">
             <Link className="teacher-workspace-actions__student" title="교사 확인 중에는 학생 화면에서 전체 메뉴를 볼 수 있어요" to="/classes">학생 화면</Link>

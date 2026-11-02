@@ -1,103 +1,48 @@
+import '../styles/teacher-course.css';
+import { useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { JoseonCourseOverview } from '../components/JoseonCourseOverview';
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Icon } from "../components/Icon";
-import { LessonCard } from "../components/LessonCard";
-import { eras, getEra } from "../content/catalog";
-import type { EraId } from "../types/curriculum";
 import { DataInquiryOverview } from '../components/DataInquiryOverview';
+import { LessonCard } from '../components/LessonCard';
+import { getEra } from '../content/catalog';
 import { StudioOverview } from '../features/ar-studio/StudioOverview';
-import { TeacherArPanel } from '../features/ar-studio/TeacherPage';
+import { readingsPackUrl } from '../features/open-class/HeritageReading';
+
+const courses = [
+  { id: 'three-kingdoms', name: '삼국시대', detail: '데이터 탐구 · AR 전시', count: '6차시' },
+  { id: 'goryeo', name: '고려시대', detail: '유물 AR 카드 · 공개수업', count: '공개수업' },
+  { id: 'joseon', name: '조선시대', detail: '데이터 탐구 · 과학 유물', count: '6차시 · 공개수업' },
+] as const;
+type CourseId = typeof courses[number]['id'];
 
 export function TeacherDashboardPage() {
-  const [selectedEraId, setSelectedEraId] = useState<EraId>("three-kingdoms");
-  const [query, setQuery] = useState("");
-  const selectedEra = getEra(selectedEraId) ?? eras[0];
-  const normalizedQuery = query.trim().toLocaleLowerCase("ko-KR");
-  const visibleLessons = normalizedQuery
-    ? selectedEra.lessons.filter((lesson) =>
-        `${lesson.id} ${lesson.title} ${lesson.objective} ${lesson.outputs.join(" ")}`
-          .toLocaleLowerCase("ko-KR")
-          .includes(normalizedQuery),
-      )
-    : selectedEra.lessons;
-  const worksheetCount = selectedEra.lessons.reduce(
-    (total, lesson) => total + lesson.downloads.student.length + lesson.downloads.teacher.length,
-    0,
-  );
+  const [params, setParams] = useSearchParams();
+  const requested = params.get('course');
+  const selected: CourseId = courses.some(course => course.id === requested) ? requested as CourseId : 'three-kingdoms';
+  const [query, setQuery] = useState('');
+  const era = selected === 'goryeo' ? undefined : getEra(selected);
+  const visibleLessons = era?.lessons.filter(lesson => `${lesson.id} ${lesson.title} ${lesson.objective} ${lesson.outputs.join(' ')}`.toLocaleLowerCase('ko-KR').includes(query.trim().toLocaleLowerCase('ko-KR'))) ?? [];
+  const base = import.meta.env.BASE_URL;
 
-  return (
-    <div className="teacher-page">
-      <section className="page-width ar-teacher-panel-host" aria-label="AR 수업 진행"><TeacherArPanel /></section>
-      <section className="teacher-hero">
-        <div className="page-width teacher-hero__grid">
-          <div>
-            <p className="eyebrow">PIN으로 잠긴 교사 설정</p>
-            <h1>지도안과 인쇄 자료를<br />여기에서만 관리합니다</h1>
-            <p>공개 수업 화면과 분리된 교사용 공간입니다. 지도안·학생활동지·활동카드·답안을 시대별로 확인합니다.</p>
-          </div>
-          <div className="teacher-hero__summary">
-            <div><span>수업 과정</span><strong>2</strong><small>시대</small></div>
-            <div><span>현재 수업</span><strong>{6}</strong><small>차시</small></div>
-            <div><span>기존 보관 자료</span><strong>{worksheetCount}</strong><small>종 구성</small></div>
-          </div>
+  return <div className="teacher-page teacher-course-home">
+    <section className="teacher-course-intro"><div className="page-width"><p className="eyebrow">선생님을 위한 수업 공간</p><h1>어떤 수업을 준비하시나요?</h1><p>수업을 선택하면 지도안과 활동 자료, 수업 진행 화면을 한곳에서 볼 수 있습니다.</p></div></section>
+    <div className="page-width teacher-course-content">
+      <nav className="teacher-course-tabs" aria-label="수업 선택">
+        {courses.map(course => <button type="button" key={course.id} aria-pressed={selected === course.id} onClick={() => { setParams({ course: course.id }); setQuery(''); }}><span>{course.count}</span><strong>{course.name}</strong><small>{course.detail}</small></button>)}
+      </nav>
+      <section className="teacher-course-section" aria-labelledby="course-title">
+        <div className="teacher-course-heading"><div><p className="eyebrow">선택한 수업</p><h2 id="course-title">{courses.find(course => course.id === selected)?.name} 수업</h2><p>{selected === 'goryeo' ? '완성된 유물 카드로 발표하고 AI 문제를 검증합니다.' : '차시별 수업과 교사용 자료를 확인하세요.'}</p></div>
+        {selected !== 'goryeo' && <label className="search-field"><span className="sr-only">차시 검색</span><input type="search" placeholder="차시·활동 검색" value={query} onChange={event => setQuery(event.target.value)} /></label>}</div>
+        <div className="teacher-quick-links" aria-label="수업별 바로가기">
+          {selected === 'three-kingdoms' && <><Link to="/teacher/three-kingdoms/ar"><strong>AR 수업 관리</strong><span>수업코드와 모둠 현황 →</span></Link><Link to="/teacher/three-kingdoms/tools"><strong>외부 도구 설정</strong><span>수업 도구 연결 →</span></Link><Link to="/teacher/three-kingdoms/downloads"><strong>자료 모아보기</strong><span>활동지·카드·답안 →</span></Link></>}
+          {selected === 'goryeo' && <><Link to="/teacher/goryeo/open-class"><strong>고려 수업 관리</strong><span>수업코드·모둠 현황·박물관 칠판 →</span></Link><a href={`${base}downloads/goryeo/open-class/student-worksheet.pdf`} download><strong>학생 활동지</strong><span>PDF 내려받기 →</span></a><a href={readingsPackUrl('goryeo')} target="_blank" rel="noopener noreferrer"><strong>유물 역사신문</strong><span>6종 읽기 자료 열기 →</span></a></>}
+          {selected === 'joseon' && <><Link to="/teacher/joseon/open-class"><strong>조선 공개수업 관리</strong><span>수업코드·모둠 현황·박물관 칠판 →</span></Link><Link to="/teacher/joseon/downloads"><strong>자료 모아보기</strong><span>활동지·카드·답안 →</span></Link><a href={readingsPackUrl('joseon')} target="_blank" rel="noopener noreferrer"><strong>유물 역사신문</strong><span>6종 읽기 자료 열기 →</span></a></>}
         </div>
-      </section>
-
-      <section className="page-width dashboard-content">
-        <div className="dashboard-toolbar">
-          <div aria-label="시대 선택" className="segmented-control" role="group">
-            {eras.map((era) => (
-              <button
-                aria-pressed={era.id === selectedEra.id}
-                className={era.id === selectedEra.id ? "segmented-control__button segmented-control__button--active" : "segmented-control__button"}
-                key={era.id}
-                onClick={() => setSelectedEraId(era.id)}
-                type="button"
-              >
-                {era.shortName} {'6차시 · 데이터와 AR'}
-              </button>
-            ))}
-          </div>
-          <label className="search-field">
-            <span className="sr-only">차시 또는 산출물 검색</span>
-            <Icon name="eye" size={18} />
-            <input
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="차시·활동·산출물 검색"
-              type="search"
-              value={query}
-            />
-          </label>
-        </div>
-
-        <div className="dashboard-heading">
-          <div>
-            <p className="eyebrow">{selectedEra.verificationLabel} · {selectedEra.verificationSteps.join(" · ")}</p>
-            <h2>{selectedEra.shortName} 교사 지도안</h2>
-            <p>“{selectedEra.coreQuestion}”</p>
-          </div>
-          <div className="dashboard-heading__actions">
-            <Link className="button button--primary" to={`/teacher/${selectedEra.id}/downloads`}>
-              <Icon name="download" size={18} />활동지·카드·답안
-            </Link>
-          </div>
-        </div>
-
-        {selectedEra.id === 'joseon' && <JoseonCourseOverview teacher query={query} />}
-        {selectedEra.id === 'three-kingdoms' && <DataInquiryOverview teacher query={query} />}
-        {selectedEra.id === 'three-kingdoms' && <StudioOverview teacher />}
-        {selectedEra.id === 'three-kingdoms' ? <details className="data-inquiry-legacy"><summary>기존 AR·이전 수업 지도안</summary><p>새 데이터 수업은 위의 3차시 자료를 사용합니다. 기존 작업과 AR 수업 자료는 보관합니다.</p><div className="lesson-list lesson-list--teacher">{visibleLessons.map(lesson => <LessonCard era={selectedEra} key={lesson.id} lesson={lesson} mode="teacher" />)}</div></details> : visibleLessons.length > 0 ? (
-          <details className="data-inquiry-legacy"><summary>이전 10차시 지도안·저장 작업</summary><div className="lesson-list lesson-list--teacher">
-            {visibleLessons.map((lesson) => <LessonCard era={selectedEra} key={lesson.id} lesson={lesson} mode="teacher" />)}
-          </div></details>
-        ) : (
-          <div className="empty-state">
-            <strong>검색 결과가 없습니다.</strong>
-            <p>차시 제목이나 활동지 이름을 다른 말로 찾아보세요.</p>
-          </div>
-        )}
+        {selected === 'three-kingdoms' && <><DataInquiryOverview teacher query={query} /><StudioOverview teacher /></>}
+        {selected === 'joseon' && <JoseonCourseOverview teacher query={query} />}
+        {selected === 'goryeo' && <div className="teacher-course-note"><h3>수업 진행 순서</h3><p>완성된 AR 카드 발표 → AI 문제 만들기 → 두 문제 검증 → 퀴즈 발표 → 배움 정리</p><p>수업 관리 화면에서 인식 카드 인쇄와 모둠별 진행 상황을 확인할 수 있습니다.</p></div>}
+        {era && <details className="data-inquiry-legacy"><summary>이전 수업 지도안·저장 작업</summary><p>이전에 사용한 차시별 지도안과 자료를 확인할 수 있습니다.</p><div className="lesson-list lesson-list--teacher">{visibleLessons.map(lesson => <LessonCard era={era} key={lesson.id} lesson={lesson} mode="teacher" />)}</div>{visibleLessons.length === 0 && <p>검색 결과가 없습니다.</p>}</details>}
       </section>
     </div>
-  );
+  </div>;
 }
