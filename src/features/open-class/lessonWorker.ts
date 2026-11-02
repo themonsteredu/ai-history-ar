@@ -85,7 +85,7 @@ function lessonFiles(page: PrepPage) {
   const tags = Array.from(document.querySelectorAll<HTMLScriptElement | HTMLLinkElement>('script[src], link[rel~="stylesheet"][href], link[rel="modulepreload"][href], link[rel~="icon"][href]'))
     .map(tag => tag instanceof HTMLScriptElement ? tag.src : tag.href);
   const photos = lessonPhotoPaths(joseonModels.map(info => info.photo), page).map(path => `${base}${path}`);
-  return lessonFileUrls([shellUrl(), targetsUrl(), ...built, ...tags, ...fontFiles(), ...photos], window.location.origin, base);
+  return lessonFileUrls([shellUrl(), targetsUrl(), ...(page === 'teacher' ? [`${base}images/joseon-museum-board.webp`] : []), ...built, ...tags, ...fontFiles(), ...photos], window.location.origin, base);
 }
 
 async function prepareLesson(page: PrepPage, onProgress: (done: number, total: number) => void): Promise<PrepStatus> {

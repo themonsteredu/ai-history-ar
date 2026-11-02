@@ -18,7 +18,7 @@
 
 ## 조선시대 공개수업
 
-세종 때 과학 유물 6종(측우기·자격루·간의·앙부일구·혼천의·농사직설)의 AR 카드를 사전에 제작합니다. 당일에는 AR 카드 발표 → 우리 모둠이 AI에게 받은 OX 3문항을 교과서·참고 자료로 검증 → 퀴즈와 근거 발표 → 배움 정리로 진행합니다. 학생 `/joseon/open-class`, 선생님 `/teacher/joseon/open-class`. [운영 기준](docs/JOSEON_OPEN_LESSON.md)
+세종 때 과학 유물 6종(측우기·자격루·간의·앙부일구·혼천의·농사직설)의 AR 카드를 사전에 제작합니다. 당일에는 AR 카드 발표 → 우리 모둠이 AI에게 받은 OX 3문항 중 2문항을 골라 교과서·참고 자료로 검증 → 퀴즈와 근거 발표 → 배움 정리로 진행합니다. 학생 `/joseon/open-class`, 선생님 `/teacher/joseon/open-class`. [운영 기준](docs/JOSEON_OPEN_LESSON.md)
 
 ## 현재 수업 흐름
 
