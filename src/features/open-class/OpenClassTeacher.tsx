@@ -9,8 +9,9 @@ import { forgetOpenSession, joinOpenLesson, latestLoads, loadState, readOpenSess
 import { joseonModelFor, joseonModels, joseonTargets } from '../../lib/ar/joseon/catalog';
 import { ArCard } from './ArCard';
 import { ARTIFACTS, artifactById } from './artifacts';
-import { cardProblems, decisionLabel, isTeacherSet, MAX_TEACHER_QUESTIONS, newQuestion, newTeacherSet, questionsToCheck, selfQuestions, readyQuestions, verifyProgress, type GroupCard, type OxQuestion, type TeacherSet, type Verification } from './model';
+import { cardProblems, decisionLabel, isTeacherSet, MAX_TEACHER_QUESTIONS, newQuestion, newTeacherSet, questionsToCheck, selfQuestions, selfItemDone, readyQuestions, verifyProgress, type GroupCard, type OxQuestion, type TeacherSet, type Verification } from './model';
 import { LessonPrep } from './LessonPreparation';
+import { MuseumBoard, museumProgress } from './MuseumBoard';
 import { Presentation } from './Presentation';
 import { saveLabel, useSyncedDraft } from './useSyncedDraft';
 import './open-class.css';
@@ -21,7 +22,7 @@ const emptyState: OpenState = { cards: [], checks: [], teacher: [] };
 const FLOW = [
  {minutes:3,who:'선생님',title:'활동 안내',detail:'AR 카드는 사전에 제작합니다. 당일에는 발표부터 시작해요.'},
  {minutes:10,who:'모둠',title:'AR 카드 발표',detail:'특징·쓰임·백성 생활에 준 도움·출처를 설명하고 친구 발표를 핵심어로 기록해요.'},
- {minutes:15,who:'학생',title:'AI 문제 3개 만들고 자료로 검증',detail:'AI에 질문 → 초안 3개 → 교과서·참고 자료 대조 → 채택·수정·제외와 근거. 복사되는 질문에 의도된 오류 1개를 요청합니다. 생성 결과를 수업 전 확인하고, 활동 후 연습용 오류였음을 알려 주세요.'},
+ {minutes:15,who:'학생',title:'AI 문제 3개 중 2개 골라 검증',detail:'AI에 질문 → 초안 3개 → 2개 선택 → 교과서·참고 자료 대조 → 채택·수정·제외와 근거. 복사되는 질문에 의도된 오류 1개를 요청합니다. 생성 결과를 수업 전 확인하고, 활동 후 연습용 오류였음을 알려 주세요.'},
  {minutes:9,who:'모둠',title:'검증한 퀴즈 발표',detail:'친구들이 먼저 답하고, 출제 모둠이 정답·근거 공개 버튼으로 해설해요.'},
  {minutes:3,who:'학생',title:'배움 정리',detail:'알게 된 점과 AI 정보를 확인해야 하는 까닭을 적어요.'},
 ];
@@ -69,7 +70,9 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
   const [state, setState] = useState<OpenState>(emptyState);
   const [error, setError] = useState('');
   const [openGroup, setOpenGroup] = useState<number>();
-  const [present, setPresent] = useState<{ verifier: number; target: number }>();
+  const [boardOpen, setBoardOpen] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState<number>();
+  const [present, setPresent] = useState<{ verifier: number; target: number; twoOnly?: boolean }>();
   const [printing, setPrinting] = useState<false | 'groups' | 'targets'>(false);
 
   // On slow Wi-Fi a tick waits for the load still running, and a late old reply never replaces a newer one.
@@ -83,7 +86,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
       return loadState(code, entry.token);
     });
     if (!result) return;
-    if (result.ok) { setState(result.value); setError(''); return; }
+    if (result.ok) { setState(result.value); setUpdatedAt(Date.now()); setError(''); return; }
     const status = (result.error as { status?: number }).status;
     // A stale entry on this device is replaced on the next check instead of failing every time.
     if (status === 401 || status === 403) { forgetOpenSession(code); setSession(undefined); }
@@ -109,6 +112,11 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
   const groups = Array.from({ length: groupCount }, (_, index) => index + 1);
   const presentCheck = present && state.checks.find(item => item.key === `${present.verifier}:${present.target}`)?.data;
   const presentCard = present && cardOf(present.target);
+  const presentQuestions = inquiryQuestions(presentCheck || undefined, presentCard || undefined, teacherFor(presentCard?.artifactId || 0));
+  const boardQuestions = present?.twoOnly && presentCheck ? presentQuestions.filter(q => {
+    const item = presentCheck.items.find(value => value.questionId === q.id);
+    return item && item.decision !== 'exclude' && selfItemDone(item);
+  }).slice(0, 2) : presentQuestions;
 
   return <>
     {error && <p className="oc-notice" role="alert">{error}</p>}
@@ -127,7 +135,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
 
     <section className="oc-panel" aria-label="모둠 현황">
       <div className="oc-board-head"><h2>모둠 현황 <small>6초마다 새로 확인</small></h2>
-        <div className="oc-actions"><label className="oc-inline">모둠 수<select value={groupCount} onChange={event => onGroupCount(Number(event.target.value))}>{GROUP_CHOICES.map(n => <option key={n} value={n}>{n}모둠</option>)}</select></label>
+        <div className="oc-actions"><button type="button" className="oc-primary" onClick={() => setBoardOpen(true)}>역사박물관 칠판 화면</button><label className="oc-inline">모둠 수<select value={groupCount} onChange={event => onGroupCount(Number(event.target.value))}>{GROUP_CHOICES.map(n => <option key={n} value={n}>{n}모둠</option>)}</select></label>
           <button type="button" disabled={!state.cards.some(item => item.data.artifactId)} onClick={() => setPrinting('groups')}>모둠 카드 인쇄</button>
           {joseonTargets.ready && <button type="button" onClick={() => setPrinting('targets')}>AR 인식 카드 6종 인쇄</button>}</div>
       </div>
@@ -138,11 +146,13 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
     </section>
     {openGroup && <GroupDetail group={openGroup} card={cardOf(openGroup)} checks={state.checks.filter(item => item.data.verifier === openGroup)} cardOf={cardOf} teacherFor={teacherFor} />}
 
-    {session && <details className="oc-panel"><summary>이전 수업용 · 선생님 OX 문제</summary><p>이번 공개수업은 모둠이 AI로 만든 3문항만 검증합니다. 아래 문제는 이전 방식의 기록입니다.</p><TeacherQuestions code={code} token={session.token} sets={state.teacher} cards={state.cards.map(item => item.data)} /></details>}
+    {session && <details className="oc-panel"><summary>이전 수업용 · 선생님 OX 문제</summary><p>이번 공개수업은 AI가 만든 3문항 중 2문항을 골라 검증합니다. 아래 문제는 이전 방식의 기록입니다.</p><TeacherQuestions code={code} token={session.token} sets={state.teacher} cards={state.cards.map(item => item.data)} /></details>}
+
+    {boardOpen && !present && <MuseumBoard code={code} groupCount={groupCount} state={state} updatedAt={updatedAt} error={error} onClose={() => setBoardOpen(false)} onPresent={group => setPresent({ verifier: group, target: group, twoOnly: true })} />}
 
     {present && <div className="oc-present-modal" role="dialog" aria-modal="true" aria-label="발표 화면">
       <div className="oc-present-modal-bar"><b>{present.verifier}모둠 발표</b><div className="oc-actions"><button type="button" onClick={() => window.print()}>인쇄</button><button type="button" className="oc-primary" onClick={() => setPresent(undefined)}>닫기</button></div></div>
-      <Presentation big check={presentCheck} card={presentCard} questions={inquiryQuestions(presentCheck || undefined, presentCard || undefined, teacherFor(presentCard?.artifactId || 0))} />
+      <Presentation big check={presentCheck} card={presentCard} questions={boardQuestions} />
     </div>}
 
     {printing === 'targets' && <div className="oc-print-cards" aria-hidden="true">{joseonModels.map(info => <TargetCard key={info.id} artifactId={info.id} />)}</div>}
@@ -173,11 +183,11 @@ function GroupStatus({ group, card, cardItem, checks, cardOf, teacherFor, open, 
     {checks.length === 0 ? <p className="oc-group-check is-none">검증: 아직 시작 전</p> : checks.map(item => {
       const target = cardOf(item.data.target);
       const total = item.data.mode==='self'?2:inquiryQuestions(item.data,target,teacherFor(target?.artifactId || 0)).length;
-      const progress = verifyProgress(item.data, total);
+      const progress = item.data.mode==='self' ? {...verifyProgress(item.data, total), done:museumProgress(item.data).verified} : verifyProgress(item.data, total);
       return <div key={item.key} className="oc-group-check">
-        <p><b>{total && progress.done === total ? '검증 완료' : '검증 중'} → {item.data.target}모둠 {artifactById(target?.artifactId || 0)?.name || ''}</b> <small>{time(item.updatedAt)}</small></p>
-        <div className="oc-meter" aria-label={`완료 ${progress.done} / ${total}`}><span style={{ width: `${total ? (progress.done / total) * 100 : 0}%` }} /></div>
-        <p className="oc-group-nums">자료 확인 {progress.done}/{total} · 판단 완료 {progress.done}<br /><span className="is-adopt">채택 {progress.adopt}</span> <span className="is-revise">수정 {progress.revise}</span> <span className="is-exclude">제외 {progress.exclude}</span></p>
+        <p><b>{total && progress.done >= total ? '검증 완료' : '검증 중'} → {item.data.target}모둠 {artifactById(target?.artifactId || 0)?.name || ''}</b> <small>{time(item.updatedAt)}</small></p>
+        <div className="oc-meter" aria-label={`완료 ${progress.done} / ${total}`}><span style={{ width: `${total ? Math.min(100, (progress.done / total) * 100) : 0}%` }} /></div>
+        <p className="oc-group-nums">자료 확인 {progress.done}{item.data.mode==='self'?'개':`/${total}`} · 판단 완료 {progress.done}<br /><span className="is-adopt">채택 {progress.adopt}</span> <span className="is-revise">수정 {progress.revise}</span> <span className="is-exclude">제외 {progress.exclude}</span></p>
         <button type="button" onClick={() => onPresent(item.data.target)}>발표 화면</button>
       </div>;
     })}
