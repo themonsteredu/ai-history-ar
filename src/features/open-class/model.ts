@@ -132,24 +132,20 @@ export function buildPrompt(parts: PromptParts, q: PromptQuestion) {
 export const missingParts = (parts: PromptParts) => PROMPT_FIELDS.filter(f => !parts[f.key].trim()).map(f => f.label);
 
 
-export const newSelfVerification = (group: number): Verification => ({ ...newVerification(group, group), mode: 'self', selfQuestions: [newQuestion(), newQuestion(), newQuestion()], notes: emptyLessonNotes() });
-export const selfQuestions = (check?: Verification): CheckQuestion[] => readyQuestions(check?.selfQuestions || []).map(q => ({ ...q, source: 'student' as const }));
+export const newSelfVerification = (group: number): Verification => ({ ...newVerification(group, group), mode: 'self', selfQuestions: [newQuestion(), newQuestion()], notes: emptyLessonNotes() });
+export const selfQuestions = (check?: Verification): CheckQuestion[] => readyQuestions((check?.selfQuestions || []).slice(0, 2)).map(q => ({ ...q, source: 'student' as const }));
 export const selfItemDone = (item: VerifyItem) => !!item.why.trim() && (item.decision === 'exclude' ? !!item.reason.trim() && !!item.explanation.trim() : itemDone(item));
-/** Supply a stable third slot for legacy two-question records without changing or discarding their contents. */
+/** Display two questions while retaining any older third question in storage. */
 export function inquirySlots(check: Verification): OxQuestion[] {
-  const questions = check.selfQuestions || [];
-  if (questions.length !== 2) return questions;
-  let id = `self-extra-${check.verifier}`;
-  while (questions.some(q => q.id === id)) id += '-x';
-  return [...questions, { id, statement: '', answer: 'O', explanation: '', pointId: '' }];
+  return (check.selfQuestions || []).slice(0, 2);
 }
 export function buildCreationPrompt(parts: PromptParts, card: GroupCard, includeExerciseInstruction = true, artifactName?: string) {
   const name = artifactName || ARTIFACTS.find(a => a.id === card.artifactId)?.name || '우리 모둠 유물';
   return [parts.role.trim() && `[역할] ${parts.role.trim()}`, parts.situation.trim() && `[상황] ${parts.situation.trim()}`,
     `[주제] ${name}의 특징, 쓰임, 백성 생활에 준 도움`,
     '[우리 모둠이 조사한 내용 - 정확성은 자료로 다시 확인할 예정]', ...card.points.map(p => `${p.title}: ${p.text}`),
-    '[요청] 초등학교 5학년 친구들에게 낼 OX 문제를 정확히 3개 만들어 줘. 각 문항마다 문장, AI가 제안한 정답(O/X), 짧은 해설을 적어 줘. 한 문항에는 한 가지 사실만 담아 줘.',
+    '[요청] 초등학교 5학년 친구들에게 낼 OX 문제를 정확히 2개 만들어 줘. 각 문항마다 문장, AI가 제안한 정답(O/X), 짧은 해설을 적어 줘. 한 문항에는 한 가지 사실만 담아 줘.',
     parts.style.trim() && `[답하는 방법] ${parts.style.trim()}`,
-    includeExerciseInstruction && '[교사 수업 설정] 자료를 비교해 오류를 찾는 연습을 위해 3문항 중 정확히 1문항은 문장에 대한 O/X 정답과 해설에 확인 가능한 역사적 사실 오류를 의도적으로 넣어 줘. 나머지 2문항은 문장에 맞는 정확한 정답과 해설을 써 줘. 단순히 정답이 X인 문장을 오류로 세지 말고, AI가 제안한 답 또는 해설이 실제 사실과 어긋나게 해 줘. 어떤 문항에 오류를 넣었는지, 의도된 오류라는 사실이나 정답을 바로잡은 내용은 출력하지 마. 오류는 교과서나 신뢰할 수 있는 박물관 자료로 확인할 수 있어야 해. 출처를 만들어 내지 마.'
+    includeExerciseInstruction && '[교사 수업 설정] 자료를 비교해 오류를 찾는 연습을 위해 2문항 중 정확히 1문항은 문장에 대한 O/X 정답과 해설에 확인 가능한 역사적 사실 오류를 의도적으로 넣어 줘. 나머지 1문항은 문장에 맞는 정확한 정답과 해설을 써 줘. 단순히 정답이 X인 문장을 오류로 세지 말고, AI가 제안한 답 또는 해설이 실제 사실과 어긋나게 해 줘. 어떤 문항에 오류를 넣었는지, 의도된 오류라는 사실이나 정답을 바로잡은 내용은 출력하지 마. 오류는 교과서나 신뢰할 수 있는 박물관 자료로 확인할 수 있어야 해. 출처를 만들어 내지 마.'
     ].filter(Boolean).join('\n');
 }

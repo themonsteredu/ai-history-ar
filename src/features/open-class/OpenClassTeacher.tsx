@@ -23,7 +23,7 @@ const emptyState: OpenState = { cards: [], checks: [], teacher: [] };
 const FLOW = [
  {minutes:3,who:'선생님',title:'활동 안내',detail:'미리 완성된 유물 카드를 고르고 발표부터 시작해요.'},
  {minutes:10,who:'모둠',title:'AR 카드 발표',detail:'특징·쓰임·백성 생활에 준 도움·출처를 설명하고 친구 발표를 핵심어로 기록해요.'},
- {minutes:15,who:'학생',title:'AI 문제 3개 중 2개 골라 검증',detail:'AI에 질문 → 초안 3개 → 2개 선택 → 교과서·참고 자료 대조 → 채택·수정·제외와 근거. 복사되는 질문에 의도된 오류 1개를 요청합니다. 생성 결과를 수업 전 확인하고, 활동 후 연습용 오류였음을 알려 주세요.'},
+ {minutes:15,who:'학생',title:'AI 문제 2개 검증',detail:'AI에 질문 → 초안 2개 → 교과서·참고 자료 대조 → 채택·수정·제외와 근거. 복사되는 질문에 의도된 오류 1개를 요청합니다. 생성 결과를 수업 전 확인하고, 활동 후 연습용 오류였음을 알려 주세요.'},
  {minutes:9,who:'모둠',title:'검증한 퀴즈 발표',detail:'친구들이 먼저 답하고, 출제 모둠이 정답·근거 공개 버튼으로 해설해요.'},
  {minutes:3,who:'학생',title:'배움 정리',detail:'알게 된 점과 AI 정보를 확인해야 하는 까닭을 적어요.'},
 ];
@@ -147,7 +147,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
     </section>
     {openGroup && <GroupDetail group={openGroup} card={cardOf(openGroup)} checks={state.checks.filter(item => item.data.verifier === openGroup)} cardOf={cardOf} teacherFor={teacherFor} />}
 
-    {session && <details className="oc-panel"><summary>이전 수업용 · 선생님 OX 문제</summary><p>이번 공개수업은 AI가 만든 3문항 중 2문항을 골라 검증합니다. 아래 문제는 이전 방식의 기록입니다.</p><TeacherQuestions code={code} token={session.token} sets={state.teacher} cards={state.cards.map(item => item.data)} /></details>}
+    {session && <details className="oc-panel"><summary>이전 수업용 · 선생님 OX 문제</summary><p>이번 공개수업은 AI가 만든 2문항을 검증합니다. 아래 문제는 이전 방식의 기록입니다.</p><TeacherQuestions code={code} token={session.token} sets={state.teacher} cards={state.cards.map(item => item.data)} /></details>}
 
     {boardOpen && !present && <MuseumBoard code={code} groupCount={groupCount} state={state} updatedAt={updatedAt} error={error} onClose={() => setBoardOpen(false)} onPresent={group => setPresent({ verifier: group, target: group, twoOnly: true })} />}
 

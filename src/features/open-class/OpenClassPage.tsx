@@ -15,7 +15,7 @@ import './open-class.css';
 type View = 'make' | 'look' | 'check' | 'present' | 'reflect';
 const VIEWS: { id: View; label: string; help: string }[] = [
  {id:'look',label:'AR 카드 발표',help:'사전에 만든 카드로 쓰임과 도움 소개'},
- {id:'check',label:'AI 문제 만들고 검증',help:'문제 3개 중 2개를 자료로 확인'},
+ {id:'check',label:'AI 문제 만들고 검증',help:'두 문제를 자료로 확인'},
  {id:'present',label:'퀴즈 발표',help:'친구들이 푼 뒤 정답과 근거 공개'},
  {id:'reflect',label:'배움 정리',help:'배운 점과 AI 정보를 확인하는 까닭'},
 ];
