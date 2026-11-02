@@ -23,6 +23,8 @@ const TeacherPage = lazy(() => import('./features/ar-studio/TeacherPage'));
 const OpenClassPage = lazy(() => import('./features/open-class/OpenClassPage'));
 const OpenClassTeacher = lazy(() => import('./features/open-class/OpenClassTeacher'));
 const GoryeoLesson = lazy(() => import('./features/goryeo/GoryeoLesson'));
+const GoryeoOpenClass = lazy(() => import('./features/goryeo/GoryeoOpenClass'));
+const GoryeoTeacher = lazy(() => import('./features/goryeo/GoryeoOpenClass').then(m => ({default:m.GoryeoTeacher})));
 
 export function App() {
   return (
@@ -46,7 +48,8 @@ export function App() {
         <Route path="joseon" element={<EraPage eraId="joseon" />} />
         <Route path="joseon/lesson/:lessonId" element={<LessonPage eraId="joseon" mode="student" />} />
         <Route path="joseon/open-class" element={<Suspense fallback={<p>공개수업 화면을 열어요…</p>}><OpenClassPage /></Suspense>} />
-        <Route path="goryeo" element={<Suspense fallback={<p>고려 유물 수업을 열어요…</p>}><GoryeoLesson /></Suspense>} />
+        <Route path="goryeo" element={<Suspense fallback={<p>고려 유물 수업을 열어요…</p>}><GoryeoOpenClass /></Suspense>} />
+        <Route path="goryeo/sample" element={<Suspense fallback={<p>고려 샘플을 열어요…</p>}><GoryeoLesson /></Suspense>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
       <Route path="teacher" element={<TeacherGate />}>
@@ -57,6 +60,7 @@ export function App() {
         <Route path="three-kingdoms/ar-maker" element={<Suspense fallback={<p>AR 만들기를 열어요…</p>}><StudioPage teacher maker /></Suspense>} />
         <Route path="joseon/course/:sessionId" element={<Suspense fallback={<p>수업을 준비해요…</p>}><JoseonCoursePage teacher /></Suspense>} />
         <Route path="joseon/open-class" element={<Suspense fallback={<p>공개수업 선생님 화면을 열어요…</p>}><OpenClassTeacher /></Suspense>} />
+        <Route path="goryeo/open-class" element={<Suspense fallback={<p>고려 선생님 화면을 열어요…</p>}><GoryeoTeacher /></Suspense>} />
         <Route path=":eraSlug/lesson/:lessonId" element={<LessonPage mode="teacher" />} />
         <Route path=":eraSlug/downloads" element={<DownloadCenterPage />} />
         <Route path="three-kingdoms/tools" element={<TeacherToolSettingsPage />} />

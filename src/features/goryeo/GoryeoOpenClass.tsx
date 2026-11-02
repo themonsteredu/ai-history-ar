@@ -1,0 +1,71 @@
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import type { StudioSession } from '../ar-studio/api';
+import { encodeUrlQr } from '../../lib/qr/classroomQr';
+import { joinOpenLesson, loadState, saveCard, saveCheck, latestLoads, type OpenState } from '../open-class/api';
+import { isGroupCard, isVerification, newCard, newSelfVerification, selfItemDone, selfQuestions, type GroupCard, type Verification } from '../open-class/model';
+import { useSyncedDraft } from '../open-class/useSyncedDraft';
+import { SaveInquiry, SelfQuizLab } from '../open-class/SelfInquiry';
+import { Presentation } from '../open-class/Presentation';
+import { MuseumBoard } from '../open-class/MuseumBoard';
+import { artifacts } from './data';
+import { goryeoCardPoints } from './cardPoints';
+import { photos } from './photos';
+import { GORYEO_TAG, goryeoArtifact, goryeoCard, goryeoCode, goryeoModel, goryeoRoomSafe, isGoryeo } from './readyCards';
+import '../open-class/open-class.css';
+import './goryeo.css';
+const ModelView=lazy(()=>import('../../components/HeritageModelView'));
+const Scanner=lazy(()=>import('./GoryeoScanner'));
+const empty:OpenState={cards:[],checks:[],teacher:[]};
+const goodCode=(code:string)=>/^\d{4,10}$/.test(code);
+const displayCode=(code:string)=>code.slice(2);
+type Tab='card'|'look'|'check'|'present'|'reflect';
+const steps:{key:Tab;label:string;help:string}[]=[{key:'look',label:'AR 카드 발표',help:'완성된 카드로 유물 소개'},{key:'check',label:'AI 문제 만들고 검증',help:'3문제 중 2문제를 자료로 확인'},{key:'present',label:'퀴즈 발표',help:'정답과 근거 공개'},{key:'reflect',label:'배움 정리',help:'AI 정보를 확인하는 까닭'}];
+
+export default function GoryeoOpenClass() {
+ const [code,setCode]=useState(''),[name,setName]=useState(''),[group,setGroup]=useState(1),[session,setSession]=useState<StudioSession>(),[error,setError]=useState(''),[busy,setBusy]=useState(false);
+ async function join(){setBusy(true);setError('');try{setSession(await joinOpenLesson(goryeoCode(code),name.trim(),group));}catch(e){setError(e instanceof Error?e.message:'입장하지 못했어요.');}finally{setBusy(false);}}
+ if(session)return <GoryeoRoom key={session.memberId} session={session} onLeave={()=>setSession(undefined)}/>;
+ return <main className="oc-page page-width"><p className="oc-eyebrow">고려시대 공개수업</p><h1>고려 유물 AR 탐구</h1><p>선생님이 알려 준 수업코드와 내 이름, 모둠을 입력하세요.</p><form className="oc-entry" onSubmit={e=>{e.preventDefault();if(goodCode(code)&&name.trim()&&!busy)void join();}}><label>수업코드<input inputMode="numeric" maxLength={10} value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,''))} placeholder="숫자 4~10자리"/></label><label>내 이름<input maxLength={30} value={name} onChange={e=>setName(e.target.value)} placeholder="이름 또는 별명"/></label><label>내 모둠<select value={group} onChange={e=>setGroup(Number(e.target.value))}>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}모둠</option>)}</select></label><button type="submit" disabled={busy||!goodCode(code)||!name.trim()}>{busy?'들어가는 중…':'수업 들어가기'}</button></form>{error&&<p role="alert">{error}</p>}<p><a href={`${import.meta.env.BASE_URL}goryeo/sample`}>이전 고려 유물 샘플 보기</a></p></main>;
+}
+
+function useRoom(session:StudioSession) {
+ const [state,setState]=useState<OpenState>(empty),[loaded,setLoaded]=useState(false),[error,setError]=useState(''),[updatedAt,setUpdatedAt]=useState<number>();
+ const [loads]=useState(()=>latestLoads());
+ const refresh=useCallback(async()=>{if(document.visibilityState==='hidden')return;const result=await loads(()=>loadState(session.code,session.token));if(!result)return;if(result.ok){setState(result.value);setLoaded(true);setUpdatedAt(Date.now());setError(goryeoRoomSafe(result.value)?'':'다른 수업 기록이 있는 코드입니다. 선생님과 새로운 코드를 정해 주세요.');}else setError(result.error instanceof Error?result.error.message:'수업 기록을 불러오지 못했어요.');},[loads,session.code,session.token]);
+ useEffect(()=>{void refresh();const timer=window.setInterval(()=>void refresh(),6000);return()=>window.clearInterval(timer);},[refresh]);
+ return {state,loaded,error,updatedAt,safe:loaded&&goryeoRoomSafe(state)};
+}
+function GoryeoRoom({session,onLeave}:{session:StudioSession;onLeave:()=>void}) {
+ const {code,token,group}=session;const {state,loaded,error,safe}=useRoom(session);const [tab,setTab]=useState<Tab>('look'),[camera,setCamera]=useState(false),[selected,setSelected]=useState('');
+ const saveMyCard=useCallback((data:GroupCard,version:number)=>saveCard(code,token,data,version),[code,token]);
+ const saveMyCheck=useCallback((data:Verification,version:number)=>saveCheck(code,token,{...data,lesson:GORYEO_TAG} as Verification,version),[code,token]);
+ const card=useSyncedDraft<GroupCard>({draftKey:`goryeo:${code}:card:${group}`,server:state.cards.find(x=>x.key===String(group)),blank:()=>({...newCard(group),lesson:GORYEO_TAG} as GroupCard),check:(v):v is GroupCard=>isGroupCard(v)&&isGoryeo(v),save:saveMyCard,canSave:d=>safe&&isGoryeo(d)&&d.artifactId>0});
+ const draft=useSyncedDraft<Verification>({draftKey:`goryeo:${code}:verify:${group}`,server:state.checks.find(x=>x.key===`${group}:${group}`),blank:()=>({...newSelfVerification(group),lesson:GORYEO_TAG} as Verification),check:(v):v is Verification=>isVerification(v)&&isGoryeo(v),save:saveMyCheck,canSave:d=>safe&&isGoryeo(d)});
+ const artifact=goryeoArtifact(card.data.artifactId);const points=artifact?goryeoCardPoints[artifact.id]:[];const model=artifact?goryeoModel(card.data.artifactId):undefined;const active=points.find(p=>p.id===selected);
+ function choose(id:number){if(card.data.artifactId===id&&state.cards.some(x=>x.data.group===group))return;if(card.data.artifactId&&card.data.artifactId!==id&&draft.data.selfQuestions?.some(q=>q.statement.trim())){window.alert('이미 작성한 AI 문제와 검증 기록이 있어 유물을 바꿀 수 없어요. 기존 기록을 확인하거나 다른 수업코드로 새로 시작해 주세요.');return;}if(state.cards.some(x=>x.data.group===group)&&!window.confirm('다른 완성 카드를 고르면 이 모둠의 유물이 바뀝니다. 계속할까요?'))return;card.update(()=>goryeoCard(group,id));setSelected('');}
+ if(loaded&&!safe)return <main className="oc-page page-width"><p role="alert">{error}</p><button onClick={onLeave}>다른 수업코드 입력</button></main>;
+ return <main className="oc-page page-width"><header className="oc-head"><div><p className="oc-eyebrow">고려시대 공개수업 · 수업코드 {displayCode(code)}</p><h1>고려 유물 AR 탐구 · AI 퀴즈 검증</h1></div><p className="oc-me"><b>{group}모둠</b> · {session.name}<button onClick={onLeave}>다시 입장</button></p></header>
+ {error&&<p className="oc-notice" role="alert">{error}</p>}{!loaded&&<p role="status">우리 반 기록을 불러오는 중…</p>}<div className="oc-actions"><button aria-pressed={tab==='card'} onClick={()=>setTab('card')}>완성된 AR 카드 고르기</button><a href={`${import.meta.env.BASE_URL}downloads/goryeo/open-class/student-worksheet.pdf`} download>활동지 PDF</a></div><nav className="oc-tabs" aria-label="오늘 할 일">{steps.map((s,i)=><button key={s.key} aria-pressed={tab===s.key} onClick={()=>setTab(s.key)}><b>{i+1}</b><span>{s.label}</span><small>{s.help}</small></button>)}</nav>
+ {tab==='card'&&<><section className="oc-panel"><h2>완성된 AR 카드 고르기</h2><p>우리 모둠 유물을 선택하면 준비된 설명 3개가 함께 열려요.</p><div className="oc-artifacts">{artifacts.map((a,i)=><button key={a.id} aria-pressed={card.data.artifactId===i+1} onClick={()=>choose(i+1)}><b>{a.short}</b><small>{a.role}</small></button>)}</div><p>카드 선택 후 아래 저장 버튼을 눌러 주세요.</p>{card.state==='conflict'?<div className="oc-actions"><button onClick={card.takeServer}>다른 기기의 저장된 카드 불러오기</button><button onClick={card.keepMine}>이 카드로 덮어 저장</button></div>:<button disabled={!safe||card.state==='saving'||!card.data.artifactId} onClick={()=>void card.saveNow(true)}>지금 우리 반에 저장</button>}<p role="status">{card.message}</p></section></>}
+ {tab==='look'&&!artifact&&<section className="oc-panel"><h2>먼저 완성된 AR 카드를 골라 주세요</h2><button onClick={()=>setTab('card')}>완성된 카드 고르기</button></section>}
+ {tab==='look'&&artifact&&<><section className="oc-panel"><h2>우리 모둠 AR 카드 발표하기 · {artifact.short}</h2><p>유물과 설명을 살펴보고 특징과 쓰임을 소개하세요.</p><Suspense fallback={<p>입체 유물을 불러와요…</p>}><ModelView bubbles model={model} image="" points={points} selectedId={selected} onSelect={setSelected} targetIndex={card.data.artifactId-1}/></Suspense><div className="oc-actions">{points.map((p,i)=><button key={p.id} aria-pressed={selected===p.id} onClick={()=>setSelected(p.id)}>{i+1}번 {p.title}</button>)}</div>{active&&<p><b>{active.title}</b> {active.text}</p>}<button onClick={()=>setCamera(true)}>AR 카메라로 카드 보기</button> <a href={`${import.meta.env.BASE_URL}images/goryeo-cards/${artifact.id}.jpg`} download>인쇄할 AR 카드 받기</a><p className="oc-help">{['buddha','type','tripitaka'].includes(artifact.id)?'사진을 참고한 학습용 재현 모형입니다.':'국립중앙박물관 3D 데이터를 활용한 모형입니다.'} <a href={photos[artifact.id].source} target="_blank" rel="noreferrer">사진 출처</a> · {photos[artifact.id].license}</p><p><a href={artifact.source} target="_blank" rel="noreferrer">유물 근거 자료 확인</a></p></section><section className="oc-panel"><h2>발표할 내용 정리</h2>{([['feature','유물의 특징'],['use','어디에 사용했나요?'],['benefit','사람들에게 어떤 도움을 주었나요?'],['source','어떤 자료에서 확인했나요?']] as const).map(([key,label])=><label className="oc-field" key={key}>{label}<textarea rows={2} value={draft.data.notes?.[key]||''} maxLength={600} onChange={e=>draft.update(d=>({...d,notes:{...d.notes!,[key]:e.target.value}}))}/></label>)}</section><section className="oc-panel"><h2>친구들의 발표 듣기</h2><p>유물의 쓰임과 특징을 핵심어로 적어요.</p>{artifacts.map((a,i)=><label className="oc-field" key={a.id}>{a.short}<input maxLength={300} value={draft.data.notes?.listening[i]||''} onChange={e=>draft.update(d=>({...d,notes:{...d.notes!,listening:d.notes!.listening.map((x,j)=>i===j?e.target.value:x)}}))}/></label>)}</section><SaveInquiry draft={draft}/></>}
+ {tab==='check'&&!artifact&&<p className="oc-empty">먼저 완성된 AR 카드를 골라 주세요.</p>}
+ {tab==='check'&&artifact&&<SelfQuizLab draft={draft} card={card.data} artifactName={artifact.short} era="goryeo"/>}
+ {tab==='present'&&artifact&&<Presentation check={draft.data} card={card.data} questions={selfQuestions(draft.data)} artifactName={artifact.short} era="goryeo"/>}
+ {tab==='reflect'&&<><section className="oc-panel"><h2>배움 정리하기</h2>{([['learned','오늘 알게 된 점'],['caution','AI가 만든 정보를 확인해야 하는 까닭']] as const).map(([key,label])=><label className="oc-field" key={key}>{label}<textarea rows={3} maxLength={600} value={draft.data.notes?.[key]||''} onChange={e=>draft.update(d=>({...d,notes:{...d.notes!,[key]:e.target.value}}))}/></label>)}</section><SaveInquiry draft={draft}/></>}
+ {camera&&<Suspense fallback={<p>AR 카메라 준비 중…</p>}><Scanner quizLabel="닫고 AI 문제 만들기 →" onClose={()=>setCamera(false)} onQuiz={()=>{setCamera(false);setTab('check');}} onDetected={()=>{}}/></Suspense>}</main>;
+}
+export function GoryeoTeacher() {
+ const [code,setCode]=useState(''),[current,setCurrent]=useState(''),[session,setSession]=useState<StudioSession>(),[count,setCount]=useState(6),[error,setError]=useState('');
+ async function open(){setError('');try{const internal=goryeoCode(code);setSession(await joinOpenLesson(internal,'선생님',1));setCurrent(code);}catch(e){setError(e instanceof Error?e.message:'수업을 열지 못했어요.');}}
+ if(session)return <GoryeoTeacherRoom key={session.code} session={session} count={count} onLeave={()=>setSession(undefined)}/>;
+ return <div className="oc-page oc-teacher page-width"><h1>고려 유물 수업 · 선생님</h1><p>고려 수업에서 사용할 숫자 수업코드를 만드세요. 학생들은 이 숫자로 입장합니다.</p><label className="oc-field">수업코드<input inputMode="numeric" maxLength={10} value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,''))} placeholder="숫자 4~10자리"/></label><label className="oc-inline">모둠 수<select value={count} onChange={e=>setCount(Number(e.target.value))}>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}모둠</option>)}</select></label><div className="oc-actions"><button disabled={!goodCode(code)} onClick={()=>void open()}>수업 현황 열기</button></div>{error&&<p role="alert">{error}</p>}{current&&<p>최근 수업코드 {current}</p>}</div>;
+}
+function GoryeoTeacherRoom({session,count,onLeave}:{session:StudioSession;count:number;onLeave:()=>void}) {
+ const {state,loaded,error,updatedAt,safe}=useRoom(session);const [board,setBoard]=useState(false),[present,setPresent]=useState<number>();
+ const url=`${window.location.origin}${import.meta.env.BASE_URL}goryeo`;const qr=encodeUrlQr(url);const check=state.checks.find(x=>x.key===`${present}:${present}`)?.data;const card=state.cards.find(x=>x.data.group===present)?.data;const artifact=card?goryeoArtifact(card.artifactId):undefined;
+ const questions=check?selfQuestions(check).filter(q=>{const item=check.items.find(i=>i.questionId===q.id);return item&&item.decision!=='exclude'&&selfItemDone(item);}).slice(0,2):[];
+ if(loaded&&!safe)return <div className="oc-page page-width"><p role="alert">{error}</p><button onClick={onLeave}>다른 수업코드 선택</button></div>;
+ return <div className="oc-page oc-teacher page-width"><header className="oc-head"><div><p className="oc-eyebrow">선생님 화면 · 고려 유물 수업</p><h1>수업코드 {displayCode(session.code)}</h1></div><button onClick={onLeave}>수업 바꾸기</button></header>{error&&<p role="alert">{error}</p>}<section className="oc-panel oc-qr"><h2>학생 입장 QR</h2><svg role="img" aria-label="고려 유물 수업 입장 QR" viewBox={`0 0 ${qr.size} ${qr.size}`} shapeRendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d={qr.path} fill="#000"/></svg><p>수업코드 <b>{displayCode(session.code)}</b></p><a href={url}>{url}</a></section><section className="oc-panel"><h2>완성된 고려 AR 인식 카드</h2><p>필요한 카드를 내려받아 인쇄하면 학생들이 카메라로 볼 수 있어요.</p><div className="oc-actions">{artifacts.map(a=><a key={a.id} href={`${import.meta.env.BASE_URL}images/goryeo-cards/${a.id}.jpg`} download>{a.short} 카드 받기</a>)}</div></section><section className="oc-panel"><h2>모둠 검증 현황</h2><p>완성된 AR 카드 발표 → AI 문제 3개 → 2개 선택·자료 검증 → 퀴즈 발표 → 배움 정리</p><button className="oc-primary" disabled={!safe} onClick={()=>setBoard(true)}>역사박물관 칠판 화면</button></section>
+ {board&&!present&&<MuseumBoard code={displayCode(session.code)} groupCount={count} state={state} updatedAt={updatedAt} error={error} era="goryeo" onClose={()=>setBoard(false)} onPresent={setPresent}/>}{present&&<div className="oc-present-modal" role="dialog" aria-modal="true" aria-label="발표 화면"><div className="oc-present-modal-bar"><b>{present}모둠 발표</b><button onClick={()=>setPresent(undefined)}>닫기</button></div><Presentation big check={check} card={card} questions={questions} artifactName={artifact?.short} era="goryeo"/></div>}</div>;
+}

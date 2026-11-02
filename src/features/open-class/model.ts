@@ -143,8 +143,8 @@ export function inquirySlots(check: Verification): OxQuestion[] {
   while (questions.some(q => q.id === id)) id += '-x';
   return [...questions, { id, statement: '', answer: 'O', explanation: '', pointId: '' }];
 }
-export function buildCreationPrompt(parts: PromptParts, card: GroupCard, includeExerciseInstruction = true) {
-  const name = ARTIFACTS.find(a => a.id === card.artifactId)?.name || '우리 모둠 유물';
+export function buildCreationPrompt(parts: PromptParts, card: GroupCard, includeExerciseInstruction = true, artifactName?: string) {
+  const name = artifactName || ARTIFACTS.find(a => a.id === card.artifactId)?.name || '우리 모둠 유물';
   return [parts.role.trim() && `[역할] ${parts.role.trim()}`, parts.situation.trim() && `[상황] ${parts.situation.trim()}`,
     `[주제] ${name}의 특징, 쓰임, 백성 생활에 준 도움`,
     '[우리 모둠이 조사한 내용 - 정확성은 자료로 다시 확인할 예정]', ...card.points.map(p => `${p.title}: ${p.text}`),
