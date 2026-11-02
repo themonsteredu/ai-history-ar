@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ArCard, ArCameraView } from './ArCard';
+import { HeritageReading } from './HeritageReading';
 import { ARTIFACTS, artifactById } from './artifacts';
 import { saveLabel, type useSyncedDraft } from './useSyncedDraft';
 import type { CardPoint, GroupCard } from './model';
@@ -25,6 +26,6 @@ export function ReadyJoseonCards({draft,taken,hasVerification=false}:{draft:Draf
    if(card.points.length && !window.confirm('다른 완성 카드를 선택하면 현재 카드의 설명이 바뀝니다. 계속할까요?'))return;
    draft.update(current=>({...current,artifactId:id,points:readyJoseonPoints(id),questions:current.questions.map(q=>({...q,pointId:''}))}));};
  return <><section className="oc-panel"><h2>완성된 AR 카드 고르기</h2><p>우리 모둠 유물을 선택하면 미리 준비된 설명 3개가 함께 열려요. 직접 만들지 않아도 됩니다.</p><div className="oc-artifacts">{ARTIFACTS.map(item=><button type="button" key={item.id} aria-pressed={card.artifactId===item.id} onClick={()=>choose(item.id)}><b>{item.name}</b><small>{item.kind}</small>{(taken.get(item.id)||[]).some(n=>n!==card.group)&&<em>다른 모둠도 골랐어요</em>}</button>)}</div></section>
- {artifact&&<section className="oc-panel"><h2>{artifact.name} 완성 카드</h2><p>번호를 눌러 미리 준비된 설명을 살펴보세요.</p><ArCard artifactId={card.artifactId} points={card.points} /><button type="button" onClick={()=>setAr(true)}>이 카드 AR로 보기</button><ol>{card.points.map(point=><li key={point.id}><b>{point.title}</b> {point.text}</li>)}</ol></section>}
+ {artifact&&<section className="oc-panel"><h2>{artifact.name} 완성 카드</h2><p>번호를 눌러 미리 준비된 설명을 살펴보세요.</p><ArCard artifactId={card.artifactId} points={card.points} /><button type="button" onClick={()=>setAr(true)}>이 카드 AR로 보기</button><ol>{card.points.map(point=><li key={point.id}><b>{point.title}</b> {point.text}</li>)}</ol><HeritageReading era="joseon" id={card.artifactId}/></section>}
  <section className="oc-save"><p role="status">{saveLabel(draft.state,draft.dirty,draft.savedAt)} {draft.message}</p>{draft.state==='conflict'?<div className="oc-actions"><button onClick={draft.takeServer}>저장된 카드 불러오기</button><button onClick={draft.keepMine}>이 카드로 저장</button></div>:<button disabled={draft.state==='saving'||!artifact} onClick={()=>void draft.saveNow(true)}>지금 우리 반에 저장</button>}</section>{ar&&artifact&&<ArCameraView artifactId={card.artifactId} points={card.points} title={artifact.name} onClose={()=>setAr(false)}/>}</>;
 }

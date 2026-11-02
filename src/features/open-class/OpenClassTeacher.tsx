@@ -11,6 +11,7 @@ import { ArCard } from './ArCard';
 import { ARTIFACTS, artifactById } from './artifacts';
 import { cardProblems, decisionLabel, isTeacherSet, MAX_TEACHER_QUESTIONS, newQuestion, newTeacherSet, questionsToCheck, selfQuestions, selfItemDone, readyQuestions, verifyProgress, type GroupCard, type OxQuestion, type TeacherSet, type Verification } from './model';
 import { LessonPrep } from './LessonPreparation';
+import { readingsPackUrl } from './HeritageReading';
 import { MuseumBoard, museumProgress } from './MuseumBoard';
 import { Presentation } from './Presentation';
 import { saveLabel, useSyncedDraft } from './useSyncedDraft';
@@ -128,7 +129,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
         <a className="oc-qr-link" href={openClassUrl(code)} target="_blank" rel="noopener noreferrer">{openClassUrl(code)}</a>
       </section>
       <section className="oc-panel oc-flow" aria-label="40분 진행 순서">
-        <h2>40분 진행 순서</h2><a href={`${import.meta.env.BASE_URL}downloads/joseon/open-class/student-worksheet.pdf`} download>공개수업 활동지 PDF</a>
+        <h2>40분 진행 순서</h2><a href={readingsPackUrl("joseon")} target="_blank" rel="noopener noreferrer">조선 유물 읽기 자료 6종 인쇄</a><a href={`${import.meta.env.BASE_URL}downloads/joseon/open-class/student-worksheet.pdf`} download>공개수업 활동지 PDF</a>
         <ol>{FLOW.map(step => <li key={step.title}><span>{step.minutes}분 · {step.who}</span><b>{step.title}</b><small>{step.detail}</small></li>)}</ol>
       </section>
     </div>
