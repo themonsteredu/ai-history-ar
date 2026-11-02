@@ -52,6 +52,15 @@ describe('open lesson Edge API', () => {
     expect(api.sent().p_payload).toMatchObject({kind:'verify',key:'2:2'});
     expect((await api.handler(request('/rooms/5252/verify/2', {data:newVerification(2,2),expectedVersion:0}))).status).toBe(400);
   });
+  it('preserves Goryeo lesson tags when saving the prepared card and three AI drafts', async () => {
+    const api = setup();
+    const goryeoCard = { ...newCard(2, 3), lesson: 'goryeo-open-v2' };
+    expect((await api.handler(request('/rooms/8912345/card', { data: goryeoCard, expectedVersion: 0 }))).status).toBe(200);
+    expect(api.sent().p_payload.data.lesson).toBe('goryeo-open-v2');
+    const check = { ...newSelfVerification(2), lesson: 'goryeo-open-v2' };
+    expect((await api.handler(request('/rooms/8912345/verify/2', { data: check, expectedVersion: 0 }))).status).toBe(200);
+    expect(api.sent().p_payload.data).toMatchObject({ lesson: 'goryeo-open-v2', selfQuestions: expect.arrayContaining(check.selfQuestions!) });
+  });
   it('lets only the teacher PIN save teacher questions', async () => {
     const api = setup();
     const data = { version: 1, artifactId: 4, questions: [] };

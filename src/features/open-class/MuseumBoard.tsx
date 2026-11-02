@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { artifactById } from './artifacts';
 import { joseonModelFor } from '../../lib/ar/joseon/catalog';
+import { goryeoPhoto } from '../goryeo/readyCards';
 import type { OpenState } from './api';
 import { selfItemDone, type Verification } from './model';
 import './museum-board.css';
@@ -18,8 +19,8 @@ export function museumProgress(check?: Verification) {
   return { rows, verified: rows.filter(row => row.complete).length, presentable: rows.filter(row => row.presentable).length };
 }
 
-type Props = { code: string; groupCount: number; state: OpenState; updatedAt?: number; error: string; onClose: () => void; onPresent: (group: number) => void };
-export function MuseumBoard({ code, groupCount, state, updatedAt, error, onClose, onPresent }: Props) {
+type Props = { code: string; groupCount: number; state: OpenState; updatedAt?: number; error: string; onClose: () => void; onPresent: (group: number) => void; era?: 'joseon'|'goryeo' };
+export function MuseumBoard({ code, groupCount, state, updatedAt, error, onClose, onPresent, era = 'joseon' }: Props) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const closeAction = useRef(onClose);
   closeAction.current = onClose;
@@ -41,7 +42,7 @@ export function MuseumBoard({ code, groupCount, state, updatedAt, error, onClose
   return <section className="museum-board" role="dialog" aria-modal="true" aria-labelledby="museum-title">
     <div className="museum-board__inner">
       <header className="museum-board__header">
-        <div><p className="museum-board__eyebrow">JOSEON HISTORY MUSEUM · CLASSROOM</p><h1 id="museum-title">우리 반 역사 박물관</h1><p>유물에 대한 AI 문제를 살펴보고, 자료를 바탕으로 확인합니다.</p></div>
+        <div><p className="museum-board__eyebrow">{era === 'goryeo' ? 'GORYEO' : 'JOSEON'} HISTORY MUSEUM · CLASSROOM</p><h1 id="museum-title">우리 반 역사 박물관</h1><p>유물에 대한 AI 문제를 살펴보고, 자료를 바탕으로 확인합니다.</p></div>
         <div className="museum-board__top-actions"><span>수업코드 <b>{code}</b></span><button ref={closeRef} type="button" onClick={onClose}>칠판 화면 닫기</button></div>
       </header>
       <div className="museum-board__overview">
@@ -51,12 +52,14 @@ export function MuseumBoard({ code, groupCount, state, updatedAt, error, onClose
       <div className="museum-board__bar"><div><h2>모둠별 검증 현황</h2><p>검증 후 채택하거나 수정한 문제 2개가 있으면 발표할 수 있어요.</p></div><span className={error ? 'museum-board__connection is-error' : 'museum-board__connection'} role="status">{error ? `연결 확인 필요 · ${time ? `마지막 확인 ${time}` : '아직 불러오지 못함'}` : time ? `마지막 확인 ${time} · 6초마다 새로 확인` : '수업 기록을 불러오는 중'}</span></div>
       {!updatedAt ? <p className="museum-board__loading">{error ? '수업 기록을 불러오지 못했습니다. 연결을 확인해 주세요.' : '모둠의 기록을 불러오고 있습니다.'}</p> : <div className="museum-board__groups">{groups.map(({group,card,rows,verified,presentable}) => {
         const ready = !!card?.artifactId && presentable >= PRESENTATION_GOAL;
-        const artifact = artifactById(card?.artifactId || 0);
-        const photo = joseonModelFor(card?.artifactId || 0)?.photo;
+        const id=card?.artifactId || 0;
+        const goryeo=era==='goryeo'?goryeoPhoto(id):undefined;
+        const artifact=era==='goryeo'?goryeo:artifactById(id);
+        const photo=era==='goryeo'?goryeo:joseonModelFor(id)?.photo;
         return <article className={`museum-group${ready ? ' is-ready' : ''}`} key={group}>
           <div className="museum-group__head"><div><span className="museum-group__label">EXHIBIT {String(group).padStart(2, '0')}</span><h3>{group}모둠</h3></div><span className="museum-group__status">{ready ? '발표 준비 완료' : verified >= PRESENTATION_GOAL ? '검증 완료' : verified > 0 || rows.some(row => row.started) ? '검증 중' : '시작 전'}</span></div>
           <div className="museum-group__body">
-            <figure className="museum-group__photo">{photo ? <><img src={`${import.meta.env.BASE_URL}${photo.texture || photo.path}`} alt={`${artifact?.name || '유물'} 사진`} loading="lazy"/><figcaption><a href={photo.source} target="_blank" rel="noopener noreferrer">{photo.author}</a> · <a href={photo.licenseUrl} target="_blank" rel="noopener noreferrer">{photo.license}</a><span> · 크기 조정</span></figcaption></> : <div className="museum-group__photo-empty">유물 선택 전</div>}</figure>
+            <figure className="museum-group__photo">{photo ? <><img src={`${import.meta.env.BASE_URL}${'texture' in photo ? photo.texture || photo.path : photo.path}`} alt={`${artifact?.name || '유물'} 사진`} loading="lazy"/><figcaption><a href={photo.source} target="_blank" rel="noopener noreferrer">{photo.author}</a> · <a href={photo.licenseUrl} target="_blank" rel="noopener noreferrer">{photo.license}</a><span> · 크기 조정</span></figcaption></> : <div className="museum-group__photo-empty">유물 선택 전</div>}</figure>
             <div className="museum-group__details"><p className="museum-group__artifact">{artifact?.name || '유물 선택 전'}</p><div className="museum-group__progress"><span>자료 검증</span><strong>{verified}<small> / 2문제 이상</small></strong></div>
           <div className="museum-group__markers" aria-label={`문제별 상태: ${rows.map(row => `${row.index}번 ${row.complete ? '검증 완료' : row.started ? '확인 중' : '시작 전'}`).join(', ') || '기록 없음'}`}>
             {(rows.length ? rows : [{index:1, complete:false,started:false},{index:2,complete:false,started:false},{index:3,complete:false,started:false}]).map(row => <span className={row.complete ? 'is-complete' : row.started ? 'is-progress' : ''} key={row.index}>{row.index} <i>{row.complete ? '완료' : row.started ? '확인 중' : '대기'}</i></span>)}

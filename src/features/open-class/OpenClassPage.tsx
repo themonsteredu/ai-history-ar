@@ -4,7 +4,7 @@ import type { StudioSession } from '../ar-studio/api';
 import { forgetOpenSession, joinOpenLesson, latestLoads, loadState, readOpenSession, saveCard, saveCheck, type OpenState } from './api';
 
 import { CardGallery } from './CardGallery';
-import { CardMaker } from './CardMaker';
+import { ReadyJoseonCards } from './ReadyJoseonCards';
 import { LessonPrep } from './LessonPreparation';
 import { isGroupCard, isVerification, newCard, newSelfVerification, selfQuestions, type GroupCard, type Verification } from './model';
 import { Presentation } from './Presentation';
@@ -72,10 +72,10 @@ function Lesson({ session, onLeave }: { session: StudioSession; onLeave: () => v
  const checkDraft=useSyncedDraft<Verification>({draftKey:`${code}:verify:${group}:${group}`,server:state.checks.find(i=>i.key===`${group}:${group}`),blank:()=>newSelfVerification(group),check:isVerification,save:saveMyCheck,canSave:d=>loaded&&d.mode==='self'&&d.verifier===group&&d.target===group});
  const taken=new Map<number,number[]>();state.cards.forEach(i=>taken.set(i.data.artifactId,[...(taken.get(i.data.artifactId)||[]),i.data.group]));
  return <main className="oc-page page-width"><header className="oc-head"><div><p className="oc-eyebrow">조선시대 공개수업 · 수업코드 {code}</p><h1>조선 전기 과학 기술 탐험 · AI 퀴즈 검증</h1></div><p className="oc-me"><b>{group}모둠</b> · {session.name}<button onClick={onLeave}>다시 입장</button></p></header>
- <div className="oc-actions"><button aria-pressed={view==='make'} onClick={()=>go('make')}>사전 준비 · AR 카드 제작</button><a href={worksheetUrl} download>공개수업 활동지 PDF</a></div><LessonPrep page="student"/>
+ <div className="oc-actions"><button aria-pressed={view==='make'} onClick={()=>go('make')}>완성된 AR 카드 고르기</button><a href={worksheetUrl} download>공개수업 활동지 PDF</a></div><LessonPrep page="student"/>
  <nav className="oc-tabs" aria-label="오늘 할 일">{VIEWS.map((v,i)=><button key={v.id} aria-pressed={view===v.id} onClick={()=>go(v.id)}><b>{i+1}</b><span>{v.label}</span><small>{v.help}</small></button>)}</nav>
  {error&&<p role="alert" className="oc-notice">{error}</p>}{!loaded&&<p role="status">우리 반 기록을 불러오는 중…</p>}
- {view==='make'&&<><p className="oc-help">AR 카드는 사전에 준비해요. 공개수업 당일에는 첫 번째 ‘AR 카드 발표’부터 시작합니다. 문제는 두 번째 단계에서 AI에게 받아요.</p><CardMaker draft={cardDraft} taken={taken}/></>}
+ {view==='make'&&<><p className="oc-help">미리 완성된 유물 카드를 골라 저장하세요. 이후 AR 카드 발표와 AI 문제 검증으로 이어집니다.</p><ReadyJoseonCards draft={cardDraft} taken={taken} hasVerification={(checkDraft.data.selfQuestions||[]).some(q=>q.statement.trim())}/></>}
  {view==='look'&&<><IntroNotes draft={checkDraft} card={cardDraft.data}/><details className="oc-panel"><summary>다른 모둠 AR 카드 관찰</summary><CardGallery cards={state.cards} myGroup={group} initialGroup={Number(params.get('group'))||undefined}/></details></>}
  {view==='check'&&<SelfQuizLab draft={checkDraft} card={cardDraft.data}/>}
  {view==='present'&&<Presentation check={checkDraft.data} card={cardDraft.data} questions={selfQuestions(checkDraft.data)}/>}
