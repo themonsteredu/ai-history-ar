@@ -28,7 +28,7 @@ export function TeacherDashboardPage() {
     <section className="teacher-course-intro"><div className="page-width"><p className="eyebrow">선생님을 위한 수업 공간</p><h1>어떤 수업을 준비하시나요?</h1><p>수업을 선택하면 지도안과 활동 자료, 수업 진행 화면을 한곳에서 볼 수 있습니다.</p></div></section>
     <div className="page-width teacher-course-content">
       <nav className="teacher-course-tabs" aria-label="수업 선택">
-        {courses.map(course => <button type="button" key={course.id} aria-pressed={selected === course.id} onClick={() => { setParams({ course: course.id }); setQuery(''); }}><span>{course.count}</span><strong>{course.name}</strong><small>{course.detail}</small></button>)}
+        {courses.map(course => <button type="button" key={course.id} aria-pressed={selected === course.id} onClick={() => { const next = new URLSearchParams(params); next.set('course', course.id); setParams(next); setQuery(''); }}><span>{course.count}</span><strong>{course.name}</strong><small>{course.detail}</small></button>)}
       </nav>
       <section className="teacher-course-section" aria-labelledby="course-title">
         <div className="teacher-course-heading"><div><p className="eyebrow">선택한 수업</p><h2 id="course-title">{courses.find(course => course.id === selected)?.name} 수업</h2><p>{selected === 'goryeo' ? '완성된 유물 카드로 발표하고 AI 문제를 검증합니다.' : '차시별 수업과 교사용 자료를 확인하세요.'}</p></div>
