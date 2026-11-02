@@ -10,7 +10,7 @@ describe('prepared open-class cards', () => {
  });
  it('uses Goryeo topic in the copied Gemini request', () => {
   const prompt=buildCreationPrompt(emptyParts(),goryeoCard(1,3),true,'팔만대장경');
-  expect(prompt).toContain('[주제] 팔만대장경');expect(prompt).toContain('정확히 3개');expect(prompt).toContain('정확히 1문항');expect(prompt).not.toContain('간의');
+  expect(prompt).toContain('[주제] 팔만대장경');expect(prompt).toContain('정확히 2개');expect(prompt).toContain('정확히 1문항');expect(prompt).not.toContain('간의');
  });
  it('does not permit replacing a different lesson or old sample records', () => {
   const card=goryeoCard(1,1),check={...newSelfVerification(1),lesson:GORYEO_TAG} as Verification;

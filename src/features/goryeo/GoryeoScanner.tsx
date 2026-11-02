@@ -6,6 +6,7 @@ import { followPose, steadyTrackingFilter } from '../../lib/ar/steadyPose';
 import type { ExhibitModel } from '../../lib/ar/exhibit';
 import { artifacts } from './data';
 import { goryeoCardPoints } from './cardPoints';
+import type { GroupCard } from '../open-class/model';
 import { photos } from './photos';
 import './goryeo-scanner.css';
 
@@ -19,8 +20,8 @@ const cameraScale = .30;
 type Stage = { spinner: any; follower: any; anchor: any; fresh: boolean };
 
 /** One camera and six target anchors: presenting a different card does not restart the camera. */
-export default function GoryeoScanner({ onClose, onDetected, onQuiz, quizLabel = '닫고 전체 모둠 OX 풀기 →' }: {
-  onClose: () => void; onDetected: (id: string) => void; onQuiz?: () => void; quizLabel?: string;
+export default function GoryeoScanner({ onClose, onDetected, onQuiz, customCards, quizLabel = '닫고 전체 모둠 OX 풀기 →' }: {
+  onClose: () => void; onDetected: (id: string) => void; onQuiz?: () => void; quizLabel?: string; customCards?: GroupCard[];
 }) {
   const surface = useRef<HTMLDivElement>(null);
   const markers = useRef<Array<HTMLButtonElement | null>>([]);
@@ -33,7 +34,9 @@ export default function GoryeoScanner({ onClose, onDetected, onQuiz, quizLabel =
   const [error, setError] = useState('');
   const [textureMissing, setTextureMissing] = useState(false);
   const artifact = artifacts.find(item => item.id === active);
-  const points = active ? goryeoCardPoints[active] : undefined;
+  const customRef = useRef(customCards); customRef.current = customCards;
+  const getPoints = (id: string) => { const index = artifacts.findIndex(a => a.id === id); return customRef.current?.find(c => c.artifactId === index + 1)?.points || goryeoCardPoints[id]; };
+  const points = active ? getPoints(active) : undefined;
   const point = points?.find(item => item.id === pointId);
 
   useEffect(() => {
@@ -131,7 +134,7 @@ export default function GoryeoScanner({ onClose, onDetected, onQuiz, quizLabel =
         const id = activeRef.current, stage = id ? stages.get(id) : undefined, rect = host.getBoundingClientRect(), canvasRect = renderer.domElement.getBoundingClientRect();
         markers.current.forEach((button, index) => {
           if (!button) return;
-          const hotspot = id && goryeoCardPoints[id]?.[index];
+          const hotspot = id && getPoints(id)?.[index];
           if (!hotspot || !stage?.follower.visible || !models.has(id!)) { button.hidden = true; return; }
           const [x, y, z] = hotspot.position;
           const position = id === 'tripitaka' ? [cameraScale * x, cameraScale * (z + .0355), cameraScale * (.18 - y)] : [cameraScale * x, cameraScale * y, cameraScale * z];
@@ -167,7 +170,7 @@ export default function GoryeoScanner({ onClose, onDetected, onQuiz, quizLabel =
       {textureMissing && <p>일부 사진 표면을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</p>}
       {artifact && points && <div className="goryeo-scanner-reading">
         <p><b>{artifact.name}</b> · {artifact.role}</p>
-        <p>{artifact.id === 'buddha' ? '선생님이 미리 완성한 시범 카드의 설명 3개를 눌러 읽어요.' : '학생이 미리 완성한 카드의 설명 3개를 눌러 읽어요.'}</p>
+        <p>번호를 눌러 카드에 담긴 설명을 읽어요.</p>
         <div className="goryeo-ar-points" aria-label="AR 카드 설명 번호">{points.map((item, index) => <button type="button" key={item.id} aria-pressed={pointId === item.id} onClick={() => setPointId(item.id)}>{index + 1}번</button>)}</div>
         {point && <p className="goryeo-scanner-detail" aria-live="polite"><b>{point.title}</b> · {point.text}</p>}
         {onQuiz && <button className="goryeo-scanner-quiz" onClick={onQuiz}>{quizLabel}</button>}

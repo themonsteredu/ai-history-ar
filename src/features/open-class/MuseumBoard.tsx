@@ -11,7 +11,7 @@ export const PRESENTATION_GOAL = 2;
 /** Count only a written draft whose own evidence and judgment are complete. */
 export function museumProgress(check?: Verification) {
   if (!check || check.mode !== 'self') return { verified: 0, presentable: 0, rows: [] };
-  const rows = (check.selfQuestions || []).map((question, index) => {
+  const rows = (check.selfQuestions || []).slice(0, 2).map((question, index) => {
     const item = check.items.find(value => value.questionId === question.id);
     const complete = !!question.statement.trim() && !!item && selfItemDone(item);
     return { index: index + 1, complete, presentable: complete && item?.decision !== 'exclude', started: !!question.statement.trim() || !!item };
@@ -60,15 +60,15 @@ export function MuseumBoard({ code, groupCount, state, updatedAt, error, onClose
           <div className="museum-group__head"><div><span className="museum-group__label">EXHIBIT {String(group).padStart(2, '0')}</span><h3>{group}모둠</h3></div><span className="museum-group__status">{ready ? '발표 준비 완료' : verified >= PRESENTATION_GOAL ? '검증 완료' : verified > 0 || rows.some(row => row.started) ? '검증 중' : '시작 전'}</span></div>
           <div className="museum-group__body">
             <figure className="museum-group__photo">{photo ? <><img src={`${import.meta.env.BASE_URL}${'texture' in photo ? photo.texture || photo.path : photo.path}`} alt={`${artifact?.name || '유물'} 사진`} loading="lazy"/><figcaption><a href={photo.source} target="_blank" rel="noopener noreferrer">{photo.author}</a> · <a href={photo.licenseUrl} target="_blank" rel="noopener noreferrer">{photo.license}</a><span> · 크기 조정</span></figcaption></> : <div className="museum-group__photo-empty">유물 선택 전</div>}</figure>
-            <div className="museum-group__details"><p className="museum-group__artifact">{artifact?.name || '유물 선택 전'}</p><div className="museum-group__progress"><span>자료 검증</span><strong>{verified}<small> / 2문제 이상</small></strong></div>
+            <div className="museum-group__details"><p className="museum-group__artifact">{artifact?.name || '유물 선택 전'}</p><div className="museum-group__progress"><span>자료 검증</span><strong>{verified}<small> / 2문제</small></strong></div>
           <div className="museum-group__markers" aria-label={`문제별 상태: ${rows.map(row => `${row.index}번 ${row.complete ? '검증 완료' : row.started ? '확인 중' : '시작 전'}`).join(', ') || '기록 없음'}`}>
-            {(rows.length ? rows : [{index:1, complete:false,started:false},{index:2,complete:false,started:false},{index:3,complete:false,started:false}]).map(row => <span className={row.complete ? 'is-complete' : row.started ? 'is-progress' : ''} key={row.index}>{row.index} <i>{row.complete ? '완료' : row.started ? '확인 중' : '대기'}</i></span>)}
+            {(rows.length ? rows : [{index:1, complete:false,started:false},{index:2,complete:false,started:false}]).map(row => <span className={row.complete ? 'is-complete' : row.started ? 'is-progress' : ''} key={row.index}>{row.index} <i>{row.complete ? '완료' : row.started ? '확인 중' : '대기'}</i></span>)}
           </div>
           </div></div>
           <div className="museum-group__footer"><span>발표 가능 <b>{presentable}</b>문제</span><button type="button" disabled={!ready} onClick={() => onPresent(group)} aria-label={`${group}모둠 발표 화면 열기`}>발표 화면 <span aria-hidden="true">↗</span></button></div>
         </article>;
       })}</div>}
-      <footer className="museum-board__foot"><span>검증 완료에는 제외한 문제도 포함됩니다.</span><span>발표 화면은 검증을 마친 문제 중 채택·수정한 앞의 2문제를 보여 줍니다.</span></footer>
+      <footer className="museum-board__foot"><span>검증 완료에는 제외한 문제도 포함됩니다.</span><span>발표 화면은 검증을 마친 두 문제를 보여 줍니다.</span></footer>
     </div>
   </section>;
 }
