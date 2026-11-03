@@ -7,6 +7,7 @@ import { LessonCard } from '../components/LessonCard';
 import { getEra } from '../content/catalog';
 import { StudioOverview } from '../features/ar-studio/StudioOverview';
 import { readingsPackUrl } from '../features/open-class/HeritageReading';
+import { OpenLessonMaterials } from '../features/open-class/OpenLessonMaterials';
 
 const courses = [
   { id: 'three-kingdoms', name: '삼국시대', detail: '데이터 탐구 · AR 전시', count: '6차시' },
@@ -40,6 +41,7 @@ export function TeacherDashboardPage() {
         </div>
         {selected === 'three-kingdoms' && <><DataInquiryOverview teacher query={query} /><StudioOverview teacher /></>}
         {selected === 'joseon' && <JoseonCourseOverview teacher query={query} />}
+        {selected !== 'three-kingdoms' && <OpenLessonMaterials era={selected} />}
         {selected === 'goryeo' && <div className="teacher-course-note"><h3>수업 진행 순서</h3><p>완성된 AR 카드 발표 → AI 문제 만들기 → 두 문제 검증 → 퀴즈 발표 → 배움 정리</p><p>수업 관리 화면에서 인식 카드 인쇄와 모둠별 진행 상황을 확인할 수 있습니다.</p></div>}
         {era && <details className="data-inquiry-legacy"><summary>이전 수업 지도안·저장 작업</summary><p>이전에 사용한 차시별 지도안과 자료를 확인할 수 있습니다.</p><div className="lesson-list lesson-list--teacher">{visibleLessons.map(lesson => <LessonCard era={era} key={lesson.id} lesson={lesson} mode="teacher" />)}</div>{visibleLessons.length === 0 && <p>검색 결과가 없습니다.</p>}</details>}
       </section>
