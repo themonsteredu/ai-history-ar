@@ -85,6 +85,19 @@ describe('own-group AI inquiry', () => {
    expect(isVerification({...check, notes:{...check.notes,listening:['only one']}})).toBe(false);
    expect(cardProblems({...readyCard(),questions:[]})).toEqual([]);
  });
+ it('adds the matching newspaper only to the copied request for each era', () => {
+   for (const era of ['goryeo', 'joseon'] as const) {
+     for (let artifactId = 1; artifactId <= 6; artifactId++) {
+       const card = {...readyCard(), artifactId};
+       const full = buildCreationPrompt(emptyParts(), card, true, undefined, era);
+       const preview = buildCreationPrompt(emptyParts(), card, false, undefined, era);
+       expect(full).toContain('[검증용 참고 자료:');
+       expect(full).toContain('위 자료만으로 O 또는 X를 판단');
+       expect(preview).not.toContain('[검증용 참고 자료:');
+       expect(preview).not.toContain('[추가 요청]');
+     }
+   }
+ });
  it('requires source evidence and retains exclusions without inventing an answer', () => {
    const item = {...newVerifyItem('q','student'),decision:'exclude' as const,reason:'근거 없음',explanation:'자료에서 확인할 수 없어 제외'};
    expect(selfItemDone(item)).toBe(false);
