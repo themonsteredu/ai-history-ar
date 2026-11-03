@@ -2,6 +2,8 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import type { ExhibitModel, ExhibitPoint } from '../../lib/ar/exhibit';
 import { joseonModelFor, joseonTargets } from '../../lib/ar/joseon/catalog';
 import { artifactById } from './artifacts';
+import { goryeoArtifact, goryeoModel } from '../goryeo/readyCards';
+const GoryeoScanner = lazy(() => import('../goryeo/GoryeoScanner'));
 import type { CardPoint } from './model';
 import '../../styles/ar-exhibit.css';
 
@@ -17,7 +19,7 @@ const asExhibitPoints = (points: readonly CardPoint[]): ExhibitPoint[] => points
 
 interface ArCardProps {
   artifactId: number; points: readonly CardPoint[]; selected?: string;
-  onSelect?: (id: string) => void; onPlace?: (position: [number, number, number]) => void; caption?: string;
+  onSelect?: (id: string) => void; onPlace?: (position: [number, number, number]) => void; caption?: string; era?: 'goryeo' | 'joseon';
 }
 
 /**
@@ -25,18 +27,18 @@ interface ArCardProps {
  * bubble beside the number. A tap on the model places a pin while `onPlace` is given. Without `onSelect` (the teacher's
  * view) the card remembers the tapped pin itself.
  */
-export function ArCard({ artifactId, points, selected, onSelect, onPlace, caption }: ArCardProps) {
-  const artifact = artifactById(artifactId);
-  const model = useMemo(() => artifactModel(artifactId), [artifactId]);
+export function ArCard({ artifactId, points, selected, onSelect, onPlace, caption, era = 'joseon' }: ArCardProps) {
+  const artifact = era === 'goryeo' ? goryeoArtifact(artifactId) : artifactById(artifactId);
+  const model = useMemo(() => era === 'goryeo' ? goryeoModel(artifactId) : artifactModel(artifactId), [artifactId, era]);
   const exhibitPoints = useMemo(() => asExhibitPoints(points), [points]);
   const [own, setOwn] = useState<string>();
   if (!artifact || !model) return <figure className="oc-card is-empty"><p className="oc-help">유물을 골라 주세요.</p></figure>;
   return <figure className={`oc-card${onPlace ? ' is-placing' : ''}`}>
     <Suspense fallback={<p className="oc-help" role="status">입체 유물을 불러와요…</p>}>
-      <HeritageModelView bubbles model={model} image="" points={exhibitPoints} selectedId={(onSelect ? selected : own) || ''} onSelect={onSelect || setOwn} onPlace={onPlace} targetIndex={0} eraId="joseon" />
+      <HeritageModelView bubbles model={model} image="" points={exhibitPoints} selectedId={(onSelect ? selected : own) || ''} onSelect={onSelect || setOwn} onPlace={onPlace} targetIndex={artifactId - 1} eraId={era === 'joseon' ? 'joseon' : undefined} />
     </Suspense>
-    <figcaption>{caption || `${artifact.name}(${artifact.hanja}) · ${artifact.kind}`}</figcaption>
-    <ModelCredit artifactId={artifactId} />
+    <figcaption>{caption || artifact.name}</figcaption>
+    {era === 'joseon' ? <ModelCredit artifactId={artifactId} /> : <p className="oc-credit">{model.credit} · <a href={model.source} target="_blank" rel="noreferrer">자료 출처</a></p>}
   </figure>;
 }
 
@@ -89,4 +91,9 @@ function FreeCamera({ artifactId, points, selected, onSelect }: { artifactId: nu
     <div className="oc-ar-float"><ArCard artifactId={artifactId} points={points} selected={selected} onSelect={onSelect} /></div>
     {problem && <p className="oc-ar-problem oc-ar-floating">{problem}</p>}
   </>;
+}
+
+export function LessonCamera({ era, card, onClose }: { era: 'goryeo' | 'joseon'; card: import('./model').GroupCard; onClose: () => void }) {
+ if (era === 'goryeo') return <Suspense fallback={<p>AR 카메라 준비 중…</p>}><GoryeoScanner customCards={[card]} onClose={onClose} onDetected={() => {}} /></Suspense>;
+ return <ArCameraView artifactId={card.artifactId} points={card.points} title={`${card.group}모둠 · ${artifactById(card.artifactId)?.name || ''}`} onClose={onClose}/>;
 }

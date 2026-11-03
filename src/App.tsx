@@ -22,6 +22,7 @@ const QuizPrintPage = lazy(() => import('./features/ar-studio/QuizPrintPage'));
 const TeacherPage = lazy(() => import('./features/ar-studio/TeacherPage'));
 const OpenClassPage = lazy(() => import('./features/open-class/OpenClassPage'));
 const OpenClassTeacher = lazy(() => import('./features/open-class/OpenClassTeacher'));
+const PresentationExample = lazy(() => import('./features/open-class/PresentationExample'));
 const GoryeoLesson = lazy(() => import('./features/goryeo/GoryeoLesson'));
 const GoryeoOpenClass = lazy(() => import('./features/goryeo/GoryeoOpenClass'));
 const GoryeoTeacher = lazy(() => import('./features/goryeo/GoryeoOpenClass').then(m => ({default:m.GoryeoTeacher})));
@@ -49,6 +50,7 @@ export function App() {
         <Route path="joseon/lesson/:lessonId" element={<LessonPage eraId="joseon" mode="student" />} />
         <Route path="joseon/open-class" element={<Suspense fallback={<p>공개수업 화면을 열어요…</p>}><OpenClassPage /></Suspense>} />
         <Route path="goryeo" element={<Suspense fallback={<p>고려 유물 수업을 열어요…</p>}><GoryeoOpenClass /></Suspense>} />
+        <Route path="presentation-example" element={<Suspense fallback={<p>발표 예시를 열어요…</p>}><PresentationExample /></Suspense>} />
         <Route path="goryeo/sample" element={<Suspense fallback={<p>고려 샘플을 열어요…</p>}><GoryeoLesson /></Suspense>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

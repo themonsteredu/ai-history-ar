@@ -8,6 +8,7 @@ import { GROUP_CHOICES, groupCountKey, readGroupCount } from '../ar-studio/teach
 import { forgetOpenSession, joinOpenLesson, latestLoads, loadState, readOpenSession, saveTeacherSet, type OpenItem, type OpenState } from './api';
 import { joseonModelFor, joseonModels, joseonTargets } from '../../lib/ar/joseon/catalog';
 import { ArCard } from './ArCard';
+import { goryeoArtifact } from '../goryeo/readyCards';
 import { ARTIFACTS, artifactById } from './artifacts';
 import { cardProblems, decisionLabel, isTeacherSet, MAX_TEACHER_QUESTIONS, newQuestion, newTeacherSet, questionsToCheck, selfQuestions, selfItemDone, readyQuestions, verifyProgress, type GroupCard, type OxQuestion, type TeacherSet, type Verification } from './model';
 import { LessonPrep } from './LessonPreparation';
@@ -46,6 +47,10 @@ export default function OpenClassTeacher() {
     <TeacherClassPicker era="joseon" code={code} onSelect={next => { setCode(next); setClasses(readTeacherClasses(window.localStorage)); }} />
     {code ? <ClassBoard key={code} code={code} groupCount={groupCount} onGroupCount={changeGroupCount} /> : <p className="oc-empty">위에서 반을 등록하거나 누르면 QR·모둠 현황·선생님 문제가 나와요.</p>}
   </div>;
+}
+
+export function LessonFlow({era}:{era:'goryeo'|'joseon'}) {
+ return <section className="oc-panel oc-flow" aria-label="40분 진행 순서"><h2>40분 진행 순서</h2><a href={readingsPackUrl(era)} target="_blank" rel="noopener noreferrer">{era==='goryeo'?'고려':'조선'} 유물 읽기 자료 6종 인쇄</a><a href={`${import.meta.env.BASE_URL}downloads/${era}/open-class/student-worksheet.pdf`} download>공개수업 활동지 PDF</a><a href={`${import.meta.env.BASE_URL}downloads/${era}/open-class/group-presentation-notes.pdf`} download>모둠 발표 듣기 활동지</a><ol>{FLOW.map(step=><li key={step.title}><span>{step.minutes}분 · {step.who}</span><b>{step.title}</b><small>{step.detail}</small></li>)}</ol></section>;
 }
 
 function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCount: number; onGroupCount: (n: number) => void }) {
@@ -111,10 +116,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
         <p className="oc-qr-code">수업코드 <b>{code}</b></p>
         <a className="oc-qr-link" href={openClassUrl(code)} target="_blank" rel="noopener noreferrer">{openClassUrl(code)}</a>
       </section>
-      <section className="oc-panel oc-flow" aria-label="40분 진행 순서">
-        <h2>40분 진행 순서</h2><a href={readingsPackUrl("joseon")} target="_blank" rel="noopener noreferrer">조선 유물 읽기 자료 6종 인쇄</a><a href={`${import.meta.env.BASE_URL}downloads/joseon/open-class/student-worksheet.pdf`} download>공개수업 활동지 PDF</a><a href={`${import.meta.env.BASE_URL}downloads/joseon/open-class/group-presentation-notes.pdf`} download>모둠 발표 듣기 활동지</a>
-        <ol>{FLOW.map(step => <li key={step.title}><span>{step.minutes}분 · {step.who}</span><b>{step.title}</b><small>{step.detail}</small></li>)}</ol>
-      </section>
+      <LessonFlow era="joseon" />
     </div>
 
     <section className="oc-panel" aria-label="모둠 현황">
@@ -146,13 +148,14 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
   </>;
 }
 
-function GroupStatus({ group, card, cardItem, checks, cardOf, teacherFor, open, onToggle, onPresent }: {
-  group: number; card?: GroupCard; cardItem?: OpenItem<GroupCard>; checks: OpenItem<Verification>[]; cardOf: (g: number) => GroupCard | undefined;
+export function GroupStatus({ group, card, cardItem, checks, cardOf, teacherFor, open, onToggle, onPresent, era = 'joseon' }: {
+  era?: 'goryeo' | 'joseon'; group: number; card?: GroupCard; cardItem?: OpenItem<GroupCard>; checks: OpenItem<Verification>[]; cardOf: (g: number) => GroupCard | undefined;
   teacherFor: (artifactId: number) => TeacherSet | undefined; open: boolean; onToggle: () => void; onPresent: (target: number) => void;
 }) {
-  const artifact = artifactById(card?.artifactId || 0);
+  const artifact = era === 'goryeo' ? goryeoArtifact(card?.artifactId || 0) : artifactById(card?.artifactId || 0);
   const problems = card ? cardProblems(card) : ['아직 카드를 저장하지 않았어요.'];
-  const ready = card ? readyQuestions(card.questions).length : 0;
+  const ownCheck = checks.find(item => item.data.mode === 'self' && item.data.target === group)?.data;
+  const ready = ownCheck ? (ownCheck.selfQuestions || []).filter(q => q.statement.trim()).length : card ? readyQuestions(card.questions).length : 0;
   const cardState = !card || !artifact ? 'none' : problems.length ? 'working' : 'done';
   const time = (value?: string) => value ? new Date(value).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '';
   return <article className={`oc-group is-${cardState}${open ? ' is-open' : ''}`}>
@@ -171,7 +174,7 @@ function GroupStatus({ group, card, cardItem, checks, cardOf, teacherFor, open, 
       const total = item.data.mode==='self'?2:inquiryQuestions(item.data,target,teacherFor(target?.artifactId || 0)).length;
       const progress = item.data.mode==='self' ? {...verifyProgress(item.data, total), done:museumProgress(item.data).verified} : verifyProgress(item.data, total);
       return <div key={item.key} className="oc-group-check">
-        <p><b>{total && progress.done >= total ? '검증 완료' : '검증 중'} → {item.data.target}모둠 {artifactById(target?.artifactId || 0)?.name || ''}</b> <small>{time(item.updatedAt)}</small></p>
+        <p><b>{total && progress.done >= total ? '검증 완료' : '검증 중'} → {item.data.target}모둠 {(era === 'goryeo' ? goryeoArtifact(target?.artifactId || 0) : artifactById(target?.artifactId || 0))?.name || ''}</b> <small>{time(item.updatedAt)}</small></p>
         <div className="oc-meter" aria-label={`완료 ${progress.done} / ${total}`}><span style={{ width: `${total ? Math.min(100, (progress.done / total) * 100) : 0}%` }} /></div>
         <p className="oc-group-nums">자료 확인 {progress.done}{item.data.mode==='self'?'개':`/${total}`} · 판단 완료 {progress.done}<br /><span className="is-adopt">채택 {progress.adopt}</span> <span className="is-revise">수정 {progress.revise}</span> <span className="is-exclude">제외 {progress.exclude}</span></p>
         <button type="button" onClick={() => onPresent(item.data.target)}>발표 화면</button>
@@ -180,18 +183,18 @@ function GroupStatus({ group, card, cardItem, checks, cardOf, teacherFor, open, 
   </article>;
 }
 
-function GroupDetail({ group, card, checks, cardOf, teacherFor }: { group: number; card?: GroupCard; checks: OpenItem<Verification>[]; cardOf: (g: number) => GroupCard | undefined; teacherFor: (artifactId: number) => TeacherSet | undefined }) {
-  const artifact = artifactById(card?.artifactId || 0);
+export function GroupDetail({ group, card, checks, cardOf, teacherFor, era = 'joseon' }: { era?: 'goryeo' | 'joseon'; group: number; card?: GroupCard; checks: OpenItem<Verification>[]; cardOf: (g: number) => GroupCard | undefined; teacherFor: (artifactId: number) => TeacherSet | undefined }) {
+  const artifact = era === 'goryeo' ? goryeoArtifact(card?.artifactId || 0) : artifactById(card?.artifactId || 0);
   const problems = card ? cardProblems(card) : ['아직 카드를 저장하지 않았어요.'];
   return <section className="oc-panel" aria-label={`${group}모둠 자세히 보기`}>
     <h2>{group}모둠 자세히 보기</h2>
     <div className="oc-group-detail">
       <div>
-        {card && artifact && <ArCard artifactId={card.artifactId} points={card.points} caption={`${group}모둠 카드${card.members ? ` · ${card.members}` : ''}`} />}
+        {card && artifact && <ArCard era={era} artifactId={card.artifactId} points={card.points} caption={`${group}모둠 카드${card.members ? ` · ${card.members}` : ''}`} />}
       </div>
       <div>
         {card && <ol className="oc-group-points">{card.points.map(point => <li key={point.id}><b>{point.title || '제목 없음'}</b> {point.text}</li>)}</ol>}
-        {card && <><h3>만든 OX 문제</h3><ol className="oc-group-qs">{readyQuestions(card.questions).map(q => <li key={q.id}>“{q.statement}” <b>{q.answer}</b> <small>{q.explanation}</small></li>)}</ol></>}
+        {card && <><h3>만든 OX 문제</h3><ol className="oc-group-qs">{readyQuestions(checks.find(item => item.data.mode === 'self' && item.data.target === group)?.data.selfQuestions || card.questions).map(q => <li key={q.id}>“{q.statement}” <b>{q.answer}</b> <small>{q.explanation}</small></li>)}</ol></>}
         {problems.length > 0 && <p className="oc-help is-warn">남은 일: {problems.join(' ')}</p>}
         {checks.map(item => <div key={item.key} className="oc-group-verify">
           {item.data.notes&&<div><p>특징: {item.data.notes.feature}</p><p>쓰임: {item.data.notes.use}</p><p>생활에 준 도움: {item.data.notes.benefit}</p><p>출처: {item.data.notes.source}</p><p>배운 점: {item.data.notes.learned}</p><p>AI 확인이 필요한 까닭: {item.data.notes.caution}</p></div>}<h3>{item.data.mode==='self'?'우리 모둠 AI 문제':`${item.data.target}모둠 카드`} 검증 기록</h3>
