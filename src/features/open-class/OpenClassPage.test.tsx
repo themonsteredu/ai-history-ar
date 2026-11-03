@@ -13,5 +13,5 @@ it('asks a student only for the class code, name and group', () => {
 
 it('starts the teacher screen from the class list', () => {
   const html = renderToStaticMarkup(<MemoryRouter><OpenClassTeacher /></MemoryRouter>);
-  expect(html).toContain('내 반'); expect(html).toContain('첫 반 등록');
+  expect(html).toContain('수업코드로 시작'); expect(html).toContain('수업 현황 열기'); expect(html).toContain('내 반'); expect(html).toContain('첫 반 등록');
 });
