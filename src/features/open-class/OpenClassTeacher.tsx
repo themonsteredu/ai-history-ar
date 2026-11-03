@@ -43,9 +43,9 @@ export default function OpenClassTeacher() {
 
   return <div className="oc-page oc-teacher page-width">
     <header className="oc-head"><div><p className="oc-eyebrow">선생님 화면 · 조선시대 공개수업</p><h1>{name ? `${name} · 수업코드 ${code}` : code ? `수업코드 ${code}` : '세종 때 과학 유물 AR 카드'}</h1></div></header>
-    <LessonPrep page="teacher" /><OpenLessonMaterials era="joseon"/>
+    <OpenLessonMaterials era="joseon"/><details className="oc-panel"><summary>이전 조선 6차시 수업 준비 자료</summary><LessonPrep page="teacher"/></details>
     <TeacherClassPicker era="joseon" code={code} onSelect={next => { setCode(next); setClasses(readTeacherClasses(window.localStorage)); }} />
-    {code ? <ClassBoard key={code} code={code} groupCount={groupCount} onGroupCount={changeGroupCount} /> : <p className="oc-empty">위에서 반을 등록하거나 누르면 QR·모둠 현황·선생님 문제가 나와요.</p>}
+    {code ? <ClassBoard key={code} code={code} groupCount={groupCount} onGroupCount={changeGroupCount} /> : <p className="oc-empty">위에서 반을 등록하거나 누르면 QR·모둠 현황이 나와요.</p>}
   </div>;
 }
 
@@ -119,6 +119,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
       <LessonFlow era="joseon" />
     </div>
 
+    <section className="oc-panel"><h2>조선 AR 인식 카드</h2><p>필요한 카드를 내려받아 인쇄하면 학생들이 카메라로 볼 수 있어요.</p><div className="oc-actions"><a href={`${import.meta.env.BASE_URL}downloads/joseon/ar/ar-cards-all.pdf`} download>AR 인식 카드 6종 받기</a>{ARTIFACTS.map((item,index)=><a key={item.id} href={`${import.meta.env.BASE_URL}downloads/joseon/ar/ar-card-${String(index+1).padStart(2,'0')}.pdf`} download>{item.name} 카드 받기</a>)}</div></section>
     <section className="oc-panel" aria-label="모둠 현황">
       <div className="oc-board-head"><h2>모둠 현황 <small>6초마다 새로 확인</small></h2>
         <div className="oc-actions"><button type="button" className="oc-primary" onClick={() => setBoardOpen(true)}>역사박물관 칠판 화면</button><label className="oc-inline">모둠 수<select value={groupCount} onChange={event => onGroupCount(Number(event.target.value))}>{GROUP_CHOICES.map(n => <option key={n} value={n}>{n}모둠</option>)}</select></label>

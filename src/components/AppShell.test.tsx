@@ -35,13 +35,13 @@ describe('상단 수업 메뉴', () => {
     for (const label of ['과정 선택', '삼국시대', '고려유물수업', '조선시대', 'AR 만들기']) expect(nav).not.toContain(label);
   });
 
-  it('교사 확인 후 기존 메뉴의 주소를 유지하고 잠그면 다시 감춘다', () => {
+  it('교사 확인 후 시대별 공개수업 메뉴를 보여 주고 잠그면 다시 감춘다', () => {
     const storage = createStorage();
     grantTeacherAccess(storage);
     const nav = renderNavigation(storage, '/classes?hub_code=CLASS');
     expect(nav).toContain('href="/classes"');
     expect(nav).toContain('href="/teacher"');
-    for (const path of ['/', '/three-kingdoms', '/goryeo', '/joseon']) expect(nav).toContain(`href="${path}"`);
+    for (const path of ['/', '/three-kingdoms', '/goryeo', '/joseon/open-class']) expect(nav).toContain(`href="${path}"`);
     expect(nav).toContain('href="/three-kingdoms/ar-maker?hub_code=CLASS"');
     for (const label of ['과정 선택', '삼국시대', '고려유물수업', '조선시대', 'AR 만들기']) expect(nav).toContain(label);
     clearTeacherAccess(storage);
