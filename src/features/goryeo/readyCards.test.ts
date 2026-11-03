@@ -4,8 +4,8 @@ import { buildCreationPrompt, emptyParts, isGroupCard, isVerification, newSelfVe
 import { readyJoseonPoints } from '../open-class/ReadyJoseonCards';
 
 describe('prepared open-class cards', () => {
- it('keeps six complete Goryeo cards compatible with existing storage and models', () => {
-  for(let id=1;id<=6;id++) { const card=goryeoCard(2,id); expect(isGroupCard(card)).toBe(true);expect(card.points).toHaveLength(3);expect(card.points.every(p=>p.title&&p.text)).toBe(true);expect(goryeoModel(id)?.asset).toBeTruthy();expect(goryeoPhoto(id)?.source).toBeTruthy(); }
+ it('starts new Goryeo cards blank while retaining valid storage and models', () => {
+  for(let id=1;id<=6;id++) { const card=goryeoCard(2,id); expect(isGroupCard(card)).toBe(true);expect(card.points).toEqual([]);expect(goryeoModel(id)?.asset).toBeTruthy();expect(goryeoPhoto(id)?.source).toBeTruthy(); }
   expect(goryeoCode('12345')).toBe('8912345');
  });
  it('uses Goryeo topic in the copied Gemini request', () => {

@@ -35,7 +35,7 @@ export default function GoryeoScanner({ onClose, onDetected, onQuiz, customCards
   const [textureMissing, setTextureMissing] = useState(false);
   const artifact = artifacts.find(item => item.id === active);
   const customRef = useRef(customCards); customRef.current = customCards;
-  const getPoints = (id: string) => { const index = artifacts.findIndex(a => a.id === id); return customRef.current?.find(c => c.artifactId === index + 1)?.points || goryeoCardPoints[id]; };
+  const getPoints = (id: string) => { const index = artifacts.findIndex(a => a.id === id); return customRef.current ? (customRef.current.find(c => c.artifactId === index + 1)?.points || []) : goryeoCardPoints[id]; };
   const points = active ? getPoints(active) : undefined;
   const point = points?.find(item => item.id === pointId);
 
@@ -170,7 +170,7 @@ export default function GoryeoScanner({ onClose, onDetected, onQuiz, customCards
       {textureMissing && <p>일부 사진 표면을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</p>}
       {artifact && points && <div className="goryeo-scanner-reading">
         <p><b>{artifact.name}</b> · {artifact.role}</p>
-        <p>번호를 눌러 카드에 담긴 설명을 읽어요.</p>
+        <p>{points.length ? '번호를 눌러 카드에 담긴 설명을 읽어요.' : '아직 저장된 설명이 없어요. 모둠에서 직접 카드를 만들어 주세요.'}</p>
         <div className="goryeo-ar-points" aria-label="AR 카드 설명 번호">{points.map((item, index) => <button type="button" key={item.id} aria-pressed={pointId === item.id} onClick={() => setPointId(item.id)}>{index + 1}번</button>)}</div>
         {point && <p className="goryeo-scanner-detail" aria-live="polite"><b>{point.title}</b> · {point.text}</p>}
         {onQuiz && <button className="goryeo-scanner-quiz" onClick={onQuiz}>{quizLabel}</button>}

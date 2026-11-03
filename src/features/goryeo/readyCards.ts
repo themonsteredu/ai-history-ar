@@ -1,5 +1,4 @@
 import { artifacts } from './data';
-import { goryeoCardPoints } from './cardPoints';
 import { photos } from './photos';
 import type { GroupCard, Verification } from '../open-class/model';
 import type { OpenState } from '../open-class/api';
@@ -9,7 +8,7 @@ export const goryeoArtifact = (id:number) => artifacts[id-1];
 const assets: Record<string, ExhibitModel['asset']> = {buddha:'goryeo-buddha',type:'goryeo-type',tripitaka:'goryeo-tripitaka',vase:'goryeo-vase',incense:'goryeo-incense',lacquer:'goryeo-lacquer'};
 export function goryeoCard(group:number,id:number): GroupCard {
  const item=goryeoArtifact(id); if(!item) throw new Error('유물을 다시 골라 주세요.');
- return {version:1,group,artifactId:id,members:'',questions:[],points:goryeoCardPoints[item.id].map(p=>({id:p.id,title:p.title,text:p.text,position:p.position})), lesson:GORYEO_TAG} as GroupCard;
+ return {version:1,group,artifactId:id,members:'',questions:[],points:[], lesson:GORYEO_TAG} as GroupCard;
 }
 export function goryeoModel(id:number):ExhibitModel|undefined {
  const item=goryeoArtifact(id);if(!item)return;
