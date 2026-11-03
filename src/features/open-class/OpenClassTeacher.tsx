@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TEACHER_PIN } from '../../auth/teacherAccess';
 import { encodeUrlQr } from '../../lib/qr/classroomQr';
 import type { StudioSession } from '../ar-studio/api';
-import { NumericCodeStatus } from '../ar-studio/NumericCodeStatus';
-import { addTeacherClass, classNameFor, isClassCode, normalizeClassCode, readTeacherClasses, removeTeacherClass, writeTeacherClasses, type TeacherClass } from '../ar-studio/teacherClasses';
+import { classNameFor, readTeacherClasses, type TeacherClass } from '../ar-studio/teacherClasses';
+import { TeacherClassPicker } from './TeacherClassPicker';
 import { GROUP_CHOICES, groupCountKey, readGroupCount } from '../ar-studio/teacherRun';
 import { forgetOpenSession, joinOpenLesson, latestLoads, loadState, readOpenSession, saveTeacherSet, type OpenItem, type OpenState } from './api';
 import { joseonModelFor, joseonModels, joseonTargets } from '../../lib/ar/joseon/catalog';
@@ -35,37 +35,15 @@ const inquiryQuestions=(check:Verification|undefined,card:GroupCard|undefined,te
 export default function OpenClassTeacher() {
   const [classes, setClasses] = useState<TeacherClass[]>([]);
   const [code, setCode] = useState('');
-  const [quickCode, setQuickCode] = useState('');
-  const [newName, setNewName] = useState(''); const [newCode, setNewCode] = useState('');
   const [groupCount, setGroupCount] = useState(6);
   useEffect(() => { try { setClasses(readTeacherClasses(window.localStorage)); setGroupCount(readGroupCount(window.localStorage)); } catch { /* defaults stay */ } }, []);
-  function saveClasses(next: TeacherClass[]) { setClasses(next); try { writeTeacherClasses(next, window.localStorage); } catch { /* kept for this visit */ } }
-  function addClass() {
-    const next = addTeacherClass(classes, newName, newCode);
-    if (next.length === classes.length && !classNameFor(classes, newCode)) return;
-    saveClasses(next); setCode(normalizeClassCode(newCode)); setNewName(''); setNewCode('');
-  }
   function changeGroupCount(value: number) { setGroupCount(value); try { window.localStorage.setItem(groupCountKey, String(value)); } catch { /* fine */ } }
   const name = classNameFor(classes, code);
 
   return <div className="oc-page oc-teacher page-width">
     <header className="oc-head"><div><p className="oc-eyebrow">선생님 화면 · 조선시대 공개수업</p><h1>{name ? `${name} · 수업코드 ${code}` : code ? `수업코드 ${code}` : '세종 때 과학 유물 AR 카드'}</h1></div></header>
     <LessonPrep page="teacher" /><OpenLessonMaterials era="joseon"/>
-    <section className="oc-panel" aria-label="수업코드로 시작"><h2>수업코드로 시작</h2><p>학생에게 알려 줄 숫자 수업코드를 입력하세요.</p><form className="oc-class-add" onSubmit={event=>{event.preventDefault();if(isClassCode(quickCode))setCode(normalizeClassCode(quickCode));}}><label>수업코드<input inputMode="numeric" maxLength={12} value={quickCode} onChange={event=>setQuickCode(event.target.value.replace(/\D/g,''))} placeholder="숫자 수업코드"/></label><button type="submit" className="oc-primary" disabled={!isClassCode(quickCode)}>수업 현황 열기</button></form></section>
-    <section className="oc-panel" aria-label="내 반 목록">
-      <h2>내 반</h2>
-      {classes.length > 0 && <ul className="oc-class-list">{classes.map(item => <li key={item.code} className={item.code === code ? 'is-open' : undefined}>
-        <button type="button" onClick={() => setCode(item.code)}><b>{item.name}</b><span>{item.code}</span></button>
-        <button type="button" className="oc-class-remove" aria-label={`${item.name} 목록에서 빼기`} onClick={() => { if (window.confirm(`${item.name}(${item.code})을 목록에서 뺄까요? 학생 기록은 서버에 그대로 남아요.`)) saveClasses(removeTeacherClass(classes, item.code)); }}>×</button>
-      </li>)}</ul>}
-      <form className="oc-class-add" onSubmit={event => { event.preventDefault(); addClass(); }}>
-        <label>반 이름<input value={newName} maxLength={30} placeholder="예: 5학년 2반" onChange={event => setNewName(event.target.value)} /></label>
-        <label>수업코드 (숫자)<input value={newCode} inputMode="numeric" autoCapitalize="none" spellCheck={false} maxLength={12} placeholder="예: 520301" onChange={event => setNewCode(event.target.value.trim())} /></label>
-        <button type="submit" className="oc-primary" disabled={!newName.trim() || !isClassCode(newCode)}>{classes.length ? '반 추가' : '첫 반 등록'}</button>
-      </form>
-      <NumericCodeStatus code={newCode} />
-      <p className="oc-help">삼국시대 AR 수업과 같은 반 목록을 써요. 숫자를 넣으면 수업코드가 자동으로 저장돼요.</p>
-    </section>
+    <TeacherClassPicker era="joseon" code={code} onSelect={next => { setCode(next); setClasses(readTeacherClasses(window.localStorage)); }} />
     {code ? <ClassBoard key={code} code={code} groupCount={groupCount} onGroupCount={changeGroupCount} /> : <p className="oc-empty">위에서 반을 등록하거나 누르면 QR·모둠 현황·선생님 문제가 나와요.</p>}
   </div>;
 }
