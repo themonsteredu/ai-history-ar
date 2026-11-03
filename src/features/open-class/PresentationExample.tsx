@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { MuseumCardStage } from './MuseumCardStage';
 import { newSelfVerification, newVerifyItem, selfQuestions, type GroupCard } from './model';
 import { Presentation } from './Presentation';
+import './open-class.css';
 
 const sample: GroupCard = { version:1, group:1, artifactId:3, members:'', questions:[], points:[
  {id:'example-1',position:[0,0.3,0],title:'경판',text:'나무판에 불교 경전을 새겼어요.'},
