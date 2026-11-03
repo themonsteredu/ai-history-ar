@@ -270,3 +270,153 @@
 .oc-quiz-present__result > b {color:#285d45}
 .oc-quiz-present__result p {margin:5px 0}
 .oc-quiz-present__result small {color:#5e655c}
+
+/* Classroom quiz: a clear hierarchy for questions, AI responses and evidence. */
+@media screen {
+  .oc-page .oc-quiz-present {
+    max-width: 1160px;
+    padding: 24px 0 48px;
+    color: #1b302a;
+  }
+  .oc-page .oc-quiz-present__header {
+    position: relative;
+    overflow: hidden;
+    margin: 0 0 24px;
+    padding: clamp(24px, 4vw, 42px);
+    border-radius: 16px;
+    background: #173e34;
+    color: #fffdf7;
+  }
+  .oc-page .oc-quiz-present__header::after {
+    content: '';
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    right: -70px;
+    top: -105px;
+    border: 1px solid rgba(238, 218, 166, .27);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .oc-page .oc-quiz-present__header p {
+    margin: 0 0 10px;
+    color: #e4ca8c;
+    font-size: clamp(1rem, 1.4vw, 1.15rem);
+    font-weight: 700;
+    letter-spacing: .02em;
+  }
+  .oc-page .oc-quiz-present__header h2 {
+    margin: 0 0 10px;
+    color: #fffdf7;
+    font-size: clamp(1.9rem, 3.6vw, 3.1rem);
+    line-height: 1.25;
+  }
+  .oc-page .oc-quiz-present__header span {
+    color: #e0ece6;
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+  }
+  .oc-page .oc-quiz-present__questions {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 18px;
+  }
+  .oc-page .oc-quiz-present__questions > li {
+    min-width: 0;
+    padding: clamp(22px, 3vw, 34px);
+    border: 1px solid #dedbd1;
+    border-top: 4px solid #b49a60;
+    border-left: 1px solid #dedbd1;
+    border-radius: 14px;
+    background: #fffefa;
+    box-shadow: 0 8px 28px rgba(24, 46, 38, .07);
+    color: #1c2c26;
+  }
+  .oc-page .oc-quiz-present__number {
+    display: inline-block;
+    margin: 0 0 8px;
+    color: #356858;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+  }
+  .oc-page .oc-quiz-present__questions h3 {
+    margin: 0 0 24px;
+    color: #172a23;
+    font-size: clamp(1.45rem, 2.4vw, 2rem);
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+  .oc-page .oc-quiz-present__ai {
+    margin: 0 0 20px;
+    padding: 18px 20px;
+    border-left: 3px solid #71988a;
+    border-radius: 0 8px 8px 0;
+    background: #edf3ef;
+  }
+  .oc-page .oc-quiz-present__ai strong {
+    color: #245748;
+    font-size: 1.16rem;
+  }
+  .oc-page .oc-quiz-present__ai p {
+    margin: 6px 0 0;
+    color: #31443c;
+    font-size: 1.06rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+  .oc-page .oc-quiz-present__questions button.oc-primary {
+    min-height: 50px;
+    padding: 12px 21px;
+    border-radius: 8px;
+    background: #1e5949;
+    border-color: #1e5949;
+    color: #fff;
+    font-weight: 800;
+  }
+  .oc-page .oc-quiz-present__questions button.oc-primary:hover {
+    background: #143e33;
+  }
+  .oc-page .oc-quiz-present__result {
+    margin-top: 18px;
+    padding: 20px;
+    border: 1px solid #e8ddc4;
+    border-radius: 10px;
+    background: #faf5e9;
+    color: #26372d;
+    overflow-wrap: anywhere;
+  }
+  .oc-page .oc-quiz-present__result > b {
+    display: block;
+    margin-bottom: 8px;
+    color: #75581e;
+    font-size: 1rem;
+  }
+  .oc-page .oc-quiz-present__result p {
+    margin: 8px 0;
+    font-size: 1.08rem;
+    line-height: 1.6;
+  }
+  .oc-page .oc-quiz-present__result p strong {
+    font-size: 1.3rem;
+    color: #173e34;
+  }
+  .oc-page .oc-quiz-present__result small {
+    display: block;
+    margin-top: 12px;
+    color: #5b655c;
+    font-size: .95rem;
+  }
+  @media (min-width: 1000px) {
+    .oc-page .oc-quiz-present__questions {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 600px) {
+    .oc-page .oc-quiz-present { padding-top: 12px; }
+    .oc-page .oc-quiz-present__header { margin-bottom: 16px; border-radius: 12px; }
+    .oc-page .oc-quiz-present__questions > li { padding: 20px; }
+    .oc-page .oc-quiz-present__questions h3 { font-size: 1.45rem; }
+    .oc-page .oc-quiz-present__questions button.oc-primary { width: 100%; }
+  }
+}
