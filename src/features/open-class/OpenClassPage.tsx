@@ -6,7 +6,6 @@ import { forgetOpenSession, joinOpenLesson, latestLoads, loadState, readOpenSess
 import { CardGallery } from './CardGallery';
 import { OpenLessonMaterials } from './OpenLessonMaterials';
 import { CardMaker } from './CardMaker';
-import { LessonPrep } from './LessonPreparation';
 import { isGroupCard, isVerification, newCard, newSelfVerification, selfQuestions, type GroupCard, type Verification } from './model';
 import { Presentation } from './Presentation';
 import { useSyncedDraft } from './useSyncedDraft';
@@ -45,16 +44,16 @@ export default function OpenClassPage() {
 
   if (!live) return <main className="oc-page page-width">
     <p className="oc-eyebrow">조선시대 공개수업</p>
-    <h1>세종 때 과학 유물 AR 카드</h1>
-    <p className="oc-lead">선생님이 알려 준 수업코드를 넣고, 내 이름과 모둠을 고르세요.</p>
+    <h1>조선 유물 AR 탐구</h1>
+    <p className="oc-lead">선생님이 알려 준 수업코드와 내 이름, 모둠을 입력하세요.</p>
     <form className="oc-entry" onSubmit={event => { event.preventDefault(); if (!busy) void join(); }}>
-      <label>수업코드<input required inputMode="numeric" autoCapitalize="none" spellCheck={false} pattern="[a-zA-Z0-9]{4,12}" minLength={4} maxLength={12} value={inputCode} onChange={event => setInputCode(event.target.value.trim())} placeholder="선생님이 알려 준 번호" /></label>
+      <label>수업코드<input required inputMode="numeric" autoCapitalize="none" spellCheck={false} pattern="[a-zA-Z0-9]{4,12}" minLength={4} maxLength={12} value={inputCode} onChange={event => setInputCode(event.target.value.trim())} placeholder="선생님이 알려 준 수업코드" /></label>
       <label>내 이름<input required maxLength={30} value={name} onChange={event => setName(event.target.value)} placeholder="이름 또는 별명" /></label>
       <label>내 모둠<select value={group} onChange={event => setGroup(Number(event.target.value))}>{[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n}모둠</option>)}</select></label>
       <button className="oc-big" type="submit" disabled={busy || !name.trim() || !/^[a-z0-9]{4,12}$/i.test(inputCode.trim())}>{busy ? '들어가는 중…' : '수업 들어가기'}</button>
     </form>
     {error && <p className="oc-notice" role="alert">{error}</p>}
-    <OpenLessonMaterials era="joseon"/><LessonPrep page="student" />
+    <OpenLessonMaterials era="joseon"/>
     <p className="oc-foot"><Link to="/joseon">조선시대 수업으로 돌아가기</Link></p>
   </main>;
 
@@ -73,14 +72,15 @@ function Lesson({ session, onLeave }: { session: StudioSession; onLeave: () => v
  const saveMyCheck=useCallback((data:Verification,version:number)=>saveCheck(code,token,data,version),[code,token]);
  const checkDraft=useSyncedDraft<Verification>({draftKey:`${code}:verify:${group}:${group}`,server:state.checks.find(i=>i.key===`${group}:${group}`),blank:()=>newSelfVerification(group),check:isVerification,save:saveMyCheck,canSave:d=>loaded&&d.mode==='self'&&d.verifier===group&&d.target===group});
  const taken=new Map<number,number[]>();state.cards.forEach(i=>taken.set(i.data.artifactId,[...(taken.get(i.data.artifactId)||[]),i.data.group]));
- return <main className="oc-page page-width"><header className="oc-head"><div><p className="oc-eyebrow">조선시대 공개수업 · 수업코드 {code}</p><h1>조선 전기 과학 기술 탐험 · AI 퀴즈 검증</h1></div><p className="oc-me"><b>{group}모둠</b> · {session.name}<button onClick={onLeave}>다시 입장</button></p></header>
- <div className="oc-actions"><a href={worksheetUrl} download>공개수업 활동지 PDF</a><a href={`${import.meta.env.BASE_URL}downloads/joseon/open-class/group-presentation-notes.pdf`} download>모둠 발표 듣기 활동지</a></div><LessonPrep page="student"/><details className="oc-panel"><summary>수업 자료 모아보기</summary><OpenLessonMaterials era="joseon"/></details>
+ return <main className="oc-page page-width"><header className="oc-head"><div><p className="oc-eyebrow">조선시대 공개수업 · 수업코드 {code}</p><h1>조선 유물 AR 탐구 · AI 퀴즈 검증</h1></div><p className="oc-me"><b>{group}모둠</b> · {session.name}<button onClick={onLeave}>다시 입장</button></p></header>
+ <div className="oc-actions"><a href={worksheetUrl} download>공개수업 활동지 PDF</a><a href={`${import.meta.env.BASE_URL}downloads/joseon/open-class/group-presentation-notes.pdf`} download>모둠 발표 듣기 활동지</a></div><details className="oc-panel"><summary>수업 자료 모아보기</summary><OpenLessonMaterials era="joseon"/></details>
  <nav className="oc-tabs" aria-label="오늘 할 일">{VIEWS.map((v,i)=><button key={v.id} aria-pressed={view===v.id} onClick={()=>go(v.id)}><b>{i+1}</b><span>{v.label}</span><small>{v.help}</small></button>)}</nav>
  {error&&<p role="alert" className="oc-notice">{error}</p>}{!loaded&&<p role="status">우리 반 기록을 불러오는 중…</p>}
  {view==='make'&&<CardMaker draft={cardDraft} taken={taken} hasVerification={(checkDraft.data.selfQuestions||[]).some(q=>q.statement.trim())}/>}
  {view==='look'&&<><IntroNotes draft={checkDraft} card={cardDraft.data}/><details className="oc-panel"><summary>다른 모둠 AR 카드 관찰</summary><CardGallery cards={state.cards} myGroup={group} initialGroup={Number(params.get('group'))||undefined}/></details></>}
- {view==='check'&&<SelfQuizLab draft={checkDraft} card={cardDraft.data}/>}
- {view==='present'&&<Presentation check={checkDraft.data} card={cardDraft.data} questions={selfQuestions(checkDraft.data)}/>}
+ {view==='check'&&!cardDraft.data.artifactId&&<p className="oc-empty">먼저 AR 카드를 만들어 주세요.</p>}
+ {view==='check'&&cardDraft.data.artifactId>0&&<SelfQuizLab draft={checkDraft} card={cardDraft.data}/>}
+ {view==='present'&&cardDraft.data.artifactId>0&&<Presentation check={checkDraft.data} card={cardDraft.data} questions={selfQuestions(checkDraft.data)}/>}
  {view==='reflect'&&<Reflection draft={checkDraft}/>}
  <nav className="oc-actions" aria-label="활동 이동"><button type="button" disabled={view==='make'} onClick={()=>{const i=VIEWS.findIndex(v=>v.id===view);if(i>0)go(VIEWS[i-1].id);}}>← 이전 활동</button><button type="button" disabled={view==='reflect'} onClick={()=>{const i=VIEWS.findIndex(v=>v.id===view);if(i>=0&&i<VIEWS.length-1)go(VIEWS[i+1].id);}}>다음 활동 →</button></nav>
  </main>;

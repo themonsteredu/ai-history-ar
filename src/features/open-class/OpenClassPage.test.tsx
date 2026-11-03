@@ -6,7 +6,7 @@ import OpenClassTeacher from './OpenClassTeacher';
 
 it('asks a student only for the class code, name and group', () => {
   const html = renderToStaticMarkup(<MemoryRouter initialEntries={['/joseon/open-class?code=5252']}><OpenClassPage /></MemoryRouter>);
-  expect(html).toContain('세종 때 과학 유물 AR 카드');
+  expect(html).toContain('조선 유물 AR 탐구');
   expect(html).toContain('수업코드'); expect(html).toContain('내 모둠');
   expect(html).toContain('value="5252"');
 });

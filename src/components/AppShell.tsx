@@ -28,7 +28,7 @@ export function AppShell() {
             {teacherVerified && <NavLink className={navClassName} to="/three-kingdoms">삼국시대</NavLink>}
             <NavLink className={({ isActive }) => `${navClassName({ isActive: isActive || pathname === '/goryeo' || pathname.startsWith('/joseon/open-class') })} site-nav__open-class`} to="/classes">수업</NavLink>
             {teacherVerified && <NavLink className={navClassName} to="/goryeo">고려유물수업</NavLink>}
-            {teacherVerified && <NavLink className={navClassName} end to="/joseon">조선시대</NavLink>}
+            {teacherVerified && <NavLink className={navClassName} to="/joseon/open-class">조선시대</NavLink>}
             {teacherVerified && <NavLink className={(state) => `${navClassName(state)} site-nav__maker`} to={makerPath(search)}>AR 만들기</NavLink>}
             <NavLink className={({ isActive }) => `${navClassName({ isActive })} site-nav__teacher`} to="/teacher">교사설정</NavLink>
           </nav>
