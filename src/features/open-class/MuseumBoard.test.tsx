@@ -43,7 +43,7 @@ describe('museum verification board', () => {
     expect(html).toContain('2번 유물 문제');
     check.items[1].why = '';
     html = renderToStaticMarkup(<Presentation check={check} card={card} questions={selfQuestions(check)} />);
-    expect(html).toContain('발표할 문제가 1개 준비됐어요');
+    expect(html).toContain('발표할 문제를 2개 검증해 주세요. (현재 1개)');
     expect(html).not.toContain('<h3>1.');
   });
 });
