@@ -6,7 +6,7 @@ import type { CardPlacement, ModelScene } from '../lib/ar/modelScene';
 import { ReconstructionCredit } from './ReconstructionCredit';
 import { cameraFailureMessage } from '../lib/ar/cameraDiagnosis';
 
-export default function HeritageModelView({ model, image, points, selectedId, onSelect, onPlace, camera = false, cardPlacement = 'table', targetIndex, onTracking, eraId = "three-kingdoms", targetFile, steady = false, spin = false, bubbles = false }: {
+export default function HeritageModelView({ model, image, points, selectedId, onSelect, onPlace, camera = false, cardPlacement = 'table', targetIndex, onTracking, eraId = "three-kingdoms", targetFile, steady = false, spin = false, bubbles = false, fallbackImage }: {
   model?: ExhibitModel; image: string; points: ExhibitPoint[]; selectedId: string; onSelect: (id: string) => void;
   onPlace?: (position: [number, number, number]) => void; camera?: boolean; targetIndex: number; eraId?: EraId;
   onTracking?: (visible: boolean) => void;
@@ -18,6 +18,7 @@ export default function HeritageModelView({ model, image, points, selectedId, on
   cardPlacement?: CardPlacement;
   /** Show the selected point's title and text in a speech bubble beside its number. */
   bubbles?: boolean;
+  fallbackImage?: string;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const pins = useRef<Array<HTMLButtonElement | null>>([]);
@@ -65,6 +66,7 @@ export default function HeritageModelView({ model, image, points, selectedId, on
   return <div className="ar-model-view">
     <div className="ar-model-stage" ref={container} aria-label={camera ? '유산 카드를 비추는 AR 카메라' : '끌어서 돌려 보는 입체 유물'}>
       {points.map((point, index) => { const open = showBubble && selectedId === point.id; return <button hidden type="button" className="ar-hotspot" key={point.id} ref={node => { pins.current[index] = node; }} aria-label={`${index + 1}번 ${point.title || '설명'} 열기`} aria-pressed={selectedId === point.id} aria-expanded={bubbles ? open : undefined} aria-describedby={open ? bubbleId : undefined} onClick={() => pick(point.id)}>{index + 1}{open && <span className="ar-pin-bubble" id={bubbleId}><b>{point.title || '제목 없음'}</b><span className={point.text ? undefined : 'is-empty'}>{point.text || '아직 설명이 없어요.'}</span></span>}</button>; })}
+      {status === 'error' && fallbackImage && <img src={fallbackImage} alt="입체 보기를 사용할 수 없어 표시하는 유물 사진" style={{width:'100%',height:'100%',objectFit:'contain',position:'absolute',inset:0}} />}
       {(status === 'loading' || status === 'error') && <p className="ar-model-notice" role="status">{error || (model?.asset === 'cheomseongdae-nsm-2015' ? '공식 첨성대 모형을 준비해요. 처음에는 약 36MB를 내려받아요…' : camera ? '카메라와 입체 유물을 준비해요…' : '입체 유물을 불러와요…')}</p>}
     </div>
     <div className="ar-model-controls">
