@@ -11,6 +11,7 @@ import { ArCard } from './ArCard';
 import { ARTIFACTS, artifactById } from './artifacts';
 import { cardProblems, decisionLabel, isTeacherSet, MAX_TEACHER_QUESTIONS, newQuestion, newTeacherSet, questionsToCheck, selfQuestions, selfItemDone, readyQuestions, verifyProgress, type GroupCard, type OxQuestion, type TeacherSet, type Verification } from './model';
 import { LessonPrep } from './LessonPreparation';
+import { OpenLessonMaterials } from './OpenLessonMaterials';
 import { readingsPackUrl } from './HeritageReading';
 import { MuseumBoard, museumProgress } from './MuseumBoard';
 import { MuseumCardStage } from './MuseumCardStage';
@@ -49,7 +50,7 @@ export default function OpenClassTeacher() {
 
   return <div className="oc-page oc-teacher page-width">
     <header className="oc-head"><div><p className="oc-eyebrow">선생님 화면 · 조선시대 공개수업</p><h1>{name ? `${name} · 수업코드 ${code}` : code ? `수업코드 ${code}` : '세종 때 과학 유물 AR 카드'}</h1></div></header>
-    <LessonPrep page="teacher" />
+    <LessonPrep page="teacher" /><OpenLessonMaterials era="joseon"/>
     <section className="oc-panel" aria-label="수업코드로 시작"><h2>수업코드로 시작</h2><p>학생에게 알려 줄 숫자 수업코드를 입력하세요.</p><form className="oc-class-add" onSubmit={event=>{event.preventDefault();if(isClassCode(quickCode))setCode(normalizeClassCode(quickCode));}}><label>수업코드<input inputMode="numeric" maxLength={12} value={quickCode} onChange={event=>setQuickCode(event.target.value.replace(/\D/g,''))} placeholder="숫자 수업코드"/></label><button type="submit" className="oc-primary" disabled={!isClassCode(quickCode)}>수업 현황 열기</button></form></section>
     <section className="oc-panel" aria-label="내 반 목록">
       <h2>내 반</h2>
