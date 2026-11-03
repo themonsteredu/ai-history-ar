@@ -1,4 +1,5 @@
 import { ARTIFACTS } from './artifacts';
+import heritageReadings from './heritage-reading.json';
 
 export type Ox = 'O' | 'X';
 export type Decision = 'adopt' | 'revise' | 'exclude';
@@ -139,13 +140,16 @@ export const selfItemDone = (item: VerifyItem) => !!item.why.trim() && (item.dec
 export function inquirySlots(check: Verification): OxQuestion[] {
   return (check.selfQuestions || []).slice(0, 2);
 }
-export function buildCreationPrompt(parts: PromptParts, card: GroupCard, includeExerciseInstruction = true, artifactName?: string) {
+export function buildCreationPrompt(parts: PromptParts, card: GroupCard, includeExerciseInstruction = true, artifactName?: string, era?: 'goryeo' | 'joseon') {
   const name = artifactName || ARTIFACTS.find(a => a.id === card.artifactId)?.name || '우리 모둠 유물';
+  const readingEra = era || ((card as GroupCard & { lesson?: string }).lesson === 'goryeo-open-v2' ? 'goryeo' : 'joseon');
+  const reading = heritageReadings[readingEra].find(item => item.id === card.artifactId);
   return [parts.role.trim() && `[역할] ${parts.role.trim()}`, parts.situation.trim() && `[상황] ${parts.situation.trim()}`,
     `[주제] ${name}의 특징, 쓰임, 백성 생활에 준 도움`,
     '[우리 모둠이 조사한 내용 - 정확성은 자료로 다시 확인할 예정]', ...card.points.map(p => `${p.title}: ${p.text}`),
     '[요청] 초등학교 5학년 친구들에게 낼 OX 문제를 정확히 2개 만들어 줘. 각 문항마다 문장, AI가 제안한 정답(O/X), 짧은 해설을 적어 줘. 한 문항에는 한 가지 사실만 담아 줘.',
     parts.style.trim() && `[답하는 방법] ${parts.style.trim()}`,
-    includeExerciseInstruction && '[교사 수업 설정] 자료를 비교해 오류를 찾는 연습을 위해 2문항 중 정확히 1문항은 문장에 대한 O/X 정답과 해설에 확인 가능한 역사적 사실 오류를 의도적으로 넣어 줘. 나머지 1문항은 문장에 맞는 정확한 정답과 해설을 써 줘. 단순히 정답이 X인 문장을 오류로 세지 말고, AI가 제안한 답 또는 해설이 실제 사실과 어긋나게 해 줘. 어떤 문항에 오류를 넣었는지, 의도된 오류라는 사실이나 정답을 바로잡은 내용은 출력하지 마. 오류는 교과서나 신뢰할 수 있는 박물관 자료로 확인할 수 있어야 해. 출처를 만들어 내지 마.'
+    includeExerciseInstruction && '[교사 수업 설정] 자료를 비교해 오류를 찾는 연습을 위해 2문항 중 정확히 1문항은 문장에 대한 O/X 정답과 해설에 확인 가능한 역사적 사실 오류를 의도적으로 넣어 줘. 나머지 1문항은 문장에 맞는 정확한 정답과 해설을 써 줘. 단순히 정답이 X인 문장을 오류로 세지 말고, AI가 제안한 답 또는 해설이 실제 사실과 어긋나게 해 줘. 어떤 문항에 오류를 넣었는지, 의도된 오류라는 사실이나 정답을 바로잡은 내용은 출력하지 마. 오류는 교과서나 신뢰할 수 있는 박물관 자료로 확인할 수 있어야 해. 출처를 만들어 내지 마.',
+    includeExerciseInstruction && reading && `[검증용 참고 자료: ${reading.name}]\n${reading.paragraphs.join('\n\n')}\n\n[추가 요청] 위 자료에 근거해 확인할 수 있는 내용으로만 두 문제를 만들어 줘. 각 문장은 위 자료만으로 O 또는 X를 판단할 수 있어야 하고, AI의 정답과 해설을 자료와 비교해 검증할 수 있어야 해. 자료에 없는 사실은 묻지 말고, 한 문항의 의도된 오류도 자료에서 바로 확인할 수 있게 만들어 줘. 문제나 해설에는 자료에서 문제를 만들었다는 사실, 의도된 오류, 정답을 바로잡은 내용 또는 근거 위치를 밝히지 마.`
     ].filter(Boolean).join('\n');
 }
