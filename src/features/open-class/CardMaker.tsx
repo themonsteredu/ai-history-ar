@@ -1,19 +1,22 @@
 import { useState } from 'react';
 import { ArCard, ArCameraView } from './ArCard';
 import { ARTIFACTS, artifactById } from './artifacts';
-import { cardProblems, MAX_POINTS, newPoint, type GroupCard } from './model';
+import { HeritageReading } from './HeritageReading';
+import { cardProblems, newPoint, type CardPoint, type GroupCard } from './model';
 import { saveLabel } from './useSyncedDraft';
 import type { useSyncedDraft } from './useSyncedDraft';
 
 type Draft = ReturnType<typeof useSyncedDraft<GroupCard>>;
 
 /** Step 1: one group makes one artifact card: places to look at, what each shows, and OX questions about it. */
-export function CardMaker({ draft, taken }: { draft: Draft; taken: Map<number, number[]> }) {
+export function CardMaker({ draft, taken, hasVerification = false }: { draft: Draft; taken: Map<number, number[]>; hasVerification?: boolean }) {
   const card = draft.data;
   const [selected, setSelected] = useState<string>();
   const [placing, setPlacing] = useState(false);
   const [moving, setMoving] = useState(false);
   const [ar, setAr] = useState(false);
+  const [removed,setRemoved] = useState<{point:CardPoint;index:number;artifactId:number}>();
+  const maxPoints = 3;
   const artifact = artifactById(card.artifactId);
   const problems = cardProblems(card);
   const change = (next: Partial<GroupCard>) => draft.update(current => ({ ...current, ...next }));
@@ -21,38 +24,52 @@ export function CardMaker({ draft, taken }: { draft: Draft; taken: Map<number, n
 
   function place(position: [number, number, number]) {
     if (moving && selected) { draft.update(current => ({ ...current, points: current.points.map(p => p.id === selected ? { ...p, position } : p) })); setMoving(false); return; }
-    if (card.points.length >= MAX_POINTS) return;
+    if (card.points.length >= maxPoints) return;
     const point = newPoint(position);
     draft.update(current => ({ ...current, points: [...current.points, point] }));
-    setSelected(point.id); setPlacing(false);
+    setSelected(undefined); setPlacing(false);
   }
   function removePoint(id: string) {
-    draft.update(current => ({ ...current, points: current.points.filter(p => p.id !== id), questions: current.questions.map(q => q.pointId === id ? { ...q, pointId: '' } : q) }));
+    const index = card.points.findIndex(p=>p.id===id); if(index<0)return;
+    setRemoved({point:card.points[index],index,artifactId:card.artifactId});
+    draft.update(current => ({ ...current, points: current.points.filter(p => p.id !== id) }));
     setSelected(undefined);
   }
 
+  function restorePoint() {
+    if(!removed || removed.artifactId !== card.artifactId || card.points.length >= maxPoints) return;
+    draft.update(current => { if(current.points.some(p=>p.id===removed.point.id))return current; const points=[...current.points];points.splice(Math.min(removed.index,points.length),0,removed.point);return {...current,points}; });
+    setRemoved(undefined);
+  }
+  function chooseArtifact(id:number) {
+    if(id===card.artifactId)return;
+    if(card.artifactId && (hasVerification || card.questions.some(q=>q.statement.trim()))) { window.alert('이미 작성한 AI 문제와 검증 기록이 있어 유물을 바꿀 수 없어요.'); return; }
+    if(card.points.length && !window.confirm('다른 유물을 고르면 현재 카드의 설명이 바뀝니다. 계속할까요?'))return;
+    draft.update(current=>({...current,artifactId:id,points:[],questions:current.questions.map(q=>({...q,pointId:''}))}));
+    setRemoved(undefined);setSelected(undefined);setPlacing(false);setMoving(false);
+  }
   return <div className="oc-maker">
     <section className="oc-panel" aria-labelledby="oc-pick">
       <h2 id="oc-pick"><span className="oc-step">1</span>우리 모둠 유물 고르기</h2>
       <div className="oc-artifacts">{ARTIFACTS.map(item => {
         const others = (taken.get(item.id) || []).filter(group => group !== card.group);
-        return <button key={item.id} type="button" aria-pressed={card.artifactId === item.id} onClick={() => change({ artifactId: item.id })}>
+        return <button key={item.id} type="button" aria-pressed={card.artifactId === item.id} onClick={() => chooseArtifact(item.id)}>
           <b>{item.name}</b><small>{item.kind}</small>{others.length > 0 && <em>{others.join('·')}모둠도 골랐어요</em>}
         </button>;
       })}</div>
       <label className="oc-field">우리 모둠 이름들 <small>(선택)</small><input value={card.members} maxLength={100} placeholder="예: 김하늘, 이바다, 박구름" onChange={event => change({ members: event.target.value })} /></label>
     </section>
 
-    {artifact && <section className="oc-panel" aria-labelledby="oc-points">
+    {artifact && <section className="oc-panel" aria-labelledby="oc-points"><HeritageReading era="joseon" id={card.artifactId}/>
       <h2 id="oc-points"><span className="oc-step">2</span>입체 모형에서 위치를 눌러 설명 쓰기</h2>
-      <p className="oc-help">손가락으로 끌면 모형이 돌아가요. ‘점 추가’를 누른 뒤 모형에서 설명하고 싶은 곳을 짧게 누르세요. 점은 {MAX_POINTS}개까지 찍을 수 있어요.</p>
+      <p className="oc-help">손가락으로 끌면 모형이 돌아가요. ‘점 추가’를 누른 뒤 모형에서 설명하고 싶은 곳을 짧게 누르세요. 점은 {maxPoints}개까지 찍을 수 있어요. 번호를 다시 누르면 지울 수 있어요.</p>
       <details className="oc-look"><summary>어디를 볼까요? 관찰 힌트</summary><ul>{artifact.look.map(item => <li key={item}>{item}</li>)}</ul></details>
       <div className="oc-maker-card">
         <div>
-          <ArCard artifactId={card.artifactId} points={card.points} selected={selected} onSelect={id => { setSelected(id); setPlacing(false); setMoving(false); }} onPlace={placing || moving ? place : undefined} />
+          <ArCard artifactId={card.artifactId} points={card.points} selected={selected} onSelect={id => { if(id===selected && !placing && !moving) { if(window.confirm("이 설명을 지울까요?"))removePoint(id); return; } setSelected(id); setPlacing(false); setMoving(false); }} onPlace={placing || moving ? place : undefined} />
           <div className="oc-actions">
-            <button type="button" className="oc-primary" disabled={card.points.length >= MAX_POINTS} aria-pressed={placing} onClick={() => { setPlacing(value => !value); setMoving(false); }}>{placing ? '모형에서 위치를 누르세요' : '＋ 점 추가'}</button>
-            <button type="button" onClick={() => setAr(true)} disabled={!card.points.length}>AR로 미리 보기</button>
+            <button type="button" className="oc-primary" disabled={card.points.length >= maxPoints} aria-pressed={placing} onClick={() => { setPlacing(value => !value); setMoving(false); }}>{placing ? '모형에서 위치를 누르세요' : '＋ 점 추가'}</button>
+            <button type="button" onClick={restorePoint} disabled={!removed || removed.artifactId!==card.artifactId || card.points.length>=maxPoints}>삭제 되돌리기</button><button type="button" onClick={() => setAr(true)} disabled={!card.points.length}>AR로 미리 보기</button>{card.points.length>0&&<button type="button" onClick={()=>{if(window.confirm("작성한 설명을 모두 지울까요?")){draft.update(d=>({...d,points:[]}));setSelected(undefined);setRemoved(undefined);}}}>설명 모두 지우기</button>}
           </div>
         </div>
         <div className="oc-point-list">
@@ -76,7 +93,7 @@ export function CardMaker({ draft, taken }: { draft: Draft; taken: Map<number, n
       <p className={`oc-save-state is-${draft.state}`} role="status">{saveLabel(draft.state, draft.dirty, draft.savedAt)}{draft.message && ` · ${draft.message}`}</p>
       {draft.state === 'conflict' && <div className="oc-actions"><button type="button" onClick={draft.takeServer}>다른 태블릿 것 불러오기</button><button type="button" className="oc-primary" onClick={draft.keepMine}>이 태블릿 것으로 저장</button></div>}
       {draft.state !== 'conflict' && <button type="button" className="oc-primary" disabled={draft.state === 'saving'} onClick={() => { void draft.saveNow(true); }}>지금 우리 반에 저장</button>}
-      {problems.length > 0 ? <details className="oc-todo"><summary>아직 남은 일 {problems.length}가지</summary><ul>{problems.map(item => <li key={item}>{item}</li>)}</ul></details> : <p className="oc-done">사전 카드 준비 완료! 공개수업에서는 이 카드로 발표하고 AI 문제를 만들어요.</p>}
+      {problems.length > 0 ? <details className="oc-todo"><summary>아직 남은 일 {problems.length}가지</summary><ul>{problems.map(item => <li key={item}>{item}</li>)}</ul></details> : <p className="oc-done">카드 준비 완료! 이 카드로 발표하고 AI 문제를 만들어요.</p>}
     </section>
     {ar && artifact && <ArCameraView artifactId={card.artifactId} points={card.points} title={`${card.group}모둠 · ${artifact.name}`} onClose={() => setAr(false)} />}
   </div>;

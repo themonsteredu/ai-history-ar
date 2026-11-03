@@ -13,6 +13,7 @@ import { cardProblems, decisionLabel, isTeacherSet, MAX_TEACHER_QUESTIONS, newQu
 import { LessonPrep } from './LessonPreparation';
 import { readingsPackUrl } from './HeritageReading';
 import { MuseumBoard, museumProgress } from './MuseumBoard';
+import { MuseumCardStage } from './MuseumCardStage';
 import { Presentation } from './Presentation';
 import { saveLabel, useSyncedDraft } from './useSyncedDraft';
 import './open-class.css';
@@ -21,7 +22,7 @@ const SITE = 'https://ai-history-ar.vercel.app';
 export const openClassUrl = (code: string, extra = '') => `${SITE}/joseon/open-class?code=${encodeURIComponent(code)}${extra}`;
 const emptyState: OpenState = { cards: [], checks: [], teacher: [] };
 const FLOW = [
- {minutes:3,who:'선생님',title:'활동 안내',detail:'미리 완성된 유물 카드를 고르고 발표부터 시작해요.'},
+ {minutes:3,who:'선생님',title:'활동 안내',detail:'유물을 고르고 직접 설명을 붙여 AR 카드를 만들어요.'},
  {minutes:10,who:'모둠',title:'AR 카드 발표',detail:'특징·쓰임·백성 생활에 준 도움·출처를 설명하고 친구 발표를 핵심어로 기록해요.'},
  {minutes:15,who:'학생',title:'AI 문제 2개 검증',detail:'AI에 질문 → 초안 2개 → 교과서·참고 자료 대조 → 채택·수정·제외와 근거. 복사되는 질문에 의도된 오류 1개를 요청합니다. 생성 결과를 수업 전 확인하고, 활동 후 연습용 오류였음을 알려 주세요.'},
  {minutes:9,who:'모둠',title:'검증한 퀴즈 발표',detail:'친구들이 먼저 답하고, 출제 모둠이 정답·근거 공개 버튼으로 해설해요.'},
@@ -33,6 +34,7 @@ const inquiryQuestions=(check:Verification|undefined,card:GroupCard|undefined,te
 export default function OpenClassTeacher() {
   const [classes, setClasses] = useState<TeacherClass[]>([]);
   const [code, setCode] = useState('');
+  const [quickCode, setQuickCode] = useState('');
   const [newName, setNewName] = useState(''); const [newCode, setNewCode] = useState('');
   const [groupCount, setGroupCount] = useState(6);
   useEffect(() => { try { setClasses(readTeacherClasses(window.localStorage)); setGroupCount(readGroupCount(window.localStorage)); } catch { /* defaults stay */ } }, []);
@@ -48,6 +50,7 @@ export default function OpenClassTeacher() {
   return <div className="oc-page oc-teacher page-width">
     <header className="oc-head"><div><p className="oc-eyebrow">선생님 화면 · 조선시대 공개수업</p><h1>{name ? `${name} · 수업코드 ${code}` : code ? `수업코드 ${code}` : '세종 때 과학 유물 AR 카드'}</h1></div></header>
     <LessonPrep page="teacher" />
+    <section className="oc-panel" aria-label="수업코드로 시작"><h2>수업코드로 시작</h2><p>학생에게 알려 줄 숫자 수업코드를 입력하세요.</p><form className="oc-class-add" onSubmit={event=>{event.preventDefault();if(isClassCode(quickCode))setCode(normalizeClassCode(quickCode));}}><label>수업코드<input inputMode="numeric" maxLength={12} value={quickCode} onChange={event=>setQuickCode(event.target.value.replace(/\D/g,''))} placeholder="숫자 수업코드"/></label><button type="submit" className="oc-primary" disabled={!isClassCode(quickCode)}>수업 현황 열기</button></form></section>
     <section className="oc-panel" aria-label="내 반 목록">
       <h2>내 반</h2>
       {classes.length > 0 && <ul className="oc-class-list">{classes.map(item => <li key={item.code} className={item.code === code ? 'is-open' : undefined}>
@@ -72,6 +75,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
   const [error, setError] = useState('');
   const [openGroup, setOpenGroup] = useState<number>();
   const [boardOpen, setBoardOpen] = useState(false);
+  const [cardPresentationGroup, setCardPresentationGroup] = useState<number>();
   const [updatedAt, setUpdatedAt] = useState<number>();
   const [present, setPresent] = useState<{ verifier: number; target: number; twoOnly?: boolean }>();
   const [printing, setPrinting] = useState<false | 'groups' | 'targets'>(false);
@@ -129,7 +133,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
         <a className="oc-qr-link" href={openClassUrl(code)} target="_blank" rel="noopener noreferrer">{openClassUrl(code)}</a>
       </section>
       <section className="oc-panel oc-flow" aria-label="40분 진행 순서">
-        <h2>40분 진행 순서</h2><a href={readingsPackUrl("joseon")} target="_blank" rel="noopener noreferrer">조선 유물 읽기 자료 6종 인쇄</a><a href={`${import.meta.env.BASE_URL}downloads/joseon/open-class/student-worksheet.pdf`} download>공개수업 활동지 PDF</a>
+        <h2>40분 진행 순서</h2><a href={readingsPackUrl("joseon")} target="_blank" rel="noopener noreferrer">조선 유물 읽기 자료 6종 인쇄</a><a href={`${import.meta.env.BASE_URL}downloads/joseon/open-class/student-worksheet.pdf`} download>공개수업 활동지 PDF</a><a href={`${import.meta.env.BASE_URL}downloads/joseon/open-class/group-presentation-notes.pdf`} download>모둠 발표 듣기 활동지</a>
         <ol>{FLOW.map(step => <li key={step.title}><span>{step.minutes}분 · {step.who}</span><b>{step.title}</b><small>{step.detail}</small></li>)}</ol>
       </section>
     </div>
@@ -145,6 +149,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
         open={openGroup === group} onToggle={() => setOpenGroup(value => value === group ? undefined : group)} onPresent={target => setPresent({ verifier: group, target })} />)}</div>
       <p className="oc-help">모둠 이름을 누르면 카드·문제·검증 기록을 자세히 볼 수 있어요.</p>
     </section>
+    {openGroup && cardOf(openGroup)?.artifactId ? <div className="oc-actions"><button type="button" className="oc-primary" onClick={()=>setCardPresentationGroup(openGroup)}>선택 모둠 AR 카드 발표 화면</button></div> : null}
     {openGroup && <GroupDetail group={openGroup} card={cardOf(openGroup)} checks={state.checks.filter(item => item.data.verifier === openGroup)} cardOf={cardOf} teacherFor={teacherFor} />}
 
     {session && <details className="oc-panel"><summary>이전 수업용 · 선생님 OX 문제</summary><p>이번 공개수업은 AI가 만든 2문항을 검증합니다. 아래 문제는 이전 방식의 기록입니다.</p><TeacherQuestions code={code} token={session.token} sets={state.teacher} cards={state.cards.map(item => item.data)} /></details>}
@@ -156,6 +161,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
       <Presentation big check={presentCheck} card={presentCard} questions={boardQuestions} />
     </div>}
 
+    {cardPresentationGroup && cardOf(cardPresentationGroup) && <MuseumCardStage card={cardOf(cardPresentationGroup)!} era="joseon" onClose={()=>setCardPresentationGroup(undefined)} />}
     {printing === 'targets' && <div className="oc-print-cards" aria-hidden="true">{joseonModels.map(info => <TargetCard key={info.id} artifactId={info.id} />)}</div>}
     {printing === 'groups' && <div className="oc-print-cards" aria-hidden="true">{state.cards.map(item => item.data).filter(card => card.artifactId).sort((a, b) => a.group - b.group).map(card => <PrintCard key={card.group} code={code} card={card} />)}</div>}
   </>;
