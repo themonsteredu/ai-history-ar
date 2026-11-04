@@ -58,6 +58,6 @@ export function HomePage() {
           </article>
         </div>
       </section>
-    </main>
+    </div>
   </div>;
 }
