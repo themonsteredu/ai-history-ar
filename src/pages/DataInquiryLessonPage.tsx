@@ -1,4 +1,5 @@
 import DataLab from '../features/data-lab/DataLab';
+import { CourseNotes, CourseTeacher } from '../features/course-progress/CourseProgress';
 import { useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { dataInquiryFiles, dataInquiryPath, dataInquirySlideImage, dataInquirySlides, dataInquiryWorksheet, getDataInquirySession } from '../content/three-kingdoms/dataInquiry';
@@ -69,11 +70,13 @@ export function DataInquiryLessonPage({ teacher = false }: { teacher?: boolean }
         {view === 'start' ? <div className="data-inquiry-actions"><Link className="button button--primary" to={path(session.id, 'ppt')}>수업 PPT 열기</Link><Link className="button button--outline" to={path(session.id, 'activity')}>활동 시작하기</Link></div> : <>
           <ol className="data-inquiry-steps">{session.steps.map(step => <li key={step}>{step}</li>)}</ol>
           {session.id === 1 && <section className="data-inquiry-practice"><h3>기존 조사 자료부터 확인해요</h3><p>출처번호 · 만든 기관 · 자료 제목 · 링크 또는 쪽수를 활동지에 남겨요. 새 AI 계정은 필요하지 않아요.</p><div className="data-inquiry-actions"><a href="https://www.heritage.go.kr/" target="_blank" rel="noreferrer">국가유산포털 ↗</a><a href="https://www.museum.go.kr/" target="_blank" rel="noreferrer">국립중앙박물관 ↗</a></div></section>}
-          {session.id >= 2 && <DataLab era="three-kingdoms" graph={session.id === 3} />}
+          {session.id === 1 && !teacher && <CourseNotes era="three-kingdoms" />}
+          {session.id >= 2 && <DataLab era="three-kingdoms" graph={session.id === 3} share={!teacher} />}
 
         </>}
         <p className="data-inquiry-takeaway">{session.takeaway}</p>
       </>}
+      {teacher && <CourseTeacher era="three-kingdoms" lesson={session.id} />}
       <section className="data-inquiry-materials" aria-label="이번 차시 수업 자료"><h2>이 차시 활동지</h2><p>차시당 A4 한 장입니다. 빈칸은 할당량이 아니에요.</p><div className="data-inquiry-actions"><a className="button button--primary" href={dataInquiryWorksheet(session.id)} download>{session.id}차시 학생 활동지 받기</a><a className="button button--outline" href={dataInquiryFiles.students} download>활동지 3쪽 모아 받기</a>{teacher && <a className="button button--outline" href={dataInquiryFiles.teacher} download>교사용 운영 안내</a>}</div></section>
       <nav className="classroom-pagination" aria-label="데이터 탐구 이전·다음 차시">{session.id > 1 ? <Link to={path(session.id - 1)}><span>이전</span><strong>← {session.id - 1}차시</strong></Link> : <span />}{session.id < 3 ? <Link to={path(session.id + 1)}><span>다음</span><strong>{session.id + 1}차시 →</strong></Link> : <Link to={studioPath(params.toString(), teacher ? 'guide' : 'model', teacher, 4)}><span>데이터 탐구 완료 · 다음 활동</span><strong>4차시 입체모형 만들기 →</strong></Link>}</nav>
     </main>
