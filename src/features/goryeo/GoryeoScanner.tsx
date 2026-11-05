@@ -167,6 +167,7 @@ export default function GoryeoScanner({ onClose, onDetected, onQuiz, customCards
     </div>
     <div className="goryeo-scanner-bottom">
       <p role="status">{loading ? '카메라를 준비해요. 카메라 사용을 허용해 주세요.' : error || (artifact ? `${artifact.short} 카드를 찾았어요!${modelLoading ? ' 입체 유물을 불러와요…' : ' 화면을 좌우로 밀면 유물이 돌아가요.'}` : '인쇄한 고려 유물 카드 전체를 밝은 곳에서 비춰 주세요.')}</p>
+      <p><a href={`${import.meta.env.BASE_URL}goryeo-ar-cards.html`} target="_blank" rel="noopener noreferrer">인식 카드 인쇄하기 ↗</a></p>
       {textureMissing && <p>일부 사진 표면을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</p>}
       {artifact && points && <div className="goryeo-scanner-reading">
         <p><b>{artifact.name}</b> · {artifact.role}</p>

@@ -6,8 +6,9 @@ export function OpenLessonMaterials({era}:{era:ReadingEra}) {
  const label=era==='goryeo'?'고려':'조선';
  return <section className="oc-panel" aria-label={`${label} 수업 자료`}>
   <h2>{label} 수업 자료 모아보기</h2>
-  <p>활동지와 유물별 역사신문을 열거나 인쇄해 주세요.</p>
+  <p>{era === 'goryeo' ? 'AR 인식 카드, 활동지와 유물별 역사신문을 열거나 인쇄해 주세요.' : '활동지와 유물별 역사신문을 열거나 인쇄해 주세요.'}</p>
   <div className="oc-actions">
+   {era === 'goryeo' && <a className="button button--primary" href={`${base}goryeo-ar-cards.html`} target="_blank" rel="noopener noreferrer">고려 AR 인식 카드 6종 인쇄</a>}
    <a className="button button--outline" href={`${base}downloads/${era}/open-class/student-worksheet.pdf`} target="_blank" rel="noopener noreferrer">수업 활동지 · 2쪽</a>
    <a className="button button--outline" href={`${base}downloads/${era}/open-class/group-presentation-notes.pdf`} target="_blank" rel="noopener noreferrer">모둠 발표 듣기 활동지 · 1쪽</a>
    <a className="button button--outline" href={readingsPackUrl(era)} target="_blank" rel="noopener noreferrer">역사신문 6종 모아보기</a>
