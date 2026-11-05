@@ -4,6 +4,7 @@ import { joseonModelFor, joseonTargets } from '../../lib/ar/joseon/catalog';
 import { artifactById } from './artifacts';
 import { goryeoArtifact, goryeoModel } from '../goryeo/readyCards';
 import { GoryeoBackPhoto } from './GoryeoBackPhoto';
+import { JoseonBackPhoto } from './JoseonBackPhoto';
 const GoryeoScanner = lazy(() => import('../goryeo/GoryeoScanner'));
 import type { CardPoint } from './model';
 import '../../styles/ar-exhibit.css';
@@ -14,13 +15,13 @@ export function artifactModel(artifactId: number): ExhibitModel | undefined {
   const info = joseonModelFor(artifactId);
   if (!info) return;
   return { format: 'preset', preset: info.key, data: '', rotation: [0, 0, 0], name: `${info.name} · 사진 참고 3D 재현`,
-    credit: '실물 사진을 참고해 만든 3D 재현 모형 · 실측·스캔 원본 아님', source: info.photo?.source || '' };
+    credit: '실물 또는 복원품 사진을 참고한 3D 재현 모형 · 실측·스캔 원본 아님', source: info.photo?.source || '' };
 }
 const asExhibitPoints = (points: readonly CardPoint[]): ExhibitPoint[] => points.map(point => ({ id: point.id, title: point.title, text: point.text, position: point.position, photoPosition: [.5, .5] }));
 
 interface ArCardProps {
   artifactId: number; points: readonly CardPoint[]; selected?: string;
-  onSelect?: (id: string) => void; onPlace?: (position: [number, number, number]) => void; caption?: string; era?: 'goryeo' | 'joseon';
+  onSelect?: (id: string) => void; onPlace?: (position: [number, number, number]) => void; caption?: string; era?: 'goryeo' | 'joseon'; showReference?: boolean;
 }
 
 /**
@@ -28,7 +29,7 @@ interface ArCardProps {
  * bubble beside the number. A tap on the model places a pin while `onPlace` is given. Without `onSelect` (the teacher's
  * view) the card remembers the tapped pin itself.
  */
-export function ArCard({ artifactId, points, selected, onSelect, onPlace, caption, era = 'joseon' }: ArCardProps) {
+export function ArCard({ artifactId, points, selected, onSelect, onPlace, caption, era = 'joseon', showReference = true }: ArCardProps) {
   const artifact = era === 'goryeo' ? goryeoArtifact(artifactId) : artifactById(artifactId);
   const model = useMemo(() => era === 'goryeo' ? goryeoModel(artifactId) : artifactModel(artifactId), [artifactId, era]);
   const exhibitPoints = useMemo(() => asExhibitPoints(points), [points]);
@@ -39,16 +40,24 @@ export function ArCard({ artifactId, points, selected, onSelect, onPlace, captio
       <HeritageModelView observe bubbles model={model} image="" points={exhibitPoints} selectedId={(onSelect ? selected : own) || ''} onSelect={onSelect || setOwn} onPlace={onPlace} targetIndex={artifactId - 1} eraId={era === 'joseon' ? 'joseon' : undefined} />
     </Suspense>
     <figcaption>{caption || artifact.name}</figcaption>
-    <GoryeoBackPhoto era={era} artifactId={artifactId} />
+    {showReference && <><GoryeoBackPhoto era={era} artifactId={artifactId} /><JoseonBackPhoto era={era} artifactId={artifactId} /></>}
     {era === 'joseon' ? <ModelCredit artifactId={artifactId} /> : <p className="oc-credit">{model.credit} · <a href={model.source} target="_blank" rel="noreferrer">자료 출처</a></p>}
   </figure>;
+}
+
+/** Identify replica photographs as such; the metal vessels in the water-clock photo are surviving artifacts. */
+export function joseonPhotoLabel(artifactId: number) {
+  if ([1, 3, 5].includes(artifactId)) return '세종대왕릉 복원품 사진';
+  if (artifactId === 2) return '1536년 자격루 누기 전시 사진';
+  if (artifactId === 6) return '전해지는 농사직설 책 사진';
+  return '앙부일구 사진';
 }
 
 /** Says plainly what the model is, and whose photograph covers it (or that the photo is still missing). */
 export function ModelCredit({ artifactId }: { artifactId: number }) {
   const photo = joseonModelFor(artifactId)?.photo;
   return <p className="oc-credit">사진을 참고한 3D 재현 모형이에요. 보이지 않는 부분은 추정했어요(실측·스캔 원본 아님).{' '}
-    {photo ? <a href={photo.source} target="_blank" rel="noreferrer">사진: {photo.author} · {photo.license}</a> : '실물 사진은 준비 중이라 지금은 모양만 보여요.'}
+    {photo ? <>{joseonPhotoLabel(artifactId)} · <a href={photo.source} target="_blank" rel="noreferrer">사진: {photo.author} · {photo.license}</a></> : '사진은 준비 중이라 지금은 모양만 보여요.'}
   </p>;
 }
 
@@ -72,7 +81,7 @@ export function ArCameraView({ artifactId, points, title, onClose }: { artifactI
         <HeritageModelView observe camera steady spin bubbles model={model} image="" points={exhibitPoints} selectedId={selected || ''} onSelect={setSelected} targetIndex={artifactId - 1} eraId="joseon" targetFile={`${import.meta.env.BASE_URL}${joseonTargets.file}`} />
       </Suspense>
     </div>}
-    {mode === 'card' && <div className="oc-ar-bottom"><p className="oc-ar-problem">인쇄한 {artifactById(artifactId)?.name} 사진 카드를 책상에 두고 비추면 카드 위에 모형이 나타나요. 화면을 좌우로 밀면 모형이 돌아가요.</p></div>}
+    {(mode === 'card' || artifactId === 2) && <div className="oc-ar-bottom">{mode === 'card' && <p className="oc-ar-problem">인쇄한 {artifactById(artifactId)?.name} 사진 카드를 책상에 두고 비추면 카드 위에 모형이 나타나요. 화면을 좌우로 밀면 모형이 돌아가요.</p>}<JoseonBackPhoto era="joseon" artifactId={artifactId} /></div>}
   </div>;
 }
 
@@ -90,7 +99,7 @@ function FreeCamera({ artifactId, points, selected, onSelect }: { artifactId: nu
   }, []);
   return <>
     <video ref={video} className="oc-ar-video" playsInline muted />
-    <div className="oc-ar-float"><ArCard artifactId={artifactId} points={points} selected={selected} onSelect={onSelect} /></div>
+    <div className="oc-ar-float"><ArCard artifactId={artifactId} points={points} selected={selected} onSelect={onSelect} showReference={false} /></div>
     {problem && <p className="oc-ar-problem oc-ar-floating">{problem}</p>}
   </>;
 }
