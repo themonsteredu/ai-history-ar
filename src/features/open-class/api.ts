@@ -65,13 +65,56 @@ const sessionKey = (code: string) => `history-ar-open-session:${code}`;
 export function readOpenSession(code: string): StudioSession | undefined {
   try { const value = JSON.parse(localStorage.getItem(sessionKey(code)) || 'null'); return value?.code === code && typeof value.token === 'string' ? value : undefined; } catch { return undefined; }
 }
-export function forgetOpenSession(code: string) { try { localStorage.removeItem(sessionKey(code)); } catch { /* nothing kept */ } }
-export async function joinOpenLesson(code: string, name: string, group: number) {
-  const session = await studioApi<StudioSession>('/join', undefined, { code, name, group }).catch((error: unknown) => {
-    throw error instanceof StudioApiError ? error : new StudioApiError('인터넷이 잘 안 돼서 수업에 들어가지 못했어요. 인터넷이 되는지 확인해 주세요.', NO_ANSWER);
-  });
-  try { localStorage.setItem(sessionKey(session.code), JSON.stringify(session)); } catch { /* kept for this visit */ }
-  return session;
+// Keep recent entries for this classroom on this device, so switching groups and
+// returning does not create a new server member every time.
+const historyKey = (code: string) => `history-ar-open-session-history:${code}`;
+function sessionHistory(code: string): StudioSession[] {
+  try {
+    const list: unknown = JSON.parse(localStorage.getItem(historyKey(code)) || '[]');
+    return Array.isArray(list) ? list.filter((v): v is StudioSession => !!v && v.code === code && typeof v.token === 'string' && typeof v.memberId === 'string' && typeof v.name === 'string' && Number.isInteger(v.group) && v.group >= 1 && v.group <= 6) : [];
+  } catch { return []; }
+}
+function rememberOpenSession(session: StudioSession) {
+  try {
+    const history = [session, ...sessionHistory(session.code).filter(item => item.memberId !== session.memberId)].slice(0, 20);
+    localStorage.setItem(historyKey(session.code), JSON.stringify(history));
+    localStorage.setItem(sessionKey(session.code), JSON.stringify(session));
+  } catch { /* the current visit still works */ }
+}
+export function forgetOpenSession(code: string) {
+  const session = readOpenSession(code);
+  if (session) rememberOpenSession(session);
+  try { localStorage.removeItem(sessionKey(code)); } catch { /* nothing kept */ }
+}
+const joining = new Map<string, Promise<StudioSession>>();
+export function joinOpenLesson(code: string, name: string, group: number): Promise<StudioSession> {
+  const cleanName = name.trim();
+  const identity = JSON.stringify([code, cleanName, group]);
+  const existing = joining.get(identity);
+  if (existing) return existing;
+  const pending = (async () => {
+    const cached = [readOpenSession(code), ...sessionHistory(code)].find(session => session?.code === code && session.group === group && session.name === cleanName);
+    if (cached) {
+      try {
+        await loadState(code, cached.token);
+        rememberOpenSession(cached);
+        return cached;
+      } catch (error) {
+        // A slow network is not evidence that an entry is invalid. Do not
+        // create duplicate members when it is simply offline.
+        if (!(error instanceof StudioApiError) || ![401, 403, 404].includes(error.status)) throw error;
+      }
+    }
+    const session = await studioApi<StudioSession>('/join', undefined, { code, name: cleanName, group }).catch((error: unknown) => {
+      throw error instanceof StudioApiError ? error : new StudioApiError('인터넷이 잘 안 돼서 수업에 들어가지 못했어요. 인터넷이 되는지 확인해 주세요.', NO_ANSWER);
+    });
+    rememberOpenSession(session);
+    return session;
+  })();
+  joining.set(identity, pending);
+  const clear = () => { if (joining.get(identity) === pending) joining.delete(identity); };
+  void pending.then(clear, clear);
+  return pending;
 }
 
 /** One-time cleanup requested by the teacher for the example lesson, 2026-10-21.
