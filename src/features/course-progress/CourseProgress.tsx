@@ -75,7 +75,7 @@ export function CourseShare({ era, lesson, data, fixedGroup, existingSession }: 
   return <section className="course-share" aria-label="선생님께 활동 공유">
     <h3>우리 모둠 활동 공유</h3>
     {session ? <><p>{session.code} · {session.group}모둠 <button type="button" onClick={() => setSession(undefined)}>수업 바꾸기</button></p><Sync session={session} era={era} lesson={lesson} data={data} /></>
-      : <><p>선생님이 알려 준 수업코드로 입장하면 작성 내용이 교사 화면에 자동으로 전해져요.</p><div className="course-share-form"><label>수업코드<input value={code} maxLength={12} autoCapitalize="none" onChange={e => setCode(e.target.value)} /></label><label>모둠<select value={group} disabled={!!fixedGroup} onChange={e => setGroup(Number(e.target.value))}>{[1,2,3,4,5,6].map(g => <option value={g} key={g}>{g}모둠</option>)}</select></label><button type="button" disabled={busy} onClick={() => { void join(); }}>입장하고 공유</button></div></>}
+      : <><p>선생님이 알려 준 수업코드로 입장하면 작성 내용이 교사 화면에 자동으로 전해져요.</p><div className="course-share-form"><label>수업코드<input value={code} maxLength={12} autoCapitalize="none" onChange={e => setCode(e.target.value)} /></label><label>모둠<select value={group} disabled={!!fixedGroup} onChange={e => setGroup(Number(e.target.value))}>{[1,2,3,4,5,6].map(g => <option value={g} key={g}>{g}모둠</option>)}</select></label>{code && <button type="button" onClick={() => { store(studentCodeKey, ''); setCode(''); }}>코드 지우기</button>}<button type="button" disabled={busy} onClick={() => { void join(); }}>입장하고 공유</button></div></>}
     {data.kind === 'ar' && <p>설명과 문제를 공유해요. 3D 모형과 녹음 원본은 작업 파일에 보관돼요.</p>}
     {error && <p role="alert">{error}</p>}
   </section>;
