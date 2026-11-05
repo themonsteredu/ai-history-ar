@@ -12,7 +12,7 @@ export function goryeoCard(group:number,id:number): GroupCard {
 }
 export function goryeoModel(id:number):ExhibitModel|undefined {
  const item=goryeoArtifact(id);if(!item)return;
- return {format:'glb',asset:assets[item.id],data:'',name:item.name,credit:['buddha','type','tripitaka'].includes(item.id)?'사진 참고 학습용 3D 재현':'국립중앙박물관 3D 데이터 · 공공누리 제1유형',source:photos[item.id].source,rotation:[0,0,0]};
+ return {format:'glb',asset:assets[item.id],data:'',name:item.name,credit:['buddha','type','tripitaka'].includes(item.id)?'사진 참고 학습용 3D 재현 · 확인되지 않은 부분은 추정':'국립중앙박물관 3D 데이터 · 공공누리 제1유형',source:photos[item.id].source,rotation:[0,0,0]};
 }
 export const goryeoCode = (displayCode:string) => `89${displayCode}`;
 export const isGoryeo = (value: GroupCard|Verification) => (value as {lesson?:string}).lesson===GORYEO_TAG;

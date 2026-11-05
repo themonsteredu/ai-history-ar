@@ -3,6 +3,7 @@ import type { ExhibitModel, ExhibitPoint } from '../../lib/ar/exhibit';
 import { joseonModelFor, joseonTargets } from '../../lib/ar/joseon/catalog';
 import { artifactById } from './artifacts';
 import { goryeoArtifact, goryeoModel } from '../goryeo/readyCards';
+import { GoryeoBackPhoto } from './GoryeoBackPhoto';
 const GoryeoScanner = lazy(() => import('../goryeo/GoryeoScanner'));
 import type { CardPoint } from './model';
 import '../../styles/ar-exhibit.css';
@@ -35,9 +36,10 @@ export function ArCard({ artifactId, points, selected, onSelect, onPlace, captio
   if (!artifact || !model) return <figure className="oc-card is-empty"><p className="oc-help">유물을 골라 주세요.</p></figure>;
   return <figure className={`oc-card${onPlace ? ' is-placing' : ''}`}>
     <Suspense fallback={<p className="oc-help" role="status">입체 유물을 불러와요…</p>}>
-      <HeritageModelView bubbles model={model} image="" points={exhibitPoints} selectedId={(onSelect ? selected : own) || ''} onSelect={onSelect || setOwn} onPlace={onPlace} targetIndex={artifactId - 1} eraId={era === 'joseon' ? 'joseon' : undefined} />
+      <HeritageModelView observe bubbles model={model} image="" points={exhibitPoints} selectedId={(onSelect ? selected : own) || ''} onSelect={onSelect || setOwn} onPlace={onPlace} targetIndex={artifactId - 1} eraId={era === 'joseon' ? 'joseon' : undefined} />
     </Suspense>
     <figcaption>{caption || artifact.name}</figcaption>
+    <GoryeoBackPhoto era={era} artifactId={artifactId} />
     {era === 'joseon' ? <ModelCredit artifactId={artifactId} /> : <p className="oc-credit">{model.credit} · <a href={model.source} target="_blank" rel="noreferrer">자료 출처</a></p>}
   </figure>;
 }
@@ -45,7 +47,7 @@ export function ArCard({ artifactId, points, selected, onSelect, onPlace, captio
 /** Says plainly what the model is, and whose photograph covers it (or that the photo is still missing). */
 export function ModelCredit({ artifactId }: { artifactId: number }) {
   const photo = joseonModelFor(artifactId)?.photo;
-  return <p className="oc-credit">실물 사진을 참고해 만든 3D 재현 모형이에요(실측·스캔 원본 아님).{' '}
+  return <p className="oc-credit">사진을 참고한 3D 재현 모형이에요. 보이지 않는 부분은 추정했어요(실측·스캔 원본 아님).{' '}
     {photo ? <a href={photo.source} target="_blank" rel="noreferrer">사진: {photo.author} · {photo.license}</a> : '실물 사진은 준비 중이라 지금은 모양만 보여요.'}
   </p>;
 }
@@ -67,7 +69,7 @@ export function ArCameraView({ artifactId, points, title, onClose }: { artifactI
     </div></div>
     {mode === 'free' ? <FreeCamera artifactId={artifactId} points={points} selected={selected} onSelect={setSelected} /> : <div className="oc-ar-float oc-ar-card">
       <Suspense fallback={<p className="oc-help" role="status">AR 카메라를 준비해요…</p>}>
-        <HeritageModelView camera steady spin bubbles model={model} image="" points={exhibitPoints} selectedId={selected || ''} onSelect={setSelected} targetIndex={artifactId - 1} eraId="joseon" targetFile={`${import.meta.env.BASE_URL}${joseonTargets.file}`} />
+        <HeritageModelView observe camera steady spin bubbles model={model} image="" points={exhibitPoints} selectedId={selected || ''} onSelect={setSelected} targetIndex={artifactId - 1} eraId="joseon" targetFile={`${import.meta.env.BASE_URL}${joseonTargets.file}`} />
       </Suspense>
     </div>}
     {mode === 'card' && <div className="oc-ar-bottom"><p className="oc-ar-problem">인쇄한 {artifactById(artifactId)?.name} 사진 카드를 책상에 두고 비추면 카드 위에 모형이 나타나요. 화면을 좌우로 밀면 모형이 돌아가요.</p></div>}

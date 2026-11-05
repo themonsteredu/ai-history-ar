@@ -28,7 +28,18 @@ export interface SceneOptions {
   /** Camera mode: a sideways swipe turns the model on the card like a turntable. */
   spin?: boolean;
 }
-export interface ModelScene { dispose: () => void; reset: () => void }
+export interface ModelScene { dispose: () => void; reset: () => void; turn: (radians: number) => void; opposite: () => void; zoom: (factor: number) => void }
+
+/** Turn and size the object with its markers, including in the camera view. */
+export function turnObservation(object: InstanceType<typeof THREE.Object3D>, radians: number) { object.rotation.y += radians; }
+export function scaleObservation(object: InstanceType<typeof THREE.Object3D>, factor: number) {
+  object.scale.setScalar(THREE.MathUtils.clamp(object.scale.x * factor, .65, 1.8));
+}
+/** The three named Goryeo teaching models are procedural despite their GLB descriptor. */
+export function canUseSoftwarePreview(model?: ExhibitModel) {
+  return model?.format === 'preset' || model?.format === 'primitives' ||
+    !!model?.asset && ['goryeo-buddha', 'goryeo-type', 'goryeo-tripitaka'].includes(model.asset);
+}
 
 export type CardPlacement = 'table' | 'upright';
 /** Change display orientation only; museum geometry and texture remain untouched. */
@@ -301,7 +312,7 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
     } else {
       try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); }
       catch (error) {
-        if (options.model?.format !== 'preset' && options.model?.format !== 'primitives') throw error;
+        if (!canUseSoftwarePreview(options.model)) throw error;
         const { createSoftwarePreview } = await import('./softwarePreview');
         if (disposed) throw new DOMException('Cancelled', 'AbortError');
         renderer = createSoftwarePreview(); softwarePreview = true; options.onPreviewFallback?.();
@@ -387,6 +398,18 @@ export async function mountModelScene(options: SceneOptions): Promise<ModelScene
         else if (!marker.hidden) placeBubble(marker, x, y, rect.width, rect.height);
       });
     });
-    return { dispose, reset: () => { controls?.reset(); spinner.rotation.y = 0; } };
+    return {
+      dispose,
+      reset: () => { controls?.reset(); spinner.rotation.y = 0; spinner.scale.setScalar(1); renderer.invalidate?.(); },
+      turn: radians => { turnObservation(spinner, radians); renderer.invalidate?.(); },
+      opposite: () => { controls?.reset(); spinner.rotation.y = Math.PI; renderer.invalidate?.(); },
+      zoom: factor => {
+        if (controls) {
+          const offset = camera.position.clone().sub(controls.target);
+          const distance = THREE.MathUtils.clamp(offset.length() * factor, controls.minDistance, controls.maxDistance);
+          camera.position.copy(controls.target).add(offset.setLength(distance)); controls.update();
+        } else scaleObservation(spinner, 1 / factor);
+      },
+    };
   } catch (error) { dispose(); throw error; }
 }

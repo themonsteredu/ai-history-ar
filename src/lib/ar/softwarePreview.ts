@@ -36,6 +36,8 @@ export function createSoftwarePreview() {
   return {
     domElement,
     setPixelRatio(value: number) { pixelRatio = Math.min(1.5, Math.max(1, value)); lastView = ''; },
+    /** A button can turn the object without moving the camera. */
+    invalidate() { lastView = ''; },
     setSize(w: number, h: number) {
       width = w; height = h; lastView = '';
       domElement.width = Math.round(w * pixelRatio); domElement.height = Math.round(h * pixelRatio);
