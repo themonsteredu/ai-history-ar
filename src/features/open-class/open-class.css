@@ -229,7 +229,7 @@
 }
 
 @media print{
-  .site-header,.site-footer,.teacher-workspace-header,.skip-link,.oc-tabs,.oc-me,.oc-present-tools,.oc-present-modal-bar,.oc-save{display:none!important}
+  .site-header,.site-footer,.teacher-workspace-header,.skip-link,.oc-tabs,.oc-me,.oc-present-tools,.oc-present-modal-bar,.oc-save,.oc-quiz-present__actions,.oc-quiz-present__nav{display:none!important}
   .oc-page .oc-panel{border:0;padding:0}
   .oc-present-modal{position:static;padding:0}
   body:has(.oc-present-modal) .oc-teacher>:not(.oc-present-modal){display:none!important}
@@ -259,6 +259,10 @@
 .oc-page .oc-quiz-present__header p {font-size:1rem;color:var(--oc-accent);margin:0 0 5px}
 .oc-page .oc-quiz-present__header h2 {font-size:clamp(1.8rem,3vw,2.7rem);margin:0 0 8px;line-height:1.3}
 .oc-quiz-present__header span {font-size:1rem;color:#5d655f}
+.oc-quiz-present__progress {margin:0 0 10px;color:#356858;font-size:1rem;font-weight:800}
+.oc-quiz-present__actions {display:flex;flex-wrap:wrap;gap:10px;margin:0 0 16px}
+.oc-quiz-present__nav {display:flex;justify-content:space-between;gap:12px;margin-top:18px}
+.oc-page .oc-quiz-present__nav button {min-height:50px;min-width:130px;font-weight:700}
 .oc-page .oc-quiz-present__questions {gap:16px}
 .oc-page .oc-quiz-present__questions > li {padding:clamp(18px,2vw,28px);border-left:5px solid #386b59}
 .oc-quiz-present__number {color:#477565;font-size:.9rem;font-weight:700}
@@ -407,16 +411,13 @@
     color: #5b655c;
     font-size: .95rem;
   }
-  @media (min-width: 1000px) {
-    .oc-page .oc-quiz-present__questions {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
   @media (max-width: 600px) {
     .oc-page .oc-quiz-present { padding-top: 12px; }
     .oc-page .oc-quiz-present__header { margin-bottom: 16px; border-radius: 12px; }
     .oc-page .oc-quiz-present__questions > li { padding: 20px; }
     .oc-page .oc-quiz-present__questions h3 { font-size: 1.45rem; }
     .oc-page .oc-quiz-present__questions button.oc-primary { width: 100%; }
+    .oc-page .oc-quiz-present__actions button { flex: 1 1 100%; }
+    .oc-page .oc-quiz-present__nav button { min-width: 0; flex: 1 1 0; }
   }
 }
