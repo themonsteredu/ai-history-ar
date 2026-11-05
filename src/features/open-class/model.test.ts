@@ -104,7 +104,8 @@ describe('own-group AI inquiry', () => {
        expect(full).not.toContain(other.paragraphs.join('\n\n'));
        expect(full).toContain('위 자료만으로 O 또는 X를 판단');
        expect(full).toContain(`[역사신문 기준 추가 지시] 위에 제공한 '${reading.name}' 역사신문 본문을 바탕으로 OX 문제 두 개`);
-       expect(full).toContain('신문에 없는 새로운 사실을 지어내지 마');
+       expect(full).toContain('신문에 없는 새로운 주제나 사실을 묻지 말고');
+       expect(full).toContain('앞에서 요청한 AI 답변의 오류 조건은 그대로 유지해');
        expect(full).toContain('정확히 1문항');
        expect(preview).not.toContain('[검증용 참고 자료:');
        expect(preview).not.toContain('[추가 요청]');
