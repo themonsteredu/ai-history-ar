@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>고려 유물 AR 인식 카드 인쇄</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #eceee8; color: #183b31; font-family: 'S-Core Dream', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; line-height: 1.5; word-break: keep-all; }
+    .tools { max-width: 900px; margin: auto; padding: 28px 20px; }
+    .tools h1 { margin: 0 0 8px; font-size: clamp(1.5rem, 4vw, 2rem); }
+    .tools p { margin: 6px 0 16px; }
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .controls a, .controls button { border: 1px solid #a9bbb0; border-radius: 8px; padding: 10px 13px; background: #fff; color: #183b31; font: inherit; text-decoration: none; cursor: pointer; }
+    .controls button { background: #194b3e; border-color: #194b3e; color: #fff; font-weight: 700; }
+    .controls a[aria-current="page"] { border-color: #194b3e; box-shadow: inset 0 0 0 1px #194b3e; }
+    .sheets { padding: 0 16px 32px; }
+    .sheet { width: min(100%, 210mm); min-height: 265mm; margin: 0 auto 20px; padding: 12mm; background: #fff; box-shadow: 0 6px 24px #183b3114; display: flex; flex-direction: column; justify-content: center; }
+    .sheet h2 { margin: 0 0 3mm; font-size: 20pt; }
+    .sheet p { margin: 0 0 7mm; color: #40584d; font-size: 10pt; }
+    .sheet img { width: 100%; height: auto; display: block; }
+    .sheet footer { margin-top: 6mm; color: #40584d; font-size: 9pt; }
+    [hidden] { display: none !important; }
+    @page { size: A4 portrait; margin: 12mm; }
+    @media print {
+      body { background: white; }
+      .tools { display: none; }
+      .sheets { padding: 0; }
+      .sheet { width: 100%; height: 273mm; min-height: 0; margin: 0; padding: 0; box-shadow: none; break-after: page; page-break-after: always; }
+      .sheet:last-child, .sheet.last-print { break-after: auto; page-break-after: auto; }
+    }
+    @media screen and (max-width: 600px) { .sheet { min-height: 0; padding: 20px; } .sheet h2 { font-size: 1.3rem; } }
+  </style>
+</head>
+<body>
+  <header class="tools">
+    <h1>고려 유물 AR 인식 카드</h1>
+    <p>출력할 카드를 고른 뒤 인쇄하세요. 카드 전체를 카메라에 비추면 모둠이 작성한 설명을 볼 수 있어요.</p>
+    <div class="controls" aria-label="출력할 카드 선택">
+      <button type="button" onclick="window.print()">인쇄하기 · PDF 저장</button>
+      <a href="goryeo-ar-cards.html" data-select="all">6종 모두</a>
+      <a href="?card=buddha" data-select="buddha">관촉사 불상</a>
+      <a href="?card=type" data-select="type">금속활자</a>
+      <a href="?card=tripitaka" data-select="tripitaka">팔만대장경</a>
+      <a href="?card=vase" data-select="vase">청자 매병</a>
+      <a href="?card=incense" data-select="incense">칠보무늬 향로</a>
+      <a href="?card=lacquer" data-select="lacquer">나전 경전함</a>
+    </div>
+    <p>인쇄 화면에서 A4 세로를 선택하고, 사진이 잘리지 않도록 맞춰 주세요. 학생들이 만든 설명은 수업코드로 입장한 화면에서 불러옵니다.</p>
+  </header>
+  <main class="sheets" aria-label="고려 유물 AR 인식 카드 출력용">
+    <section class="sheet" data-card="buddha"><h2>관촉사 미륵보살</h2><p>카드 전체가 보이도록 카메라를 비춰 주세요.</p><img src="images/goryeo-cards/buddha.jpg" alt="관촉사 미륵보살 AR 인식 카드"><footer>고려 유물 AR 카드 · 인식용 사진 카드</footer></section>
+    <section class="sheet" data-card="type"><h2>고려 금속활자</h2><p>카드 전체가 보이도록 카메라를 비춰 주세요.</p><img src="images/goryeo-cards/type.jpg" alt="고려 금속활자 AR 인식 카드"><footer>고려 유물 AR 카드 · 인식용 사진 카드</footer></section>
+    <section class="sheet" data-card="tripitaka"><h2>팔만대장경</h2><p>카드 전체가 보이도록 카메라를 비춰 주세요.</p><img src="images/goryeo-cards/tripitaka.jpg" alt="팔만대장경 AR 인식 카드"><footer>고려 유물 AR 카드 · 인식용 사진 카드</footer></section>
+    <section class="sheet" data-card="vase"><h2>청자 상감운학문 매병</h2><p>카드 전체가 보이도록 카메라를 비춰 주세요.</p><img src="images/goryeo-cards/vase.jpg" alt="청자 매병 AR 인식 카드"><footer>고려 유물 AR 카드 · 인식용 사진 카드</footer></section>
+    <section class="sheet" data-card="incense"><h2>청자 칠보무늬 향로</h2><p>카드 전체가 보이도록 카메라를 비춰 주세요.</p><img src="images/goryeo-cards/incense.jpg" alt="칠보무늬 향로 AR 인식 카드"><footer>고려 유물 AR 카드 · 인식용 사진 카드</footer></section>
+    <section class="sheet" data-card="lacquer"><h2>나전 경전함</h2><p>카드 전체가 보이도록 카메라를 비춰 주세요.</p><img src="images/goryeo-cards/lacquer.jpg" alt="나전 경전함 AR 인식 카드"><footer>고려 유물 AR 카드 · 인식용 사진 카드</footer></section>
+  </main>
+  <script>
+    const allowed = ['buddha', 'type', 'tripitaka', 'vase', 'incense', 'lacquer'];
+    const selected = new URLSearchParams(location.search).get('card');
+    const card = allowed.includes(selected) ? selected : 'all';
+    const sheets = Array.from(document.querySelectorAll('[data-card]'));
+    sheets.forEach(sheet => { sheet.hidden = card !== 'all' && sheet.dataset.card !== card; });
+    const last = sheets.filter(sheet => !sheet.hidden).at(-1);
+    if (last) last.classList.add('last-print');
+    document.querySelectorAll('[data-select]').forEach(link => { if (link.dataset.select === card) link.setAttribute('aria-current', 'page'); });
+  </script>
+</body>
+</html>
