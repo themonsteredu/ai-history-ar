@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StudioApiError } from '../ar-studio/api';
-import { clearRequestedExampleDrafts, joinOpenLesson, latestLoads, loadState, NO_ANSWER, OPEN_API_TIMEOUT, saveCard } from './api';
+import { clearRequestedExampleDrafts, forgetOpenSession, joinOpenLesson, latestLoads, loadState, NO_ANSWER, OPEN_API_TIMEOUT, saveCard } from './api';
 import { newCard } from './model';
 
 const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'content-type': 'application/json' } });
@@ -133,5 +133,52 @@ describe('requested example cleanup', () => {
     values.set('history-ar-open-draft:12345:card:1', 'new card');
     clearRequestedExampleDrafts('12345:card:1');
     expect(values.get('history-ar-open-draft:12345:card:1')).toBe('new card');
+  });
+});
+
+
+describe('classroom re-entry', () => {
+  function storage() {
+    const items = new Map<string, string>();
+    return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => { items.set(key, value); }, removeItem: (key: string) => { items.delete(key); } };
+  }
+  const entry = { token: 'token-a', memberId: 'member-a', code: '891234', group: 2, name: '하늘' };
+  it('reuses the same device entry after leaving, and creates another for a different group', async () => {
+    vi.stubGlobal('localStorage', storage());
+    const fetch = vi.fn().mockResolvedValueOnce(json(entry)).mockResolvedValueOnce(json({ items: [] })).mockResolvedValueOnce(json({ ...entry, group: 3, memberId: 'member-b', token: 'token-b' }));
+    vi.stubGlobal('fetch', fetch);
+    expect(await joinOpenLesson(entry.code, entry.name, entry.group)).toEqual(entry);
+    forgetOpenSession(entry.code);
+    expect(await joinOpenLesson(entry.code, entry.name, entry.group)).toEqual(entry);
+    expect((await joinOpenLesson(entry.code, entry.name, 3)).memberId).toBe('member-b');
+    expect(fetch.mock.calls.map(call => String(call[0]).includes('/join'))).toEqual([true, false, true]);
+  });
+  it('only creates a replacement when the cached entry is no longer valid', async () => {
+    vi.stubGlobal('localStorage', storage());
+    const fetch = vi.fn().mockResolvedValueOnce(json(entry)).mockResolvedValueOnce(json({ error: '입장 정보 만료' }, 403)).mockResolvedValueOnce(json({ ...entry, memberId: 'member-new', token: 'new' }));
+    vi.stubGlobal('fetch', fetch);
+    await joinOpenLesson(entry.code, entry.name, entry.group);
+    expect((await joinOpenLesson(entry.code, entry.name, entry.group)).memberId).toBe('member-new');
+    expect(fetch).toHaveBeenCalledTimes(3);
+  });
+  it('does not create a replacement while offline', async () => {
+    vi.stubGlobal('localStorage', storage());
+    const fetch = vi.fn().mockResolvedValueOnce(json(entry)).mockRejectedValueOnce(new TypeError('offline'));
+    vi.stubGlobal('fetch', fetch);
+    await joinOpenLesson(entry.code, entry.name, entry.group);
+    expect((await failure(joinOpenLesson(entry.code, entry.name, entry.group))).status).toBe(NO_ANSWER);
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+  it('combines overlapping joins for the same entry into one request', async () => {
+    vi.stubGlobal('localStorage', storage());
+    let resolve!: (response: Response) => void;
+    const fetch = vi.fn(() => new Promise<Response>(done => { resolve = done; }));
+    vi.stubGlobal('fetch', fetch);
+    const first = joinOpenLesson(entry.code, entry.name, entry.group);
+    const second = joinOpenLesson(entry.code, entry.name, entry.group);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    resolve(json(entry));
+    expect(await first).toEqual(entry);
+    expect(await second).toEqual(entry);
   });
 });
