@@ -17,7 +17,7 @@ export function Presentation({ check, card, questions, big, artifactName, era='j
       <div className="oc-quiz-present__number">{index + 1}번 문제</div><h3>{question.statement}</h3>
       <div className="oc-quiz-present__ai"><strong>AI의 답 {question.answer}</strong>{question.explanation && <p>{question.explanation}</p>}</div>
       <button type="button" className="oc-primary" aria-expanded={!!revealed[question.id]} onClick={()=>setRevealed(r=>({...r,[question.id]:!r[question.id]}))}>{revealed[question.id] ? '검증 결과 닫기' : '검증 결과 보기'}</button>
-      {revealed[question.id] && <div className="oc-quiz-present__result"><b>{item!.decision === 'revise' ? 'AI 내용 수정 필요' : 'AI 내용 확인 완료'}</b><p><strong>확인한 답 {item!.solved}</strong></p>{item!.decision === 'revise' && item!.revised.trim() && <p>고친 문장: {item!.revised} {item!.revisedAnswer && `(답 ${item!.revisedAnswer})`}</p>}<p>{item!.explanation}</p><small>확인 자료: {item!.why}</small></div>}
+      {revealed[question.id] && <div className="oc-quiz-present__result"><b>{item!.decision === 'revise' ? 'AI 내용 수정 필요' : 'AI 내용 확인 완료'}</b><p><strong>확인한 답 {item!.solved}</strong></p>{item!.decision === 'revise' && item!.revised.trim() && <p>고친 문장: {item!.revised} {item!.revisedAnswer && `(답 ${item!.revisedAnswer})`}</p>}{(item!.explanation || item!.reason) && <p>{item!.explanation || item!.reason}</p>}<small>확인 자료: {item!.why}</small></div>}
     </li>)}</ol>}
   </article>;
   return <article className={`oc-present${big ? ' is-big' : ''}`}>
@@ -31,7 +31,7 @@ export function Presentation({ check, card, questions, big, artifactName, era='j
       {item?.solved && <p className="oc-present-line"><span>우리 생각</span>{item.solved}{item.why && ` · ${item.why}`}</p>}
       {item?.aiAnswer && <p className="oc-present-line"><span>AI 확인</span>{item.aiAnswer}</p>}
       <p className="oc-present-line"><span>이유</span>{item?.reason || '아직 쓰지 않았어요.'}</p>
-      <p className="oc-present-line is-key"><span>정답 해설</span>{item?.explanation || '아직 쓰지 않았어요.'}</p>
+      {item?.explanation && <p className="oc-present-line is-key"><span>정답 해설</span>{item.explanation}</p>}
     </li>)}</ol>
   </article>;
 }

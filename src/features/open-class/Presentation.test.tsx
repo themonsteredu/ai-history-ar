@@ -17,4 +17,17 @@ describe('AI verification presentation', () => {
     expect(html).not.toContain('검증한 근거');
     expect(html).not.toContain('AI-L.E.A.P.');
   });
+  it('makes both questions presentable without written explanations in either era', () => {
+    for (const era of ['goryeo', 'joseon'] as const) {
+      const card = newCard(1, 1), check = newSelfVerification(1);
+      const questions = check.selfQuestions!.map((q, i) => ({ ...q, statement: `문제 ${i + 1}`, explanation: '', source: 'student' as const }));
+      check.items = questions.map(q => ({ ...newVerifyItem(q.id, 'student'), solved: 'O' as const, why: '교과서', decision: 'adopt' as const, reason: '자료와 같아요', explanation: '' }));
+      const html = renderToStaticMarkup(<Presentation check={check} card={card} questions={questions} era={era} />);
+      expect(html).toContain('문제 1');
+      expect(html).toContain('문제 2');
+      expect(html).not.toContain('발표할 문제를 2개 검증해 주세요');
+      expect(html).not.toContain('아직 쓰지 않았어요');
+    }
+  });
+
 });

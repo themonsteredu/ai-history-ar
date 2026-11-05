@@ -108,3 +108,18 @@ describe('own-group AI inquiry', () => {
    const preview=buildCreationPrompt(emptyParts(),readyCard(),false);expect(preview).toContain('정확히 2개');expect(preview).not.toContain('의도적으로');
  });
 });
+
+
+describe('optional OX explanations', () => {
+  it('completes a verified question without an explanation while preserving other requirements', () => {
+    const item = { ...newVerifyItem('q', 'student'), why: '교과서 10쪽', solved: 'O' as const, decision: 'adopt' as const, reason: '자료와 같아요', explanation: '' };
+    expect(itemDone(item)).toBe(true);
+    expect(selfItemDone(item)).toBe(true);
+    expect(selfItemDone({ ...item, why: '' })).toBe(false);
+    expect(selfItemDone({ ...item, reason: '' })).toBe(false);
+    expect(selfItemDone({ ...item, solved: '' })).toBe(false);
+    expect(selfItemDone({ ...item, decision: 'revise', revised: '', revisedAnswer: '' })).toBe(false);
+    expect(selfItemDone({ ...item, decision: 'revise', revised: '고친 문장', revisedAnswer: 'X' })).toBe(true);
+    expect(selfItemDone({ ...item, decision: 'exclude', explanation: '' })).toBe(true);
+  });
+});
