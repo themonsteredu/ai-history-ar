@@ -100,7 +100,7 @@
 .oc-ar-float .ar-model-view{flex:1;display:flex;flex-direction:column;min-height:0}
 .oc-ar-float .ar-model-stage{flex:1;height:auto;min-height:min(260px,40vh);border:0;background:transparent}
 .oc-ar-float .ar-model-controls p,.oc-ar-float figcaption,.oc-ar-float .oc-credit,.oc-ar-float .ar-help{color:#fff;text-shadow:0 1px 3px #000}
-.oc-ar-bottom{background:linear-gradient(transparent,rgba(0,0,0,.6))}
+.oc-ar-bottom{background:linear-gradient(transparent,rgba(0,0,0,.6));max-height:45vh;overflow-y:auto}
 .oc-ar .ar-pin-bubble{--pin-bubble-max:300px;--pin-bubble-wide:380px;--pin-bubble-tall:340px;font-size:16px}
 .oc-ar-problem{margin:0 auto 8px;max-width:640px;font-size:.9rem}
 
