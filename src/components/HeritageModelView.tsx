@@ -6,7 +6,7 @@ import type { CardPlacement, ModelScene } from '../lib/ar/modelScene';
 import { ReconstructionCredit } from './ReconstructionCredit';
 import { cameraFailureMessage } from '../lib/ar/cameraDiagnosis';
 
-export default function HeritageModelView({ model, image, points, selectedId, onSelect, onPlace, camera = false, cardPlacement = 'table', targetIndex, onTracking, eraId = "three-kingdoms", targetFile, steady = false, spin = false, bubbles = false, fallbackImage }: {
+export default function HeritageModelView({ model, image, points, selectedId, onSelect, onPlace, camera = false, cardPlacement = 'table', targetIndex, onTracking, eraId = "three-kingdoms", targetFile, steady = false, spin = false, bubbles = false, fallbackImage, observe = false }: {
   model?: ExhibitModel; image: string; points: ExhibitPoint[]; selectedId: string; onSelect: (id: string) => void;
   onPlace?: (position: [number, number, number]) => void; camera?: boolean; targetIndex: number; eraId?: EraId;
   onTracking?: (visible: boolean) => void;
@@ -19,6 +19,8 @@ export default function HeritageModelView({ model, image, points, selectedId, on
   /** Show the selected point's title and text in a speech bubble beside its number. */
   bubbles?: boolean;
   fallbackImage?: string;
+  /** Touch-friendly controls for examining the current model from different sides. */
+  observe?: boolean;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const pins = useRef<Array<HTMLButtonElement | null>>([]);
@@ -71,7 +73,14 @@ export default function HeritageModelView({ model, image, points, selectedId, on
     </div>
     <div className="ar-model-controls">
       <p role="status">{status === 'scanning' || status === 'lost' ? '출력한 유산 카드 전체를 카메라에 비춰 주세요.' : status === 'found' ? (bubbles ? `카드를 찾았어요!${spin ? ' 좌우로 밀면 모형이 돌아요.' : ''}${pinHint}` : spin ? '카드를 찾았어요! 화면을 좌우로 밀면 모형이 카드 위에서 돌아가요.' : '카드를 찾았어요! 표시점을 눌러 해설을 들어 보세요.') : !camera ? (onPlace ? '끌어서 돌리고, 설명할 곳을 짧게 눌러요.' : bubbles ? `끌어서 돌려 보세요.${pinHint}` : points.length ? '끌어서 돌려 보고, 표시점을 눌러요.' : '끌어서 돌려 보세요.') : ''}</p>
-      {(!camera || spin) && <button type="button" onClick={() => scene.current?.reset()}>처음 방향</button>}
+      {observe && model ? <div className="ar-observe-controls" aria-label="입체 유물 관찰">
+        <button type="button" disabled={status === 'loading' || status === 'error'} onClick={() => scene.current?.turn(-Math.PI / 4)}>↶ 돌리기</button>
+        <button type="button" disabled={status === 'loading' || status === 'error'} onClick={() => scene.current?.turn(Math.PI / 4)}>↷ 돌리기</button>
+        <button type="button" disabled={status === 'loading' || status === 'error'} onClick={() => scene.current?.opposite()}>반대편 보기</button>
+        <button type="button" disabled={status === 'loading' || status === 'error'} onClick={() => scene.current?.zoom(.8)}>＋ 확대</button>
+        <button type="button" disabled={status === 'loading' || status === 'error'} onClick={() => scene.current?.zoom(1.25)}>－ 축소</button>
+        <button type="button" disabled={status === 'loading' || status === 'error'} onClick={() => scene.current?.reset()}>처음</button>
+      </div> : (!camera || spin) && <button type="button" onClick={() => scene.current?.reset()}>처음 방향</button>}
     </div>
     {simplePreview && <p className="ar-help">간단한 입체 보기예요. 모형을 돌리고 설명점을 찍을 수 있어요. AR 카메라는 그래픽 기능이 지원되는 기기에서 열어 주세요.</p>}
     {textureUnavailable && <p className="ar-help" role="status">사진 표면을 불러오지 못해 모형의 형태만 보여요. 인터넷 연결을 확인하고 화면을 다시 열어 주세요. 설명과 녹음은 유지돼요.</p>}

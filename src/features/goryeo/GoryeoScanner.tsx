@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { cameraCardTransform, disposeObject, readModel } from '../../lib/ar/modelScene';
+import { cameraCardTransform, disposeObject, readModel, scaleObservation, turnObservation } from '../../lib/ar/modelScene';
 import { cameraFailureMessage } from '../../lib/ar/cameraDiagnosis';
 import { followPose, steadyTrackingFilter } from '../../lib/ar/steadyPose';
 import type { ExhibitModel } from '../../lib/ar/exhibit';
 import { artifacts } from './data';
 import { goryeoCardPoints } from './cardPoints';
 import type { GroupCard } from '../open-class/model';
+import { GoryeoBackPhoto } from '../open-class/GoryeoBackPhoto';
 import { photos } from './photos';
 import './goryeo-scanner.css';
 
@@ -27,6 +28,7 @@ export default function GoryeoScanner({ onClose, onDetected, onQuiz, customCards
   const markers = useRef<Array<HTMLButtonElement | null>>([]);
   const onDetectedRef = useRef(onDetected); onDetectedRef.current = onDetected;
   const activeRef = useRef<string | null>(null);
+  const stagesRef = useRef<Map<string, Stage> | null>(null);
   const [active, setActive] = useState<string | null>(null);
   const [pointId, setPointId] = useState('');
   const [loading, setLoading] = useState(true);
@@ -47,6 +49,7 @@ export default function GoryeoScanner({ onClose, onDetected, onQuiz, customCards
     let startX: number | undefined, lastX: number | undefined;
     const abort = new AbortController();
     const stages = new Map<string, Stage>();
+    stagesRef.current = stages;
     const models = new Map<string, Promise<void>>();
     const objects: any[] = [];
     const releaseVideo = () => element.querySelectorAll('video').forEach(video => {
@@ -152,6 +155,7 @@ export default function GoryeoScanner({ onClose, onDetected, onQuiz, customCards
     });
     return () => {
       cancelled = true; abort.abort(); activeRef.current = null;
+      if (stagesRef.current === stages) stagesRef.current = null;
       markers.current.forEach(button => { if (button) button.hidden = true; });
       renderer?.setAnimationLoop(null); releaseVideo(); if (!starting) stopCamera();
       element.removeEventListener('pointerdown', down); element.removeEventListener('pointermove', move);
@@ -171,9 +175,18 @@ export default function GoryeoScanner({ onClose, onDetected, onQuiz, customCards
       {textureMissing && <p>일부 사진 표면을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</p>}
       {artifact && points && <div className="goryeo-scanner-reading">
         <p><b>{artifact.name}</b> · {artifact.role}</p>
+        <div className="goryeo-observe-controls" aria-label="입체 유물 관찰">
+          <button type="button" disabled={modelLoading} onClick={() => { const stage = stagesRef.current?.get(artifact.id); if (stage) turnObservation(stage.spinner, -Math.PI / 4); }}>↶ 돌리기</button>
+          <button type="button" disabled={modelLoading} onClick={() => { const stage = stagesRef.current?.get(artifact.id); if (stage) turnObservation(stage.spinner, Math.PI / 4); }}>↷ 돌리기</button>
+          <button type="button" disabled={modelLoading} onClick={() => { const stage = stagesRef.current?.get(artifact.id); if (stage) stage.spinner.rotation.y = Math.PI; }}>반대편 보기</button>
+          <button type="button" disabled={modelLoading} onClick={() => { const stage = stagesRef.current?.get(artifact.id); if (stage) scaleObservation(stage.spinner, 1.25); }}>＋ 확대</button>
+          <button type="button" disabled={modelLoading} onClick={() => { const stage = stagesRef.current?.get(artifact.id); if (stage) scaleObservation(stage.spinner, .8); }}>－ 축소</button>
+          <button type="button" disabled={modelLoading} onClick={() => { const stage = stagesRef.current?.get(artifact.id); if (stage) { stage.spinner.rotation.y = 0; stage.spinner.scale.setScalar(1); } }}>처음</button>
+        </div>
         <p>{points.length ? '번호를 눌러 카드에 담긴 설명을 읽어요.' : '아직 저장된 설명이 없어요. 모둠에서 직접 카드를 만들어 주세요.'}</p>
         <div className="goryeo-ar-points" aria-label="AR 카드 설명 번호">{points.map((item, index) => <button type="button" key={item.id} aria-pressed={pointId === item.id} onClick={() => setPointId(item.id)}>{index + 1}번</button>)}</div>
         {point && <p className="goryeo-scanner-detail" aria-live="polite"><b>{point.title}</b> · {point.text}</p>}
+        <GoryeoBackPhoto era="goryeo" artifactId={artifacts.findIndex(item => item.id === artifact.id) + 1}/>
         {onQuiz && <button className="goryeo-scanner-quiz" onClick={onQuiz}>{quizLabel}</button>}
         <p className="goryeo-scanner-credit">{reconstructions.has(artifact.id) ? '사진을 참고한 학습용 3D 재현 · 보이지 않는 부분은 추정' : '3D: 국립중앙박물관 · 공공누리 제1유형 · 웹용 변환'} · <a href={photos[artifact.id].source} target="_blank" rel="noreferrer">사진 출처</a>{artifact.id === 'tripitaka' && <> · 복제 경판 사진: <a href="https://commons.wikimedia.org/wiki/File:Korea-Haeinsa_Tripitaka_Koreana_woodblock_2770-06a.jpg" target="_blank" rel="noreferrer">Steve46814 / Wikimedia Commons</a> · CC BY-SA 3.0</>}</p>
       </div>}

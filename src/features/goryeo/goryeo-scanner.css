@@ -21,3 +21,5 @@
 @media (max-height: 500px) and (orientation: landscape) {
   .goryeo-scanner-stage { flex-basis: 38vh; min-height: 150px; }
 }
+
+.goryeo-scanner-bottom .goryeo-back-photo a{color:#245749}
