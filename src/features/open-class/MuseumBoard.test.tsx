@@ -36,11 +36,12 @@ describe('museum verification board', () => {
     expect(html).toContain('수업 기록을 불러오지 못했습니다');
     expect(html).not.toContain('시작 전');
   });
-  it('presents at most two verified questions and waits until two are ready', () => {
+  it('presents one question at a time and waits until two are ready', () => {
     const card = newCard(1,1), check = preparedCheck();
     let html = renderToStaticMarkup(<Presentation check={check} card={card} questions={selfQuestions(check)} />);
     expect(html).toContain('1번 유물 문제');
-    expect(html).toContain('2번 유물 문제');
+    expect(html).not.toContain('2번 유물 문제');
+    expect(html).toContain('다음 문제');
     check.items[1].why = '';
     html = renderToStaticMarkup(<Presentation check={check} card={card} questions={selfQuestions(check)} />);
     expect(html).toContain('발표할 문제를 2개 검증해 주세요. (현재 1개)');
