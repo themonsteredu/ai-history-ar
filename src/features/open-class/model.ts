@@ -98,7 +98,7 @@ export function syncItems(verification: Verification, questions: readonly CheckQ
   const items = questions.map(q => verification.items.find(item => item.questionId === q.id) || newVerifyItem(q.id, q.source));
   return { ...verification, items };
 }
-export const itemDone = (item: VerifyItem) => !!item.solved && !!item.decision && !!item.reason.trim() && !!item.explanation.trim() && (item.decision !== 'revise' || (!!item.revised.trim() && !!item.revisedAnswer));
+export const itemDone = (item: VerifyItem) => !!item.solved && !!item.decision && !!item.reason.trim() && (item.decision !== 'revise' || (!!item.revised.trim() && !!item.revisedAnswer));
 export function verifyProgress(verification: Verification | undefined, total: number) {
   const items = verification?.items || [];
   const count = (decision: Decision) => items.filter(item => item.decision === decision).length;
@@ -135,7 +135,7 @@ export const missingParts = (parts: PromptParts) => PROMPT_FIELDS.filter(f => !p
 
 export const newSelfVerification = (group: number): Verification => ({ ...newVerification(group, group), mode: 'self', selfQuestions: [newQuestion(), newQuestion()], notes: emptyLessonNotes() });
 export const selfQuestions = (check?: Verification): CheckQuestion[] => readyQuestions((check?.selfQuestions || []).slice(0, 2)).map(q => ({ ...q, source: 'student' as const }));
-export const selfItemDone = (item: VerifyItem) => !!item.why.trim() && (item.decision === 'exclude' ? !!item.reason.trim() && !!item.explanation.trim() : itemDone(item));
+export const selfItemDone = (item: VerifyItem) => !!item.why.trim() && (item.decision === 'exclude' ? !!item.reason.trim() : itemDone(item));
 /** Display two questions while retaining any older third question in storage. */
 export function inquirySlots(check: Verification): OxQuestion[] {
   return (check.selfQuestions || []).slice(0, 2);

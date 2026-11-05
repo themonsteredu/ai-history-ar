@@ -110,8 +110,8 @@ function CheckItem({ number, question, item, card, parts, artifactName, onChange
       <label className="oc-field">그렇게 판단한 이유<textarea rows={2} maxLength={400} value={item.reason} placeholder={item.decision === 'exclude' ? '어디에서도 근거를 찾을 수 없었던 까닭을 써요.' : '카드 설명과 AI 답을 비교해서 써요.'} onChange={event => onChange({ reason: event.target.value })} /></label>
     </div>
 
-    <div className="oc-substep"><h3>⑤ 발표할 정답 해설</h3>
-      <label className="oc-field">친구들에게 설명할 정답과 해설<textarea rows={2} maxLength={600} value={item.explanation} placeholder="예: 정답은 O예요. 카드 2번 설명과 AI 답에 같은 내용이 있기 때문이에요." onChange={event => onChange({ explanation: event.target.value })} /></label>
+    <div className="oc-substep"><h3>⑤ 발표할 정답 해설 (선택)</h3>
+      <label className="oc-field">친구들에게 설명할 정답과 해설 <small>(선택)</small><textarea rows={2} maxLength={600} value={item.explanation} placeholder="예: 정답은 O예요. 카드 2번 설명과 AI 답에 같은 내용이 있기 때문이에요." onChange={event => onChange({ explanation: event.target.value })} /></label>
     </div>
   </li>;
 }
