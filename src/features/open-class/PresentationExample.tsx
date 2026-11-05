@@ -4,9 +4,9 @@ import { newSelfVerification, newVerifyItem, selfQuestions, type GroupCard } fro
 import { Presentation } from './Presentation';
 import './open-class.css';
 
-const sample: GroupCard = { version:1, group:1, artifactId:3, members:'', questions:[], points:[
- {id:'example-1',position:[0,0.3,0],title:'경판',text:'나무판에 불교 경전을 새겼어요.'},
- {id:'example-2',position:[0.4,0.2,0],title:'인쇄',text:'새긴 경판을 이용해 경전을 찍었어요.'},
+const sample: GroupCard = { version:1, group:1, artifactId:2, members:'', questions:[], points:[
+ {id:'example-1',position:[0,0.3,0],title:'인쇄 면',text:'고려의 금속활자입니다.'},
+ {id:'example-2',position:[0.4,0.2,0],title:'뒷면',text:'뒷면이 타원형으로 오목해요.'},
 ] };
 const joseonSample: GroupCard = {...sample, artifactId:1, points:[
  {id:'example-1',position:[0,0.3,0],title:'빗물 받는 통',text:'빗물을 모아 비가 내린 양을 살폈어요.'},
