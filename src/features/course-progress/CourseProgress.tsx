@@ -9,7 +9,7 @@ import './course-progress.css';
 type Era = 'three-kingdoms' | 'joseon';
 type Point = { title: string; text: string; recorded?: boolean };
 type Question = { prompt: string; options?: string[]; answer?: number };
-type Progress = { kind: 'note' | 'data' | 'ar' | 'quiz'; name?: string; score?: number; total?: number; results?: { chosen: number; answer: number; correct: boolean }[]; heritage?: string; source?: string; note?: string; title?: string; rows?: DataRow[]; heritageId?: number; modelName?: string; points?: Point[]; question?: string; answer?: string; questions?: Question[]; role?: string; reflection?: string };
+type Progress = { kind: 'note' | 'data' | 'ar' | 'quiz'; submittedCount?: number; heritage?: string; source?: string; note?: string; title?: string; rows?: DataRow[]; heritageId?: number; modelName?: string; points?: Point[]; question?: string; questions?: Question[]; role?: string; reflection?: string };
 type Item = { memberId?: string; group: number; updatedAt: string; data: Progress };
 type TeacherState = { records: Item[]; shared: Item[] };
 const selectedCodeKey = 'history-course-progress-code';
@@ -33,7 +33,7 @@ async function courseApi<T>(session: StudioSession, era: Era, lesson: number, da
 export function arProgress(project: { heritageId: number; ar?: ArExhibit; questions?: Question[]; role?: string; reflection?: string }): Progress {
   return { kind: 'ar', heritageId: project.heritageId, modelName: project.ar?.model?.name || '',
     points: project.ar?.points.map(p => ({ title: p.title, text: p.text, recorded: !!p.narration })) || [],
-    question: project.ar?.question || '', answer: project.ar?.points.find(point => point.id === project.ar?.answerId)?.title || '', questions: project.questions || [], role: project.role || '', reflection: project.reflection || '' };
+    question: project.ar?.question || '', questions: project.questions?.map(q => ({ prompt: q.prompt, options: q.options })) || [], role: project.role || '', reflection: project.reflection || '' };
 }
 function Sync({ session, era, lesson, data }: { session: StudioSession; era: Era; lesson: number; data: Progress }) {
   const [status, setStatus] = useState('연결 중'); const [retry, setRetry] = useState(0);
@@ -91,8 +91,8 @@ export function CourseNotes({ era }: { era: Era }) {
 function Details({ data }: { data: Progress }) {
   if (data.kind === 'note') return <dl><dt>조사할 유산</dt><dd>{data.heritage || '아직 없음'}</dd><dt>자료와 출처</dt><dd>{data.source || '아직 없음'}</dd><dt>알게 된 점</dt><dd>{data.note || '아직 없음'}</dd></dl>;
   if (data.kind === 'data') return <><p><b>그래프 제목:</b> {data.title || '아직 없음'} · {data.rows?.length || 0}행</p>{data.rows?.length ? <div className="course-progress-table"><table><thead><tr><th>모둠</th><th>유산</th><th>분류</th><th>근거 문장</th><th>출처</th><th>확인</th></tr></thead><tbody>{data.rows.map((row, i) => <tr key={`${row.id}-${i}`}><td>{row.group}</td><td>{row.heritage}</td><td>{row.category}</td><td>{row.text}</td><td>{row.source}</td><td>{row.confirmed ? '확인' : '보류'}</td></tr>)}</tbody></table></div> : <p>아직 작성한 표가 없어요.</p>}</>;
-  if (data.kind === 'quiz') return <><p><b>참여:</b> {data.name || '학생'} · <b>결과:</b> {data.score ?? '-'} / {data.total ?? '-'}</p>{data.questions?.map((q, i) => <p key={i}><b>문제 {i+1}:</b> {q.prompt} {data.results?.[i] && (data.results[i].correct ? '· 정답' : '· 다시 확인')}</p>)}<p><b>맡은 일:</b> {data.role || '없음'}</p><p><b>배운 점:</b> {data.reflection || '없음'}</p></>;
-  return <><p><b>유산 카드:</b> {data.heritageId || '-'}번 · <b>모형:</b> {data.modelName || '아직 없음'}</p>{data.points?.length ? <ol>{data.points.map((point, i) => <li key={i}><strong>{point.title || `설명 ${i+1}`}</strong><p>{point.text || '아직 없음'}{point.recorded ? ' · 녹음 있음' : ''}</p></li>)}</ol> : <p>아직 작성한 설명이 없어요.</p>}{data.question && <p><b>질문:</b> {data.question}{data.answer ? ` · 정답 설명: ${data.answer}` : ''}</p>}{data.questions?.map((q, i) => <p key={i}><b>문제 {i+1}:</b> {q.prompt || '아직 없음'} {q.options?.filter(Boolean).join(' / ')} {typeof q.answer === 'number' && q.options?.[q.answer] ? `· 정답: ${q.options[q.answer]}` : ''}</p>)}{data.role && <p><b>맡은 일:</b> {data.role}</p>}{data.reflection && <p><b>배운 점:</b> {data.reflection}</p>}</>;
+  if (data.kind === 'quiz') return <p>이 모둠에서 {data.submittedCount || 0}명이 퀴즈를 제출했어요.</p>;
+  return <><p><b>유산 카드:</b> {data.heritageId || '-'}번 · <b>모형:</b> {data.modelName || '아직 없음'}</p>{data.points?.length ? <ol>{data.points.map((point, i) => <li key={i}><strong>{point.title || `설명 ${i+1}`}</strong><p>{point.text || '아직 없음'}{point.recorded ? ' · 녹음 있음' : ''}</p></li>)}</ol> : <p>아직 작성한 설명이 없어요.</p>}{data.question && <p><b>질문:</b> {data.question}</p>}{data.questions?.map((q, i) => <p key={i}><b>문제 {i+1}:</b> {q.prompt || '아직 없음'} {q.options?.filter(Boolean).join(' / ')}</p>)}{data.role && <p><b>맡은 일:</b> {data.role}</p>}{data.reflection && <p><b>배운 점:</b> {data.reflection}</p>}</>;
 }
 export function CourseTeacher({ era, lesson }: { era: Era; lesson: number }) {
   const [input, setInput] = useState(() => stored(selectedCodeKey)); const [code, setCode] = useState(() => stored(selectedCodeKey));
