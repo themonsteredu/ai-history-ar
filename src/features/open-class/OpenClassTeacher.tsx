@@ -17,6 +17,7 @@ import { readingsPackUrl } from './HeritageReading';
 import { MuseumBoard, museumProgress } from './MuseumBoard';
 import { MuseumCardStage } from './MuseumCardStage';
 import { Presentation } from './Presentation';
+import { TeacherGroupDashboard } from './TeacherGroupDashboard';
 import { saveLabel, useSyncedDraft } from './useSyncedDraft';
 import './open-class.css';
 
@@ -121,6 +122,11 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
 
     <section className="oc-panel"><h2>조선 AR 인식 카드</h2><p>필요한 카드를 내려받아 인쇄하면 학생들이 카메라로 볼 수 있어요.</p><div className="oc-actions"><a href={`${import.meta.env.BASE_URL}downloads/joseon/ar/ar-cards-all.pdf`} download>AR 인식 카드 6종 받기</a>{ARTIFACTS.map((item,index)=><a key={item.id} href={`${import.meta.env.BASE_URL}downloads/joseon/ar/ar-card-${String(index+1).padStart(2,'0')}.pdf`} download>{item.name} 카드 받기</a>)}</div></section>
     <section className="oc-panel" aria-label="모둠 현황">
+      {openGroup ? <TeacherGroupDashboard key={openGroup} group={openGroup} era="joseon"
+        cardItem={state.cards.find(item => item.data.group === openGroup)}
+        checkItem={state.checks.find(item => item.data.mode === 'self' && item.data.verifier === openGroup && item.data.target === openGroup)}
+        onBack={() => setOpenGroup(undefined)} onCardPresentation={() => setCardPresentationGroup(openGroup)}
+        onQuizPresentation={() => setPresent({ verifier: openGroup, target: openGroup, twoOnly: true })} /> : <>
       <div className="oc-board-head"><h2>모둠 현황 <small>6초마다 새로 확인</small></h2>
         <div className="oc-actions"><button type="button" className="oc-primary" onClick={() => setBoardOpen(true)}>역사박물관 칠판 화면</button><label className="oc-inline">모둠 수<select value={groupCount} onChange={event => onGroupCount(Number(event.target.value))}>{GROUP_CHOICES.map(n => <option key={n} value={n}>{n}모둠</option>)}</select></label>
           <button type="button" disabled={!state.cards.some(item => item.data.artifactId)} onClick={() => setPrinting('groups')}>모둠 카드 인쇄</button>
@@ -129,10 +135,9 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
       <div className="oc-board">{groups.map(group => <GroupStatus key={group} group={group} card={cardOf(group)} cardItem={state.cards.find(item => item.data.group === group)}
         checks={state.checks.filter(item => item.data.verifier === group)} cardOf={cardOf} teacherFor={teacherFor}
         open={openGroup === group} onToggle={() => setOpenGroup(value => value === group ? undefined : group)} onPresent={target => setPresent({ verifier: group, target })} />)}</div>
-      <p className="oc-help">모둠 이름을 누르면 카드·문제·검증 기록을 자세히 볼 수 있어요.</p>
+      <p className="oc-help">모둠을 누르면 카드와 퀴즈의 각 활동을 볼 수 있어요.</p>
+      </>}
     </section>
-    {openGroup && cardOf(openGroup)?.artifactId ? <div className="oc-actions"><button type="button" className="oc-primary" onClick={()=>setCardPresentationGroup(openGroup)}>선택 모둠 AR 카드 발표 화면</button></div> : null}
-    {openGroup && <GroupDetail group={openGroup} card={cardOf(openGroup)} checks={state.checks.filter(item => item.data.verifier === openGroup)} cardOf={cardOf} teacherFor={teacherFor} />}
 
     {session && <details className="oc-panel"><summary>이전 수업용 · 선생님 OX 문제</summary><p>이번 공개수업은 AI가 만든 2문항을 검증합니다. 아래 문제는 이전 방식의 기록입니다.</p><TeacherQuestions code={code} token={session.token} sets={state.teacher} cards={state.cards.map(item => item.data)} /></details>}
 
