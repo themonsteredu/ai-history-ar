@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import heritageReadings from './heritage-reading.json';
 import { buildCreationPrompt, inquirySlots, newSelfVerification, selfItemDone, selfQuestions, buildPrompt, cardProblems, emptyParts, isGroupCard, isTeacherSet, isVerification, itemDone, missingParts, newCard, newPoint, newQuestion, newVerification, newVerifyItem, questionsToCheck, syncItems, verifyProgress, type GroupCard } from './model';
 
 function readyCard(): GroupCard {
@@ -89,12 +90,26 @@ describe('own-group AI inquiry', () => {
    for (const era of ['goryeo', 'joseon'] as const) {
      for (let artifactId = 1; artifactId <= 6; artifactId++) {
        const card = {...readyCard(), artifactId};
-       const full = buildCreationPrompt(emptyParts(), card, true, undefined, era);
-       const preview = buildCreationPrompt(emptyParts(), card, false, undefined, era);
+       const parts = { role: '역사 선생님', situation: '모둠 발표를 준비해', style: '짧고 쉽게' };
+       const full = buildCreationPrompt(parts, card, true, undefined, era);
+       const preview = buildCreationPrompt(parts, card, false, undefined, era);
+       const reading = heritageReadings[era].find(item => item.id === artifactId)!;
+       const other = heritageReadings[era].find(item => item.id !== artifactId)!;
+       expect(full).toContain('[역할] 역사 선생님');
+       expect(full).toContain('[상황] 모둠 발표를 준비해');
+       expect(full).toContain('[답하는 방법] 짧고 쉽게');
+       expect(full).toContain('빗물 받는 그릇: 쇠로 만든 둥근 통이에요.');
        expect(full).toContain('[검증용 참고 자료:');
+       expect(full).toContain(reading.paragraphs.join('\n\n'));
+       expect(full).not.toContain(other.paragraphs.join('\n\n'));
        expect(full).toContain('위 자료만으로 O 또는 X를 판단');
+       expect(full).toContain(`[역사신문 기준 추가 지시] 위에 제공한 '${reading.name}' 역사신문 본문을 바탕으로 OX 문제 두 개`);
+       expect(full).toContain('신문에 없는 새로운 사실을 지어내지 마');
+       expect(full).toContain('정확히 1문항');
        expect(preview).not.toContain('[검증용 참고 자료:');
        expect(preview).not.toContain('[추가 요청]');
+       expect(preview).not.toContain('[역사신문 기준 추가 지시]');
+       expect(preview).not.toContain(reading.paragraphs[0]);
      }
    }
  });
