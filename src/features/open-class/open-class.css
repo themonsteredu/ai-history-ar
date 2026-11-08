@@ -446,3 +446,25 @@
     .oc-page .oc-quiz-present__nav button { min-width: 0; flex: 1 1 0; }
   }
 }
+
+/* 교사가 전자칠판에서 모둠의 검증 과정을 함께 읽는 화면 */
+.oc-present-view-switch { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 18px; }
+.oc-present-view-switch button[aria-pressed=true] { background:var(--oc-accent); border-color:var(--oc-accent); color:white; }
+.oc-teacher-review header { margin-bottom:20px; }
+.oc-review-fields { display:grid; gap:8px; margin:16px 0 0; }
+.oc-review-fields>div { display:grid; grid-template-columns:minmax(125px, .28fr) 1fr; gap:8px 16px; padding:8px 12px; border-radius:8px; background:#f5f3ed; }
+.oc-review-fields dt { font-size:.9em; font-weight:800; color:#455f54; }
+.oc-review-fields dd { margin:0; white-space:pre-wrap; overflow-wrap:anywhere; }
+.oc-review-reflection { margin-top:22px; padding:18px; border:1px solid var(--oc-line); border-radius:12px; }
+.oc-review-reflection h3 { margin:0; }
+.oc-present-quiz-big { font-size:1.2rem; }
+@media(max-width:700px) { .oc-review-fields>div { grid-template-columns:1fr; gap:3px; } }
+@media print { .oc-present-view-switch { display:none!important; } .oc-review-fields>div { break-inside:avoid; } }
+.oc-review-intro { margin:0 0 24px; padding:18px; border:1px solid var(--oc-line); border-radius:12px; background:#fff; }
+.oc-review-intro h3,.oc-review-intro h4 { margin:0; }
+.oc-review-card-points { margin-top:18px; }
+.oc-review-card-points ul { display:grid; gap:8px; margin:10px 0 0; padding:0; list-style:none; }
+.oc-review-card-points li { padding:10px 12px; border-radius:8px; background:#edf4ef; overflow-wrap:anywhere; }
+.oc-review-card-points p { margin:4px 0 0; white-space:pre-wrap; }
+.oc-review-empty { margin:12px 0 0; color:#6b655c; font-size:.9em; }
+.oc-review-questions-heading { margin:0 0 12px; }

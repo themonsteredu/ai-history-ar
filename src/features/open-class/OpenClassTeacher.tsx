@@ -18,6 +18,7 @@ import { MuseumBoard, museumProgress } from './MuseumBoard';
 import { MuseumCardStage } from './MuseumCardStage';
 import { Presentation } from './Presentation';
 import { TeacherGroupDashboard } from './TeacherGroupDashboard';
+import { TeacherClassBoard } from './TeacherClassBoard';
 import { saveLabel, useSyncedDraft } from './useSyncedDraft';
 import './open-class.css';
 
@@ -60,6 +61,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
   const [error, setError] = useState('');
   const [openGroup, setOpenGroup] = useState<number>();
   const [boardOpen, setBoardOpen] = useState(false);
+  const [classBoardOpen, setClassBoardOpen] = useState(false);
   const [cardPresentationGroup, setCardPresentationGroup] = useState<number>();
   const [updatedAt, setUpdatedAt] = useState<number>();
   const [present, setPresent] = useState<{ verifier: number; target: number; twoOnly?: boolean }>();
@@ -128,7 +130,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
         onBack={() => setOpenGroup(undefined)} onCardPresentation={() => setCardPresentationGroup(openGroup)}
         onQuizPresentation={() => setPresent({ verifier: openGroup, target: openGroup, twoOnly: true })} /> : <>
       <div className="oc-board-head"><h2>모둠 현황 <small>6초마다 새로 확인</small></h2>
-        <div className="oc-actions"><button type="button" className="oc-primary" onClick={() => setBoardOpen(true)}>역사박물관 칠판 화면</button><label className="oc-inline">모둠 수<select value={groupCount} onChange={event => onGroupCount(Number(event.target.value))}>{GROUP_CHOICES.map(n => <option key={n} value={n}>{n}모둠</option>)}</select></label>
+        <div className="oc-actions"><button type="button" className="oc-primary" onClick={() => setClassBoardOpen(true)}>전체 모둠 내용 보기</button><button type="button" onClick={() => setBoardOpen(true)}>역사박물관 칠판 화면</button><label className="oc-inline">모둠 수<select value={groupCount} onChange={event => onGroupCount(Number(event.target.value))}>{GROUP_CHOICES.map(n => <option key={n} value={n}>{n}모둠</option>)}</select></label>
           <button type="button" disabled={!state.cards.some(item => item.data.artifactId)} onClick={() => setPrinting('groups')}>모둠 카드 인쇄</button>
           {joseonTargets.ready && <button type="button" onClick={() => setPrinting('targets')}>AR 인식 카드 6종 인쇄</button>}</div>
       </div>
@@ -141,11 +143,13 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
 
     {session && <details className="oc-panel"><summary>이전 수업용 · 선생님 OX 문제</summary><p>이번 공개수업은 AI가 만든 2문항을 검증합니다. 아래 문제는 이전 방식의 기록입니다.</p><TeacherQuestions code={code} token={session.token} sets={state.teacher} cards={state.cards.map(item => item.data)} /></details>}
 
+    {classBoardOpen && <TeacherClassBoard code={code} groupCount={groupCount} state={state} updatedAt={updatedAt} error={error} era="joseon" onClose={() => setClassBoardOpen(false)} onPresentCard={group => { setClassBoardOpen(false); setCardPresentationGroup(group); }} onPresentQuiz={group => { setClassBoardOpen(false); setPresent({ verifier: group, target: group, twoOnly: true }); }} />}
+
     {boardOpen && !present && <MuseumBoard code={code} groupCount={groupCount} state={state} updatedAt={updatedAt} error={error} onClose={() => setBoardOpen(false)} onPresent={group => setPresent({ verifier: group, target: group, twoOnly: true })} />}
 
     {present && <div className="oc-present-modal" role="dialog" aria-modal="true" aria-label="발표 화면">
       <div className="oc-present-modal-bar"><b>{present.verifier}모둠 발표</b><div className="oc-actions"><button type="button" onClick={() => window.print()}>인쇄</button><button type="button" className="oc-primary" onClick={() => setPresent(undefined)}>닫기</button></div></div>
-      <Presentation big check={presentCheck} card={presentCard} questions={boardQuestions} />
+      <Presentation big teacherReview check={presentCheck} card={presentCard} questions={boardQuestions} />
     </div>}
 
     {cardPresentationGroup && cardOf(cardPresentationGroup) && <MuseumCardStage card={cardOf(cardPresentationGroup)!} era="joseon" onClose={()=>setCardPresentationGroup(undefined)} />}

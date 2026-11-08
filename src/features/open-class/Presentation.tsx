@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { WorksheetHeader } from '../../components/WorksheetHeader';
 import { artifactById } from './artifacts';
+import { goryeoArtifact } from '../goryeo/readyCards';
 import { decisionLabel, selfItemDone, type CheckQuestion, type GroupCard, type Verification, type VerifyItem } from './model';
 
 /** Each question starts with both answers hidden, including after moving back to it. */
@@ -18,9 +19,68 @@ function QuizQuestion({ question, item, number }: { question: CheckQuestion; ite
   </li>;
 }
 
+type PresentationProps = { check?: Verification; card?: GroupCard; questions: CheckQuestion[]; big?: boolean; artifactName?: string; era?: 'joseon'|'goryeo'; teacherReview?: boolean };
+
+/** The teacher can review every saved step, including unfinished or excluded questions. */
+function TeacherPresentation({ check, card, questions, artifactName, era }: { check: Verification; card?: GroupCard; questions: CheckQuestion[]; artifactName?: string; era: 'joseon'|'goryeo' }) {
+  const [view, setView] = useState<'review' | 'quiz'>('review');
+  const artifact = era === 'goryeo' ? goryeoArtifact(card?.artifactId || 0) : artifactById(card?.artifactId || 0);
+  // The student quiz intentionally filters empty drafts; the teacher should see those too.
+  const allQuestions: CheckQuestion[] = check.mode === 'self'
+    ? (check.selfQuestions || []).map(question => ({ ...question, source: 'student' as const }))
+    : questions;
+  const notes = check.notes;
+  const show = (value?: string) => value?.trim() || '작성하지 않았어요';
+  return <div className="oc-teacher-presentation">
+    <nav className="oc-present-view-switch oc-present-tools" aria-label="발표 화면 보기 방식">
+      <button type="button" aria-pressed={view === 'review'} onClick={() => setView('review')}>검증 과정 보기</button>
+      <button type="button" aria-pressed={view === 'quiz'} onClick={() => setView('quiz')}>퀴즈 발표 보기</button>
+    </nav>
+    {view === 'quiz' ? <div className="oc-present-quiz-big"><Presentation check={check} card={card} questions={questions} artifactName={artifactName} era={era} big /></div> :
+      <article className="oc-present is-big oc-teacher-review">
+        <header><p>{check.verifier}모둠 · 검증 과정</p><h2>{artifactName || artifact?.name || '유물 미선택'} {check.verifier !== check.target ? `· ${check.target}모둠 카드` : ''}</h2><p>학생이 저장한 내용을 함께 살펴보세요.</p></header>
+        <section className="oc-review-intro" aria-label="모둠 유물 소개">
+          <h3>모둠의 유물 소개</h3>
+          <dl className="oc-review-fields">
+            <div><dt>특징</dt><dd>{show(notes?.feature)}</dd></div>
+            <div><dt>쓰임</dt><dd>{show(notes?.use)}</dd></div>
+            <div><dt>사람들의 생활에 준 도움</dt><dd>{show(notes?.benefit)}</dd></div>
+            <div><dt>확인한 출처</dt><dd>{show(notes?.source)}</dd></div>
+          </dl>
+          {card?.points.length ? <div className="oc-review-card-points"><h4>AR 카드에 적은 설명</h4><ul>{card.points.map((point, index) => <li key={point.id}><strong>{index + 1}. {show(point.title)}</strong><p>{show(point.text)}</p></li>)}</ul></div> : <p className="oc-review-empty">저장된 AR 카드 설명이 없어요.</p>}
+        </section>
+        <h3 className="oc-review-questions-heading">문항별 검증 과정</h3>
+        {allQuestions.length === 0 ? <p className="oc-empty">저장된 문항이 아직 없어요.</p> : <ol>
+          {allQuestions.map((question, index) => {
+            const item = check.items.find(value => value.questionId === question.id);
+            return <li key={question.id} className={`is-${item?.decision || 'none'}`}>
+              <div className="oc-present-q"><span className="oc-num">{index + 1}</span><p>{show(question.statement)}<small>{check.mode === 'self' ? 'AI가 만든 OX 문장' : question.source === 'teacher' ? '선생님 출제 문장' : '모둠 출제 문장'}</small></p><b className="oc-present-decision">{decisionLabel(item?.decision || '')}</b></div>
+              <dl className="oc-review-fields">
+                <div><dt>{check.mode === 'self' ? 'AI가 제안한 정답' : '문제의 정답'}</dt><dd>{question.statement.trim() ? question.answer : '작성하지 않았어요'}</dd></div>
+                <div><dt>{check.mode === 'self' ? 'AI가 쓴 해설' : '문제의 해설'}</dt><dd>{show(question.explanation)}</dd></div>
+                <div><dt>모둠의 OX</dt><dd>{show(item?.solved)}</dd></div>
+                {item?.curious && <div><dt>AI에게 질문</dt><dd>{item.curious}</dd></div>}
+                {item?.aiAnswer && <div><dt>AI의 답</dt><dd>{item.aiAnswer}</dd></div>}
+                <div><dt>확인한 자료</dt><dd>{show(item?.why)}</dd></div>
+                <div><dt>판단과 이유</dt><dd><strong>{decisionLabel(item?.decision || '')}</strong> · {show(item?.reason)}</dd></div>
+                <div><dt>바르게 고친 내용</dt><dd>{show(item?.revised)}{item?.revisedAnswer ? ` (정답 ${item.revisedAnswer})` : ''}</dd></div>
+                <div><dt>최종 정답 해설</dt><dd>{show(item?.explanation)}</dd></div>
+              </dl>
+            </li>;
+          })}
+        </ol>}
+        <section className="oc-review-reflection"><h3>모둠의 배움 정리</h3><dl className="oc-review-fields">
+          <div><dt>오늘 알게 된 점</dt><dd>{show(notes?.learned)}</dd></div>
+          <div><dt>AI 답을 확인해야 하는 까닭</dt><dd>{show(notes?.caution)}</dd></div>
+        </dl></section>
+      </article>}
+  </div>;
+}
+
 /** Step 4: the group's checks as one sheet to present, project or print. */
-export function Presentation({ check, card, questions, big, artifactName, era='joseon' }: { check?: Verification; card?: GroupCard; questions: CheckQuestion[]; big?: boolean; artifactName?: string; era?: 'joseon'|'goryeo' }) {
+export function Presentation({ check, card, questions, big, artifactName, era='joseon', teacherReview }: PresentationProps) {
   const [questionIndex, setQuestionIndex] = useState(0);
+  if (teacherReview && check) return <TeacherPresentation check={check} card={card} questions={questions} artifactName={artifactName} era={era} />;
   if (!check || !card) return <p className="oc-empty">검증 기록이 아직 없어요. ‘AI 문제 만들고 검증’에서 먼저 문제를 검증해 주세요.</p>;
   const artifact = artifactById(card.artifactId);
   const rows = questions.map(question => ({ question, item: check.items.find(item => item.questionId === question.id) }));
