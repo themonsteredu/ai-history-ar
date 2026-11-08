@@ -1,0 +1,35 @@
+.oc-ar-launcher{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:18px 0 24px;padding:20px 24px;background:#e9efe9;border-left:4px solid #315e49}
+.oc-ar-launcher h2{margin:0;font-size:1.35rem;color:#233e32}
+.oc-ar-launcher .oc-primary{min-height:48px;font-size:1.05rem}
+.teacher-ar-picker{position:fixed;inset:0;z-index:1050;overflow:auto;padding:clamp(18px,2.6vw,36px) clamp(20px,4vw,64px);background:linear-gradient(110deg,rgba(13,24,20,.94),rgba(18,29,25,.86)),url('/images/joseon-museum-board.webp') center/cover;color:#fff;font-family:'S-Core Dream',sans-serif;word-break:keep-all}
+.teacher-ar-picker *{box-sizing:border-box}
+.teacher-ar-picker__header{max-width:1500px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:20px;border-bottom:1px solid #ffffff38}
+.teacher-ar-picker__header p{margin:0 0 8px;color:#e4d6b9;font-size:1rem}
+.teacher-ar-picker__header h1{margin:0;color:#fff;font-size:clamp(28px,3vw,42px);line-height:1.25}
+.oc-page .teacher-ar-picker__header button{min-height:48px;background:#f7f4ed;color:#24342d;border:0;font-weight:700;flex-shrink:0}
+.teacher-ar-picker__body{max-width:1500px;margin:24px auto}
+.teacher-ar-picker__body h2{color:#efe8d8;font-size:clamp(19px,2vw,25px);font-weight:500;margin:0 0 22px}
+.teacher-ar-picker__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.oc-page button.teacher-ar-picker__group{display:flex;flex-direction:column;align-items:stretch;padding:0;border:1px solid #ffffff3b;border-radius:5px;background:#f4f0e5;text-align:left;overflow:hidden;min-width:0;color:#23382e;transition:transform .15s,border-color .15s}
+.oc-page button.teacher-ar-picker__group:hover:not(:disabled){transform:translateY(-3px);border-color:#d9c397}
+.teacher-ar-picker__photo{height:clamp(120px,20vh,220px);display:grid;place-items:center;background:radial-gradient(ellipse at center,#ece8db,#d5d9cb)}
+.teacher-ar-picker__photo img{width:100%;height:100%;object-fit:contain;padding:12px;min-height:0}
+.teacher-ar-picker__photo>span{font-size:3rem;font-weight:300;color:#79877c}
+.teacher-ar-picker__group-info{display:flex;flex-direction:column;gap:7px;padding:18px 20px;min-width:0}
+.teacher-ar-picker__group-info>span{font-size:1rem;color:#476452;font-weight:700}
+.teacher-ar-picker__group-info strong{font-size:clamp(20px,1.8vw,27px);line-height:1.35;overflow-wrap:anywhere}
+.teacher-ar-picker__group-info small{font-size:.95rem;color:#526357;line-height:1.5}
+.oc-page button.teacher-ar-picker__group:disabled{opacity:.58;cursor:default}
+.teacher-ar-picker__notice{background:#493b27;color:#fff0d0;padding:12px 16px;border:1px solid #ae9562;line-height:1.6}
+.teacher-ar-navigation{max-width:1500px;margin:18px auto 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.teacher-ar-navigation__groups,.teacher-ar-navigation__steps{display:flex;gap:8px;flex-wrap:wrap}
+.oc-page .teacher-ar-navigation button{min-height:46px;min-width:74px;background:#263b31;border:1px solid #ffffff50;color:#f7f2e5;font-size:1rem}
+.oc-page .teacher-ar-navigation button[aria-pressed=true]{background:#f2e7cd;color:#25392d;border-color:#f2e7cd;font-weight:700}
+.oc-page .teacher-ar-navigation button:disabled{opacity:.4;cursor:default}
+.teacher-ar-navigation__error{flex-basis:100%;margin:0;color:#fff0d0}
+.museum-card-stage__header-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.museum-card-stage.has-navigation .ar-model-stage{height:clamp(280px,calc(100dvh - 430px),550px)}
+.teacher-ar-picker button:focus-visible,.museum-card-stage button:focus-visible{outline:3px solid #d6b766;outline-offset:3px}
+@media(max-width:900px){.teacher-ar-picker__grid{grid-template-columns:repeat(2,minmax(0,1fr))}.teacher-ar-picker__photo{height:170px}}
+@media(max-width:850px){.museum-card-stage.has-navigation .ar-model-stage{height:340px}}
+@media(max-width:560px){.oc-ar-launcher{align-items:stretch;flex-direction:column;padding:18px}.teacher-ar-picker__header{align-items:flex-start;gap:12px}.teacher-ar-picker__header p{font-size:.85rem}.teacher-ar-picker__header h1{font-size:27px}.teacher-ar-picker__grid{grid-template-columns:1fr;gap:12px}.oc-page button.teacher-ar-picker__group{display:grid;grid-template-columns:100px minmax(0,1fr)}.teacher-ar-picker__photo{height:100%;min-height:126px}.teacher-ar-picker__group-info{padding:14px}.teacher-ar-picker__group-info strong{font-size:20px}.teacher-ar-navigation__groups{flex-wrap:nowrap;overflow:auto;max-width:100%;padding:3px}.teacher-ar-navigation__groups button{flex-shrink:0}.teacher-ar-navigation__steps{width:100%;justify-content:space-between}.museum-card-stage__header-actions{flex-direction:column}.oc-page .museum-card-stage__header-actions button{font-size:.9rem;min-height:44px}}

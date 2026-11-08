@@ -15,7 +15,7 @@ import { LessonPrep } from './LessonPreparation';
 import { OpenLessonMaterials } from './OpenLessonMaterials';
 import { readingsPackUrl } from './HeritageReading';
 import { MuseumBoard, museumProgress } from './MuseumBoard';
-import { MuseumCardStage } from './MuseumCardStage';
+import { TeacherArPresentation } from './TeacherArPresentation';
 import { Presentation } from './Presentation';
 import { TeacherGroupDashboard } from './TeacherGroupDashboard';
 import { TeacherClassBoard } from './TeacherClassBoard';
@@ -62,7 +62,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
   const [openGroup, setOpenGroup] = useState<number>();
   const [boardOpen, setBoardOpen] = useState(false);
   const [classBoardOpen, setClassBoardOpen] = useState(false);
-  const [cardPresentationGroup, setCardPresentationGroup] = useState<number>();
+  const [cardPresentationGroup, setCardPresentationGroup] = useState<number | null>();
   const [updatedAt, setUpdatedAt] = useState<number>();
   const [present, setPresent] = useState<{ verifier: number; target: number; twoOnly?: boolean }>();
   const [printing, setPrinting] = useState<false | 'groups' | 'targets'>(false);
@@ -112,6 +112,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
 
   return <>
     {error && <p className="oc-notice" role="alert">{error}</p>}
+    <section className="oc-ar-launcher" aria-label="AR 카드 발표 바로가기"><h2>AR 카드 발표</h2><button type="button" className="oc-primary" onClick={() => setCardPresentationGroup(null)}>AR 카드 발표 화면</button></section>
     <div className="oc-teacher-top">
       <section className="oc-panel oc-qr" aria-label="학생 입장 QR">
         <h2>학생 입장 QR</h2>
@@ -152,7 +153,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
       <Presentation big teacherReview check={presentCheck} card={presentCard} questions={boardQuestions} />
     </div>}
 
-    {cardPresentationGroup && cardOf(cardPresentationGroup) && <MuseumCardStage card={cardOf(cardPresentationGroup)!} era="joseon" onClose={()=>setCardPresentationGroup(undefined)} />}
+    {cardPresentationGroup !== undefined && <TeacherArPresentation era="joseon" code={code} groupCount={groupCount} cards={state.cards.map(item => item.data)} updatedAt={updatedAt} error={error} initialGroup={cardPresentationGroup ?? undefined} onClose={() => setCardPresentationGroup(undefined)} />}
     {printing === 'targets' && <div className="oc-print-cards" aria-hidden="true">{joseonModels.map(info => <TargetCard key={info.id} artifactId={info.id} />)}</div>}
     {printing === 'groups' && <div className="oc-print-cards" aria-hidden="true">{state.cards.map(item => item.data).filter(card => card.artifactId).sort((a, b) => a.group - b.group).map(card => <PrintCard key={card.group} code={code} card={card} />)}</div>}
   </>;
@@ -187,7 +188,7 @@ export function GroupStatus({ group, card, cardItem, checks, cardOf, teacherFor,
         <p><b>{total && progress.done >= total ? '검증 완료' : '검증 중'} → {item.data.target}모둠 {(era === 'goryeo' ? goryeoArtifact(target?.artifactId || 0) : artifactById(target?.artifactId || 0))?.name || ''}</b> <small>{time(item.updatedAt)}</small></p>
         <div className="oc-meter" aria-label={`완료 ${progress.done} / ${total}`}><span style={{ width: `${total ? Math.min(100, (progress.done / total) * 100) : 0}%` }} /></div>
         <p className="oc-group-nums">자료 확인 {progress.done}{item.data.mode==='self'?'개':`/${total}`} · 판단 완료 {progress.done}<br /><span className="is-adopt">채택 {progress.adopt}</span> <span className="is-revise">수정 {progress.revise}</span> <span className="is-exclude">제외 {progress.exclude}</span></p>
-        <button type="button" onClick={() => onPresent(item.data.target)}>발표 화면</button>
+        <button type="button" onClick={() => onPresent(item.data.target)}>OX 발표 화면</button>
       </div>;
     })}
   </article>;
