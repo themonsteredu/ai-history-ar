@@ -8,6 +8,9 @@ const CONFLICT = '다른 태블릿에서 먼저 저장했어요. 어느 쪽을 �
 export const RETRY_CAP = 20_000;
 /** Wait before the next automatic save: the usual pause, then twice as long after each failure in a row (2.5 s, 5 s, 10 s, 20 s…), so a room of tablets does not flood weak Wi-Fi. */
 export const retryDelay = (failures: number, delay = 2500) => Math.min(delay * 2 ** Math.max(0, failures - 1), Math.max(delay, RETRY_CAP));
+/** Continuous typing still reaches the teacher; failed requests retain their retry backoff. */
+export const nextSaveAt = (now: number, failures: number, delay: number, dirtySince?: number, maxWait?: number) =>
+  Math.min(now + retryDelay(failures, delay), failures === 0 && dirtySince !== undefined && maxWait !== undefined ? dirtySince + maxWait : Infinity);
 const canonical = (value: unknown) => JSON.stringify(value, (_key, item: unknown) => item && typeof item === 'object' && !Array.isArray(item)
   ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) : item);
 /** Same content, whatever order the class server gives the keys back in. */
@@ -29,9 +32,9 @@ const stamp = () => new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', mi
  */
 export function useSyncedDraft<T>(options: {
   draftKey: string; server?: OpenItem<T>; blank: () => T; check: (value: unknown) => value is T;
-  save: (data: T, expectedVersion: number) => Promise<{ version: number }>; canSave?: (data: T) => boolean; delay?: number;
+  save: (data: T, expectedVersion: number) => Promise<{ version: number }>; canSave?: (data: T) => boolean; delay?: number; maxWait?: number;
 }) {
-  const { draftKey, server, blank, check, save, canSave, delay = 2500 } = options;
+  const { draftKey, server, blank, check, save, canSave, delay = 2500, maxWait } = options;
   function initial(): { stored: Stored<T>; conflict: boolean } {
     const isStored = (value: unknown): value is Omit<Stored<T>, 'key'> => !!value && typeof value === 'object' && check((value as Stored<T>).data) && Number.isInteger((value as Stored<T>).base) && typeof (value as Stored<T>).dirty === 'boolean';
     const kept = readDraft(draftKey, isStored);
@@ -48,12 +51,14 @@ export function useSyncedDraft<T>(options: {
   const keyRef = useRef(draftKey); keyRef.current = draftKey;
   const saving = useRef(false);
   const failures = useRef(0);
+  const dirtySince = useRef<number | undefined>(stored.dirty ? Date.now() : undefined);
   const sent = useRef<{ key: string; data: T }[]>([]);
   const keep = (next: Stored<T>) => { const { key, ...value } = next; writeDraft(key, value); };
 
   // A different item (another class, group or card) starts from its own draft.
   if (stored.key !== draftKey) {
     const next = initial();
+    dirtySince.current = next.stored.dirty ? Date.now() : undefined;
     setStored(next.stored); setState(next.conflict ? 'conflict' : 'idle'); setMessage(next.conflict ? CONFLICT : '');
   }
 
@@ -72,6 +77,7 @@ export function useSyncedDraft<T>(options: {
   }, [server?.version, draftKey]);
 
   const update = useCallback((change: (data: T) => T) => {
+    dirtySince.current ??= Date.now();
     setStored(current => { const next = { ...current, data: change(current.data), dirty: true }; keep(next); return next; });
     setState(current => current === 'conflict' ? current : 'idle');
   }, []);
@@ -80,6 +86,7 @@ export function useSyncedDraft<T>(options: {
     const current = latest.current;
     if (saving.current || current.key !== keyRef.current || (!force && (!current.dirty || state === 'conflict'))) return;
     if (canSave && !canSave(current.data)) return;
+    dirtySince.current = undefined;
     saving.current = true; setState('saving'); setMessage('');
     if (!sent.current.some(item => item.key === current.key && item.data === current.data)) sent.current = [...sent.current.slice(-7), { key: current.key, data: current.data }];
     try {
@@ -107,13 +114,15 @@ export function useSyncedDraft<T>(options: {
   // planned retry back, so its time is set only by an edit or a save result.
   const plan = useRef<{ stored: Stored<T>; state: SaveState; failures: number; at: number }>(undefined);
   useEffect(() => {
-    if (!stored.dirty || state === 'conflict' || state === 'saving') return;
+    if (!stored.dirty) { dirtySince.current = undefined; return; }
+    if (state === 'conflict' || state === 'saving') return;
+    dirtySince.current ??= Date.now();
     const last = plan.current;
-    const at = last && last.stored === stored && last.state === state && last.failures === failures.current ? last.at : Date.now() + retryDelay(failures.current, delay);
+    const at = last && last.stored === stored && last.state === state && last.failures === failures.current ? last.at : nextSaveAt(Date.now(), failures.current, delay, dirtySince.current, maxWait);
     plan.current = { stored, state, failures: failures.current, at };
     const timer = window.setTimeout(() => { void saveNow(); }, Math.max(0, at - Date.now()));
     return () => clearTimeout(timer);
-  }, [stored, state, delay, saveNow]);
+  }, [stored, state, delay, maxWait, saveNow]);
   // Back online: save what is waiting now instead of sitting out the rest of the pause.
   useEffect(() => {
     const retry = () => { void saveNow(); };

@@ -1,6 +1,14 @@
 import { expect, it } from 'vitest';
 import { newCard } from './model';
-import { ownNewerVersion, RETRY_CAP, retryDelay, sameContent, saveLabel } from './useSyncedDraft';
+import { nextSaveAt, ownNewerVersion, RETRY_CAP, retryDelay, sameContent, saveLabel } from './useSyncedDraft';
+
+it('saves continuous typing within the deadline without bypassing failed-save backoff', () => {
+  expect(nextSaveAt(1000, 0, 2500, 1000, 10000)).toBe(3500);
+  expect(nextSaveAt(10000, 0, 2500, 1000, 10000)).toBe(11000);
+  expect(nextSaveAt(12000, 0, 2500, 1000, 10000)).toBe(11000);
+  expect(nextSaveAt(12000, 3, 2500, 1000, 10000)).toBe(22000);
+  expect(nextSaveAt(10000, 0, 2500)).toBe(12500);
+});
 
 it('waits longer after each failed save, up to a cap, so tablets do not flood weak Wi-Fi', () => {
   expect([0, 1, 2, 3, 4, 5, 9, 60].map(failures => retryDelay(failures))).toEqual([2500, 2500, 5000, 10_000, 20_000, 20_000, 20_000, 20_000]);

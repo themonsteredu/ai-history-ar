@@ -4,6 +4,17 @@ import { TeacherGroupDashboard, TeacherQuizStatus } from './TeacherGroupDashboar
 import { newCard, newPoint, newSelfVerification, newVerifyItem } from './model';
 
 describe('teacher group dashboard', () => {
+  it('exposes unfinished prompt fields and a pasted explanation before a question is complete', () => {
+    const check = newSelfVerification(1);
+    check.parts = { role: '유물을 설명하는 선생님', situation: '친구들에게 소개', style: '' };
+    check.selfQuestions![0].explanation = '아직 옮기는 중인 AI 해설';
+    const html = renderToStaticMarkup(<TeacherQuizStatus check={check} />);
+    expect(html).toContain('유물을 설명하는 선생님');
+    expect(html).toContain('친구들에게 소개');
+    expect(html).toContain('아직 옮기는 중인 AI 해설');
+    expect(html).toContain('문장 작성 전');
+    expect(html).not.toContain('검증 완료');
+  });
   it.each(['goryeo', 'joseon'] as const)('offers the same five activities for %s and shows empty records', era => {
     const html = renderToStaticMarkup(<TeacherGroupDashboard group={3} era={era} onBack={() => {}} onCardPresentation={() => {}} onQuizPresentation={() => {}} />);
     for (const label of ['AR 카드 제작 현황', 'AR 카드 확인', 'AR 카드 발표', 'OX 퀴즈 작성 현황', 'OX 퀴즈 발표', '모둠 목록']) expect(html).toContain(label);

@@ -92,10 +92,15 @@ export function TeacherQuizStatus({ check, updatedAt }: { check?: Verification; 
   const questions = (check?.selfQuestions || []).slice(0, 2);
   return <section aria-label="OX 퀴즈 작성 현황"><h3>OX 퀴즈 작성 현황</h3>
     {savedTime(updatedAt) && <p className="oc-help">마지막 저장 {savedTime(updatedAt)}</p>}
+    <section className="oc-quiz-prompt-fields" aria-label="AI에게 보낼 질문"><h4>AI에게 보낼 질문</h4><dl>
+      {([['role', 'AI에게 맡길 역할'], ['situation', '우리 상황'], ['style', '답하는 방법']] as const).map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{check?.parts[key]?.trim() || '작성 전'}</dd></div>)}
+    </dl></section>
     {!questions.length ? <p className="oc-empty">아직 저장된 OX 퀴즈가 없어요.</p> : <ol className="oc-group-dashboard__questions">{questions.map((question, index) => {
       const item = check?.items.find(value => value.questionId === question.id);
-      return <li key={question.id}><h4>{index + 1}번 문제 {item && selfItemDone(item) ? '· 검증 완료' : '· 작성 중'}</h4>
-        {question.statement.trim() ? <><p>{question.statement}</p><p><b>AI 정답:</b> {question.answer}</p>{question.explanation && <p><b>AI 해설:</b> {question.explanation}</p>}</> : <p>문장 작성 전</p>}
+      return <li key={question.id}><h4>{index + 1}번 문제 {question.statement.trim() && item && selfItemDone(item) ? '· 검증 완료' : '· 작성 중'}</h4>
+        <p>{question.statement.trim() || '문장 작성 전'}</p>
+        <p><b>AI 정답:</b> {question.statement.trim() || question.explanation.trim() || question.answer === 'X' ? question.answer : '문장 작성 전'}</p>
+        {question.explanation && <p><b>AI 해설:</b> {question.explanation}</p>}
         {item && <dl><div><dt>확인 자료</dt><dd>{item.why || '작성 전'}</dd></div><div><dt>모둠의 답</dt><dd>{item.solved || '선택 전'}</dd></div><div><dt>판단</dt><dd>{decisionLabel(item.decision)}</dd></div>
           {item.decision === 'revise' && <><div><dt>고친 문장</dt><dd>{item.revised || '작성 전'}</dd></div><div><dt>고친 답</dt><dd>{item.revisedAnswer || '선택 전'}</dd></div></>}
           <div><dt>판단 이유</dt><dd>{item.reason || '작성 전'}</dd></div>{item.explanation && <div><dt>최종 해설</dt><dd>{item.explanation}</dd></div>}</dl>}

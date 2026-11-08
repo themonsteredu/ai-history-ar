@@ -19,6 +19,7 @@ import { TeacherArPresentation } from './TeacherArPresentation';
 import { Presentation } from './Presentation';
 import { TeacherGroupDashboard } from './TeacherGroupDashboard';
 import { TeacherClassBoard } from './TeacherClassBoard';
+import { TeacherQuizMonitor } from './TeacherQuizMonitor';
 import { saveLabel, useSyncedDraft } from './useSyncedDraft';
 import './open-class.css';
 
@@ -62,6 +63,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
   const [openGroup, setOpenGroup] = useState<number>();
   const [boardOpen, setBoardOpen] = useState(false);
   const [classBoardOpen, setClassBoardOpen] = useState(false);
+  const [quizMonitorOpen, setQuizMonitorOpen] = useState(false);
   const [cardPresentationGroup, setCardPresentationGroup] = useState<number | null>();
   const [updatedAt, setUpdatedAt] = useState<number>();
   const [present, setPresent] = useState<{ verifier: number; target: number; twoOnly?: boolean }>();
@@ -112,7 +114,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
 
   return <>
     {error && <p className="oc-notice" role="alert">{error}</p>}
-    <section className="oc-ar-launcher" aria-label="AR 카드 발표 바로가기"><h2>AR 카드 발표</h2><button type="button" className="oc-primary" onClick={() => setCardPresentationGroup(null)}>AR 카드 발표 화면</button></section>
+    <section className="oc-ar-launcher" aria-label="수업 확인과 발표"><h2>수업 확인과 발표</h2><div className="oc-actions"><button type="button" className="oc-primary" onClick={() => setCardPresentationGroup(null)}>AR 카드 발표 화면</button><button type="button" onClick={() => setQuizMonitorOpen(true)}>OX 문제 작성 확인</button></div></section>
     <div className="oc-teacher-top">
       <section className="oc-panel oc-qr" aria-label="학생 입장 QR">
         <h2>학생 입장 QR</h2>
@@ -143,6 +145,8 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
     </section>
 
     {session && <details className="oc-panel"><summary>이전 수업용 · 선생님 OX 문제</summary><p>이번 공개수업은 AI가 만든 2문항을 검증합니다. 아래 문제는 이전 방식의 기록입니다.</p><TeacherQuestions code={code} token={session.token} sets={state.teacher} cards={state.cards.map(item => item.data)} /></details>}
+
+    {quizMonitorOpen && <TeacherQuizMonitor era="joseon" code={code} groupCount={groupCount} state={state} updatedAt={updatedAt} error={error} onRefresh={refresh} onClose={() => setQuizMonitorOpen(false)} />}
 
     {classBoardOpen && <TeacherClassBoard code={code} groupCount={groupCount} state={state} updatedAt={updatedAt} error={error} era="joseon" onClose={() => setClassBoardOpen(false)} onPresentCard={group => { setClassBoardOpen(false); setCardPresentationGroup(group); }} onPresentQuiz={group => { setClassBoardOpen(false); setPresent({ verifier: group, target: group, twoOnly: true }); }} />}
 
