@@ -112,6 +112,29 @@ describe('latestLoads', () => {
 
 
 describe('requested example cleanup', () => {
+  it('clears the requested Joseon test room once without touching Goryeo or entry sessions', () => {
+    const values = new Map<string, string>([
+      ['history-ar-open-draft:123456:card:1', 'old card'],
+      ['history-ar-open-draft:123456:verify:1:1', 'old check'],
+      ['history-ar-open-draft:123456:teacher:1', 'old teacher set'],
+      ['history-ar-open-draft:89123456:card:1', 'Goryeo card'],
+      ['history-ar-open-draft:1234567:card:1', 'another room'],
+      ['history-ar-open-session:123456', 'entry'],
+    ]);
+    vi.stubGlobal('localStorage', { get length() { return values.size; }, key: (i: number) => [...values.keys()][i] ?? null,
+      getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => values.set(key, value), removeItem: (key: string) => values.delete(key) });
+    clearRequestedExampleDrafts('123456:card:1');
+    expect(values.has('history-ar-open-draft:123456:card:1')).toBe(false);
+    expect(values.has('history-ar-open-draft:123456:verify:1:1')).toBe(false);
+    expect(values.has('history-ar-open-draft:123456:teacher:1')).toBe(false);
+    expect(values.get('history-ar-open-draft:89123456:card:1')).toBe('Goryeo card');
+    expect(values.get('history-ar-open-draft:1234567:card:1')).toBe('another room');
+    expect(values.get('history-ar-open-session:123456')).toBe('entry');
+    values.set('history-ar-open-draft:123456:card:1', 'new card');
+    clearRequestedExampleDrafts('123456:verify:1:1');
+    expect(values.get('history-ar-open-draft:123456:card:1')).toBe('new card');
+  });
+
   it('clears only code 12345 once and preserves newly written work and other rooms', () => {
     const values = new Map<string, string>([
       ['history-ar-open-draft:12345:card:1', 'old card'],

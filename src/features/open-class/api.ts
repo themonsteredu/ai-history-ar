@@ -117,17 +117,19 @@ export function joinOpenLesson(code: string, name: string, group: number): Promi
   return pending;
 }
 
-/** One-time cleanup requested by the teacher for the example lesson, 2026-10-21.
+/** One-time cleanups requested by the teacher for the example lessons.
  * Keep the room and entry session; only remove its old open-lesson drafts.
  */
 export function clearRequestedExampleDrafts(key: string) {
-  if (!key.startsWith('12345:')) return;
-  const marker = 'history-ar-open-reset:12345:2026-10-21';
+  const code = key.split(':')[0];
+  const resetDate = code === '12345' ? '2026-10-21' : code === '123456' ? '2026-11-09' : undefined;
+  if (!resetDate) return;
+  const marker = `history-ar-open-reset:${code}:${resetDate}`;
   try {
     if (localStorage.getItem(marker)) return;
     const keys = Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i));
     for (const storedKey of keys) {
-      if (storedKey?.startsWith('history-ar-open-draft:12345:')) localStorage.removeItem(storedKey);
+      if (storedKey?.startsWith(`history-ar-open-draft:${code}:`)) localStorage.removeItem(storedKey);
     }
     localStorage.setItem(marker, 'done');
   } catch { /* Storage unavailable: there is no readable persisted draft to restore. */ }
