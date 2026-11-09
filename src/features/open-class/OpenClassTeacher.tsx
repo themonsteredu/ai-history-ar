@@ -5,7 +5,7 @@ import type { StudioSession } from '../ar-studio/api';
 import { classNameFor, readTeacherClasses, type TeacherClass } from '../ar-studio/teacherClasses';
 import { TeacherClassPicker } from './TeacherClassPicker';
 import { useTeacherClass } from '../ar-studio/useTeacherClass';
-import { GROUP_CHOICES, groupCountKey, readGroupCount } from '../ar-studio/teacherRun';
+import { groupCountKey, readGroupCount } from '../ar-studio/teacherRun';
 import { forgetOpenSession, joinOpenLesson, latestLoads, loadState, readOpenSession, saveTeacherSet, type OpenItem, type OpenState } from './api';
 import { joseonModelFor, joseonModels, joseonTargets } from '../../lib/ar/joseon/catalog';
 import { ArCard } from './ArCard';
@@ -15,12 +15,8 @@ import { cardProblems, decisionLabel, isTeacherSet, MAX_TEACHER_QUESTIONS, newQu
 import { LessonPrep } from './LessonPreparation';
 import { OpenLessonMaterials } from './OpenLessonMaterials';
 import { readingsPackUrl } from './HeritageReading';
-import { MuseumBoard, museumProgress } from './MuseumBoard';
-import { TeacherArPresentation } from './TeacherArPresentation';
-import { Presentation } from './Presentation';
-import { TeacherGroupDashboard } from './TeacherGroupDashboard';
-import { TeacherClassBoard } from './TeacherClassBoard';
-import { TeacherQuizMonitor } from './TeacherQuizMonitor';
+import { museumProgress } from './MuseumBoard';
+import { TeacherLessonWorkspace } from './TeacherLessonWorkspace';
 import { saveLabel, useSyncedDraft } from './useSyncedDraft';
 import './open-class.css';
 
@@ -47,9 +43,9 @@ export default function OpenClassTeacher() {
 
   return <div className="oc-page oc-teacher page-width">
     <header className="oc-head"><div><p className="oc-eyebrow">선생님 화면 · 조선시대 공개수업</p><h1>{name ? `${name} · 수업코드 ${code}` : code ? `수업코드 ${code}` : '세종 때 과학 유물 AR 카드'}</h1></div></header>
-    <OpenLessonMaterials era="joseon"/><details className="oc-panel"><summary>이전 조선 6차시 수업 준비 자료</summary><LessonPrep page="teacher"/></details>
-    <TeacherClassPicker era="joseon" code={code} onSelect={next => { setCode(next); setClasses(readTeacherClasses(window.localStorage)); }} />
-    {code ? <ClassBoard key={code} code={code} groupCount={groupCount} onGroupCount={changeGroupCount} /> : <p className="oc-empty">위에서 반을 등록하거나 누르면 QR·모둠 현황이 나와요.</p>}
+    {code ? <details className="oc-panel oc-class-settings"><summary>수업 바꾸기</summary><TeacherClassPicker era="joseon" code={code} onSelect={next => { setCode(next); setClasses(readTeacherClasses(window.localStorage)); }} /></details>
+      : <TeacherClassPicker era="joseon" code={code} onSelect={next => { setCode(next); setClasses(readTeacherClasses(window.localStorage)); }} />}
+    {code ? <ClassBoard key={code} code={code} groupCount={groupCount} onGroupCount={changeGroupCount} /> : <><p className="oc-empty">수업코드를 선택하면 발표와 모둠별 진행 상황을 볼 수 있어요.</p><OpenLessonMaterials era="joseon" /></>}
   </div>;
 }
 
@@ -61,13 +57,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
   const [session, setSession] = useState<StudioSession>();
   const [state, setState] = useState<OpenState>(emptyState);
   const [error, setError] = useState('');
-  const [openGroup, setOpenGroup] = useState<number>();
-  const [boardOpen, setBoardOpen] = useState(false);
-  const [classBoardOpen, setClassBoardOpen] = useState(false);
-  const [quizMonitorOpen, setQuizMonitorOpen] = useState(false);
-  const [cardPresentationGroup, setCardPresentationGroup] = useState<number | null>();
   const [updatedAt, setUpdatedAt] = useState<number>();
-  const [present, setPresent] = useState<{ verifier: number; target: number; twoOnly?: boolean }>();
   const [printing, setPrinting] = useState<false | 'groups' | 'targets'>(false);
 
   // On slow Wi-Fi a tick waits for the load still running, and a late old reply never replaces a newer one.
@@ -102,63 +92,23 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
   }, [printing]);
 
   const qr = useMemo(() => encodeUrlQr(openClassUrl(code)), [code]);
-  const cardOf = (group: number) => state.cards.find(item => item.data.group === group)?.data;
-  const teacherFor = (artifactId: number) => state.teacher.find(item => item.data.artifactId === artifactId)?.data;
-  const groups = Array.from({ length: groupCount }, (_, index) => index + 1);
-  const presentCheck = present && state.checks.find(item => item.key === `${present.verifier}:${present.target}`)?.data;
-  const presentCard = present && cardOf(present.target);
-  const presentQuestions = inquiryQuestions(presentCheck || undefined, presentCard || undefined, teacherFor(presentCard?.artifactId || 0));
-  const boardQuestions = present?.twoOnly && presentCheck ? presentQuestions.filter(q => {
-    const item = presentCheck.items.find(value => value.questionId === q.id);
-    return item && item.decision !== 'exclude' && selfItemDone(item);
-  }).slice(0, 2) : presentQuestions;
-
   return <>
-    {error && <p className="oc-notice" role="alert">{error}</p>}
-    <section className="oc-ar-launcher" aria-label="수업 확인과 발표"><h2>수업 확인과 발표</h2><div className="oc-actions"><button type="button" className="oc-primary" onClick={() => setCardPresentationGroup(null)}>AR 카드 발표 화면</button><button type="button" onClick={() => setQuizMonitorOpen(true)}>OX 문제 작성 확인</button></div></section>
-    <div className="oc-teacher-top">
-      <section className="oc-panel oc-qr" aria-label="학생 입장 QR">
-        <h2>학생 입장 QR</h2>
-        <svg role="img" aria-label={`수업코드 ${code} 입장 QR`} viewBox={`0 0 ${qr.size} ${qr.size}`} shapeRendering="crispEdges"><rect width="100%" height="100%" fill="#fff" /><path d={qr.path} fill="#000" /></svg>
-        <p className="oc-qr-code">수업코드 <b>{code}</b></p>
-        <a className="oc-qr-link" href={openClassUrl(code)} target="_blank" rel="noopener noreferrer">{openClassUrl(code)}</a>
-      </section>
-      <LessonFlow era="joseon" />
-    </div>
-
-    <section className="oc-panel"><h2>조선 AR 인식 카드</h2><p>필요한 카드를 내려받아 인쇄하면 학생들이 카메라로 볼 수 있어요.</p><div className="oc-actions"><a href={`${import.meta.env.BASE_URL}downloads/joseon/ar/ar-cards-all.pdf`} download>AR 인식 카드 6종 받기</a>{ARTIFACTS.map((item,index)=><a key={item.id} href={`${import.meta.env.BASE_URL}downloads/joseon/ar/ar-card-${String(index+1).padStart(2,'0')}.pdf`} download>{item.name} 카드 받기</a>)}</div></section>
-    <section className="oc-panel" aria-label="모둠 현황">
-      {openGroup ? <TeacherGroupDashboard key={openGroup} group={openGroup} era="joseon"
-        cardItem={state.cards.find(item => item.data.group === openGroup)}
-        checkItem={state.checks.find(item => item.data.mode === 'self' && item.data.verifier === openGroup && item.data.target === openGroup)}
-        onBack={() => setOpenGroup(undefined)} onCardPresentation={() => setCardPresentationGroup(openGroup)}
-        onQuizPresentation={() => setPresent({ verifier: openGroup, target: openGroup, twoOnly: true })} /> : <>
-      <div className="oc-board-head"><h2>모둠 현황 <small>6초마다 새로 확인</small></h2>
-        <div className="oc-actions"><button type="button" className="oc-primary" onClick={() => setCardPresentationGroup(null)}>AR 카드 발표 화면</button><button type="button" onClick={() => setClassBoardOpen(true)}>전체 모둠 내용 보기</button><button type="button" onClick={() => setBoardOpen(true)}>역사박물관 칠판 화면</button><label className="oc-inline">모둠 수<select value={groupCount} onChange={event => onGroupCount(Number(event.target.value))}>{GROUP_CHOICES.map(n => <option key={n} value={n}>{n}모둠</option>)}</select></label>
-          <button type="button" disabled={!state.cards.some(item => item.data.artifactId)} onClick={() => setPrinting('groups')}>모둠 카드 인쇄</button>
-          {joseonTargets.ready && <button type="button" onClick={() => setPrinting('targets')}>AR 인식 카드 6종 인쇄</button>}</div>
+    <TeacherLessonWorkspace era="joseon" code={code} groupCount={groupCount} state={state} updatedAt={updatedAt} error={error} onGroupCount={onGroupCount} onRefresh={refresh} />
+    <details className="oc-panel oc-room-resources"><summary>학생 입장 QR·수업 자료</summary>
+      <div className="oc-teacher-top">
+        <section className="oc-panel oc-qr" aria-label="학생 입장 QR"><h2>학생 입장 QR</h2>
+          <svg role="img" aria-label={`수업코드 ${code} 입장 QR`} viewBox={`0 0 ${qr.size} ${qr.size}`} shapeRendering="crispEdges"><rect width="100%" height="100%" fill="#fff" /><path d={qr.path} fill="#000" /></svg>
+          <p className="oc-qr-code">수업코드 <b>{code}</b></p><a className="oc-qr-link" href={openClassUrl(code)} target="_blank" rel="noopener noreferrer">{openClassUrl(code)}</a>
+        </section><LessonFlow era="joseon" />
       </div>
-      <div className="oc-board">{groups.map(group => <GroupStatus key={group} group={group} card={cardOf(group)} cardItem={state.cards.find(item => item.data.group === group)}
-        checks={state.checks.filter(item => item.data.verifier === group)} cardOf={cardOf} teacherFor={teacherFor}
-        open={openGroup === group} onToggle={() => setOpenGroup(value => value === group ? undefined : group)} onCardPresentation={() => setCardPresentationGroup(group)} onPresent={target => setPresent({ verifier: group, target })} />)}</div>
-      <p className="oc-help">모둠을 누르면 카드와 퀴즈의 각 활동을 볼 수 있어요.</p>
-      </>}
-    </section>
-
-    {session && <details className="oc-panel"><summary>이전 수업용 · 선생님 OX 문제</summary><p>이번 공개수업은 AI가 만든 2문항을 검증합니다. 아래 문제는 이전 방식의 기록입니다.</p><TeacherQuestions code={code} token={session.token} sets={state.teacher} cards={state.cards.map(item => item.data)} /></details>}
-
-    {quizMonitorOpen && <TeacherQuizMonitor era="joseon" code={code} groupCount={groupCount} state={state} updatedAt={updatedAt} error={error} onRefresh={refresh} onClose={() => setQuizMonitorOpen(false)} />}
-
-    {classBoardOpen && cardPresentationGroup === undefined && !present && <TeacherClassBoard code={code} groupCount={groupCount} state={state} updatedAt={updatedAt} error={error} era="joseon" onClose={() => setClassBoardOpen(false)} onPresentCard={group => { setCardPresentationGroup(group); }} onPresentQuiz={group => { setPresent({ verifier: group, target: group, twoOnly: true }); }} />}
-
-    {boardOpen && !present && <MuseumBoard code={code} groupCount={groupCount} state={state} updatedAt={updatedAt} error={error} onClose={() => setBoardOpen(false)} onPresent={group => setPresent({ verifier: group, target: group, twoOnly: true })} />}
-
-    {present && <div className="oc-present-modal" role="dialog" aria-modal="true" aria-label="발표 화면">
-      <div className="oc-present-modal-bar"><b>{present.verifier}모둠 발표</b><div className="oc-actions"><button type="button" onClick={() => window.print()}>인쇄</button><button type="button" className="oc-primary" onClick={() => setPresent(undefined)}>← 이전 화면</button></div></div>
-      <Presentation big teacherReview check={presentCheck} card={presentCard} questions={boardQuestions} />
-    </div>}
-
-    {cardPresentationGroup !== undefined && <TeacherArPresentation era="joseon" code={code} groupCount={groupCount} cards={state.cards.map(item => item.data)} updatedAt={updatedAt} error={error} initialGroup={cardPresentationGroup ?? undefined} onClose={() => setCardPresentationGroup(undefined)} />}
+      <OpenLessonMaterials era="joseon" />
+      <section className="oc-panel"><h2>조선 AR 인식 카드</h2><div className="oc-actions"><a href={`${import.meta.env.BASE_URL}downloads/joseon/ar/ar-cards-all.pdf`} download>AR 인식 카드 6종 받기</a>{ARTIFACTS.map((item,index)=><a key={item.id} href={`${import.meta.env.BASE_URL}downloads/joseon/ar/ar-card-${String(index+1).padStart(2,'0')}.pdf`} download>{item.name} 카드 받기</a>)}
+        <button type="button" disabled={!state.cards.some(item => item.data.artifactId)} onClick={() => setPrinting('groups')}>모둠 카드 인쇄</button>
+        {joseonTargets.ready && <button type="button" onClick={() => setPrinting('targets')}>AR 인식 카드 6종 인쇄</button>}
+      </div></section>
+      <details className="oc-panel"><summary>이전 조선 6차시 수업 준비 자료</summary><LessonPrep page="teacher" /></details>
+      {session && <details className="oc-panel"><summary>이전 수업용 · 선생님 OX 문제</summary><TeacherQuestions code={code} token={session.token} sets={state.teacher} cards={state.cards.map(item => item.data)} /></details>}
+    </details>
     {printing === 'targets' && <div className="oc-print-cards" aria-hidden="true">{joseonModels.map(info => <TargetCard key={info.id} artifactId={info.id} />)}</div>}
     {printing === 'groups' && <div className="oc-print-cards" aria-hidden="true">{state.cards.map(item => item.data).filter(card => card.artifactId).sort((a, b) => a.group - b.group).map(card => <PrintCard key={card.group} code={code} card={card} />)}</div>}
   </>;

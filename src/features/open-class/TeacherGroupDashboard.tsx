@@ -22,9 +22,10 @@ function savedTime(value?: string) {
   return Number.isNaN(date.getTime()) ? '' : date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
 }
 
-export function TeacherGroupDashboard({ group, era, cardItem, checkItem, onBack, onCardPresentation, onQuizPresentation }: {
+export function TeacherGroupDashboard({ group, era, cardItem, checkItem, onBack, onCardPresentation, onQuizPresentation, reviewOnly = false }: {
   group: number; era: Era; cardItem?: OpenItem<GroupCard>; checkItem?: OpenItem<Verification>;
   onBack: () => void; onCardPresentation: () => void; onQuizPresentation: () => void;
+  reviewOnly?: boolean;
 }) {
   const [stage, setStage] = useState<Stage>('card-progress');
   const [selected, setSelected] = useState('');
@@ -56,7 +57,7 @@ export function TeacherGroupDashboard({ group, era, cardItem, checkItem, onBack,
       <p className="oc-help">학생들이 저장한 기록을 6초마다 확인합니다.</p>
     </header>
     <nav className="oc-group-dashboard__nav" aria-label={`${group}모둠 활동 선택`}>
-      {stages.map(item => <button key={item.id} type="button" aria-pressed={stage === item.id} onClick={() => selectStage(item.id)}>
+      {stages.filter(item => !reviewOnly || (item.id !== 'card-present' && item.id !== 'quiz-present')).map(item => <button key={item.id} type="button" aria-pressed={stage === item.id} onClick={() => selectStage(item.id)}>
         <b>{item.label}</b><span>{status(item.id)}</span>
       </button>)}
     </nav>

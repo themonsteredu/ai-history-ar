@@ -1,14 +1,12 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTeacherClass } from '../ar-studio/useTeacherClass';
-import { GroupStatus, LessonFlow } from '../open-class/OpenClassTeacher';
-import { TeacherGroupDashboard } from '../open-class/TeacherGroupDashboard';
-import { TeacherClassBoard } from '../open-class/TeacherClassBoard';
-import { TeacherQuizMonitor } from '../open-class/TeacherQuizMonitor';
+import { LessonFlow } from '../open-class/OpenClassTeacher';
 import { CardMaker } from '../open-class/CardMaker';
 import { CardGallery } from '../open-class/CardGallery';
 import { TeacherClassPicker } from '../open-class/TeacherClassPicker';
-import { GROUP_CHOICES, groupCountKey, readGroupCount } from '../ar-studio/teacherRun';
+import { TeacherLessonWorkspace } from '../open-class/TeacherLessonWorkspace';
+import { groupCountKey, readGroupCount } from '../ar-studio/teacherRun';
 import type { StudioSession } from '../ar-studio/api';
 import { encodeUrlQr } from '../../lib/qr/classroomQr';
 import { forgetOpenSession, readOpenSession, joinOpenLesson, loadState, saveCard, saveCheck, latestLoads, type OpenState } from '../open-class/api';
@@ -16,9 +14,7 @@ import { isGroupCard, isVerification, newCard, newSelfVerification, selfItemDone
 import { useSyncedDraft } from '../open-class/useSyncedDraft';
 import { IntroNotes, Reflection, SelfQuizLab } from '../open-class/SelfInquiry';
 import { Presentation } from '../open-class/Presentation';
-import { MuseumBoard } from '../open-class/MuseumBoard';
 import { MuseumCardStage } from '../open-class/MuseumCardStage';
-import { TeacherArPresentation } from '../open-class/TeacherArPresentation';
 import { readingsPackUrl } from '../open-class/HeritageReading';
 import { OpenLessonMaterials } from '../open-class/OpenLessonMaterials';
 import { artifacts } from './data';
@@ -71,20 +67,28 @@ export function GoryeoTeacher() {
  useEffect(()=>setCount(readGroupCount(window.localStorage)),[]);
  useEffect(()=>{setSession(undefined);setError('');if(!code)return;let active=true;void joinOpenLesson(goryeoCode(code),'선생님',1).then(next=>{if(active)setSession(next);}).catch(e=>{if(active)setError(e instanceof Error?e.message:'수업을 열지 못했어요.');});return()=>{active=false;};},[code]);
  function changeCount(value:number){setCount(value);try{window.localStorage.setItem(groupCountKey,String(value));}catch{/* keep for this visit */}}
- return <div className="oc-page oc-teacher page-width"><header className="oc-head"><div><p className="oc-eyebrow">선생님 화면 · 고려시대 공개수업</p><h1>{code?`수업코드 ${code}`:'고려 유물 AR 카드'}</h1></div></header><OpenLessonMaterials era="goryeo"/><TeacherClassPicker era="goryeo" code={code} onSelect={setCode}/>{error&&<p role="alert">{error}</p>}{session?<GoryeoTeacherRoom key={session.code} session={session} count={count} onCount={changeCount} onLeave={()=>{setCode('');setSession(undefined);}}/>:code&&!error?<p role="status">수업 현황을 불러오는 중…</p>:<p className="oc-empty">위에서 반을 등록하거나 누르면 QR·모둠 현황이 나와요.</p>}</div>;
+ return <div className="oc-page oc-teacher page-width">
+  <header className="oc-head"><div><p className="oc-eyebrow">선생님 화면 · 고려시대 공개수업</p><h1>{code ? `수업코드 ${code}` : '고려 유물 AR 카드'}</h1></div></header>
+  {code ? <details className="oc-panel oc-class-settings"><summary>수업 바꾸기</summary><TeacherClassPicker era="goryeo" code={code} onSelect={setCode} /></details> : <TeacherClassPicker era="goryeo" code={code} onSelect={setCode} />}
+  {error && <p role="alert">{error}</p>}
+  {session?.code === goryeoCode(code) ? <GoryeoTeacherRoom key={session.code} session={session} count={count} onCount={changeCount} onLeave={() => setCode('')} />
+    : code && !error ? <p role="status">수업 현황을 불러오는 중…</p> : !code ? <><p className="oc-empty">수업코드를 선택하면 발표와 모둠별 진행 상황을 볼 수 있어요.</p><OpenLessonMaterials era="goryeo" /></> : null}
+ </div>;
 }
 function GoryeoTeacherRoom({session,count,onCount,onLeave}:{session:StudioSession;count:number;onCount:(value:number)=>void;onLeave:()=>void}) {
- const [classBoard,setClassBoard]=useState(false);
- const [quizMonitor,setQuizMonitor]=useState(false);
- const {state,loaded,error,updatedAt,safe,refresh}=useRoom(session);const [board,setBoard]=useState(false),[present,setPresent]=useState<number>(),[openGroup,setOpenGroup]=useState<number>(),[presentCard,setPresentCard]=useState<number | null>();
- const cardOf=(group:number)=>state.cards.find(x=>x.data.group===group)?.data; const teacherFor=()=>undefined;
- const url=`${window.location.origin}${import.meta.env.BASE_URL}goryeo?code=${encodeURIComponent(displayCode(session.code))}`;const qr=encodeUrlQr(url);const check=state.checks.find(x=>x.key===`${present}:${present}`)?.data;const card=state.cards.find(x=>x.data.group===present)?.data;const artifact=card?goryeoArtifact(card.artifactId):undefined;
- const questions=check?selfQuestions(check).filter(q=>{const item=check.items.find(i=>i.questionId===q.id);return item&&item.decision!=='exclude'&&selfItemDone(item);}).slice(0,2):[];
- if(loaded&&!safe)return <div className="oc-page page-width"><p role="alert">{error}</p><button onClick={onLeave}>다른 수업코드 선택</button></div>;
- return <div className="oc-page oc-teacher page-width"><header className="oc-head"><div><p className="oc-eyebrow">선생님 화면 · 고려 유물 수업</p><h1>수업코드 {displayCode(session.code)}</h1></div><button onClick={onLeave}>수업 바꾸기</button></header>{error&&<p role="alert">{error}</p>}<section className="oc-ar-launcher" aria-label="수업 확인과 발표"><h2>수업 확인과 발표</h2><div className="oc-actions"><button type="button" className="oc-primary" onClick={()=>setPresentCard(null)}>AR 카드 발표 화면</button><button type="button" onClick={()=>setQuizMonitor(true)}>OX 문제 작성 확인</button></div></section><div className="oc-teacher-top"><section className="oc-panel oc-qr"><h2>학생 입장 QR</h2><svg role="img" aria-label="고려 유물 수업 입장 QR" viewBox={`0 0 ${qr.size} ${qr.size}`} shapeRendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d={qr.path} fill="#000"/></svg><p>수업코드 <b>{displayCode(session.code)}</b></p><a href={url}>{url}</a></section><LessonFlow era="goryeo"/></div><section className="oc-panel"><h2>고려 AR 인식 카드</h2><p><a className="oc-primary" href={`${import.meta.env.BASE_URL}goryeo-ar-cards.html`} target="_blank" rel="noopener noreferrer">AR 인식 카드 6종 인쇄</a></p><p><a href={readingsPackUrl("goryeo")} target="_blank" rel="noopener noreferrer">고려 유물 읽기 자료 6종 인쇄</a></p><p>필요한 카드를 내려받아 인쇄하면 학생들이 카메라로 볼 수 있어요.</p><div className="oc-actions">{artifacts.map(a=><a key={a.id} href={`${import.meta.env.BASE_URL}goryeo-ar-cards.html?card=${a.id}`} target="_blank" rel="noopener noreferrer">{a.short} 카드 인쇄</a>)}</div></section><section className="oc-panel" aria-label="모둠 현황">{openGroup ? <TeacherGroupDashboard key={openGroup} group={openGroup} era="goryeo" cardItem={state.cards.find(item=>item.data.group===openGroup)} checkItem={state.checks.find(item=>item.data.mode==='self'&&item.data.verifier===openGroup&&item.data.target===openGroup)} onBack={()=>setOpenGroup(undefined)} onCardPresentation={()=>setPresentCard(openGroup)} onQuizPresentation={()=>setPresent(openGroup)}/> : <><div className="oc-board-head"><h2>모둠 현황 <small>6초마다 새로 확인</small></h2><div className="oc-actions"><button type="button" className="oc-primary" disabled={!safe} onClick={()=>setPresentCard(null)}>AR 카드 발표 화면</button><button type="button" disabled={!safe} onClick={()=>setClassBoard(true)}>전체 모둠 내용 보기</button><button type="button" disabled={!safe} onClick={()=>setBoard(true)}>역사박물관 칠판 화면</button><label className="oc-inline">모둠 수<select value={count} onChange={e=>onCount(Number(e.target.value))}>{GROUP_CHOICES.map(n=><option key={n} value={n}>{n}모둠</option>)}</select></label></div></div><div className="oc-board">{Array.from({length:count},(_,i)=>i+1).map(group=><GroupStatus era="goryeo" key={group} group={group} card={cardOf(group)} cardItem={state.cards.find(x=>x.data.group===group)} checks={state.checks.filter(x=>x.data.verifier===group)} cardOf={cardOf} teacherFor={teacherFor} open={openGroup===group} onToggle={()=>setOpenGroup(value=>value===group?undefined:group)} onCardPresentation={()=>setPresentCard(group)} onPresent={()=>setPresent(group)}/>)}</div><p className="oc-help">모둠을 누르면 카드와 퀴즈의 각 활동을 볼 수 있어요.</p></>}</section>{presentCard!==undefined&&<TeacherArPresentation era="goryeo" code={displayCode(session.code)} groupCount={count} cards={state.cards.map(item=>item.data)} updatedAt={updatedAt} error={error} initialGroup={presentCard??undefined} onClose={()=>setPresentCard(undefined)}/>}
- {quizMonitor&&<TeacherQuizMonitor era="goryeo" code={displayCode(session.code)} groupCount={count} state={state} updatedAt={updatedAt} error={error} onRefresh={refresh} onClose={()=>setQuizMonitor(false)}/>}
- {classBoard&&presentCard===undefined&&!present&&<TeacherClassBoard code={displayCode(session.code)} groupCount={count} state={state} updatedAt={updatedAt} error={error} era="goryeo" onClose={()=>setClassBoard(false)} onPresentCard={group=>{setPresentCard(group);}} onPresentQuiz={group=>{setPresent(group);}}/>}
- {board&&!present&&<MuseumBoard code={displayCode(session.code)} groupCount={count} state={state} updatedAt={updatedAt} error={error} era="goryeo" onClose={()=>setBoard(false)} onPresent={setPresent}/>}{present&&<div className="oc-present-modal" role="dialog" aria-modal="true" aria-label="발표 화면"><div className="oc-present-modal-bar"><b>{present}모둠 발표</b><button onClick={()=>setPresent(undefined)}>← 이전 화면</button></div><Presentation big teacherReview check={check} card={card} questions={questions} artifactName={artifact?.short} era="goryeo"/></div>}</div>;
+ const {state,loaded,error,updatedAt,safe,refresh}=useRoom(session);
+ const code=displayCode(session.code);
+ const url=`${window.location.origin}${import.meta.env.BASE_URL}goryeo?code=${encodeURIComponent(code)}`;
+ const qr=encodeUrlQr(url);
+ if(loaded&&!safe)return <div className="oc-panel"><p role="alert">{error}</p><button onClick={onLeave}>다른 수업코드 선택</button></div>;
+ return <>
+  <TeacherLessonWorkspace era="goryeo" code={code} groupCount={count} state={state} updatedAt={updatedAt} error={error} onGroupCount={onCount} onRefresh={refresh} />
+  <details className="oc-panel oc-room-resources"><summary>학생 입장 QR·수업 자료</summary>
+   <div className="oc-teacher-top"><section className="oc-panel oc-qr"><h2>학생 입장 QR</h2><svg role="img" aria-label="고려 유물 수업 입장 QR" viewBox={`0 0 ${qr.size} ${qr.size}`} shapeRendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d={qr.path} fill="#000"/></svg><p>수업코드 <b>{code}</b></p><a href={url} target="_blank" rel="noopener noreferrer">{url}</a></section><LessonFlow era="goryeo" /></div>
+   <OpenLessonMaterials era="goryeo" />
+   <section className="oc-panel"><h2>고려 AR 인식 카드</h2><div className="oc-actions">{artifacts.map(a => <a key={a.id} href={`${import.meta.env.BASE_URL}goryeo-ar-cards.html?card=${a.id}`} target="_blank" rel="noopener noreferrer">{a.short} 카드 인쇄</a>)}</div></section>
+  </details>
+ </>;
 }
 
 export function TeacherGoryeoCards({cards,count}:{cards:GroupCard[];count:number}) {
