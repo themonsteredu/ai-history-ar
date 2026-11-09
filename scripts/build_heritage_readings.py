@@ -1,4 +1,5 @@
 """Build the shared, curriculum-linked newspaper as one A4 page per artifact."""
+import argparse
 import json
 import re
 import subprocess
@@ -69,8 +70,13 @@ def body_layout(item):
     raise ValueError('Body overflow: ' + item['name'])
 
 
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--era', choices=['joseon', 'goryeo', 'all'], default='all')
+selected_era = parser.parse_args().era
 outputs = []
 for era, items in DATA.items():
+    if selected_era != 'all' and era != selected_era:
+        continue
     pack = fitz.open()
     for item in items:
         doc = fitz.open()
