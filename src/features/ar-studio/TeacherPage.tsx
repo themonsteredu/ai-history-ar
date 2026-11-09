@@ -1,9 +1,10 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useTeacherClass } from './useTeacherClass';
 import { keepStudioSession, readStudioSession, studioApi, type Classroom, type StudioSession } from './api';
 import { GROUP_CHOICES, groupCountKey, readGroupCount, sharingStatus } from './teacherRun';
 import { cardSlots, waitingCards } from './visiting';
-import { addTeacherClass, classNameFor, isClassCode, normalizeClassCode, readTeacherClasses, removeTeacherClass, writeTeacherClasses, type TeacherClass } from './teacherClasses';
+import { addTeacherClass, classNameFor, isClassCode, readTeacherClasses, removeTeacherClass, writeTeacherClasses, type TeacherClass } from './teacherClasses';
 import { allArCardsUrl } from '../../components/ArRecognitionCard';
 import { QuizWorksheet } from './QuizWorksheet';
 import './worksheet.css';
@@ -15,8 +16,7 @@ const ClassroomQr = lazy(() => import('./ClassroomQr'));
 
 /** Everything a teacher touches during an AR lesson, in one block, with the classes they registered themselves. */
 export function TeacherArPanel() {
-  const [params, setParams] = useSearchParams();
-  const code = normalizeClassCode(params.get('hub_code') || '');
+  const [code, open] = useTeacherClass('three-kingdoms');
   const [classes, setClasses] = useState<TeacherClass[]>([]);
   const [newName, setNewName] = useState(''); const [newCode, setNewCode] = useState('');
   const [session, setSession] = useState<StudioSession>();
@@ -41,7 +41,6 @@ export function TeacherArPanel() {
     return () => { cancelled = true; clearInterval(timer); };
   }, [code]);
 
-  function open(next: string) { setParams(new URLSearchParams({ hub_code: normalizeClassCode(next) })); }
   function saveClasses(next: TeacherClass[]) { setClasses(next); try { writeTeacherClasses(next, window.localStorage); } catch { /* kept for this visit */ } }
   function addClass() {
     const next = addTeacherClass(classes, newName, newCode);

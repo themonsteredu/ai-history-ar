@@ -4,6 +4,7 @@ import { encodeUrlQr } from '../../lib/qr/classroomQr';
 import type { StudioSession } from '../ar-studio/api';
 import { classNameFor, readTeacherClasses, type TeacherClass } from '../ar-studio/teacherClasses';
 import { TeacherClassPicker } from './TeacherClassPicker';
+import { useTeacherClass } from '../ar-studio/useTeacherClass';
 import { GROUP_CHOICES, groupCountKey, readGroupCount } from '../ar-studio/teacherRun';
 import { forgetOpenSession, joinOpenLesson, latestLoads, loadState, readOpenSession, saveTeacherSet, type OpenItem, type OpenState } from './api';
 import { joseonModelFor, joseonModels, joseonTargets } from '../../lib/ar/joseon/catalog';
@@ -38,7 +39,7 @@ const inquiryQuestions=(check:Verification|undefined,card:GroupCard|undefined,te
 /** Teacher screen for the Joseon open lesson: progress of every group, how they are checking, and the teacher's own OX questions. */
 export default function OpenClassTeacher() {
   const [classes, setClasses] = useState<TeacherClass[]>([]);
-  const [code, setCode] = useState('');
+  const [code, setCode] = useTeacherClass('joseon');
   const [groupCount, setGroupCount] = useState(6);
   useEffect(() => { try { setClasses(readTeacherClasses(window.localStorage)); setGroupCount(readGroupCount(window.localStorage)); } catch { /* defaults stay */ } }, []);
   function changeGroupCount(value: number) { setGroupCount(value); try { window.localStorage.setItem(groupCountKey, String(value)); } catch { /* fine */ } }
@@ -148,12 +149,12 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
 
     {quizMonitorOpen && <TeacherQuizMonitor era="joseon" code={code} groupCount={groupCount} state={state} updatedAt={updatedAt} error={error} onRefresh={refresh} onClose={() => setQuizMonitorOpen(false)} />}
 
-    {classBoardOpen && <TeacherClassBoard code={code} groupCount={groupCount} state={state} updatedAt={updatedAt} error={error} era="joseon" onClose={() => setClassBoardOpen(false)} onPresentCard={group => { setClassBoardOpen(false); setCardPresentationGroup(group); }} onPresentQuiz={group => { setClassBoardOpen(false); setPresent({ verifier: group, target: group, twoOnly: true }); }} />}
+    {classBoardOpen && cardPresentationGroup === undefined && !present && <TeacherClassBoard code={code} groupCount={groupCount} state={state} updatedAt={updatedAt} error={error} era="joseon" onClose={() => setClassBoardOpen(false)} onPresentCard={group => { setCardPresentationGroup(group); }} onPresentQuiz={group => { setPresent({ verifier: group, target: group, twoOnly: true }); }} />}
 
     {boardOpen && !present && <MuseumBoard code={code} groupCount={groupCount} state={state} updatedAt={updatedAt} error={error} onClose={() => setBoardOpen(false)} onPresent={group => setPresent({ verifier: group, target: group, twoOnly: true })} />}
 
     {present && <div className="oc-present-modal" role="dialog" aria-modal="true" aria-label="발표 화면">
-      <div className="oc-present-modal-bar"><b>{present.verifier}모둠 발표</b><div className="oc-actions"><button type="button" onClick={() => window.print()}>인쇄</button><button type="button" className="oc-primary" onClick={() => setPresent(undefined)}>닫기</button></div></div>
+      <div className="oc-present-modal-bar"><b>{present.verifier}모둠 발표</b><div className="oc-actions"><button type="button" onClick={() => window.print()}>인쇄</button><button type="button" className="oc-primary" onClick={() => setPresent(undefined)}>← 이전 화면</button></div></div>
       <Presentation big teacherReview check={presentCheck} card={presentCard} questions={boardQuestions} />
     </div>}
 

@@ -26,7 +26,7 @@ export function TeacherArPresentation(props: Props) {
   const index = available.findIndex(item => item.group === group);
   const groups = Array.from({ length: props.groupCount }, (_, i) => i + 1);
   return <MuseumCardStage key={`${card.group}:${card.artifactId}`} card={card} era={props.era} onClose={props.onClose}
-    closeLabel="교사 화면으로" onBack={() => setGroup(undefined)}
+    closeLabel="← 이전 화면" onBack={() => setGroup(undefined)}
     navigation={<div className="teacher-ar-navigation">
       <nav className="teacher-ar-navigation__groups" aria-label="AR 발표 모둠 선택">
         {groups.map(value => <button type="button" key={value} aria-pressed={value === group}
@@ -45,7 +45,7 @@ function ArGroupPicker({ era, code, groupCount, cards, updatedAt, error, onClose
   return <section ref={root} className="teacher-ar-picker" role="dialog" aria-modal="true" aria-labelledby="teacher-ar-title">
     <header className="teacher-ar-picker__header">
       <div><p>{era === 'goryeo' ? '고려' : '조선'} 유물 전시실 · 수업코드 {code}</p><h1 id="teacher-ar-title">AR 카드 발표</h1></div>
-      <button type="button" data-autofocus onClick={onClose}>교사 화면으로</button>
+      <button type="button" data-autofocus onClick={onClose}>← 이전 화면</button>
     </header>
     <div className="teacher-ar-picker__body">
       <h2>발표할 모둠을 선택하세요</h2>

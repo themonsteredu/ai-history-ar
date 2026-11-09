@@ -1,0 +1,7 @@
+.teacher-return-nav{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;padding-top:9px;padding-bottom:9px;color:#fff;word-break:keep-all}
+.teacher-return-nav a{display:inline-flex;align-items:center;min-height:44px;padding:8px 14px;border:1px solid #ffffff70;border-radius:6px;color:#fff;font-size:15px;font-weight:600;text-decoration:none}
+.teacher-return-nav a:hover{background:#ffffff18}
+.teacher-return-nav a:focus-visible{outline:3px solid #e8c58b;outline-offset:3px}
+.teacher-return-nav>span{margin-left:auto;font-size:15px}
+@media(max-width:600px){.teacher-return-nav{gap:8px;padding-top:6px;padding-bottom:8px}.teacher-return-nav a{padding:8px 10px}.teacher-return-nav>span{font-size:14px}}
+@media print{.teacher-return-nav{display:none!important}}

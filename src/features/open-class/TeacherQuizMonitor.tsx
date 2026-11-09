@@ -27,7 +27,7 @@ export function TeacherQuizMonitor({ era, code, groupCount, state, updatedAt, er
   const progress = quizProgress(check?.data);
   async function refresh() { setRefreshing(true); try { await onRefresh(); } finally { setRefreshing(false); } }
   return <section ref={root} className="teacher-quiz-monitor" role="dialog" aria-modal="true" aria-labelledby="quiz-monitor-title">
-    <header className="teacher-quiz-monitor__header"><div><p>{era === 'goryeo' ? '고려' : '조선'} · 수업코드 {code}</p><h1 id="quiz-monitor-title">OX 문제 작성 확인</h1></div><button type="button" data-autofocus onClick={onClose}>교사 화면으로</button></header>
+    <header className="teacher-quiz-monitor__header"><div><p>{era === 'goryeo' ? '고려' : '조선'} · 수업코드 {code}</p><h1 id="quiz-monitor-title">OX 문제 작성 확인</h1></div><button type="button" data-autofocus onClick={onClose}>← 수업 현황</button></header>
     <div className="teacher-quiz-monitor__status"><p role="status">{error ? `연결 확인 필요 · ${error}` : updatedAt ? `6초마다 확인 · 마지막 확인 ${new Date(updatedAt).toLocaleTimeString('ko-KR')}` : '수업 기록을 불러오는 중…'}</p><button type="button" disabled={refreshing} onClick={() => void refresh()}>{refreshing ? '확인 중…' : '지금 새로고침'}</button></div>
     <p className="teacher-quiz-monitor__scope">학생들이 이 수업 화면에 입력한 내용입니다. 제미나이 답변은 학생들이 옮긴 뒤 표시됩니다.</p>
     <div className="teacher-quiz-monitor__layout">
