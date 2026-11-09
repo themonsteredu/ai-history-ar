@@ -133,13 +133,13 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
         onBack={() => setOpenGroup(undefined)} onCardPresentation={() => setCardPresentationGroup(openGroup)}
         onQuizPresentation={() => setPresent({ verifier: openGroup, target: openGroup, twoOnly: true })} /> : <>
       <div className="oc-board-head"><h2>모둠 현황 <small>6초마다 새로 확인</small></h2>
-        <div className="oc-actions"><button type="button" className="oc-primary" onClick={() => setClassBoardOpen(true)}>전체 모둠 내용 보기</button><button type="button" onClick={() => setBoardOpen(true)}>역사박물관 칠판 화면</button><label className="oc-inline">모둠 수<select value={groupCount} onChange={event => onGroupCount(Number(event.target.value))}>{GROUP_CHOICES.map(n => <option key={n} value={n}>{n}모둠</option>)}</select></label>
+        <div className="oc-actions"><button type="button" className="oc-primary" onClick={() => setCardPresentationGroup(null)}>AR 카드 발표 화면</button><button type="button" onClick={() => setClassBoardOpen(true)}>전체 모둠 내용 보기</button><button type="button" onClick={() => setBoardOpen(true)}>역사박물관 칠판 화면</button><label className="oc-inline">모둠 수<select value={groupCount} onChange={event => onGroupCount(Number(event.target.value))}>{GROUP_CHOICES.map(n => <option key={n} value={n}>{n}모둠</option>)}</select></label>
           <button type="button" disabled={!state.cards.some(item => item.data.artifactId)} onClick={() => setPrinting('groups')}>모둠 카드 인쇄</button>
           {joseonTargets.ready && <button type="button" onClick={() => setPrinting('targets')}>AR 인식 카드 6종 인쇄</button>}</div>
       </div>
       <div className="oc-board">{groups.map(group => <GroupStatus key={group} group={group} card={cardOf(group)} cardItem={state.cards.find(item => item.data.group === group)}
         checks={state.checks.filter(item => item.data.verifier === group)} cardOf={cardOf} teacherFor={teacherFor}
-        open={openGroup === group} onToggle={() => setOpenGroup(value => value === group ? undefined : group)} onPresent={target => setPresent({ verifier: group, target })} />)}</div>
+        open={openGroup === group} onToggle={() => setOpenGroup(value => value === group ? undefined : group)} onCardPresentation={() => setCardPresentationGroup(group)} onPresent={target => setPresent({ verifier: group, target })} />)}</div>
       <p className="oc-help">모둠을 누르면 카드와 퀴즈의 각 활동을 볼 수 있어요.</p>
       </>}
     </section>
@@ -163,9 +163,9 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
   </>;
 }
 
-export function GroupStatus({ group, card, cardItem, checks, cardOf, teacherFor, open, onToggle, onPresent, era = 'joseon' }: {
+export function GroupStatus({ group, card, cardItem, checks, cardOf, teacherFor, open, onToggle, onCardPresentation, onPresent, era = 'joseon' }: {
   era?: 'goryeo' | 'joseon'; group: number; card?: GroupCard; cardItem?: OpenItem<GroupCard>; checks: OpenItem<Verification>[]; cardOf: (g: number) => GroupCard | undefined;
-  teacherFor: (artifactId: number) => TeacherSet | undefined; open: boolean; onToggle: () => void; onPresent: (target: number) => void;
+  teacherFor: (artifactId: number) => TeacherSet | undefined; open: boolean; onToggle: () => void; onCardPresentation: () => void; onPresent: (target: number) => void;
 }) {
   const artifact = era === 'goryeo' ? goryeoArtifact(card?.artifactId || 0) : artifactById(card?.artifactId || 0);
   const problems = card ? cardProblems(card) : ['아직 카드를 저장하지 않았어요.'];
@@ -184,6 +184,7 @@ export function GroupStatus({ group, card, cardItem, checks, cardOf, teacherFor,
       <div><dt>OX 문제</dt><dd>{ready}개</dd></div>
       <div><dt>저장</dt><dd>{time(cardItem?.updatedAt) || '-'}</dd></div>
     </dl>
+    <button type="button" className="oc-primary oc-group-ar-present" disabled={!card || !artifact} aria-label={`${group}모둠 AR 카드 발표 화면`} onClick={onCardPresentation}>AR 카드 발표 화면</button>
     {checks.length === 0 ? <p className="oc-group-check is-none">검증: 아직 시작 전</p> : checks.map(item => {
       const target = cardOf(item.data.target);
       const total = item.data.mode==='self'?2:inquiryQuestions(item.data,target,teacherFor(target?.artifactId || 0)).length;
