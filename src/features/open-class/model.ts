@@ -141,16 +141,19 @@ export function inquirySlots(check: Verification): OxQuestion[] {
   return (check.selfQuestions || []).slice(0, 2);
 }
 export function buildCreationPrompt(parts: PromptParts, card: GroupCard, includeExerciseInstruction = true, artifactName?: string, era?: 'goryeo' | 'joseon') {
-  const name = artifactName || ARTIFACTS.find(a => a.id === card.artifactId)?.name || '우리 모둠 유물';
   const readingEra = era || ((card as GroupCard & { lesson?: string }).lesson === 'goryeo-open-v2' ? 'goryeo' : 'joseon');
   const reading = heritageReadings[readingEra].find(item => item.id === card.artifactId);
+  const name = artifactName || reading?.name || ARTIFACTS.find(a => a.id === card.artifactId)?.name || '우리 모둠 유물';
+  // Keep the exercise stable when it is copied again, without every group getting the same error position.
+  const incorrectQuestion = card.group % 2 === 1 ? 2 : 1;
+  const correctQuestion = 3 - incorrectQuestion;
   return [parts.role.trim() && `[역할] ${parts.role.trim()}`, parts.situation.trim() && `[상황] ${parts.situation.trim()}`,
     `[주제] ${name}의 특징, 쓰임, 백성 생활에 준 도움`,
     '[우리 모둠이 조사한 내용 - 정확성은 자료로 다시 확인할 예정]', ...card.points.map(p => `${p.title}: ${p.text}`),
     '[요청] 초등학교 5학년 친구들에게 낼 OX 문제를 정확히 2개 만들어 줘. 각 문항마다 문장, AI가 제안한 정답(O/X), 짧은 해설을 적어 줘. 한 문항에는 한 가지 사실만 담아 줘.',
     parts.style.trim() && `[답하는 방법] ${parts.style.trim()}`,
-    includeExerciseInstruction && '[교사 수업 설정] 자료를 비교해 오류를 찾는 연습을 위해 2문항 중 정확히 1문항은 문장에 대한 O/X 정답과 해설에 확인 가능한 역사적 사실 오류를 의도적으로 넣어 줘. 나머지 1문항은 문장에 맞는 정확한 정답과 해설을 써 줘. 단순히 정답이 X인 문장을 오류로 세지 말고, AI가 제안한 답 또는 해설이 실제 사실과 어긋나게 해 줘. 어떤 문항에 오류를 넣었는지, 의도된 오류라는 사실이나 정답을 바로잡은 내용은 출력하지 마. 오류는 교과서나 신뢰할 수 있는 박물관 자료로 확인할 수 있어야 해. 출처를 만들어 내지 마.',
-    includeExerciseInstruction && reading && `[검증용 참고 자료: ${reading.name}]\n${reading.paragraphs.join('\n\n')}\n\n[추가 요청] 위 자료에 근거해 확인할 수 있는 내용으로만 두 문제를 만들어 줘. 각 문장은 위 자료만으로 O 또는 X를 판단할 수 있어야 하고, AI의 정답과 해설을 자료와 비교해 검증할 수 있어야 해. 자료에 없는 사실은 묻지 말고, 한 문항의 의도된 오류도 자료에서 바로 확인할 수 있게 만들어 줘. 문제나 해설에는 자료에서 문제를 만들었다는 사실, 의도된 오류, 정답을 바로잡은 내용 또는 근거 위치를 밝히지 마.`,
-    includeExerciseInstruction && reading && `[역사신문 기준 추가 지시] 위에 제공한 '${reading.name}' 역사신문 본문을 바탕으로 OX 문제 두 개를 만들어 줘. 각 문제는 신문 속 내용만 읽고도 맞는지 틀린지 확인할 수 있어야 해. 우리 모둠이 적은 설명과 신문 내용이 다르면 신문에서 확인되는 내용을 우선하여 문제를 구성해. 신문에 없는 새로운 주제나 사실을 묻지 말고, 앞에서 요청한 AI 답변의 오류 조건은 그대로 유지해. 문제 문장에 신문을 읽거나 자료를 찾으라는 말은 넣지 마.`
+    includeExerciseInstruction && reading && `[검증용 참고 자료: ${reading.name}]\n${reading.paragraphs.join('\n\n')}`,
+    includeExerciseInstruction && reading && `[출제 근거] 위 '${reading.name}' 역사신문 본문을 바탕으로 두 문제를 만들어 줘. 각 문장의 실제 정답은 위 자료만으로 O 또는 X를 판단할 수 있어야 해. 우리 모둠이 적은 설명과 신문 내용이 다르면 신문을 기준으로 판단해. 신문에 없는 새로운 주제나 사실을 묻지 말고, 출처를 만들어 내지 마. 이 자료는 실제 정답을 확인하는 기준이며, 출력할 AI 답은 아래 교사 수업 설정을 따라야 해.`,
+    includeExerciseInstruction && `[교사 수업 설정 — 마지막 필수 조건]\n이 활동은 학생들이 AI의 답을 자료와 비교해 고치는 검증 연습이야. 두 문항의 AI 답을 모두 정확하게 쓰면 이 활동의 조건을 충족하지 못해.\n1. 먼저 두 문장 각각의 실제 정답을 자료로 판단해.\n2. ${correctQuestion}번: AI가 제안한 정답은 실제 정답과 같게 쓰고, 해설도 자료와 일치하게 써.\n3. ${incorrectQuestion}번: AI가 제안한 정답은 실제 정답의 반대로 의도적으로 써. 실제 정답이 O이면 AI 답은 X, 실제 정답이 X이면 AI 답은 O로 써. 해설도 이 잘못된 AI 답을 옳다고 설명하도록 한 가지 사실관계를 바꿔 써. 학생이 자료에서 반대 근거를 바로 찾을 수 있어야 해.\n4. 정답이 X인 문장을 만들고 AI도 X라고 정확하게 답하는 것은 오류가 아니야. 반드시 AI가 제안한 O/X 답 자체가 실제 정답과 달라야 해.\n5. 출력 전에 실제 정답과 AI 답이 다른 문항이 정확히 1문항인지 확인해. 0문항이거나 2문항이면 다시 만들어.\n6. 최종 출력은 1번과 2번의 '문장 / AI가 제안한 정답 / 짧은 해설'만 보여 줘. 오류가 있는 번호, 실제 정답표, 의도된 오류라는 말, 정정문, 출처 위치는 덧붙이지 마. 문제에 신문을 읽거나 자료를 찾으라는 말도 넣지 마.\n마지막 확인: ${incorrectQuestion}번의 AI 답은 실제 정답과 반대, ${correctQuestion}번의 AI 답은 실제 정답과 일치해야 해. 자료를 정확하게 인용한다는 이유로 ${incorrectQuestion}번의 AI 답을 실제 정답으로 고치지 마.`
     ].filter(Boolean).join('\n');
 }

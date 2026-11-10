@@ -103,16 +103,37 @@ describe('own-group AI inquiry', () => {
        expect(full).toContain(reading.paragraphs.join('\n\n'));
        expect(full).not.toContain(other.paragraphs.join('\n\n'));
        expect(full).toContain('위 자료만으로 O 또는 X를 판단');
-       expect(full).toContain(`[역사신문 기준 추가 지시] 위에 제공한 '${reading.name}' 역사신문 본문을 바탕으로 OX 문제 두 개`);
+       expect(full).toContain(`[출제 근거] 위 '${reading.name}' 역사신문 본문을 바탕으로 두 문제`);
        expect(full).toContain('신문에 없는 새로운 주제나 사실을 묻지 말고');
-       expect(full).toContain('앞에서 요청한 AI 답변의 오류 조건은 그대로 유지해');
+       expect(full.indexOf('[교사 수업 설정')).toBeGreaterThan(full.indexOf(reading.paragraphs.join('\n\n')));
+       expect(full).toContain('실제 정답이 O이면 AI 답은 X, 실제 정답이 X이면 AI 답은 O');
        expect(full).toContain('정확히 1문항');
        expect(preview).not.toContain('[검증용 참고 자료:');
-       expect(preview).not.toContain('[추가 요청]');
-       expect(preview).not.toContain('[역사신문 기준 추가 지시]');
+       expect(preview).not.toContain('[교사 수업 설정');
+       expect(preview).not.toContain('[출제 근거]');
        expect(preview).not.toContain(reading.paragraphs[0]);
      }
    }
+ });
+ it('assigns exactly one reversed AI answer and one correct answer for every group in both eras', () => {
+   for (const era of ['goryeo', 'joseon'] as const) {
+     for (let group = 1; group <= 6; group++) {
+       const card = { ...readyCard(), group };
+       const prompt = buildCreationPrompt(emptyParts(), card, true, undefined, era);
+       const reversed = [...prompt.matchAll(/([12])번: AI가 제안한 정답은 실제 정답의 반대로/g)];
+       const correct = [...prompt.matchAll(/([12])번: AI가 제안한 정답은 실제 정답과 같게/g)];
+       expect(reversed).toHaveLength(1);
+       expect(correct).toHaveLength(1);
+       expect(new Set([reversed[0][1], correct[0][1]])).toEqual(new Set(['1', '2']));
+       expect(prompt).toBe(buildCreationPrompt(emptyParts(), card, true, undefined, era));
+       expect(prompt).toContain('0문항이거나 2문항이면 다시 만들어');
+       expect(prompt).toContain(`마지막 확인: ${reversed[0][1]}번의 AI 답은 실제 정답과 반대, ${correct[0][1]}번의 AI 답은 실제 정답과 일치`);
+     }
+   }
+   const first = buildCreationPrompt(emptyParts(), { ...readyCard(), group: 1 });
+   const second = buildCreationPrompt(emptyParts(), { ...readyCard(), group: 2 });
+   expect(first).toContain('2번: AI가 제안한 정답은 실제 정답의 반대로');
+   expect(second).toContain('1번: AI가 제안한 정답은 실제 정답의 반대로');
  });
  it('requires source evidence and retains exclusions without inventing an answer', () => {
    const item = {...newVerifyItem('q','student'),decision:'exclude' as const,reason:'근거 없음',explanation:'자료에서 확인할 수 없어 제외'};
