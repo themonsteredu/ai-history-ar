@@ -19,14 +19,14 @@ export function teacherWorkspaceGroups(era: TeacherEra, groupCount: number, stat
     const photoPath = photo ? ('texture' in photo ? photo.texture || photo.path : photo.path) : '';
     const questions = selfQuestions(check).filter(question => {
       const item = check?.items.find(value => value.questionId === question.id);
-      return item && item.decision !== 'exclude' && selfItemDone(item);
+      return item?.decision !== 'exclude';
     });
     return {
       group, cardItem, checkItem, card, check, artifact, photo, photoPath, questions,
       cardLabel: !artifact ? '작성 전' : card && cardProblems(card).length === 0 ? '완성' : '제작 중',
       quiz: quizProgress(check),
       canPresentCard: !!card && !!artifact,
-      canPresentQuiz: !!card && !!artifact && questions.length >= 2,
+      canPresentQuiz: !!card && !!artifact && questions.length > 0,
     };
   });
 }

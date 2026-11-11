@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
-import { TeacherLessonWorkspace, TeacherQuizPresentation } from './TeacherLessonWorkspace';
+import { TeacherLessonWorkspace, TeacherQuizPresentation, TeacherSavedQuiz } from './TeacherLessonWorkspace';
 import { teacherWorkspaceGroups, type TeacherEra } from './teacherWorkspaceGroups';
 import { TeacherGroupDashboard } from './TeacherGroupDashboard';
 import { newCard, newPoint, newSelfVerification, newVerifyItem } from './model';
@@ -53,7 +53,7 @@ it('distinguishes completed verification from presentation readiness and never u
   const [first, second] = teacherWorkspaceGroups('goryeo', 2, state);
   expect(first.quiz.verified).toBe(2);
   expect(first.questions).toHaveLength(1);
-  expect(first.canPresentQuiz).toBe(false);
+  expect(first.canPresentQuiz).toBe(true);
   expect(second.check).toBeUndefined();
   expect(second.canPresentQuiz).toBe(false);
 });
@@ -63,7 +63,7 @@ it('keeps partially written work available for inspection in progress mode', () 
   state.checks[0].data.items = [];
   const group = teacherWorkspaceGroups('goryeo', 2, state)[0];
   expect(group.quiz.written).toBe(2);
-  expect(group.canPresentQuiz).toBe(false);
+  expect(group.canPresentQuiz).toBe(true);
   const html = renderToStaticMarkup(<TeacherGroupDashboard reviewOnly group={1} era="goryeo" cardItem={group.cardItem} checkItem={group.checkItem} onBack={vi.fn()} onCardPresentation={vi.fn()} onQuizPresentation={vi.fn()} />);
   expect(html).toContain('학생이 쓴 카드 설명');
   expect(html).toContain('OX 퀴즈 작성 현황');
@@ -75,4 +75,39 @@ it('does not claim waiting groups are unfinished before the first response arriv
   const html = render('goryeo', 'progress', { cards: [], checks: [], teacher: [] }, 0);
   expect(html).toContain('모둠 기록을 불러오는 중');
   expect(html).not.toContain('진행 내용 확인');
+});
+
+it('shows saved OX drafts and enables presentation even with a missing decision', () => {
+  const state = fixture();
+  state.checks[0].updatedAt = '2026-11-11T00:26:37Z';
+  state.checks[0].version = 260;
+  state.checks[0].data.items[1].decision = '';
+  const group = teacherWorkspaceGroups('goryeo', 2, state)[0];
+  expect(group.canPresentQuiz).toBe(true);
+  const html = render('goryeo', 'quiz', state);
+  expect(html).toContain('서버 저장 확인');
+  expect(html).toContain('저장 번호 260');
+  expect(html).toContain('1모둠 저장된 OX 내용 확인');
+  expect(html).not.toContain('발표용 문장');
+  const review = () => renderToStaticMarkup(<TeacherSavedQuiz group={teacherWorkspaceGroups('goryeo', 2, state)[0]} onBack={vi.fn()} />);
+  expect(review()).toContain('발표용 문장 2');
+  state.checks[0].data.selfQuestions![1].statement = '다른 기기에서 저장한 새 문장';
+  state.checks[0].data.items[1].decision = 'adopt';
+  expect(review()).toContain('다른 기기에서 저장한 새 문장');
+  expect(review()).toContain('발표 준비 완료');
+  expect(review()).not.toContain('채택/수정 선택 필요');
+});
+
+it.each(['goryeo', 'joseon'] as const)('presents a saved %s question with all verification fields blank', era => {
+  const state = fixture();
+  state.checks[0].data.items = [];
+  state.checks[0].data.selfQuestions![1].statement = '';
+  const group = teacherWorkspaceGroups(era, 2, state)[0];
+  expect(group.canPresentQuiz).toBe(true);
+  const html = renderToStaticMarkup(<TeacherQuizPresentation era={era} group={group} onClose={vi.fn()} />);
+  expect(html).toContain('발표용 문장 1');
+  expect(html).toContain('문제 1 / 1');
+  expect(html).not.toContain('발표할 문제를 2개 검증해 주세요');
+  expect(html).not.toContain('AI의 답 X');
+  expect(html).toContain('AI 정답 보기');
 });

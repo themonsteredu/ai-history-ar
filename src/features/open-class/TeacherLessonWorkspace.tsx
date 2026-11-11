@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import type { OpenState } from './api';
 import { GROUP_CHOICES } from '../ar-studio/teacherRun';
 import { TeacherArPresentation } from './TeacherArPresentation';
-import { TeacherGroupDashboard } from './TeacherGroupDashboard';
+import { TeacherGroupDashboard, TeacherQuizStatus } from './TeacherGroupDashboard';
 import { Presentation } from './Presentation';
 import { usePresentationDialog } from './usePresentationDialog';
 import { teacherWorkspaceGroups, type TeacherEra, type TeacherGroup } from './teacherWorkspaceGroups';
@@ -25,16 +25,19 @@ export function TeacherLessonWorkspace({ era, code, groupCount, state, updatedAt
   const requested = params.get('teacher_view');
   const view: View = requested === 'quiz' || requested === 'progress' ? requested : 'ar';
   const [detail, setDetail] = useState<number>();
+  const [quizReview, setQuizReview] = useState<number>();
   const [presentation, setPresentation] = useState<{ kind: 'ar' | 'quiz'; group: number }>();
   const [refreshing, setRefreshing] = useState(false);
   const groups = teacherWorkspaceGroups(era, groupCount, state);
   const selected = groups.find(item => item.group === detail);
+  const reviewing = groups.find(item => item.group === quizReview);
   const presenting = groups.find(item => item.group === presentation?.group);
   function selectView(next: View) {
     const search = new URLSearchParams(params);
     search.set('teacher_view', next);
     setParams(search, { replace: true });
     setDetail(undefined);
+    setQuizReview(undefined);
     setPresentation(undefined);
   }
   async function refresh() { setRefreshing(true); try { await onRefresh(); } finally { setRefreshing(false); } }
@@ -49,14 +52,18 @@ export function TeacherLessonWorkspace({ era, code, groupCount, state, updatedAt
       <button type="button" disabled={refreshing} onClick={() => void refresh()}>{refreshing ? '확인 중…' : '새로고침'}</button>
     </div>
 
-    {view !== 'progress' ? <section className="teacher-workspace__content" aria-label={view === 'ar' ? 'AR 카드 발표 모둠 선택' : 'OX 문제 발표 모둠 선택'}>
-      <header className="teacher-workspace__heading"><div><h2>{view === 'ar' ? '발표할 AR 카드를 선택하세요' : '발표할 모둠을 선택하세요'}</h2><p>{view === 'ar' ? '모둠의 유물과 설명을 크게 보여 줍니다.' : '검증을 마친 두 문제를 한 문제씩 발표합니다.'}</p></div><span>{updatedAt ? `${ready} / ${groupCount}모둠 발표 가능` : '기록 확인 중'}</span></header>
+    {view === 'quiz' && reviewing ? <TeacherSavedQuiz group={reviewing} onBack={() => setQuizReview(undefined)} /> : view !== 'progress' ? <section className="teacher-workspace__content" aria-label={view === 'ar' ? 'AR 카드 발표 모둠 선택' : 'OX 문제 발표 모둠 선택'}>
+      <header className="teacher-workspace__heading"><div><h2>{view === 'ar' ? '발표할 AR 카드를 선택하세요' : '발표할 모둠을 선택하세요'}</h2><p>{view === 'ar' ? '모둠의 유물과 설명을 크게 보여 줍니다.' : '문장이 저장되면 빈칸이 있어도 한 문제씩 발표할 수 있습니다.'}</p></div><span>{updatedAt ? `${ready} / ${groupCount}모둠 발표 가능` : '기록 확인 중'}</span></header>
       <div className="teacher-workspace__gallery">{groups.map(group => {
         const enabled = !!updatedAt && (view === 'ar' ? group.canPresentCard : group.canPresentQuiz);
         return <article className="teacher-workspace__group" key={group.group}>
           <GroupPhoto group={group} />
           <div className="teacher-workspace__group-body"><p className="teacher-workspace__group-number">{group.group}모둠</p><h3>{group.artifact?.name || (updatedAt ? '유물 선택 전' : '기록 확인 중')}</h3>
-            <p>{!updatedAt ? '기록 확인 중' : view === 'ar' ? `${group.cardLabel} · 설명 ${group.card?.points.length || 0}개` : group.canPresentQuiz ? '발표 준비 완료 · 2문제' : `발표 가능 ${group.questions.length} / 2문제`}</p>
+            <p>{!updatedAt ? '기록 확인 중' : view === 'ar' ? `${group.cardLabel} · 설명 ${group.card?.points.length || 0}개` : group.canPresentQuiz ? `발표 가능 ${group.questions.length}문제` : `발표 가능 ${group.questions.length} / 2문제`}</p>
+            {view === 'quiz' && <>
+              <p>{group.checkItem ? `서버 저장 확인 · ${new Date(group.checkItem.updatedAt).toLocaleTimeString('ko-KR')} · 저장 번호 ${group.checkItem.version}` : '저장된 OX 내용 없음'}</p>
+              <button type="button" disabled={!updatedAt || !group.checkItem} onClick={() => setQuizReview(group.group)} aria-label={`${group.group}모둠 저장된 OX 내용 확인`}>저장된 OX 내용 확인</button>
+            </>}
             <button type="button" disabled={!enabled} onClick={() => setPresentation({ kind: view, group: group.group })} aria-label={`${group.group}모둠 ${view === 'ar' ? 'AR 카드' : 'OX 문제'} 발표`}>{view === 'ar' ? 'AR 카드 발표' : 'OX 문제 발표'}</button>
           </div>
         </article>;
@@ -89,6 +96,16 @@ export function TeacherQuizPresentation({ era, group, onClose }: { era: TeacherE
   const root = usePresentationDialog(onClose);
   return <section ref={root} className="oc-present-modal teacher-workspace__quiz" role="dialog" aria-modal="true" aria-label={`${group.group}모둠 OX 문제 발표`}>
     <header className="oc-present-modal-bar"><b>{group.group}모둠 · OX 문제 발표</b><button type="button" data-autofocus onClick={onClose}>← OX 발표 모둠 목록</button></header>
-    <Presentation big era={era} artifactName={group.artifact?.name} card={group.card} check={group.check} questions={group.questions} />
+    <Presentation big allowIncomplete era={era} artifactName={group.artifact?.name} card={group.card} check={group.check} questions={group.questions} />
+  </section>;
+}
+
+/** Takes the current polled group, never a snapshot captured when the review was opened. */
+export function TeacherSavedQuiz({ group, onBack }: { group: TeacherGroup; onBack: () => void }) {
+  return <section className="teacher-workspace__content" aria-label={`${group.group}모둠 저장된 OX 내용`}>
+    <button type="button" onClick={onBack}>← OX 모둠 목록</button>
+    <h2>{group.group}모둠 · 저장된 OX 내용</h2>
+    <p>{group.canPresentQuiz ? '발표 준비 완료' : '문제가 저장되면 발표할 수 있습니다.'}</p>
+    <TeacherQuizStatus check={group.check} updatedAt={group.checkItem?.updatedAt} />
   </section>;
 }

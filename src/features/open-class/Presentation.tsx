@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { WorksheetHeader } from '../../components/WorksheetHeader';
 import { artifactById } from './artifacts';
 import { goryeoArtifact } from '../goryeo/readyCards';
-import { decisionLabel, selfItemDone, type CheckQuestion, type GroupCard, type Verification, type VerifyItem } from './model';
+import { decisionLabel, newVerifyItem, selfItemDone, type CheckQuestion, type GroupCard, type Verification, type VerifyItem } from './model';
 
 /** Each question starts with both answers hidden, including after moving back to it. */
 function QuizQuestion({ question, item, number }: { question: CheckQuestion; item: VerifyItem; number: number }) {
@@ -15,11 +15,11 @@ function QuizQuestion({ question, item, number }: { question: CheckQuestion; ite
       <button type="button" aria-expanded={showResult} onClick={() => setShowResult(value => !value)}>{showResult ? '검증 결과 닫기' : '검증 결과 보기'}</button>
     </div>
     {showAi && <div className="oc-quiz-present__ai"><strong>AI의 답 {question.answer}</strong>{question.explanation && <p>{question.explanation}</p>}</div>}
-    {showResult && <div className="oc-quiz-present__result"><b>{item.decision === 'revise' ? 'AI 내용 수정 필요' : 'AI 내용 확인 완료'}</b><p><strong>확인한 답 {item.solved}</strong></p>{item.decision === 'revise' && item.revised.trim() && <p>고친 문장: {item.revised} {item.revisedAnswer && `(답 ${item.revisedAnswer})`}</p>}{(item.explanation || item.reason) && <p>{item.explanation || item.reason}</p>}<small>확인 자료: {item.why}</small></div>}
+    {showResult && <div className="oc-quiz-present__result"><b>{!selfItemDone(item) ? '검증 작성 중' : item.decision === 'revise' ? 'AI 내용 수정 필요' : 'AI 내용 확인 완료'}</b><p><strong>확인한 답 {item.solved || '미작성'}</strong></p>{item.decision === 'revise' && item.revised.trim() && <p>고친 문장: {item.revised} {item.revisedAnswer && `(답 ${item.revisedAnswer})`}</p>}{(item.explanation || item.reason) && <p>{item.explanation || item.reason}</p>}<small>확인 자료: {item.why || '미작성'}</small></div>}
   </li>;
 }
 
-type PresentationProps = { check?: Verification; card?: GroupCard; questions: CheckQuestion[]; big?: boolean; artifactName?: string; era?: 'joseon'|'goryeo'; teacherReview?: boolean };
+type PresentationProps = { check?: Verification; card?: GroupCard; questions: CheckQuestion[]; big?: boolean; artifactName?: string; era?: 'joseon'|'goryeo'; teacherReview?: boolean; allowIncomplete?: boolean };
 
 /** The teacher can review every saved step, including unfinished or excluded questions. */
 function TeacherPresentation({ check, card, questions, artifactName, era }: { check: Verification; card?: GroupCard; questions: CheckQuestion[]; artifactName?: string; era: 'joseon'|'goryeo' }) {
@@ -78,26 +78,28 @@ function TeacherPresentation({ check, card, questions, artifactName, era }: { ch
 }
 
 /** Step 4: the group's checks as one sheet to present, project or print. */
-export function Presentation({ check, card, questions, big, artifactName, era='joseon', teacherReview }: PresentationProps) {
+export function Presentation({ check, card, questions, big, artifactName, era='joseon', teacherReview, allowIncomplete = false }: PresentationProps) {
   const [questionIndex, setQuestionIndex] = useState(0);
   if (teacherReview && check) return <TeacherPresentation check={check} card={card} questions={questions} artifactName={artifactName} era={era} />;
   if (!check || !card) return <p className="oc-empty">검증 기록이 아직 없어요. ‘AI 문제 만들고 검증’에서 먼저 문제를 검증해 주세요.</p>;
   const artifact = artifactById(card.artifactId);
   const rows = questions.map(question => ({ question, item: check.items.find(item => item.questionId === question.id) }));
   const count = (id: string) => rows.filter(row => row.item?.decision === id).length;
-  const presentable = rows.filter(({item}) => item && selfItemDone(item) && item.decision !== 'exclude');
+  const presentable = rows.filter(({question, item}) => question.statement.trim() && (allowIncomplete ? item?.decision !== 'exclude' : item && selfItemDone(item) && item.decision !== 'exclude'))
+    .map(row => ({ ...row, item: row.item || newVerifyItem(row.question.id, row.question.source) }));
+  const total = Math.min(presentable.length, 2);
   const currentIndex = Math.min(questionIndex, Math.max(0, Math.min(presentable.length, 2) - 1));
   const current = presentable[currentIndex];
   if (check.mode === 'self') return <article className={`oc-present oc-quiz-present${big ? ' is-big' : ''}`}>
     <header className="oc-quiz-present__header"><p>{check.verifier}모둠 · {artifactName || artifact?.name}</p><h2>AI의 답, 맞을까요?</h2><span>문제를 읽고 생각한 뒤 AI의 답을 확인해요.</span></header>
-    {presentable.length < 2 || !current?.item ? <p className="oc-empty">발표할 문제를 2개 검증해 주세요. (현재 {presentable.length}개)</p> : <>
-      <p className="oc-quiz-present__progress" aria-live="polite">문제 {currentIndex + 1} / 2</p>
+    {(allowIncomplete ? total === 0 : total < 2) || !current?.item ? <p className="oc-empty">{allowIncomplete ? '저장된 문제 문장이 아직 없어요.' : `발표할 문제를 2개 검증해 주세요. (현재 ${presentable.length}개)`}</p> : <>
+      <p className="oc-quiz-present__progress" aria-live="polite">문제 {currentIndex + 1} / {total}</p>
       <ol className="oc-quiz-present__questions" start={currentIndex + 1}>
         <QuizQuestion key={current.question.id} question={current.question} item={current.item} number={currentIndex + 1} />
       </ol>
       <nav className="oc-quiz-present__nav" aria-label="퀴즈 문제 이동">
         <button type="button" disabled={currentIndex === 0} onClick={() => setQuestionIndex(0)}>← 이전 문제</button>
-        <button type="button" className="oc-primary" disabled={currentIndex === 1} onClick={() => setQuestionIndex(1)}>다음 문제 →</button>
+        <button type="button" className="oc-primary" disabled={currentIndex >= total - 1} onClick={() => setQuestionIndex(1)}>다음 문제 →</button>
       </nav>
     </>}
   </article>;
