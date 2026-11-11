@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import type { StudioSession } from '../ar-studio/api';
 import { forgetOpenSession, joinOpenLesson, latestLoads, loadState, readOpenSession, saveCard, saveCheck, type OpenState } from './api';
@@ -9,6 +9,7 @@ import { CardMaker } from './CardMaker';
 import { isGroupCard, isVerification, newCard, newSelfVerification, selfQuestions, type GroupCard, type Verification } from './model';
 import { Presentation } from './Presentation';
 import { useSyncedDraft } from './useSyncedDraft';
+import { useClassPolling } from './useClassPolling';
 import { IntroNotes, SelfQuizLab, Reflection, worksheetUrl } from './SelfInquiry';
 import './open-class.css';
 
@@ -65,12 +66,13 @@ function Lesson({ session, onLeave }: { session: StudioSession; onLeave: () => v
  const {code,token,group}=session;const [state,setState]=useState<OpenState>(emptyState),[loaded,setLoaded]=useState(false),[error,setError]=useState('');
  const [loads]=useState(()=>latestLoads());
  const refresh=useCallback(async()=>{if(document.visibilityState==='hidden')return;const result=await loads(()=>loadState(code,token));if(!result)return;if(result.ok){setState(result.value);setLoaded(true);setError('');}else setError(result.error instanceof Error?result.error.message:'수업 기록을 불러오지 못했어요.');},[code,token,loads]);
- useEffect(()=>{void refresh();const tick=()=>void refresh();const timer=window.setInterval(tick,6000);window.addEventListener('online',tick);return()=>{clearInterval(timer);window.removeEventListener('online',tick);};},[refresh]);
+ useClassPolling(refresh);
  const go=(next:View)=>{const p=new URLSearchParams(params);p.set('view',next);p.delete('group');setParams(p);window.scrollTo({top:0});};
  const saveMyCard=useCallback((data:GroupCard,version:number)=>saveCard(code,token,data,version),[code,token]);
  const cardDraft=useSyncedDraft<GroupCard>({draftKey:`${code}:card:${group}`,server:state.cards.find(i=>i.key===String(group)),blank:()=>newCard(group),check:isGroupCard,save:saveMyCard,canSave:d=>loaded&&d.artifactId>0&&d.group===group});
  const saveMyCheck=useCallback((data:Verification,version:number)=>saveCheck(code,token,data,version),[code,token]);
- const checkDraft=useSyncedDraft<Verification>({draftKey:`${code}:verify:${group}:${group}`,server:state.checks.find(i=>i.key===`${group}:${group}`),blank:()=>newSelfVerification(group),check:isVerification,save:saveMyCheck,maxWait:10000,canSave:d=>loaded&&d.mode==='self'&&d.verifier===group&&d.target===group});
+ const checkDraft=useSyncedDraft<Verification>({draftKey:`${code}:verify:${group}:${group}`,server:state.checks.find(i=>i.key===`${group}:${group}`),blank:()=>newSelfVerification(group),check:isVerification,save:saveMyCheck,maxWait:3000,canSave:d=>loaded&&d.mode==='self'&&d.verifier===group&&d.target===group});
+ if(!loaded)return <main className="oc-page page-width"><p role="status">우리 모둠의 최신 기록을 불러오는 중…</p>{error&&<p role="alert">{error}</p>}<button onClick={()=>void refresh()}>다시 불러오기</button><button onClick={onLeave}>다시 입장</button></main>;
  const taken=new Map<number,number[]>();state.cards.forEach(i=>taken.set(i.data.artifactId,[...(taken.get(i.data.artifactId)||[]),i.data.group]));
  return <main className="oc-page page-width"><header className="oc-head"><div><p className="oc-eyebrow">조선시대 공개수업 · 수업코드 {code}</p><h1>조선 유물 AR 탐구 · AI 퀴즈 검증</h1></div><p className="oc-me"><b>{group}모둠</b> · {session.name}<button onClick={onLeave}>다시 입장</button></p></header>
  <div className="oc-actions"><a href={worksheetUrl} download>공개수업 활동지 PDF</a><a href={`${import.meta.env.BASE_URL}downloads/joseon/open-class/group-presentation-notes.pdf`} download>모둠 발표 듣기 활동지</a></div><details className="oc-panel"><summary>수업 자료 모아보기</summary><OpenLessonMaterials era="joseon"/></details>

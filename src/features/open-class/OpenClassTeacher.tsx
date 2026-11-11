@@ -1,3 +1,4 @@
+import { useClassPolling } from './useClassPolling';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TEACHER_PIN } from '../../auth/teacherAccess';
 import { encodeUrlQr } from '../../lib/qr/classroomQr';
@@ -77,11 +78,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
     if (status === 401 || status === 403) { forgetOpenSession(code); setSession(undefined); }
     setError(result.error instanceof Error ? result.error.message : '수업을 열지 못했어요. 잠시 뒤 저절로 다시 해 볼게요.');
   }, [code, session, loads]);
-  useEffect(() => {
-    const tick = () => { void refresh(); };
-    tick(); const timer = window.setInterval(tick, 6000); window.addEventListener('online', tick);
-    return () => { clearInterval(timer); window.removeEventListener('online', tick); };
-  }, [refresh]);
+  useClassPolling(refresh);
   useEffect(() => {
     if (!printing) return;
     document.body.classList.add('oc-printing-cards');

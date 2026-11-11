@@ -54,7 +54,7 @@ export function TeacherGroupDashboard({ group, era, cardItem, checkItem, onBack,
   return <div className="oc-group-dashboard">
     <header className="oc-group-dashboard__head">
       <div><button type="button" className="oc-group-dashboard__back" onClick={onBack}>← 모둠 목록</button><h2>{group}모둠 활동</h2><p>{artifact?.name || '유물 선택 전'}</p></div>
-      <p className="oc-help">학생들이 저장한 기록을 6초마다 확인합니다.</p>
+      <p className="oc-help">학생들이 저장한 기록을 2초마다 확인합니다.</p>
     </header>
     <nav className="oc-group-dashboard__nav" aria-label={`${group}모둠 활동 선택`}>
       {stages.filter(item => !reviewOnly || (item.id !== 'card-present' && item.id !== 'quiz-present')).map(item => <button key={item.id} type="button" aria-pressed={stage === item.id} onClick={() => selectStage(item.id)}>

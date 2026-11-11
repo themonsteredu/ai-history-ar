@@ -49,7 +49,7 @@ export function MuseumBoard({ code, groupCount, state, updatedAt, error, onClose
         <div><span>오늘의 미션</span><strong>모둠마다 2문제 검증하고 발표하기</strong></div>
         <div className="museum-board__summary"><p><b>{updatedAt ? verifiedCount : '–'}</b><span> / {groupCount}모둠<br />2문제 검증 완료</span></p><p><b>{updatedAt ? presentationCount : '–'}</b><span> / {groupCount}모둠<br />발표 준비 완료</span></p></div>
       </div>
-      <div className="museum-board__bar"><div><h2>모둠별 검증 현황</h2><p>검증 후 채택하거나 수정한 문제 2개가 있으면 발표할 수 있어요.</p></div><span className={error ? 'museum-board__connection is-error' : 'museum-board__connection'} role="status">{error ? `연결 확인 필요 · ${time ? `마지막 확인 ${time}` : '아직 불러오지 못함'}` : time ? `마지막 확인 ${time} · 6초마다 새로 확인` : '수업 기록을 불러오는 중'}</span></div>
+      <div className="museum-board__bar"><div><h2>모둠별 검증 현황</h2><p>검증 후 채택하거나 수정한 문제 2개가 있으면 발표할 수 있어요.</p></div><span className={error ? 'museum-board__connection is-error' : 'museum-board__connection'} role="status">{error ? `연결 확인 필요 · ${time ? `마지막 확인 ${time}` : '아직 불러오지 못함'}` : time ? `마지막 확인 ${time} · 2초마다 새로 확인` : '수업 기록을 불러오는 중'}</span></div>
       {!updatedAt ? <p className="museum-board__loading">{error ? '수업 기록을 불러오지 못했습니다. 연결을 확인해 주세요.' : '모둠의 기록을 불러오고 있습니다.'}</p> : <div className="museum-board__groups">{groups.map(({group,card,rows,verified,presentable}) => {
         const ready = !!card?.artifactId && presentable >= PRESENTATION_GOAL;
         const id=card?.artifactId || 0;

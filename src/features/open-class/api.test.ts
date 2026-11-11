@@ -55,8 +55,12 @@ describe('open lesson requests on slow or missing internet', () => {
     await expect(saveCard('5252', 'token', newCard(1), 2)).resolves.toEqual({ saved: true, version: 3 });
     expect(vi.getTimerCount()).toBe(0);
     expect(fetch.mock.calls[0][1].signal).toBeInstanceOf(AbortSignal);
+    expect(fetch.mock.calls[0][1].cache).toBe('no-store');
     fetch.mockResolvedValueOnce(json({ error: '다른 태블릿이 먼저 저장했어요.' }, 409));
     expect(await failure(saveCard('5252', 'token', newCard(1), 2))).toMatchObject({ status: 409, message: '다른 태블릿이 먼저 저장했어요.' });
+    const shared = newCard(1, 3);
+    fetch.mockResolvedValueOnce(json({ error: '충돌', version: 4, data: shared }, 409));
+    expect(await failure(saveCard('5252', 'token', newCard(1), 2))).toMatchObject({ status: 409, current: { version: 4, data: shared } });
     fetch.mockResolvedValueOnce(json({ error: '입장 정보가 없어요.' }, 401));
     expect((await failure(loadState('5252', 'token'))).status).toBe(401);
     fetch.mockResolvedValueOnce(new Response('<html></html>', { status: 200, headers: { 'content-type': 'text/html' } }));

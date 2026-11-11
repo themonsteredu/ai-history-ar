@@ -16,12 +16,17 @@ const noAnswer = (save: boolean, slow: boolean) => new StudioApiError(save
 async function openApi<T>(path: string, token: string, body?: unknown): Promise<T> {
   const controller = new AbortController(), timer = setTimeout(() => controller.abort(), OPEN_API_TIMEOUT);
   try {
-    const response = await fetch(`${import.meta.env.BASE_URL}api/open-lesson${path}`, { method: body === undefined ? 'GET' : 'POST', credentials: 'same-origin', signal: controller.signal,
+    const response = await fetch(`${import.meta.env.BASE_URL}api/open-lesson${path}`, { method: body === undefined ? 'GET' : 'POST', cache: 'no-store', credentials: 'same-origin', signal: controller.signal,
       headers: { Authorization: `Bearer ${token}`, ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) }, body: body === undefined ? undefined : JSON.stringify(body) });
     const value = await response.json().catch(() => ({}));
     // A body cut off by the timeout must not pass for an empty answer.
     if (controller.signal.aborted) throw noAnswer(body !== undefined, true);
-    if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) throw new StudioApiError(value.error || '저장 서버에 연결하지 못했어요. 쓴 내용은 이 기기에 남아 있어요.', response.status);
+    if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) {
+      const error = new StudioApiError(value.error || '저장 서버에 연결하지 못했어요. 쓴 내용은 이 기기에 남아 있어요.', response.status);
+      // A conflict already includes the latest shared record; do not wait for the next class poll.
+      if (response.status === 409 && Number.isInteger(value.version) && value.version >= 0 && value.data) Object.assign(error, { current: { version: value.version, data: value.data } });
+      throw error;
+    }
     return value as T;
   } catch (error) {
     // The browser's own wording ('Failed to fetch', 'The user aborted a request') is English and means nothing to a student.

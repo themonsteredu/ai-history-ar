@@ -12,6 +12,7 @@ import { encodeUrlQr } from '../../lib/qr/classroomQr';
 import { forgetOpenSession, readOpenSession, joinOpenLesson, loadState, saveCard, saveCheck, latestLoads, type OpenState } from '../open-class/api';
 import { isGroupCard, isVerification, newCard, newSelfVerification, selfItemDone, selfQuestions, type GroupCard, type Verification } from '../open-class/model';
 import { useSyncedDraft } from '../open-class/useSyncedDraft';
+import { useClassPolling } from '../open-class/useClassPolling';
 import { IntroNotes, Reflection, SelfQuizLab } from '../open-class/SelfInquiry';
 import { Presentation } from '../open-class/Presentation';
 import { MuseumCardStage } from '../open-class/MuseumCardStage';
@@ -40,16 +41,17 @@ function useRoom(session:StudioSession) {
  const [state,setState]=useState<OpenState>(empty),[loaded,setLoaded]=useState(false),[error,setError]=useState(''),[updatedAt,setUpdatedAt]=useState<number>();
  const [loads]=useState(()=>latestLoads());
  const refresh=useCallback(async()=>{if(document.visibilityState==='hidden')return;const result=await loads(()=>loadState(session.code,session.token));if(!result)return;if(result.ok){setState(result.value);setLoaded(true);setUpdatedAt(Date.now());setError(goryeoRoomSafe(result.value)?'':'다른 수업 기록이 있는 코드입니다. 선생님과 새로운 코드를 정해 주세요.');}else setError(result.error instanceof Error?result.error.message:'수업 기록을 불러오지 못했어요.');},[loads,session.code,session.token]);
- useEffect(()=>{void refresh();const timer=window.setInterval(()=>void refresh(),6000);return()=>window.clearInterval(timer);},[refresh]);
+ useClassPolling(refresh);
  return {state,loaded,error,updatedAt,refresh,safe:loaded&&goryeoRoomSafe(state)};
 }
 function GoryeoRoom({session,onLeave}:{session:StudioSession;onLeave:()=>void}) {
- const {code,token,group}=session;const {state,loaded,error,safe}=useRoom(session);const [tab,setTab]=useState<Tab>('card');
+ const {code,token,group}=session;const {state,loaded,error,safe,refresh}=useRoom(session);const [tab,setTab]=useState<Tab>('card');
  const saveMyCard=useCallback((data:GroupCard,version:number)=>saveCard(code,token,data,version),[code,token]);
  const saveMyCheck=useCallback((data:Verification,version:number)=>saveCheck(code,token,{...data,lesson:GORYEO_TAG} as Verification,version),[code,token]);
  const card=useSyncedDraft<GroupCard>({draftKey:`goryeo:${code}:card:${group}`,server:state.cards.find(x=>x.key===String(group)),blank:()=>({...newCard(group),lesson:GORYEO_TAG} as GroupCard),check:(v):v is GroupCard=>isGroupCard(v)&&isGoryeo(v),save:saveMyCard,canSave:d=>safe&&isGoryeo(d)&&d.artifactId>0});
- const draft=useSyncedDraft<Verification>({draftKey:`goryeo:${code}:verify:${group}`,server:state.checks.find(x=>x.key===`${group}:${group}`),blank:()=>({...newSelfVerification(group),lesson:GORYEO_TAG} as Verification),check:(v):v is Verification=>isVerification(v)&&isGoryeo(v),save:saveMyCheck,maxWait:10000,canSave:d=>safe&&isGoryeo(d)});
+ const draft=useSyncedDraft<Verification>({draftKey:`goryeo:${code}:verify:${group}`,server:state.checks.find(x=>x.key===`${group}:${group}`),blank:()=>({...newSelfVerification(group),lesson:GORYEO_TAG} as Verification),check:(v):v is Verification=>isVerification(v)&&isGoryeo(v),save:saveMyCheck,maxWait:3000,canSave:d=>safe&&isGoryeo(d)});
  const artifact=goryeoArtifact(card.data.artifactId);
+ if(!loaded)return <main className="oc-page page-width"><p role="status">우리 모둠의 최신 기록을 불러오는 중…</p>{error&&<p role="alert">{error}</p>}<button onClick={()=>void refresh()}>다시 불러오기</button><button onClick={onLeave}>다시 입장</button></main>;
  if(loaded&&!safe)return <main className="oc-page page-width"><p role="alert">{error}</p><button onClick={onLeave}>다른 수업코드 입력</button></main>;
  return <main className="oc-page page-width"><header className="oc-head"><div><p className="oc-eyebrow">고려시대 공개수업 · 수업코드 {displayCode(code)}</p><h1>고려 유물 AR 탐구 · AI 퀴즈 검증</h1></div><p className="oc-me"><b>{group}모둠</b> · {session.name}<button onClick={onLeave}>다시 입장</button></p></header>
  {error&&<p className="oc-notice" role="alert">{error}</p>}{!loaded&&<p role="status">우리 반 기록을 불러오는 중…</p>}<div className="oc-actions"><a className="oc-primary" href={`${import.meta.env.BASE_URL}goryeo-ar-cards.html`} target="_blank" rel="noopener noreferrer">AR 인식 카드 인쇄</a><a href={`${import.meta.env.BASE_URL}downloads/goryeo/open-class/student-worksheet.pdf`} download>수업 활동지 PDF</a><a href={`${import.meta.env.BASE_URL}downloads/goryeo/open-class/group-presentation-notes.pdf`} download>모둠 발표 듣기 활동지</a></div><details className="oc-panel"><summary>수업 자료 모아보기</summary><OpenLessonMaterials era="goryeo"/></details><nav className="oc-tabs" aria-label="오늘 할 일">{steps.map((s,i)=><button key={s.key} aria-pressed={tab===s.key} onClick={()=>setTab(s.key)}><b>{i+1}</b><span>{s.label}</span><small>{s.help}</small></button>)}</nav>

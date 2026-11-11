@@ -45,7 +45,7 @@ export function TeacherLessonWorkspace({ era, code, groupCount, state, updatedAt
       {menus.map(menu => <button key={menu.id} type="button" aria-pressed={view === menu.id} onClick={() => selectView(menu.id)}>{menu.label}</button>)}
     </nav>
     <div className="teacher-workspace__status">
-      <p role="status">{error ? `연결 확인 필요 · ${error}${updatedAt ? ' · 마지막으로 받은 기록입니다.' : ''}` : updatedAt ? `6초마다 새로 확인 · ${new Date(updatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}` : '수업 기록을 불러오는 중…'}</p>
+      <p role="status">{error ? `연결 확인 필요 · ${error}${updatedAt ? ' · 마지막으로 받은 기록입니다.' : ''}` : updatedAt ? `2초마다 새로 확인 · ${new Date(updatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}` : '수업 기록을 불러오는 중…'}</p>
       <button type="button" disabled={refreshing} onClick={() => void refresh()}>{refreshing ? '확인 중…' : '새로고침'}</button>
     </div>
 

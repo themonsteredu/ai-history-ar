@@ -93,7 +93,7 @@ export function CardMaker({ draft, taken, hasVerification = false, era = 'joseon
 
     <section className="oc-save" aria-label="카드 저장">
       <p className={`oc-save-state is-${draft.state}`} role="status">{saveLabel(draft.state, draft.dirty, draft.savedAt)}{draft.message && ` · ${draft.message}`}</p>
-      {draft.state === 'conflict' && <div className="oc-actions"><button type="button" onClick={draft.takeServer}>다른 태블릿 것 불러오기</button><button type="button" className="oc-primary" onClick={draft.keepMine}>이 태블릿 것으로 저장</button></div>}
+      {draft.state === 'conflict' && <div className="oc-actions"><button type="button" onClick={draft.takeServer}>모둠 저장본 불러오기</button><button type="button" className="oc-primary" onClick={draft.keepMine}>내 내용으로 덮어쓰기</button></div>}
       {draft.state !== 'conflict' && <button type="button" className="oc-primary" disabled={draft.state === 'saving'} onClick={() => { void draft.saveNow(true); }}>지금 우리 반에 저장</button>}
       {problems.length > 0 ? <details className="oc-todo"><summary>아직 남은 일 {problems.length}가지</summary><ul>{problems.map(item => <li key={item}>{item}</li>)}</ul></details> : <p className="oc-done">카드 준비 완료! 이 카드로 발표하고 AI 문제를 만들어요.</p>}
     </section>
