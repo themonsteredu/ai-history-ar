@@ -140,7 +140,14 @@ export function useSyncedDraft<T>(options: {
   }, [server, commit]);
   const keepMine = useCallback(() => { void saveNow(true, true); }, [saveNow]);
 
-  return { data: stored.data, dirty: stored.dirty, version: stored.base, update, saveNow, state, message, savedAt, takeServer, keepMine };
+  // Re-entry must start from the shared record, not silently revive this visit's unsaved edits.
+  const prepareReentry = useCallback(() => {
+    const current = latest.current;
+    if (current.dirty) writeDraft(`${current.key}:unsaved-backup`, current);
+    writeDraft(current.key, null);
+  }, []);
+
+  return { data: stored.data, dirty: stored.dirty, version: stored.base, update, saveNow, state, message, savedAt, takeServer, keepMine, prepareReentry };
 }
 
 export function saveLabel(state: SaveState, dirty: boolean, savedAt: string) {

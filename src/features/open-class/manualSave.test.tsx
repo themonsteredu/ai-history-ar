@@ -13,8 +13,9 @@ it('does not publish restored or edited local work without an explicit save, inc
   let draft!: ReturnType<typeof useSyncedDraft<{ text: string }>>;
   const key = 'room:card:1';
   memory.set(`history-ar-open-draft:${key}`, JSON.stringify({ data: { text: '실수로 바꾼 내용' }, base: 1, baseData: { text: '기존 1모둠 내용' }, dirty: true }));
+  let sharedText = '기존 1모둠 내용';
   function Probe() {
-    draft = useSyncedDraft({ draftKey: key, server: { key: '1', version: 1, data: { text: '기존 1모둠 내용' }, updatedAt: '' }, blank: () => ({ text: '' }), check: (v): v is { text: string } => !!v && typeof (v as {text: string}).text === 'string', save });
+    draft = useSyncedDraft({ draftKey: key, server: { key: '1', version: 1, data: { text: sharedText }, updatedAt: '' }, blank: () => ({ text: '' }), check: (v): v is { text: string } => !!v && typeof (v as {text: string}).text === 'string', save });
     return null;
   }
   renderToStaticMarkup(<Probe />);
@@ -28,5 +29,13 @@ it('does not publish restored or edited local work without an explicit save, inc
   draft.update(() => ({ text: '아직 확정하지 않은 다음 수정' }));
   await draft.saveNow();
   await vi.advanceTimersByTimeAsync(60000);
+  expect(save).toHaveBeenCalledTimes(1);
+  draft.prepareReentry();
+  expect(memory.get(`history-ar-open-draft:${key}`)).toBe('null');
+  expect(memory.get(`history-ar-open-draft:${key}:unsaved-backup`)).toContain('아직 확정하지 않은 다음 수정');
+  sharedText = '다른 기기가 저장한 최신 1모둠 내용';
+  renderToStaticMarkup(<Probe />);
+  expect(draft.data.text).toBe(sharedText);
+  expect(draft.dirty).toBe(false);
   expect(save).toHaveBeenCalledTimes(1);
 });
