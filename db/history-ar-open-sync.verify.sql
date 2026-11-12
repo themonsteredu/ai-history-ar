@@ -29,6 +29,11 @@ begin
   if state_a#>'{items,0,data}' is distinct from second_data then raise exception 'Refresh returns stale data'; end if;
   result := public.history_ar_open_dispatch('save',qa_code,token_c,jsonb_build_object('kind','card','key','1','expectedVersion',2,'data',first_data));
   if result->>'_status' is distinct from '403' then raise exception 'Cross-group write allowed'; end if;
+  state_b := public.history_ar_open_dispatch('state',qa_code,token_c);
+  if state_b->'items' is distinct from state_a->'items' then raise exception 'Other group cannot observe saved cards'; end if;
+  result := public.history_ar_open_dispatch('save',qa_code,token_a,jsonb_build_object('kind','card','key','4','expectedVersion',0,'data',jsonb_set(first_data,'{group}','4')));
+  if result->>'_status' is distinct from '403' then raise exception 'Group 1 can write group 4'; end if;
+
 end;
 $$;
 select 'passed: shared reads, both members save, conflict snapshot, refresh, group isolation; all synthetic rows rolled back' as verification;

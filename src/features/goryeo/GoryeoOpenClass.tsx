@@ -1,3 +1,4 @@
+import { StudentGroupViews } from '../open-class/StudentGroupViews';
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTeacherClass } from '../ar-studio/useTeacherClass';
@@ -55,6 +56,7 @@ function GoryeoRoom({session,onLeave}:{session:StudioSession;onLeave:()=>void}) 
  if(!loaded)return <main className="oc-page page-width"><p role="status">우리 모둠의 최신 기록을 불러오는 중…</p>{error&&<p role="alert">{error}</p>}<button onClick={()=>void refresh()}>다시 불러오기</button><button onClick={leave}>다시 입장</button></main>;
  if(loaded&&!safe)return <main className="oc-page page-width"><p role="alert">{error}</p><button onClick={leave}>다른 수업코드 입력</button></main>;
  return <main className="oc-page page-width"><header className="oc-head"><div><p className="oc-eyebrow">고려시대 공개수업 · 수업코드 {displayCode(code)}</p><h1>고려 유물 AR 탐구 · AI 퀴즈 검증</h1></div><p className="oc-me"><b>{group}모둠</b> · {session.name}<button onClick={leave}>다시 입장</button></p></header>
+ <StudentGroupViews era="goryeo" cards={state.cards} group={group}>
  {error&&<p className="oc-notice" role="alert">{error}</p>}{!loaded&&<p role="status">우리 반 기록을 불러오는 중…</p>}<div className="oc-actions"><a className="oc-primary" href={`${import.meta.env.BASE_URL}goryeo-ar-cards.html`} target="_blank" rel="noopener noreferrer">AR 인식 카드 인쇄</a><a href={`${import.meta.env.BASE_URL}downloads/goryeo/open-class/student-worksheet.pdf`} download>수업 활동지 PDF</a><a href={`${import.meta.env.BASE_URL}downloads/goryeo/open-class/group-presentation-notes.pdf`} download>모둠 발표 듣기 활동지</a></div><details className="oc-panel"><summary>수업 자료 모아보기</summary><OpenLessonMaterials era="goryeo"/></details><nav className="oc-tabs" aria-label="오늘 할 일">{steps.map((s,i)=><button key={s.key} aria-pressed={tab===s.key} onClick={()=>setTab(s.key)}><b>{i+1}</b><span>{s.label}</span><small>{s.help}</small></button>)}</nav>
  {tab==='card'&&<CardMaker era="goryeo" draft={card} taken={new Map(state.cards.map(item=>[item.data.artifactId,state.cards.filter(other=>other.data.artifactId===item.data.artifactId).map(other=>other.data.group)]))} hasVerification={(draft.data.selfQuestions||[]).some(q=>q.statement.trim())}/>}
  {tab==='look'&&<><IntroNotes era="goryeo" draft={draft} card={card.data}/><details className="oc-panel"><summary>다른 모둠 AR 카드 관찰</summary><CardGallery era="goryeo" cards={state.cards} myGroup={group}/></details></>}
@@ -62,7 +64,7 @@ function GoryeoRoom({session,onLeave}:{session:StudioSession;onLeave:()=>void}) 
  {tab==='check'&&artifact&&<SelfQuizLab draft={draft} card={card.data} artifactName={artifact.short} era="goryeo"/>}
  {tab==='present'&&artifact&&<Presentation check={draft.data} card={card.data} questions={selfQuestions(draft.data)} artifactName={artifact.short} era="goryeo"/>}
  {tab==='reflect'&&<Reflection era="goryeo" draft={draft}/>}
- <nav className="oc-actions" aria-label="활동 이동"><button type="button" disabled={tab==='card'} onClick={()=>{const index=steps.findIndex(step=>step.key===tab);if(index>0)setTab(steps[index-1].key);}}>← 이전 활동</button><button type="button" disabled={tab==='reflect'} onClick={()=>{const index=steps.findIndex(step=>step.key===tab);if(index>=0&&index<steps.length-1)setTab(steps[index+1].key);}}>다음 활동 →</button></nav></main>;
+ <nav className="oc-actions" aria-label="활동 이동"><button type="button" disabled={tab==='card'} onClick={()=>{const index=steps.findIndex(step=>step.key===tab);if(index>0)setTab(steps[index-1].key);}}>← 이전 활동</button><button type="button" disabled={tab==='reflect'} onClick={()=>{const index=steps.findIndex(step=>step.key===tab);if(index>=0&&index<steps.length-1)setTab(steps[index+1].key);}}>다음 활동 →</button></nav></StudentGroupViews></main>;
 }
 export function GoryeoTeacher() {
  const [code,setCode]=useTeacherClass('goryeo');

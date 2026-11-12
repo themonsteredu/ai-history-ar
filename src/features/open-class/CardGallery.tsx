@@ -6,15 +6,17 @@ import type { OpenItem } from './api';
 import { readyQuestions, type GroupCard } from './model';
 
 /** Step 2: look at the other groups' cards, on screen or floating over the camera. */
-export function CardGallery({ cards, myGroup, onCheck, initialGroup, era = 'joseon' }: { cards: OpenItem<GroupCard>[]; myGroup: number; onCheck?: (group: number) => void; initialGroup?: number; era?: 'goryeo' | 'joseon' }) {
+export function CardGallery({ cards, myGroup, onCheck, initialGroup, showAllGroups = false, era = 'joseon' }: { cards: OpenItem<GroupCard>[]; myGroup: number; onCheck?: (group: number) => void; initialGroup?: number; showAllGroups?: boolean; era?: 'goryeo' | 'joseon' }) {
   const visible = cards.filter(item => item.data.artifactId).sort((a, b) => a.data.group - b.data.group);
   const [open, setOpen] = useState<number | undefined>(initialGroup);
   const [selected, setSelected] = useState<string>();
   const [ar, setAr] = useState(false);
   const current = visible.find(item => item.data.group === open)?.data;
-  if (!visible.length) return <p className="oc-empty">아직 저장된 모둠 카드가 없어요. 친구들이 카드를 저장하면 여기에 나와요.</p>;
+  if (!visible.length && !showAllGroups) return <p className="oc-empty">아직 저장된 모둠 카드가 없어요. 친구들이 카드를 저장하면 여기에 나와요.</p>;
   return <div className="oc-gallery">
-    <div className="oc-gallery-list">{visible.map(({ data }) => {
+    <div className="oc-gallery-list">{(showAllGroups ? [1, 2, 3, 4, 5, 6] : visible.map(item => item.data.group)).map(group => {
+      const data = visible.find(item => item.data.group === group)?.data;
+      if (!data) return <button key={group} type="button" disabled><b>{group}모둠{group === myGroup && ' (우리)'}</b><small>저장된 카드 없음</small></button>;
       const artifact = era === 'goryeo' ? goryeoArtifact(data.artifactId) : artifactById(data.artifactId);
       return <button key={data.group} type="button" aria-pressed={open === data.group} onClick={() => { setOpen(data.group); setSelected(undefined); }}>
         <b>{data.group}모둠{data.group === myGroup && ' (우리)'}</b><span>{artifact?.name}</span><small>점 {data.points.length}개 · 문제 {readyQuestions(data.questions).length}개</small>

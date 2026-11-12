@@ -481,3 +481,8 @@
 .oc-quiz-sync.is-error,.oc-quiz-sync.is-conflict{background:#f8e8df;border-color:#a24c31}
 .oc-ar-launcher .oc-actions{margin:0}
 @media(max-width:800px){.oc-quiz-prompt-fields dl>div{grid-template-columns:1fr;gap:4px}}
+
+.oc-student-menus{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 20px;padding-bottom:16px;border-bottom:1px solid var(--oc-line)}
+.oc-student-menus button{flex:1;min-height:52px;font-size:1.05rem;font-weight:800;word-break:keep-all}
+.oc-student-menus button[aria-pressed="true"]{background:#315e49;color:#fff;border-color:#315e49}
+@media(max-width:600px){.oc-student-menus{gap:8px}.oc-student-menus button{flex-basis:100%}}

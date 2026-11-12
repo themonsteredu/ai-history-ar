@@ -1,3 +1,4 @@
+import { StudentGroupViews } from './StudentGroupViews';
 import { useCallback, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import type { StudioSession } from '../ar-studio/api';
@@ -76,6 +77,7 @@ function Lesson({ session, onLeave }: { session: StudioSession; onLeave: () => v
  if(!loaded)return <main className="oc-page page-width"><p role="status">우리 모둠의 최신 기록을 불러오는 중…</p>{error&&<p role="alert">{error}</p>}<button onClick={()=>void refresh()}>다시 불러오기</button><button onClick={leave}>다시 입장</button></main>;
  const taken=new Map<number,number[]>();state.cards.forEach(i=>taken.set(i.data.artifactId,[...(taken.get(i.data.artifactId)||[]),i.data.group]));
  return <main className="oc-page page-width"><header className="oc-head"><div><p className="oc-eyebrow">조선시대 공개수업 · 수업코드 {code}</p><h1>조선 유물 AR 탐구 · AI 퀴즈 검증</h1></div><p className="oc-me"><b>{group}모둠</b> · {session.name}<button onClick={leave}>다시 입장</button></p></header>
+ <StudentGroupViews era="joseon" cards={state.cards} group={group}>
  <div className="oc-actions"><a href={worksheetUrl} download>공개수업 활동지 PDF</a><a href={`${import.meta.env.BASE_URL}downloads/joseon/open-class/group-presentation-notes.pdf`} download>모둠 발표 듣기 활동지</a></div><details className="oc-panel"><summary>수업 자료 모아보기</summary><OpenLessonMaterials era="joseon"/></details>
  <nav className="oc-tabs" aria-label="오늘 할 일">{VIEWS.map((v,i)=><button key={v.id} aria-pressed={view===v.id} onClick={()=>go(v.id)}><b>{i+1}</b><span>{v.label}</span><small>{v.help}</small></button>)}</nav>
  {error&&<p role="alert" className="oc-notice">{error}</p>}{!loaded&&<p role="status">우리 반 기록을 불러오는 중…</p>}
@@ -86,5 +88,5 @@ function Lesson({ session, onLeave }: { session: StudioSession; onLeave: () => v
  {view==='present'&&cardDraft.data.artifactId>0&&<Presentation check={checkDraft.data} card={cardDraft.data} questions={selfQuestions(checkDraft.data)}/>}
  {view==='reflect'&&<Reflection draft={checkDraft}/>}
  <nav className="oc-actions" aria-label="활동 이동"><button type="button" disabled={view==='make'} onClick={()=>{const i=VIEWS.findIndex(v=>v.id===view);if(i>0)go(VIEWS[i-1].id);}}>← 이전 활동</button><button type="button" disabled={view==='reflect'} onClick={()=>{const i=VIEWS.findIndex(v=>v.id===view);if(i>=0&&i<VIEWS.length-1)go(VIEWS[i+1].id);}}>다음 활동 →</button></nav>
- </main>;
+ </StudentGroupViews></main>;
 }
