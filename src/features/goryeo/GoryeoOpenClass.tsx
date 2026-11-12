@@ -49,7 +49,7 @@ function GoryeoRoom({session,onLeave}:{session:StudioSession;onLeave:()=>void}) 
  const saveMyCard=useCallback((data:GroupCard,version:number)=>saveCard(code,token,data,version),[code,token]);
  const saveMyCheck=useCallback((data:Verification,version:number)=>saveCheck(code,token,{...data,lesson:GORYEO_TAG} as Verification,version),[code,token]);
  const card=useSyncedDraft<GroupCard>({draftKey:`goryeo:${code}:card:${group}`,server:state.cards.find(x=>x.key===String(group)),blank:()=>({...newCard(group),lesson:GORYEO_TAG} as GroupCard),check:(v):v is GroupCard=>isGroupCard(v)&&isGoryeo(v),save:saveMyCard,canSave:d=>safe&&isGoryeo(d)&&d.artifactId>0});
- const draft=useSyncedDraft<Verification>({draftKey:`goryeo:${code}:verify:${group}`,server:state.checks.find(x=>x.key===`${group}:${group}`),blank:()=>({...newSelfVerification(group),lesson:GORYEO_TAG} as Verification),check:(v):v is Verification=>isVerification(v)&&isGoryeo(v),save:saveMyCheck,maxWait:3000,canSave:d=>safe&&isGoryeo(d)});
+ const draft=useSyncedDraft<Verification>({draftKey:`goryeo:${code}:verify:${group}`,server:state.checks.find(x=>x.key===`${group}:${group}`),blank:()=>({...newSelfVerification(group),lesson:GORYEO_TAG} as Verification),check:(v):v is Verification=>isVerification(v)&&isGoryeo(v),save:saveMyCheck,canSave:d=>safe&&isGoryeo(d)});
  const artifact=goryeoArtifact(card.data.artifactId);
  if(!loaded)return <main className="oc-page page-width"><p role="status">우리 모둠의 최신 기록을 불러오는 중…</p>{error&&<p role="alert">{error}</p>}<button onClick={()=>void refresh()}>다시 불러오기</button><button onClick={onLeave}>다시 입장</button></main>;
  if(loaded&&!safe)return <main className="oc-page page-width"><p role="alert">{error}</p><button onClick={onLeave}>다른 수업코드 입력</button></main>;
