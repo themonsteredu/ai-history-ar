@@ -7,6 +7,7 @@ import { TeacherGroupDashboard, TeacherQuizStatus } from './TeacherGroupDashboar
 import { Presentation } from './Presentation';
 import { usePresentationDialog } from './usePresentationDialog';
 import { teacherWorkspaceGroups, type TeacherEra, type TeacherGroup } from './teacherWorkspaceGroups';
+import { TeacherArtifactAssignments } from './TeacherArtifactAssignments';
 import './teacher-workspace.css';
 
 const menus = [
@@ -16,11 +17,11 @@ const menus = [
 ] as const;
 type View = typeof menus[number]['id'];
 type Props = {
-  era: TeacherEra; code: string; groupCount: number; state: OpenState;
+  era: TeacherEra; code: string; groupCount: number; state: OpenState; sessionToken?: string;
   updatedAt?: number; error: string; onGroupCount: (count: number) => void; onRefresh: () => Promise<unknown>;
 };
 
-export function TeacherLessonWorkspace({ era, code, groupCount, state, updatedAt, error, onGroupCount, onRefresh }: Props) {
+export function TeacherLessonWorkspace({ era, code, groupCount, state, sessionToken, updatedAt, error, onGroupCount, onRefresh }: Props) {
   const [params, setParams] = useSearchParams();
   const requested = params.get('teacher_view');
   const view: View = requested === 'quiz' || requested === 'progress' ? requested : 'ar';
@@ -44,6 +45,7 @@ export function TeacherLessonWorkspace({ era, code, groupCount, state, updatedAt
   const ready = groups.filter(group => view === 'ar' ? group.canPresentCard : group.canPresentQuiz).length;
 
   return <section className="teacher-workspace" aria-label="수업 진행">
+    <TeacherArtifactAssignments key={`${era}:${code}`} era={era} code={code} groupCount={groupCount} cards={state.cards} sessionToken={sessionToken} loaded={!!updatedAt && !error} onRefresh={onRefresh} />
     <nav className="teacher-workspace__menus" aria-label="수업 진행 메뉴">
       {menus.map(menu => <button key={menu.id} type="button" aria-pressed={view === menu.id} onClick={() => selectView(menu.id)}>{menu.label}</button>)}
     </nav>

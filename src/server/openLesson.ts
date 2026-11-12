@@ -48,7 +48,7 @@ export function createOpenLessonHandler(config: OpenLessonConfig) {
       if (path === '/health' && request.method === 'GET') return json({ status: config.url && config.key ? 'ready' : 'unconfigured' }, config.url && config.key ? 200 : 503, origin);
       if (!['GET', 'POST'].includes(request.method)) throw new RequestError(405, '지원하지 않는 요청입니다.');
       if (!config.url || !config.key) throw new RequestError(503, '저장 서버 연결을 확인해 주세요.');
-      const match = path.match(/^\/rooms\/([a-z0-9]{4,12})(?:\/(card|verify\/([1-6])|teacher\/([1-6])))?$/);
+      const match = path.match(/^\/rooms\/([a-z0-9]{4,12})(?:\/(card|verify\/([1-6])|teacher\/([1-6])|assignment\/([1-6])))?$/);
       if (!match) throw new RequestError(404, '수업 경로를 찾지 못했어요.');
       const token = request.headers.get('authorization')?.match(/^Bearer ([a-f0-9]{64})$/)?.[1] || '';
       if (!TOKEN.test(token)) throw new RequestError(401, '수업코드로 먼저 입장해 주세요.');
@@ -67,6 +67,17 @@ export function createOpenLessonHandler(config: OpenLessonConfig) {
       else writes.set(limitKey, { start: now, count: 1 });
       const input = await readBody(request);
       if (!Number.isInteger(input.expectedVersion) || Number(input.expectedVersion) < 0) throw new RequestError(400, '저장본 번호를 확인해 주세요.');
+      if (match[5]) {
+        // Assignment is a teacher-only operation. Never forward a student-controlled permission flag.
+        if (typeof input.pin !== 'string' || !config.teacherPin || input.pin !== config.teacherPin) throw new RequestError(403, '선생님 PIN을 확인해 주세요.');
+        if (!Number.isInteger(input.artifactId) || Number(input.artifactId) < 1 || Number(input.artifactId) > 6 ||
+          (input.lesson !== undefined && input.lesson !== 'goryeo-open-v2')) throw new RequestError(400, '배정할 유물을 확인해 주세요.');
+        const { _status, ...result } = await rpc({ ...base, p_action: 'assign', p_payload: {
+          key: match[5], artifactId: input.artifactId, expectedVersion: input.expectedVersion,
+          ...(input.lesson === 'goryeo-open-v2' ? { lesson: input.lesson } : {}),
+        } });
+        return json(result, Number(_status) || 200, origin);
+      }
       let kind = '', key = '';
       if (tail === 'card') {
         if (!isGroupCard(input.data)) throw new RequestError(400, '카드 내용의 길이와 형식을 확인해 주세요.');

@@ -8,15 +8,15 @@ declare
   token_a text := md5(random()::text) || md5(random()::text);
   token_b text := md5(random()::text) || md5(random()::text);
   token_c text := md5(random()::text) || md5(random()::text);
-  first_data jsonb := '{"version":1,"group":1,"artifactId":1,"members":"QA","points":[],"questions":[]}';
+  first_data jsonb := '{"version":1,"group":1,"artifactId":1,"members":"","points":[],"questions":[]}';
   second_data jsonb;
   result jsonb; state_a jsonb; state_b jsonb;
 begin
   insert into history_ar.classrooms(code,expires_at) values(qa_code,now()+interval '1 hour') returning id into room_id;
   insert into history_ar.members(classroom_id,token_hash,name,group_no) values
     (room_id,token_a,'QA tablet A',1),(room_id,token_b,'QA tablet B',1),(room_id,token_c,'QA other group',2);
-  result := public.history_ar_open_dispatch('save',qa_code,token_a,jsonb_build_object('kind','card','key','1','expectedVersion',0,'data',first_data));
-  if result->>'version' is distinct from '1' then raise exception 'First save failed'; end if;
+  result := public.history_ar_open_dispatch('assign',qa_code,token_a,jsonb_build_object('key','1','artifactId',1,'expectedVersion',0));
+  if result->>'version' is distinct from '1' then raise exception 'Initial teacher assignment failed'; end if;
   state_a := public.history_ar_open_dispatch('state',qa_code,token_a);
   state_b := public.history_ar_open_dispatch('state',qa_code,token_b);
   if state_a->'items' is distinct from state_b->'items' then raise exception 'Group readers diverge'; end if;

@@ -39,3 +39,28 @@ it('does not publish restored or edited local work without an explicit save, inc
   expect(draft.dirty).toBe(false);
   expect(save).toHaveBeenCalledTimes(1);
 });
+
+it('keeps unsaved work as a backup when the user explicitly loads the group save', () => {
+  const key = 'room:card:1';
+  const local = { data: { text: '오늘 아직 저장하지 않은 작업' }, base: 1, baseData: { text: '처음 모둠 내용' }, dirty: true };
+  const shared = { text: '다른 학생이 저장한 모둠 내용' };
+  const memory = new Map([[`history-ar-open-draft:${key}`, JSON.stringify(local)]]);
+  vi.stubGlobal('localStorage', { getItem: (item: string) => memory.get(item) ?? null, setItem: (item: string, value: string) => memory.set(item, value) });
+  const save = vi.fn(async () => ({ version: 3 }));
+  let draft!: ReturnType<typeof useSyncedDraft<{ text: string }>>;
+  function Probe() {
+    draft = useSyncedDraft({ draftKey: key, server: { key: '1', version: 2, data: shared, updatedAt: '' }, blank: () => ({ text: '' }), check: (value): value is { text: string } => !!value && typeof (value as { text: string }).text === 'string', save });
+    return null;
+  }
+  renderToStaticMarkup(<Probe />);
+  expect(draft.state).toBe('conflict');
+  draft.takeServer();
+  expect(JSON.parse(memory.get(`history-ar-open-draft:${key}:unsaved-backup`)!)).toEqual({ ...local, key });
+  expect(JSON.parse(memory.get(`history-ar-open-draft:${key}`)!)).toEqual({ data: shared, base: 2, baseData: shared, dirty: false });
+  expect(save).not.toHaveBeenCalled();
+  renderToStaticMarkup(<Probe />);
+  expect(draft.data).toEqual(shared);
+  expect(draft.dirty).toBe(false);
+  draft.takeServer();
+  expect(JSON.parse(memory.get(`history-ar-open-draft:${key}:unsaved-backup`)!)).toEqual({ ...local, key });
+});

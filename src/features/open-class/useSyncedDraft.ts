@@ -135,6 +135,8 @@ export function useSyncedDraft<T>(options: {
   const takeServer = useCallback(() => {
     const item = remote.current?.key === keyRef.current ? remote.current.item : server;
     if (!item) return;
+    const current = latest.current;
+    if (current.dirty) writeDraft(`${current.key}:unsaved-backup`, current);
     commit({ key: keyRef.current, data: item.data, base: item.version, baseData: item.data, dirty: false });
     setState('saved'); setMessage(''); setSavedAt(stamp());
   }, [server, commit]);

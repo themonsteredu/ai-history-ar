@@ -71,6 +71,30 @@ describe('open lesson Edge API', () => {
     expect(api.sent().p_payload).toMatchObject({ kind: 'teacher', key: '4' });
     expect(api.sent().p_payload.pin).toBeUndefined();
   });
+  it('requires the teacher PIN before assigning an artifact and never forwards the PIN', async () => {
+    const api = setup();
+    const body = { artifactId: 2, expectedVersion: 0, lesson: 'goryeo-open-v2' };
+    expect((await api.handler(request('/rooms/895252/assignment/4', body))).status).toBe(403);
+    expect((await api.handler(request('/rooms/895252/assignment/4', { ...body, pin: 'wrong' }))).status).toBe(403);
+    expect(api.fetcher).not.toHaveBeenCalled();
+    expect((await api.handler(request('/rooms/895252/assignment/4', { ...body, pin: '3035' }))).status).toBe(200);
+    expect(api.sent()).toMatchObject({ p_action: 'assign', p_code: '895252', p_payload: { key: '4', artifactId: 2, expectedVersion: 0, lesson: 'goryeo-open-v2' } });
+    expect(api.sent().p_payload.pin).toBeUndefined();
+    expect(api.sent().p_payload.data).toBeUndefined();
+  });
+  it('rejects malformed assignments before touching the database', async () => {
+    const api = setup();
+    for (const patch of [{ artifactId: 0 }, { artifactId: 7 }, { artifactId: 1.5 }, { artifactId: '2' }, { expectedVersion: -1 }, { lesson: 'other' }]) {
+      expect((await api.handler(request('/rooms/5252/assignment/1', { pin: '3035', artifactId: 1, expectedVersion: 0, ...patch }))).status).toBe(400);
+    }
+    expect(api.fetcher).not.toHaveBeenCalled();
+  });
+  it('does not bypass an already assigned card or a version conflict', async () => {
+    const api = setup({ _status: 409, error: '이미 배정된 유물입니다.', version: 17 });
+    const response = await api.handler(request('/rooms/5252/assignment/1', { pin: '3035', artifactId: 2, expectedVersion: 16 }));
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({ error: '이미 배정된 유물입니다.', version: 17 });
+  });
   it('passes database refusals through with their status', async () => {
     const api = setup({ _status: 409, error: '다른 태블릿에서 먼저 저장했어요.' });
     const response = await api.handler(request('/rooms/5252/card', { data: card(), expectedVersion: 0 }));

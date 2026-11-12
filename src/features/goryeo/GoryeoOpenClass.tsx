@@ -49,7 +49,8 @@ function GoryeoRoom({session,onLeave}:{session:StudioSession;onLeave:()=>void}) 
  const {code,token,group}=session;const {state,loaded,error,safe,refresh}=useRoom(session);const [tab,setTab]=useState<Tab>('card');
  const saveMyCard=useCallback((data:GroupCard,version:number)=>saveCard(code,token,data,version),[code,token]);
  const saveMyCheck=useCallback((data:Verification,version:number)=>saveCheck(code,token,{...data,lesson:GORYEO_TAG} as Verification,version),[code,token]);
- const card=useSyncedDraft<GroupCard>({draftKey:`goryeo:${code}:card:${group}`,server:state.cards.find(x=>x.key===String(group)),blank:()=>({...newCard(group),lesson:GORYEO_TAG} as GroupCard),check:(v):v is GroupCard=>isGroupCard(v)&&isGoryeo(v),save:saveMyCard,canSave:d=>safe&&isGoryeo(d)&&d.artifactId>0});
+ const assignedCard=state.cards.find(x=>x.key===String(group));
+ const card=useSyncedDraft<GroupCard>({draftKey:`goryeo:${code}:card:${group}`,server:assignedCard,blank:()=>({...newCard(group),lesson:GORYEO_TAG} as GroupCard),check:(v):v is GroupCard=>isGroupCard(v)&&isGoryeo(v),save:saveMyCard,canSave:d=>safe&&isGoryeo(d)&&d.group===group&&d.artifactId>0&&d.artifactId===assignedCard?.data.artifactId});
  const draft=useSyncedDraft<Verification>({draftKey:`goryeo:${code}:verify:${group}`,server:state.checks.find(x=>x.key===`${group}:${group}`),blank:()=>({...newSelfVerification(group),lesson:GORYEO_TAG} as Verification),check:(v):v is Verification=>isVerification(v)&&isGoryeo(v),save:saveMyCheck,canSave:d=>safe&&isGoryeo(d)});
  const artifact=goryeoArtifact(card.data.artifactId);
  const leave = () => { card.prepareReentry(); draft.prepareReentry(); onLeave(); };
@@ -58,7 +59,7 @@ function GoryeoRoom({session,onLeave}:{session:StudioSession;onLeave:()=>void}) 
  return <main className="oc-page page-width"><header className="oc-head"><div><p className="oc-eyebrow">고려시대 공개수업 · 수업코드 {displayCode(code)}</p><h1>고려 유물 AR 탐구 · AI 퀴즈 검증</h1></div><p className="oc-me"><b>{group}모둠</b> · {session.name}<button onClick={leave}>다시 입장</button></p></header>
  <StudentGroupViews era="goryeo" cards={state.cards} group={group}>
  {error&&<p className="oc-notice" role="alert">{error}</p>}{!loaded&&<p role="status">우리 반 기록을 불러오는 중…</p>}<div className="oc-actions"><a className="oc-primary" href={`${import.meta.env.BASE_URL}goryeo-ar-cards.html`} target="_blank" rel="noopener noreferrer">AR 인식 카드 인쇄</a><a href={`${import.meta.env.BASE_URL}downloads/goryeo/open-class/student-worksheet.pdf`} download>수업 활동지 PDF</a><a href={`${import.meta.env.BASE_URL}downloads/goryeo/open-class/group-presentation-notes.pdf`} download>모둠 발표 듣기 활동지</a></div><details className="oc-panel"><summary>수업 자료 모아보기</summary><OpenLessonMaterials era="goryeo"/></details><nav className="oc-tabs" aria-label="오늘 할 일">{steps.map((s,i)=><button key={s.key} aria-pressed={tab===s.key} onClick={()=>setTab(s.key)}><b>{i+1}</b><span>{s.label}</span><small>{s.help}</small></button>)}</nav>
- {tab==='card'&&<CardMaker era="goryeo" draft={card} taken={new Map(state.cards.map(item=>[item.data.artifactId,state.cards.filter(other=>other.data.artifactId===item.data.artifactId).map(other=>other.data.group)]))} hasVerification={(draft.data.selfQuestions||[]).some(q=>q.statement.trim())}/>}
+ {tab==='card'&&<CardMaker era="goryeo" draft={card} assignedArtifactId={assignedCard?.data.artifactId || 0}/>}
  {tab==='look'&&<><IntroNotes era="goryeo" draft={draft} card={card.data}/><details className="oc-panel"><summary>다른 모둠 AR 카드 관찰</summary><CardGallery era="goryeo" cards={state.cards} myGroup={group}/></details></>}
  {tab==='check'&&!artifact&&<p className="oc-empty">먼저 AR 카드를 만들어 주세요.</p>}
  {tab==='check'&&artifact&&<SelfQuizLab draft={draft} card={card.data} artifactName={artifact.short} era="goryeo"/>}
@@ -87,7 +88,7 @@ function GoryeoTeacherRoom({session,count,onCount,onLeave}:{session:StudioSessio
  const qr=encodeUrlQr(url);
  if(loaded&&!safe)return <div className="oc-panel"><p role="alert">{error}</p><button onClick={onLeave}>다른 수업코드 선택</button></div>;
  return <>
-  <TeacherLessonWorkspace era="goryeo" code={code} groupCount={count} state={state} updatedAt={updatedAt} error={error} onGroupCount={onCount} onRefresh={refresh} />
+  <TeacherLessonWorkspace era="goryeo" code={code} groupCount={count} state={state} sessionToken={session.token} updatedAt={updatedAt} error={error} onGroupCount={onCount} onRefresh={refresh} />
   <details className="oc-panel oc-room-resources"><summary>학생 입장 QR·수업 자료</summary>
    <div className="oc-teacher-top"><section className="oc-panel oc-qr"><h2>학생 입장 QR</h2><svg role="img" aria-label="고려 유물 수업 입장 QR" viewBox={`0 0 ${qr.size} ${qr.size}`} shapeRendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d={qr.path} fill="#000"/></svg><p>수업코드 <b>{code}</b></p><a href={url} target="_blank" rel="noopener noreferrer">{url}</a></section><LessonFlow era="goryeo" /></div>
    <OpenLessonMaterials era="goryeo" />

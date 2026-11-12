@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StudioApiError } from '../ar-studio/api';
-import { clearRequestedExampleDrafts, forgetOpenSession, joinOpenLesson, latestLoads, loadState, NO_ANSWER, OPEN_API_TIMEOUT, saveCard } from './api';
+import { assignGroupArtifact, clearRequestedExampleDrafts, forgetOpenSession, joinOpenLesson, latestLoads, loadState, NO_ANSWER, OPEN_API_TIMEOUT, readDraft, saveCard } from './api';
 import { newCard } from './model';
 
 const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'content-type': 'application/json' } });
@@ -111,6 +111,38 @@ describe('latestLoads', () => {
     await latest(async () => 'fresh');
     late.reject(new Error('timeout'));
     await expect(lateRun).resolves.toBeUndefined();
+  });
+});
+
+describe('teacher artifact allocation', () => {
+  it.each([undefined, 'goryeo-open-v2'])('sends only the initial assignment and expected version (%s)', async lesson => {
+    const fetch = vi.fn().mockResolvedValueOnce(json({ saved: true, version: 3 }));
+    vi.stubGlobal('fetch', fetch);
+    await expect(assignGroupArtifact('1234', 'teacher-token', 2, 3, 2, 'teacher-pin', lesson)).resolves.toEqual({ saved: true, version: 3 });
+    expect(fetch).toHaveBeenCalledTimes(1);
+    const [url, request] = fetch.mock.calls[0];
+    expect(url).toMatch(/\/api\/open-lesson\/rooms\/1234\/assignment\/2$/);
+    expect(request.method).toBe('POST');
+    expect(request.headers.Authorization).toBe('Bearer teacher-token');
+    expect(JSON.parse(request.body)).toEqual({ artifactId: 3, expectedVersion: 2, pin: 'teacher-pin', ...(lesson ? { lesson } : {}) });
+  });
+});
+
+describe('existing local work', () => {
+  it.each(['12345', '123456'])('restores current work even without an old cleanup marker in room %s', code => {
+    const card = { ...newCard(1, 1), members: '오늘 작성한 학생 이름' };
+    const values = new Map<string, string>([
+      [`history-ar-open-draft:${code}:card:1`, JSON.stringify(card)],
+      [`history-ar-open-draft:${code}:verify:1:2`, 'existing verification'],
+    ]);
+    const removeItem = vi.fn((key: string) => values.delete(key));
+    const setItem = vi.fn((key: string, value: string) => values.set(key, value));
+    vi.stubGlobal('localStorage', { get length() { return values.size; }, key: (i: number) => [...values.keys()][i] ?? null,
+      getItem: (key: string) => values.get(key) ?? null, setItem, removeItem });
+    expect(readDraft(`${code}:card:1`, (value): value is typeof card => !!value && typeof value === 'object' && 'members' in value)).toEqual(card);
+    expect(values.size).toBe(2);
+    expect(removeItem).not.toHaveBeenCalled();
+    expect(setItem).not.toHaveBeenCalled();
   });
 });
 

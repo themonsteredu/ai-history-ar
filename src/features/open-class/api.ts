@@ -65,6 +65,10 @@ export const saveCheck = (code: string, token: string, data: Verification, expec
 export const saveTeacherSet = (code: string, token: string, data: TeacherSet, expectedVersion: number, pin: string) =>
   openApi<{ saved: true; version: number }>(`/rooms/${code}/teacher/${data.artifactId}`, token, { data, expectedVersion, pin });
 
+/** Initial allocation only; existing nonzero artifact assignments are preserved by the server. */
+export const assignGroupArtifact = (code: string, token: string, group: number, artifactId: number, expectedVersion: number, pin: string, lesson?: string) =>
+  openApi<{ saved: true; version: number }>(`/rooms/${code}/assignment/${group}`, token, { artifactId, expectedVersion, pin, ...(lesson ? { lesson } : {}) });
+
 // The open lesson keeps its own entry so a tablet used for the Three Kingdoms lesson is not mixed up with it.
 const sessionKey = (code: string) => `history-ar-open-session:${code}`;
 export function readOpenSession(code: string): StudioSession | undefined {
@@ -142,7 +146,6 @@ export function clearRequestedExampleDrafts(key: string) {
 
 /** Drafts stay on the tablet so nothing typed is lost when the network drops mid-lesson. */
 export function readDraft<T>(key: string, check: (value: unknown) => value is T): T | undefined {
-  clearRequestedExampleDrafts(key);
   try { const value = JSON.parse(localStorage.getItem(`history-ar-open-draft:${key}`) || 'null'); return check(value) ? value : undefined; } catch { return undefined; }
 }
 export function writeDraft(key: string, value: unknown) { try { localStorage.setItem(`history-ar-open-draft:${key}`, JSON.stringify(value)); } catch { /* still in memory */ } }

@@ -90,7 +90,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
 
   const qr = useMemo(() => encodeUrlQr(openClassUrl(code)), [code]);
   return <>
-    <TeacherLessonWorkspace era="joseon" code={code} groupCount={groupCount} state={state} updatedAt={updatedAt} error={error} onGroupCount={onGroupCount} onRefresh={refresh} />
+    <TeacherLessonWorkspace era="joseon" code={code} groupCount={groupCount} state={state} sessionToken={session?.token} updatedAt={updatedAt} error={error} onGroupCount={onGroupCount} onRefresh={refresh} />
     <details className="oc-panel oc-room-resources"><summary>학생 입장 QR·수업 자료</summary>
       <div className="oc-teacher-top">
         <section className="oc-panel oc-qr" aria-label="학생 입장 QR"><h2>학생 입장 QR</h2>
