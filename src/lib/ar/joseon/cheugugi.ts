@@ -14,7 +14,7 @@ import type { PhotoView, ReconstructionBuilder } from './toolkit';
  * - Pedestal: a plain dressed block 37 cm square and 46 cm tall with a round socket in its top, as in the
  *   card photo (no projecting cap).
  *
- * Surface: everything is painted from the card photo (public/images/heritage/joseon-science/cheugugi.jpg),
+ * Surface: everything is painted from the card photo (public/images/heritage/joseon-science/cheugugi-front.jpg),
  * through the pieces scripts/build_cheugugi_atlas.py cuts from it into cheugugi-atlas.jpg. The photo shows
  * only the front, so the faces it cannot see reuse those same pixels and keep the same stone and bronze:
  * - 'stone-front': the block's front face, straightened, with the carved letters as photographed.

@@ -1,6 +1,6 @@
 """Cut the 측우기 card photo into the flat pieces the 3D model is painted with.
 
-The card photo (public/images/heritage/joseon-science/cheugugi.jpg) shows only the front. This writes
+The card photo (public/images/heritage/joseon-science/cheugugi-front.jpg) shows only the front. This writes
 cheugugi-atlas.jpg next to it:
 - front: the stone's front face, straightened, with its carved letters;
 - plain: the same face with the letters filled in by the surrounding stone, for the sides, back and top;
@@ -16,7 +16,7 @@ from scipy import ndimage as nd
 
 ROOT = Path(__file__).resolve().parents[1]
 DIR = ROOT / 'public/images/heritage/joseon-science'
-photo = np.asarray(Image.open(DIR / 'cheugugi.jpg').convert('RGB')).astype(np.float32)
+photo = np.asarray(Image.open(DIR / 'cheugugi-front.jpg').convert('RGB')).astype(np.float32)
 H, W, _ = photo.shape
 
 

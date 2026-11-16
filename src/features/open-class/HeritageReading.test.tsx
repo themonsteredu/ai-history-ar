@@ -14,6 +14,6 @@ describe('artifact newspaper',()=>{
   const html=renderToStaticMarkup(<HeritageReading era="goryeo" id={3}/>);
   expect(html).toContain('팔만대장경');expect(html).toContain('goryeo-photos/tripitaka.jpg');expect(html).toContain('CC BY 2.0');expect(html).toContain('3-tripitaka.pdf');expect(html).toContain('자료 출처');
   const joseon=renderToStaticMarkup(<HeritageReading era="joseon" id={1}/>);
-  expect(joseon).toContain('측우기');expect(joseon).toContain('joseon-science/cheugugi.jpg');expect(joseon).toContain('1-cheugugi.pdf');
+  expect(joseon).toContain('측우기');expect(joseon).toContain('joseon-science/cheugugi-front.jpg');expect(joseon).toContain('1-cheugugi.pdf');
  });
 });

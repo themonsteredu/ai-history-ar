@@ -53,6 +53,8 @@
 - 사진 입히기: 각 모형은 부분마다 사진 영역 이름(`region`)을 갖습니다. `catalog.ts`의 `photo.views`에 영역별로 사진을 찍은 높이(`elevation`, 도)·방향(`azimuth`)·사진 속 위치(`frame` = 왼쪽, 위, 오른쪽, 아래 0~1)를 적으면 그 방향에서 사진이 모형에 투영됩니다.
 - 사진이 없는 유물은 모양과 재질 색만 보이며, 화면에 “실물 사진 준비 중”이라고 표시합니다. 사진을 불러오지 못하면 그 사실을 알립니다.
 - 사진 파일: `public/images/heritage/joseon-science/`(위키미디어 공용 원본을 1280px로 축소). 출처·저작자·이용 조건·변경 내용·SHA-256은 `src/lib/ar/joseon/photos.json`에 있고, 사진을 모형에 얹는 방향(`photoViews`)은 유물별 모형 파일에 있습니다. 앙부일구만 예외로, 인쇄 카드와 `.mind`는 원본 `public/images/heritage/joseon/angbuilgu.jpg`를 쓰고 3D 모형 표면은 같은 사진을 줄인 `joseon-science/angbuilgu.jpg`(photos.json의 `texture`)를 씁니다.
+- 측우기는 수업 선생님이 준 사진 `joseon-science/cheugugi-front.jpg`가 인쇄 카드·`.mind`·신문 사진이고, 3D 모형 표면은 이 사진에서 잘라 편 `cheugugi-atlas.jpg`(photos.json의 `atlas`, `scripts/build_cheugugi_atlas.py`로 다시 만듦)를 씁니다. 예전 사진 `joseon-science/cheugugi.jpg`는 지우지 마세요. '수업 준비하기'로 예전 화면을 저장해 둔 태블릿은 인터넷이 느리거나 끊기면 그 예전 화면을 열고, 그 화면은 이 파일 이름으로 예전 사진을 찾습니다.
+- 사진을 바꿀 때는 같은 파일을 덮어쓰지 말고 새 파일 이름으로 추가하세요. 태블릿에 저장된 사진은 뒤에서 새 내용으로 바뀌므로, 같은 이름의 사진이 바뀌면 예전 화면이 새 사진을 예전 모형 위치에 입혀 무늬가 어긋납니다.
 - CC BY-SA 사진을 입힌 3D 표면과 인쇄 카드는 같은 CC BY-SA 조건으로 공유합니다. 화면과 인쇄 카드에 사진 출처를 표시합니다.
 - AR 인식 카드: `node scripts/compile_joseon_science_targets.mjs`가 사진 6장을 `public/ar/joseon-science-targets.mind`로 만듭니다(@napi-rs/canvas 필요). 사진을 바꾸면 다시 만들어야 하고, 인쇄 카드도 새 사진으로 다시 인쇄해야 합니다.
 - 인쇄용 카드는 실물 사진(있을 때)과 설명 목록, 입체 모형을 여는 QR로 구성됩니다.
