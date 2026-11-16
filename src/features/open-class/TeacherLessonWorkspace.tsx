@@ -9,6 +9,7 @@ import { usePresentationDialog } from './usePresentationDialog';
 import { teacherWorkspaceGroups, type TeacherEra, type TeacherGroup } from './teacherWorkspaceGroups';
 import { TeacherArtifactAssignments } from './TeacherArtifactAssignments';
 import './teacher-workspace.css';
+import { PhotoRef } from './PhotoRef';
 
 const menus = [
   { id: 'ar', label: 'AR 카드 발표' },
@@ -90,7 +91,7 @@ export function TeacherLessonWorkspace({ era, code, groupCount, state, sessionTo
 
 function GroupPhoto({ group }: { group: TeacherGroup }) {
   return <figure className="teacher-workspace__photo">{group.photoPath ? <img src={`${import.meta.env.BASE_URL}${group.photoPath}`} alt={group.artifact?.name || '유물'} loading="lazy" /> : <span>{String(group.group).padStart(2, '0')}</span>}
-    {group.photo && <figcaption><a href={group.photo.source} target="_blank" rel="noopener noreferrer">{group.photo.author}</a> · <a href={group.photo.licenseUrl} target="_blank" rel="noopener noreferrer">{group.photo.license}</a></figcaption>}
+    {group.photo && <figcaption><PhotoRef href={group.photo.source}>{group.photo.author}</PhotoRef> · <PhotoRef href={group.photo.licenseUrl}>{group.photo.license}</PhotoRef></figcaption>}
   </figure>;
 }
 

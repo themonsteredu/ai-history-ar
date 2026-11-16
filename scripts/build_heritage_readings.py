@@ -100,16 +100,27 @@ for era, items in DATA.items():
         lead_lines = wrap(item['paragraphs'][0], 94*MM, 12.25)
         end = lines_at(page,15,66,lead_lines,12.25,leading=1.55)
         if end > 114: raise ValueError('Lead overflow: '+item['name'])
-        imgbox = fitz.Rect(118*MM,62*MM,195*MM,100*MM)
         photo_bytes = subprocess.run(['convert',str(photo_path),'-resize','960x960>','-quality','82','jpeg:-'],check=True,stdout=subprocess.PIPE).stdout
+        shape = fitz.Pixmap(photo_bytes)
+        if shape.height > shape.width * 1.2:
+            # A tall photo fills the full height beside the lead, uncropped; its caption stands to its right.
+            box_h = 53; box_w = box_h * shape.width / shape.height
+            imgbox = fitz.Rect(118*MM,62*MM,(118+box_w)*MM,(62+box_h)*MM)
+            cap_x, cap_y, cap_w = 118+box_w+3, 66, 195-(118+box_w+3)
+        else:
+            # A wide photo is fitted whole into the box above its caption.
+            imgbox = fitz.Rect(118*MM,62*MM,195*MM,100*MM)
+            cap_x, cap_y, cap_w = 118, 104, 77
         page.insert_image(imgbox,stream=photo_bytes,keep_proportion=True)
-        caption = wrap(item['photoCaption'],77*MM,7.7)
-        end = lines_at(page,118,104,caption,7.7,leading=1.2)
-        credit = wrap('사진: '+photo['author']+' · '+photo['license']+' · 크기 조정',77*MM,6.6)
-        end = lines_at(page,118,end+.6,credit,6.6,leading=1.15)
+        caption = wrap(item['photoCaption'],cap_w*MM,7.7)
+        end = lines_at(page,cap_x,cap_y,caption,7.7,leading=1.2)
+        credit_y = end+.6
+        credit = wrap('사진: '+photo['author']+' · '+photo['license']+' · 크기 조정',cap_w*MM,6.6)
+        end = lines_at(page,cap_x,credit_y,credit,6.6,leading=1.15)
         if end > 116: raise ValueError('Caption overflow: '+item['name'])
-        page.insert_link({'kind':fitz.LINK_URI,'from':imgbox,'uri':photo['source']})
-        page.insert_link({'kind':fitz.LINK_URI,'from':fitz.Rect(118*MM,107*MM,195*MM,116*MM),'uri':photo['licenseUrl']})
+        # A photo the teacher supplied has no web page to link to.
+        if photo['source']: page.insert_link({'kind':fitz.LINK_URI,'from':imgbox,'uri':photo['source']})
+        if photo['licenseUrl']: page.insert_link({'kind':fitz.LINK_URI,'from':fitz.Rect(cap_x*MM,(credit_y-3)*MM,195*MM,end*MM),'uri':photo['licenseUrl']})
         page.draw_line((15*MM,117*MM),(195*MM,117*MM),width=.7)
         size, columns, heights = body_layout(item)
         for x, rows in zip((15,109),columns):

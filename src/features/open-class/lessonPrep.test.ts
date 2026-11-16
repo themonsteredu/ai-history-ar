@@ -30,11 +30,12 @@ describe('lesson files to keep on the tablet', () => {
     const photos = [{ path: 'images/a.jpg' }, undefined, { path: 'images/b-full.jpg', texture: 'images/b.jpg' }];
     expect(lessonPhotoPaths(photos, 'student')).toEqual(['images/a.jpg', 'images/b.jpg']);
     expect(lessonPhotoPaths(photos, 'teacher')).toEqual(['images/a.jpg', 'images/a.jpg', 'images/b.jpg', 'images/b-full.jpg']);
+    expect(lessonPhotoPaths([{ path: 'images/c.jpg', atlas: 'images/c-atlas.jpg' }], 'student')).toEqual(['images/c.jpg', 'images/c-atlas.jpg']);
   });
 
   it('covers the six artifact photos, which exist in public/', () => {
     const paths = lessonPhotoPaths(joseonModels.map(info => info.photo), 'student');
-    expect(paths).toHaveLength(6);
+    expect(paths).toHaveLength(7); // six photos and the 측우기 model's pieces
     for (const path of paths) expect(readFileSync(new URL(`../../../public/${path}`, import.meta.url)).length).toBeGreaterThan(0);
   });
 

@@ -8,6 +8,7 @@ import { JoseonBackPhoto } from './JoseonBackPhoto';
 const GoryeoScanner = lazy(() => import('../goryeo/GoryeoScanner'));
 import type { CardPoint } from './model';
 import '../../styles/ar-exhibit.css';
+import { PhotoRef } from './PhotoRef';
 
 const HeritageModelView = lazy(() => import('../../components/HeritageModelView'));
 
@@ -47,7 +48,8 @@ export function ArCard({ artifactId, points, selected, onSelect, onPlace, captio
 
 /** Identify replica photographs as such; the metal vessels in the water-clock photo are surviving artifacts. */
 export function joseonPhotoLabel(artifactId: number) {
-  if ([1, 3, 5].includes(artifactId)) return '세종대왕릉 복원품 사진';
+  if (artifactId === 1) return '측우기와 측우대 사진';
+  if ([3, 5].includes(artifactId)) return '세종대왕릉 복원품 사진';
   if (artifactId === 2) return '1536년 자격루 누기 전시 사진';
   if (artifactId === 6) return '전해지는 농사직설 책 사진';
   return '앙부일구 사진';
@@ -57,7 +59,7 @@ export function joseonPhotoLabel(artifactId: number) {
 export function ModelCredit({ artifactId }: { artifactId: number }) {
   const photo = joseonModelFor(artifactId)?.photo;
   return <p className="oc-credit">사진을 참고한 3D 재현 모형이에요. 보이지 않는 부분은 추정했어요(실측·스캔 원본 아님).{' '}
-    {photo ? <>{joseonPhotoLabel(artifactId)} · <a href={photo.source} target="_blank" rel="noreferrer">사진: {photo.author} · {photo.license}</a></> : '사진은 준비 중이라 지금은 모양만 보여요.'}
+    {photo ? <>{joseonPhotoLabel(artifactId)} · <PhotoRef href={photo.source}>사진: {photo.author} · {photo.license}</PhotoRef></> : '사진은 준비 중이라 지금은 모양만 보여요.'}
   </p>;
 }
 

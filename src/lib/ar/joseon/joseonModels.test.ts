@@ -47,7 +47,7 @@ describe('Joseon artifact reconstructions', () => {
         if (info.photo) {
           expect(loader).toHaveBeenCalledTimes(1);
           expect(loader).toHaveBeenCalledWith(joseonTextureUrl(info));
-          expect(joseonTextureUrl(info)).toMatch(new RegExp(`${info.photo.texture || info.photo.path}$`));
+          expect(joseonTextureUrl(info)).toMatch(new RegExp(`${info.photo.atlas || info.photo.texture || info.photo.path}$`));
           let mapped = 0;
           root.traverse((mesh: InstanceType<typeof THREE.Object3D>) => {
             if (!(mesh instanceof THREE.Mesh) || !mesh.material.map) return;
@@ -74,12 +74,16 @@ describe('Joseon artifact photos', () => {
     const { readFileSync } = await import('node:fs');
     const { createHash } = await import('node:crypto');
     const photos = (await import('./photos.json')).default as Array<{ id: number; path: string; source: string; author: string; license: string; licenseUrl: string; sha256?: string }>;
+    // The 측우기 photo was supplied by the teacher; it has no web page yet, and says so instead of linking.
+    const supplied = photos.filter(photo => !photo.source);
+    expect(supplied.map(photo => photo.id)).toEqual([1]);
+    expect(supplied[0].licenseUrl).toBe('');
     expect(photos.map(photo => photo.id).sort()).toEqual([1, 2, 3, 4, 5, 6]);
     for (const photo of photos) {
-      expect(photo.source).toMatch(/^https:\/\/commons\.wikimedia\.org\/wiki\/File:/);
+      if (photo.source) expect(photo.source).toMatch(/^https:\/\/commons\.wikimedia\.org\/wiki\/File:/);
       expect(photo.author.trim()).not.toBe('');
       expect(photo.license.trim()).not.toBe('');
-      expect(photo.licenseUrl).toMatch(/^https:\/\//);
+      if (photo.source) expect(photo.licenseUrl).toMatch(/^https:\/\//);
       const bytes = readFileSync(`public/${photo.path}`);
       if (photo.sha256) expect(createHash('sha256').update(bytes).digest('hex'), photo.path).toBe(photo.sha256);
     }
@@ -101,7 +105,13 @@ function jpegSize(bytes: Uint8Array) {
 describe('Joseon model textures', () => {
   it('paints a large photo from a smaller copy with the same framing, and keeps the printed photo as is', async () => {
     const { readFileSync } = await import('node:fs');
-    const photos = (await import('./photos.json')).default as Array<{ id: number; path: string; texture?: string }>;
+    const photos = (await import('./photos.json')).default as Array<{ id: number; path: string; texture?: string; atlas?: string }>;
+    // Pieces cut from a photo are their own picture, so only their size is limited.
+    const atlas = photos.find(photo => photo.id === 1)?.atlas;
+    expect(atlas).toBe('images/heritage/joseon-science/cheugugi-atlas.jpg');
+    const pieces = readFileSync(`public/${atlas}`);
+    expect(pieces.length).toBeLessThan(700_000);
+    expect(jpegSize(pieces)).toEqual({ width: 1208, height: 1400 });
     expect(photos.find(photo => photo.id === 4)?.texture).toBe('images/heritage/joseon-science/angbuilgu.jpg');
     for (const photo of photos) {
       const printed = readFileSync(`public/${photo.path}`), texture = readFileSync(`public/${photo.texture || photo.path}`);

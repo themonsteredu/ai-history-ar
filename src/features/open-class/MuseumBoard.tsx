@@ -5,6 +5,7 @@ import { goryeoPhoto } from '../goryeo/readyCards';
 import type { OpenState } from './api';
 import { selfItemDone, type Verification } from './model';
 import './museum-board.css';
+import { PhotoRef } from './PhotoRef';
 
 export const PRESENTATION_GOAL = 2;
 
@@ -59,7 +60,7 @@ export function MuseumBoard({ code, groupCount, state, updatedAt, error, onClose
         return <article className={`museum-group${ready ? ' is-ready' : ''}`} key={group}>
           <div className="museum-group__head"><div><span className="museum-group__label">EXHIBIT {String(group).padStart(2, '0')}</span><h3>{group}모둠</h3></div><span className="museum-group__status">{ready ? '발표 준비 완료' : verified >= PRESENTATION_GOAL ? '검증 완료' : verified > 0 || rows.some(row => row.started) ? '검증 중' : '시작 전'}</span></div>
           <div className="museum-group__body">
-            <figure className="museum-group__photo">{photo ? <><img src={`${import.meta.env.BASE_URL}${'texture' in photo ? photo.texture || photo.path : photo.path}`} alt={`${artifact?.name || '유물'} 사진`} loading="lazy"/><figcaption><a href={photo.source} target="_blank" rel="noopener noreferrer">{photo.author}</a> · <a href={photo.licenseUrl} target="_blank" rel="noopener noreferrer">{photo.license}</a><span> · 크기 조정</span></figcaption></> : <div className="museum-group__photo-empty">유물 선택 전</div>}</figure>
+            <figure className="museum-group__photo">{photo ? <><img src={`${import.meta.env.BASE_URL}${'texture' in photo ? photo.texture || photo.path : photo.path}`} alt={`${artifact?.name || '유물'} 사진`} loading="lazy"/><figcaption><PhotoRef href={photo.source}>{photo.author}</PhotoRef> · <PhotoRef href={photo.licenseUrl}>{photo.license}</PhotoRef><span> · 크기 조정</span></figcaption></> : <div className="museum-group__photo-empty">유물 선택 전</div>}</figure>
             <div className="museum-group__details"><p className="museum-group__artifact">{artifact?.name || '유물 선택 전'}</p><div className="museum-group__progress"><span>자료 검증</span><strong>{verified}<small> / 2문제</small></strong></div>
           <div className="museum-group__markers" aria-label={`문제별 상태: ${rows.map(row => `${row.index}번 ${row.complete ? '검증 완료' : row.started ? '확인 중' : '시작 전'}`).join(', ') || '기록 없음'}`}>
             {(rows.length ? rows : [{index:1, complete:false,started:false},{index:2,complete:false,started:false}]).map(row => <span className={row.complete ? 'is-complete' : row.started ? 'is-progress' : ''} key={row.index}>{row.index} <i>{row.complete ? '완료' : row.started ? '확인 중' : '대기'}</i></span>)}

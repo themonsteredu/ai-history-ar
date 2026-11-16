@@ -19,9 +19,9 @@ export function readPrepRecord(raw: string | null): PrepRecord | undefined {
   } catch { return undefined; }
 }
 
-/** The photo files a page needs: the model texture (a smaller file may stand in for the photo), plus the full photo the teacher prints. */
-export function lessonPhotoPaths(photos: ReadonlyArray<{ path: string; texture?: string } | undefined>, page: PrepPage) {
-  return photos.flatMap(photo => photo ? [photo.texture || photo.path, ...(page === 'teacher' ? [photo.path] : [])] : []);
+/** The photo files a page needs: the picture shown on screen (a smaller file may stand in for the photo), the pieces the model is painted with when they are a separate file, plus the full photo the teacher prints. */
+export function lessonPhotoPaths(photos: ReadonlyArray<{ path: string; texture?: string; atlas?: string } | undefined>, page: PrepPage) {
+  return photos.flatMap(photo => photo ? [photo.texture || photo.path, ...(photo.atlas ? [photo.atlas] : []), ...(page === 'teacher' ? [photo.path] : [])] : []);
 }
 
 /** Same-origin files under the site base as absolute URLs (no #hash), unique and sorted; never the server API, the worker itself or a page address. */

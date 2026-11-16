@@ -61,7 +61,7 @@
 
 | 유물 | 모형에 담은 것 | 추정한 부분 | 실물 사진 |
 | --- | --- | --- | --- |
-| 측우기 | 금영측우기형 청동 원통(세 마디·두 이음띠, 위가 열림), 화강암 측우대와 원형 홈, 주척 | 측우대 크기·덮개 모양, 글자 위치(홈 선으로만 표시) | [측우기 복제품(Jocelyndurrey · CC BY-SA 4.0)](https://commons.wikimedia.org/wiki/File:%EC%B8%A1%EC%9A%B0%EA%B8%B0_(1).JPG) |
+| 측우기 | 청동 원통(세 마디·두 이음띠, 위가 열림), 앞면에 測雨臺·乾隆庚寅五月造가 새겨진 돌 측우대와 원형 홈 | 사진에 안 보이는 옆·뒤·윗면(앞면 사진의 돌·청동 무늬를 그대로 이어 붙임, 글자는 앞면에만) | 수업 선생님 제공 사진(출처 확인 중). 모형 무늬는 `scripts/build_cheugugi_atlas.py`가 이 사진에서 잘라 편 `cheugugi-atlas.jpg` |
 | 자격루 | 보루각 자격루 유물: 대파수호 1, 소파수호 2, 수수호 2(용 무늬), 돌 받침 — 덕수궁 전시 배치대로 좌우 대칭 | 뒷면·윗면 | [덕수궁 보루각 자격루(Gapo · CC BY-SA 3.0)](https://commons.wikimedia.org/wiki/File:BoRuGak_Jagyeongnu.JPG) |
 | 간의 | 수평 홈이 있는 받침틀, 서울 위도(약 37.5°)로 기운 극축, 사유환과 규형, 적도환·백각환, 용 장식 기둥 | 기둥 길이·세부 결합 | [영릉 간의 복원품(Jocelyndurrey · CC BY-SA 4.0)](https://commons.wikimedia.org/wiki/File:%EA%B0%84%EC%9D%98_(5).JPG) |
 | 앙부일구 | 솥 모양 반구, 24절기 테두리, 잎 모양 영침, 네 다리와 십자 받침 | 다리 장식 두께 | [경복궁 앙부일구(Bernat · CC BY-SA 2.0)](https://commons.wikimedia.org/wiki/File:Seoul-Gyeongbokgung-Sundial-02.jpg) |

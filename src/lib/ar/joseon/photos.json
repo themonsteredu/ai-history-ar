@@ -2,12 +2,13 @@
   {
     "id": 1,
     "path": "images/heritage/joseon-science/cheugugi.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:%EC%B8%A1%EC%9A%B0%EA%B8%B0_(1).JPG",
-    "author": "Jocelyndurrey",
-    "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-    "changes": "1280×719px로 축소(원본 5456×3064)",
-    "sha256": "1225b25d4af5dc26cfe804adfdf756dc49187e849f3b9f8b1b1fa24584325068"
+    "atlas": "images/heritage/joseon-science/cheugugi-atlas.jpg",
+    "source": "",
+    "author": "수업 선생님 제공",
+    "license": "출처 확인 중",
+    "licenseUrl": "",
+    "changes": "816×1436px(화면 갈무리의 흰 테두리를 잘라 냄). 입체 모형 무늬는 이 사진에서 잘라 편 조각(cheugugi-atlas.jpg)",
+    "sha256": "9c3ed51299634a8eb81308f0c1a1d3dd7f1d88cd290a50e67c0b88669ba0a890"
   },
   {
     "id": 2,
