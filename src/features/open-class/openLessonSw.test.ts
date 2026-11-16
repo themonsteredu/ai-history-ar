@@ -15,7 +15,7 @@ function memoryCache() {
     match: async (key: string | { url: string }) => items.get(urlOf(key))?.clone(),
     put: async (key: string | { url: string }, response: Response) => { items.set(urlOf(key), response); },
     keys: async () => [...items.keys()].map(url => ({ url })),
-    delete: async (key: { url: string }) => items.delete(key.url),
+    delete: async (key: string | { url: string }) => items.delete(urlOf(key)),
   };
 }
 
@@ -37,7 +37,7 @@ beforeEach(() => {
     open: async (name: string) => store(name), keys: async () => [...stores.keys()], delete: async (name: string) => stores.delete(name),
     match: async (key: string, options: { cacheName: string }) => store(options.cacheName).match(key),
   };
-  runInNewContext(source, { self, caches, fetch: (request: string, init?: unknown) => network(request, init), Response, URL, Promise, setTimeout: (fn: (value: unknown) => void, _ms: number, value: unknown) => setTimeout(fn, 20, value) });
+  runInNewContext(source, { self, caches, fetch: (request: string, init?: unknown) => network(request, init), Response, URL, Promise, AbortController, clearTimeout, setTimeout: (fn: (value: unknown) => void, _ms: number, value: unknown) => setTimeout(fn, 20, value) });
 });
 
 function request(path: string, init: { method?: string; mode?: string; headers?: Record<string, string> } = {}) {
@@ -51,6 +51,15 @@ async function prepare(build: string, urls: string[]) {
   const messages: Array<{ type: string; done?: number; total?: number; failed?: number; reason?: string }> = [];
   const waits: Promise<unknown>[] = [];
   handlers.message({ data: { type: 'prepare', page: 'student', build: build && `${site}/assets/index-${build}.js`, urls }, ports: [{ postMessage: (message: never) => messages.push(message) }], waitUntil: (value: Promise<unknown>) => waits.push(value) });
+  await Promise.all(waits);
+  return messages;
+}
+
+/** A lesson page opening with `build` asks whether the site still serves it. */
+async function check(build: string) {
+  const messages: Array<{ type: string }> = [];
+  const waits: Promise<unknown>[] = [];
+  handlers.message({ data: { type: 'check', build: `${site}/assets/index-${build}.js` }, ports: [{ postMessage: (message: never) => messages.push(message) }], waitUntil: (value: Promise<unknown>) => waits.push(value) });
   await Promise.all(waits);
   return messages;
 }
@@ -93,36 +102,84 @@ describe('open lesson service worker', () => {
     expect(store('open-lesson-files-v1').items.has(`${site}/images/heritage/three-kingdoms/x.jpg`)).toBe(false);
   });
 
-  it('opens a page from the network and saves it as the shell', async () => {
-    network.mockImplementation(async () => html('new shell'));
+  it('opens a page from the network, and leaves saving a shell to 수업 준비하기', async () => {
+    network.mockImplementation(host('new'));
     const page = request('/joseon/open-class?code=1234', { mode: 'navigate' });
-    expect(await (await page.answer!).text()).toBe('new shell');
+    expect(await (await page.answer!).text()).toContain('index-new.js');
     await page.settled();
-    expect(await store('open-lesson-files-v1').items.get(`${site}/index.html`)!.text()).toBe('new shell');
+    // Its files are not all on the tablet, so this build's shell must not open offline.
+    expect(store('open-lesson-files-v1').items.has(`${site}/index.html`)).toBe(false);
   });
 
-  it('opens the saved shell when the network is down or too slow', async () => {
-    await store('open-lesson-files-v1').put('/index.html', html('saved shell'));
+  it('opens the saved shell when the network is down or too slow, and refreshes it from a late answer of the same build', async () => {
+    await store('open-lesson-files-v1').put('/index.html', shellOf('a'));
     network.mockImplementation(async () => { throw new TypeError('offline'); });
-    expect(await (await request('/joseon/open-class', { mode: 'navigate' }).answer!).text()).toBe('saved shell');
-    network.mockImplementation(() => new Promise<Response>(resolve => setTimeout(() => resolve(html('late shell')), 200)));
+    expect(await (await request('/joseon/open-class', { mode: 'navigate' }).answer!).text()).toContain('index-a.js');
+    network.mockImplementation(() => new Promise<Response>(resolve => setTimeout(() => resolve(html('<script type="module" src="/assets/index-a.js"></script><!-- late -->')), 200)));
     const slow = request('/joseon/open-class', { mode: 'navigate' });
-    expect(await (await slow.answer!).text()).toBe('saved shell');
+    expect(await (await slow.answer!).text()).not.toContain('late');
     await slow.settled();
-    expect(await store('open-lesson-files-v1').items.get(`${site}/index.html`)!.text()).toBe('late shell');
+    expect(await store('open-lesson-files-v1').items.get(`${site}/index.html`)!.text()).toContain('late');
   });
 
-  it('keeps the shell of the prepared build when a page load brings a newer one', async () => {
+  it('forgets the prepared shell once the site serves a newer build, so the older lesson never opens again', async () => {
     await store('open-lesson-files-v1').put('/index.html', shellOf('old'));
     network.mockImplementation(host('old'));
     await request('/joseon/open-class', { mode: 'navigate' }).settled();
     expect(await savedShell()).toBe('old');
-    // After a deploy the page gets the new build, but an offline reload still opens the old one, whose files are all saved.
     network.mockImplementation(host('new'));
     const page = request('/joseon/open-class', { mode: 'navigate' });
     expect(await (await page.answer!).text()).toContain('index-new.js');
     await page.settled();
+    expect(store('open-lesson-files-v1').items.has(`${site}/index.html`)).toBe(false);
+    // Offline now, the browser says so instead of opening the old lesson.
+    network.mockImplementation(async () => { throw new TypeError('offline'); });
+    await expect(request('/joseon/open-class', { mode: 'navigate' }).answer!).rejects.toThrow('offline');
+  });
+
+  it('never takes a Wi-Fi sign-in page for a newer build', async () => {
+    await store('open-lesson-files-v1').put('/index.html', shellOf('a'));
+    for (const page of ['<h1>Wi-Fi 로그인</h1>', '<script src="https://portal.example/assets/index-x.js"></script>']) {
+      network.mockImplementation(async () => html(page));
+      const load = request('/joseon/open-class', { mode: 'navigate' });
+      expect(await (await load.answer!).text()).toBe(page);
+      await load.settled();
+      expect(await savedShell()).toBe('a');
+      expect(await check('a')).toEqual([{ type: 'unknown' }]);
+    }
+  });
+
+  it('tells a page opened from the tablet that the site has moved on, after forgetting the older shell', async () => {
+    await store('open-lesson-files-v1').put('/index.html', shellOf('old'));
+    network.mockImplementation(host('old'));
+    expect(await check('old')).toEqual([{ type: 'current' }]);
     expect(await savedShell()).toBe('old');
+    network.mockImplementation(async () => { throw new TypeError('offline'); });
+    expect(await check('old')).toEqual([{ type: 'unknown' }]);
+    expect(await savedShell()).toBe('old');
+    network.mockImplementation(host('new'));
+    expect(await check('old')).toEqual([{ type: 'outdated' }]);
+    expect(store('open-lesson-files-v1').items.has(`${site}/index.html`)).toBe(false);
+    expect(network).toHaveBeenLastCalledWith(`${site}/index.html`, expect.objectContaining({ cache: 'no-cache' }));
+  });
+
+  it('forgets an older saved lesson as soon as this version takes over, when the site can be asked', async () => {
+    const activate = async () => {
+      const waits: Promise<unknown>[] = [];
+      handlers.activate({ waitUntil: (value: Promise<unknown>) => waits.push(value) });
+      await Promise.all(waits);
+      await new Promise(resolve => setTimeout(resolve, 30));
+    };
+    await store('open-lesson-files-v1').put('/index.html', shellOf('old'));
+    network.mockImplementation(async () => { throw new TypeError('offline'); });
+    await activate();
+    expect(await savedShell()).toBe('old');
+    network.mockImplementation(host('old'));
+    await activate();
+    expect(await savedShell()).toBe('old');
+    network.mockImplementation(host('new'));
+    await activate();
+    expect(store('open-lesson-files-v1').items.has(`${site}/index.html`)).toBe(false);
   });
 
   it('saves the asked files with progress, then the new shell, then drops an old build', async () => {

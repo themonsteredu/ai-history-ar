@@ -9,6 +9,8 @@ it('asks a student only for the class code, name and group', () => {
   expect(html).toContain('조선 유물 AR 탐구');
   expect(html).toContain('수업코드'); expect(html).toContain('내 모둠');
   expect(html).toContain('value="5252"');
+  // Pressed on each group tablet before class, so slow Wi-Fi still opens the lesson, 3D models and AR camera.
+  expect(html).toContain('수업 준비하기');
 });
 
 it('starts the teacher screen from the class list', () => {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { prepStatusText, type PrepPage, type PrepStatus } from './lessonPrep';
-import { lessonPrepShown, preparedStatus, startPrep, watchPrep } from './lessonWorker';
+import { lessonPrepShown, preparedStatus, reloadIfOutdated, startPrep, watchPrep } from './lessonWorker';
 import './lesson-prep.css';
 
 /** '수업 준비하기': pressed once before class, keeps the lesson pages, 3D models and AR card camera on this tablet for slow or dropped Wi-Fi. */
@@ -9,6 +9,7 @@ export function LessonPrep({ page }: { page: PrepPage }) {
   useEffect(() => {
     let live = true;
     const stop = watchPrep(setStatus);
+    void reloadIfOutdated();
     void preparedStatus(page).then(next => { if (live) setStatus(current => current.kind === 'idle' ? next : current); });
     return () => { live = false; stop(); };
   }, [page]);

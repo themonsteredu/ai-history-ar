@@ -59,7 +59,8 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
   const [state, setState] = useState<OpenState>(emptyState);
   const [error, setError] = useState('');
   const [updatedAt, setUpdatedAt] = useState<number>();
-  const [printing, setPrinting] = useState<false | 'groups' | 'targets'>(false);
+  // 'targets' prints all six AR recognition cards, an artifact id prints only that one.
+  const [printing, setPrinting] = useState<false | 'groups' | 'targets' | number>(false);
 
   // On slow Wi-Fi a tick waits for the load still running, and a late old reply never replaces a newer one.
   const [loads] = useState(() => latestLoads());
@@ -99,14 +100,15 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
         </section><LessonFlow era="joseon" />
       </div>
       <OpenLessonMaterials era="joseon" />
-      <section className="oc-panel"><h2>조선 AR 인식 카드</h2><div className="oc-actions"><a href={`${import.meta.env.BASE_URL}downloads/joseon/ar/ar-cards-all.pdf`} download>AR 인식 카드 6종 받기</a>{ARTIFACTS.map((item,index)=><a key={item.id} href={`${import.meta.env.BASE_URL}downloads/joseon/ar/ar-card-${String(index+1).padStart(2,'0')}.pdf`} download>{item.name} 카드 받기</a>)}
+      <section className="oc-panel"><h2>조선 AR 인식 카드</h2><div className="oc-actions">
+        {/* The same photos the AR camera was compiled from (joseonTargets), printed whole. */}
+        {joseonTargets.ready && <><button type="button" onClick={() => setPrinting('targets')}>AR 인식 카드 6종 인쇄</button>{ARTIFACTS.map(item => <button key={item.id} type="button" onClick={() => setPrinting(item.id)}>{item.name} 카드 인쇄</button>)}</>}
         <button type="button" disabled={!state.cards.some(item => item.data.artifactId)} onClick={() => setPrinting('groups')}>모둠 카드 인쇄</button>
-        {joseonTargets.ready && <button type="button" onClick={() => setPrinting('targets')}>AR 인식 카드 6종 인쇄</button>}
       </div></section>
       <details className="oc-panel"><summary>이전 조선 6차시 수업 준비 자료</summary><LessonPrep page="teacher" /></details>
       {session && <details className="oc-panel"><summary>이전 수업용 · 선생님 OX 문제</summary><TeacherQuestions code={code} token={session.token} sets={state.teacher} cards={state.cards.map(item => item.data)} /></details>}
     </details>
-    {printing === 'targets' && <div className="oc-print-cards" aria-hidden="true">{joseonModels.map(info => <TargetCard key={info.id} artifactId={info.id} />)}</div>}
+    {(printing === 'targets' || typeof printing === 'number') && <div className="oc-print-cards" aria-hidden="true">{joseonModels.filter(info => printing === 'targets' || info.id === printing).map(info => <TargetCard key={info.id} artifactId={info.id} />)}</div>}
     {printing === 'groups' && <div className="oc-print-cards" aria-hidden="true">{state.cards.map(item => item.data).filter(card => card.artifactId).sort((a, b) => a.group - b.group).map(card => <PrintCard key={card.group} code={code} card={card} />)}</div>}
   </>;
 }

@@ -120,6 +120,36 @@ export async function preparedStatus(page: PrepPage): Promise<PrepStatus> {
   } catch { return { kind: 'idle' }; }
 }
 
+/** Asks the tablet's lesson worker whether the site serves a newer build than `build`: 'outdated', 'current' or 'unknown'. */
+function askCheck(worker: ServiceWorker, build: string) {
+  return new Promise<string>(resolve => {
+    const channel = new MessageChannel();
+    let timer = 0;
+    const finish = (answer: string) => { clearTimeout(timer); channel.port1.close(); resolve(answer); };
+    // A worker from before this check never answers, nor does one the browser stopped.
+    timer = window.setTimeout(() => finish('unknown'), 30000);
+    channel.port1.onmessage = ({ data }) => finish(typeof data?.type === 'string' ? data.type : 'unknown');
+    worker.postMessage({ type: 'check', build }, [channel.port2]);
+  });
+}
+
+let checked = false;
+/**
+ * On slow Wi-Fi a prepared tablet opens the lesson it saved. If the site has changed since, the worker forgets that saved
+ * copy and answers 'outdated', and the page reloads once to open the current site from the network instead.
+ */
+export async function reloadIfOutdated() {
+  if (checked || !lessonWorkerAllowed()) return;
+  checked = true;
+  const worker = navigator.serviceWorker.controller, build = currentBuild();
+  if (!worker || !build || offline()) return;
+  const key = `history-ar-open-reloaded:${build}`;
+  try { if (window.sessionStorage.getItem(key)) return; } catch { return; }
+  if (await askCheck(worker, build) !== 'outdated') return;
+  try { window.sessionStorage.setItem(key, '1'); } catch { return; }
+  window.location.reload();
+}
+
 // One run at a time, shared by every button on the page (the student page swaps its button when joining).
 const listeners = new Set<(status: PrepStatus) => void>();
 let running: PrepStatus | undefined;

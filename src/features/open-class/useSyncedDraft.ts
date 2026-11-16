@@ -152,6 +152,13 @@ export function useSyncedDraft<T>(options: {
   return { data: stored.data, dirty: stored.dirty, version: stored.base, update, saveNow, state, message, savedAt, takeServer, keepMine, prepareReentry };
 }
 
+/** Shown when 다시 입장 would set aside edits that never reached the class (for example while the Wi-Fi was down). */
+export const LEAVE_UNSAVED = '아직 우리 반에 저장하지 않은 내용이 있어요. 지금 나가면 이 내용은 화면에서 사라져요.\n\n먼저 저장 버튼을 눌러 주세요. 인터넷이 안 되면 인터넷이 돌아온 뒤 저장해 주세요.\n\n그래도 나갈까요?';
+/** Asks before leaving a group screen with unsaved drafts; true when nothing is unsaved or the student chose to leave. */
+export function confirmLeave(...drafts: ReadonlyArray<{ dirty: boolean }>) {
+  return !drafts.some(draft => draft.dirty) || window.confirm(LEAVE_UNSAVED);
+}
+
 export function saveLabel(state: SaveState, dirty: boolean, savedAt: string) {
   if (state === 'saving') return '저장하는 중…';
   if (state === 'error') return '저장하지 못했어요 · 저장 버튼을 다시 눌러 주세요';

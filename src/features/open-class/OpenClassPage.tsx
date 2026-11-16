@@ -9,7 +9,8 @@ import { OpenLessonMaterials } from './OpenLessonMaterials';
 import { CardMaker } from './CardMaker';
 import { isGroupCard, isVerification, newCard, newSelfVerification, selfQuestions, type GroupCard, type Verification } from './model';
 import { Presentation } from './Presentation';
-import { useSyncedDraft } from './useSyncedDraft';
+import { confirmLeave, useSyncedDraft } from './useSyncedDraft';
+import { LessonPrep } from './LessonPreparation';
 import { useClassPolling } from './useClassPolling';
 import { IntroNotes, SelfQuizLab, Reflection, worksheetUrl } from './SelfInquiry';
 import './open-class.css';
@@ -55,7 +56,7 @@ export default function OpenClassPage() {
       <button className="oc-big" type="submit" disabled={busy || !name.trim() || !/^[a-z0-9]{4,12}$/i.test(inputCode.trim())}>{busy ? '들어가는 중…' : '수업 들어가기'}</button>
     </form>
     {error && <p className="oc-notice" role="alert">{error}</p>}
-    <OpenLessonMaterials era="joseon"/>
+    <OpenLessonMaterials era="joseon"/><LessonPrep page="student" />
     <p className="oc-foot"><Link to="/joseon">조선시대 수업으로 돌아가기</Link></p>
   </main>;
 
@@ -74,11 +75,11 @@ function Lesson({ session, onLeave }: { session: StudioSession; onLeave: () => v
  const cardDraft=useSyncedDraft<GroupCard>({draftKey:`${code}:card:${group}`,server:assignedCard,blank:()=>newCard(group),check:isGroupCard,save:saveMyCard,canSave:d=>loaded&&d.artifactId>0&&d.artifactId===assignedCard?.data.artifactId&&d.group===group});
  const saveMyCheck=useCallback((data:Verification,version:number)=>saveCheck(code,token,data,version),[code,token]);
  const checkDraft=useSyncedDraft<Verification>({draftKey:`${code}:verify:${group}:${group}`,server:state.checks.find(i=>i.key===`${group}:${group}`),blank:()=>newSelfVerification(group),check:isVerification,save:saveMyCheck,canSave:d=>loaded&&d.mode==='self'&&d.verifier===group&&d.target===group});
- const leave = () => { cardDraft.prepareReentry(); checkDraft.prepareReentry(); onLeave(); };
+ const leave = () => { if (!confirmLeave(cardDraft, checkDraft)) return; cardDraft.prepareReentry(); checkDraft.prepareReentry(); onLeave(); };
  if(!loaded)return <main className="oc-page page-width"><p role="status">우리 모둠의 최신 기록을 불러오는 중…</p>{error&&<p role="alert">{error}</p>}<button onClick={()=>void refresh()}>다시 불러오기</button><button onClick={leave}>다시 입장</button></main>;
  return <main className="oc-page page-width"><header className="oc-head"><div><p className="oc-eyebrow">조선시대 공개수업 · 수업코드 {code}</p><h1>조선 유물 AR 탐구 · AI 퀴즈 검증</h1></div><p className="oc-me"><b>{group}모둠</b> · {session.name}<button onClick={leave}>다시 입장</button></p></header>
  <StudentGroupViews era="joseon" cards={state.cards} group={group}>
- <div className="oc-actions"><a href={worksheetUrl} download>공개수업 활동지 PDF</a><a href={`${import.meta.env.BASE_URL}downloads/joseon/open-class/group-presentation-notes.pdf`} download>모둠 발표 듣기 활동지</a></div><details className="oc-panel"><summary>수업 자료 모아보기</summary><OpenLessonMaterials era="joseon"/></details>
+ <div className="oc-actions"><a href={worksheetUrl} download>공개수업 활동지 PDF</a><a href={`${import.meta.env.BASE_URL}downloads/joseon/open-class/group-presentation-notes.pdf`} download>모둠 발표 듣기 활동지</a></div><LessonPrep page="student"/><details className="oc-panel"><summary>수업 자료 모아보기</summary><OpenLessonMaterials era="joseon"/></details>
  <nav className="oc-tabs" aria-label="오늘 할 일">{VIEWS.map((v,i)=><button key={v.id} aria-pressed={view===v.id} onClick={()=>go(v.id)}><b>{i+1}</b><span>{v.label}</span><small>{v.help}</small></button>)}</nav>
  {error&&<p role="alert" className="oc-notice">{error}</p>}{!loaded&&<p role="status">우리 반 기록을 불러오는 중…</p>}
  {view==='make'&&<CardMaker draft={cardDraft} assignedArtifactId={assignedCard?.data.artifactId || 0}/>}

@@ -2,9 +2,14 @@
  * Offline help for the Joseon open lesson only. '수업 준비하기' registers this file with the lesson page's
  * own path as its scope (/joseon/open-class or /teacher/joseon/open-class), so no other page is controlled.
  *
- * - Page loads: network first; after 3.5 s or with no network, the saved app shell (index.html). A page load
- *   refreshes the saved shell of the same build only; a new build's shell is saved by '수업 준비하기' after
- *   all of its files, so the saved shell never points at files that are not on the tablet.
+ * - Page loads: network first; after 3.5 s or with no network, the saved app shell (index.html). Only
+ *   '수업 준비하기' saves a shell, after all of its build's files, so the saved shell never points at files that
+ *   are not on the tablet. A page load refreshes the saved shell of the same build. Once the site serves a newer
+ *   build, the saved shell is forgotten, so an older lesson never opens again: the tablet loads the lesson from
+ *   the network until it is prepared again.
+ * - A lesson page sends {type: 'check', build} with a MessagePort as it opens. The answer is 'outdated' when the
+ *   site serves a newer build than the page (which then came from the tablet on slow Wi-Fi): the saved shell is
+ *   already forgotten and the page reloads once. Otherwise 'current', or 'unknown' when the site cannot be asked.
  * - /assets/ (hashed names, never change): saved copy first, saved on first use.
  * - Photos, .mind, fonts, json, icons: the saved copy when there is one, checked for a newer one in the
  *   background; files that were never saved go to the network as usual.
@@ -22,6 +27,8 @@ const SHELL = new URL('index.html', self.location.href).href;
 // Which files each lesson page asked for last; anything in neither list is an old build's leftover.
 const LISTS = new URL('__open-lesson__/lists.json', self.location.href).href;
 const NAV_TIMEOUT = 3500;
+// How long asking the site for its current build may take before the answer is 'cannot tell'.
+const SITE_TIMEOUT = 20000;
 const STATIC = /\.(?:jpe?g|png|webp|gif|svg|ico|mind|otf|ttf|woff2?|json)$/i;
 
 self.addEventListener('install', () => { self.skipWaiting(); });
@@ -33,13 +40,22 @@ self.addEventListener('activate', event => {
     if (self.registration.navigationPreload) await self.registration.navigationPreload.enable().catch(() => undefined);
     await self.clients.claim();
   })());
+  // A tablet prepared before this version may hold an older lesson: forget it now rather than at its next slow
+  // page load. Not waited for, so that activation never waits on slow Wi-Fi.
+  siteBuild().then(forgetOlderShell).catch(() => undefined);
 });
 
 const isAsset = url => new URL(url).pathname.startsWith(`${BASE}assets/`);
 // The host answers any missing file (an old build's, after a deploy) with index.html.
 const isPage = response => (response.headers.get('content-type') || '').includes('text/html');
-/** The build an index.html starts: its entry script's address. */
-const entryOf = html => { const src = /<script\b[^>]*\bsrc="([^"]+)"/i.exec(html); return src ? new URL(src[1], SHELL).href : ''; };
+/** The build an index.html starts (its entry script's address), or '' for a page that is not a build of this site, such as a Wi-Fi sign-in page. */
+const entryOf = html => {
+  const src = /<script\b[^>]*\bsrc="([^"]+)"/i.exec(html);
+  try {
+    const url = src && new URL(src[1], SHELL);
+    return url && url.origin === self.location.origin && url.pathname.startsWith(`${BASE}assets/index-`) && url.pathname.endsWith('.js') ? url.href : '';
+  } catch { return ''; }
+};
 
 self.addEventListener('fetch', event => {
   const { request } = event;
@@ -57,9 +73,40 @@ async function saveShell(html) {
   await (await caches.open(FILES)).put(SHELL, new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8' } }));
 }
 
+// Counts the '수업 준비하기' runs in progress: the shell a run saves at its end must not be forgotten meanwhile.
+let preparing = 0;
+
+/** Forgets the saved shell unless it is of the build the site serves (`siteEntry`, '' when unknown). */
+async function forgetOlderShell(siteEntry) {
+  if (!siteEntry || preparing) return;
+  const saved = await caches.match(SHELL, { cacheName: FILES });
+  if (saved && entryOf(await saved.text()) !== siteEntry && !preparing) await (await caches.open(FILES)).delete(SHELL);
+}
+
+/** A page the network brought: refresh the saved shell of the same build, or forget it when the site has moved on. */
 async function refreshShell(response) {
-  const html = await response.text(), saved = await caches.match(SHELL, { cacheName: FILES });
-  if (!saved || entryOf(await saved.text()) === entryOf(html)) await saveShell(html);
+  const html = await response.text(), entry = entryOf(html), saved = await caches.match(SHELL, { cacheName: FILES });
+  if (!entry || !saved) return;
+  if (entryOf(await saved.text()) === entry) await saveShell(html);
+  else await forgetOlderShell(entry);
+}
+
+/** The build the site serves now, or '' when that cannot be told (no network, too slow, or not a page of this site). */
+async function siteBuild() {
+  const controller = new AbortController(), timer = setTimeout(() => controller.abort(), SITE_TIMEOUT);
+  try {
+    const response = await fetch(SHELL, { cache: 'no-cache', signal: controller.signal });
+    return response.ok && isPage(response) ? entryOf(await response.text()) : '';
+  } catch { return ''; } finally { clearTimeout(timer); }
+}
+
+/** Answers a lesson page that is opening with `build`; see 'check' at the top. */
+async function check(build) {
+  const entry = await siteBuild();
+  if (!entry) return 'unknown';
+  if (entry === build) return 'current';
+  await forgetOlderShell(entry);
+  return 'outdated';
 }
 
 function navigate(event) {
@@ -107,7 +154,12 @@ async function refresh(cache, url, saved) {
 
 self.addEventListener('message', event => {
   const data = event.data, port = event.ports && event.ports[0];
-  if (!port || !data || data.type !== 'prepare' || !Array.isArray(data.urls)) return;
+  if (!port || !data) return;
+  if (data.type === 'check' && typeof data.build === 'string') {
+    event.waitUntil(check(data.build).catch(() => 'unknown').then(type => port.postMessage({ type })));
+    return;
+  }
+  if (data.type !== 'prepare' || !Array.isArray(data.urls)) return;
   event.waitUntil(prepare(data, port).catch(error => port.postMessage({ type: 'error', reason: error && error.name === 'QuotaExceededError' ? 'full' : 'failed' })));
 });
 
@@ -118,7 +170,12 @@ function lessonUrl(value) {
   } catch { return ''; }
 }
 
-async function prepare({ urls, page, build }, port) {
+async function prepare(request, port) {
+  preparing++;
+  try { await prepareFiles(request, port); } finally { preparing--; }
+}
+
+async function prepareFiles({ urls, page, build }, port) {
   const list = [...new Set(urls.map(lessonUrl).filter(Boolean))], rest = list.filter(url => url !== SHELL);
   const [assets, files] = await Promise.all([caches.open(ASSETS), caches.open(FILES)]);
   let done = 0, next = 0, failed = 0, shell;

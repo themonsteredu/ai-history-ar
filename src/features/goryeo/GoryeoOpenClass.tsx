@@ -12,7 +12,7 @@ import type { StudioSession } from '../ar-studio/api';
 import { encodeUrlQr } from '../../lib/qr/classroomQr';
 import { forgetOpenSession, readOpenSession, joinOpenLesson, loadState, saveCard, saveCheck, latestLoads, type OpenState } from '../open-class/api';
 import { isGroupCard, isVerification, newCard, newSelfVerification, selfItemDone, selfQuestions, type GroupCard, type Verification } from '../open-class/model';
-import { useSyncedDraft } from '../open-class/useSyncedDraft';
+import { confirmLeave, useSyncedDraft } from '../open-class/useSyncedDraft';
 import { useClassPolling } from '../open-class/useClassPolling';
 import { IntroNotes, Reflection, SelfQuizLab } from '../open-class/SelfInquiry';
 import { Presentation } from '../open-class/Presentation';
@@ -53,7 +53,7 @@ function GoryeoRoom({session,onLeave}:{session:StudioSession;onLeave:()=>void}) 
  const card=useSyncedDraft<GroupCard>({draftKey:`goryeo:${code}:card:${group}`,server:assignedCard,blank:()=>({...newCard(group),lesson:GORYEO_TAG} as GroupCard),check:(v):v is GroupCard=>isGroupCard(v)&&isGoryeo(v),save:saveMyCard,canSave:d=>safe&&isGoryeo(d)&&d.group===group&&d.artifactId>0&&d.artifactId===assignedCard?.data.artifactId});
  const draft=useSyncedDraft<Verification>({draftKey:`goryeo:${code}:verify:${group}`,server:state.checks.find(x=>x.key===`${group}:${group}`),blank:()=>({...newSelfVerification(group),lesson:GORYEO_TAG} as Verification),check:(v):v is Verification=>isVerification(v)&&isGoryeo(v),save:saveMyCheck,canSave:d=>safe&&isGoryeo(d)});
  const artifact=goryeoArtifact(card.data.artifactId);
- const leave = () => { card.prepareReentry(); draft.prepareReentry(); onLeave(); };
+ const leave = () => { if (!confirmLeave(card, draft)) return; card.prepareReentry(); draft.prepareReentry(); onLeave(); };
  if(!loaded)return <main className="oc-page page-width"><p role="status">우리 모둠의 최신 기록을 불러오는 중…</p>{error&&<p role="alert">{error}</p>}<button onClick={()=>void refresh()}>다시 불러오기</button><button onClick={leave}>다시 입장</button></main>;
  if(loaded&&!safe)return <main className="oc-page page-width"><p role="alert">{error}</p><button onClick={leave}>다른 수업코드 입력</button></main>;
  return <main className="oc-page page-width"><header className="oc-head"><div><p className="oc-eyebrow">고려시대 공개수업 · 수업코드 {displayCode(code)}</p><h1>고려 유물 AR 탐구 · AI 퀴즈 검증</h1></div><p className="oc-me"><b>{group}모둠</b> · {session.name}<button onClick={leave}>다시 입장</button></p></header>
