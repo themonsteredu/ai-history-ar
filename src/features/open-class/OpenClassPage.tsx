@@ -83,7 +83,7 @@ function Lesson({ session, onLeave }: { session: StudioSession; onLeave: () => v
  <nav className="oc-tabs" aria-label="오늘 할 일">{VIEWS.map((v,i)=><button key={v.id} aria-pressed={view===v.id} onClick={()=>go(v.id)}><b>{i+1}</b><span>{v.label}</span><small>{v.help}</small></button>)}</nav>
  {error&&<p role="alert" className="oc-notice">{error}</p>}{!loaded&&<p role="status">우리 반 기록을 불러오는 중…</p>}
  {view==='make'&&<CardMaker draft={cardDraft} assignedArtifactId={assignedCard?.data.artifactId || 0}/>}
- {view==='look'&&<><IntroNotes draft={checkDraft} card={cardDraft.data}/><details className="oc-panel"><summary>다른 모둠 AR 카드 관찰</summary><CardGallery cards={state.cards} myGroup={group} initialGroup={Number(params.get('group'))||undefined}/></details></>}
+ {view==='look'&&<><IntroNotes draft={checkDraft} card={cardDraft.data}/><details className="oc-panel"><summary>다른 모둠 AR 카드 관찰</summary><CardGallery cards={state.cards} myGroup={group}/></details></>}
  {view==='check'&&!cardDraft.data.artifactId&&<p className="oc-empty">먼저 AR 카드를 만들어 주세요.</p>}
  {view==='check'&&cardDraft.data.artifactId>0&&<SelfQuizLab draft={checkDraft} card={cardDraft.data}/>}
  {view==='present'&&cardDraft.data.artifactId>0&&<Presentation check={checkDraft.data} card={cardDraft.data} questions={selfQuestions(checkDraft.data)}/>}

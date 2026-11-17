@@ -9,6 +9,7 @@ import { useTeacherClass } from '../ar-studio/useTeacherClass';
 import { groupCountKey, readGroupCount } from '../ar-studio/teacherRun';
 import { forgetOpenSession, joinOpenLesson, latestLoads, loadState, readOpenSession, saveTeacherSet, type OpenItem, type OpenState } from './api';
 import { joseonModelFor, joseonModels, joseonTargets } from '../../lib/ar/joseon/catalog';
+import { openClassUrl, printedGroupCardUrl } from './cardLinks';
 import { ArCard } from './ArCard';
 import { goryeoArtifact } from '../goryeo/readyCards';
 import { ARTIFACTS, artifactById } from './artifacts';
@@ -22,8 +23,6 @@ import { JoseonClassSlides } from './JoseonClassSlides';
 import { saveLabel, useSyncedDraft } from './useSyncedDraft';
 import './open-class.css';
 
-const SITE = 'https://ai-history-ar.vercel.app';
-export const openClassUrl = (code: string, extra = '') => `${SITE}/joseon/open-class?code=${encodeURIComponent(code)}${extra}`;
 const emptyState: OpenState = { cards: [], checks: [], teacher: [] };
 const FLOW = [
  {minutes:3,who:'선생님',title:'활동 안내',detail:'유물을 고르고 직접 설명을 붙여 AR 카드를 만들어요.'},
@@ -225,14 +224,15 @@ function TargetCard({ artifactId }: { artifactId: number }) {
 }
 
 function PrintCard({ code, card }: { code: string; card: GroupCard }) {
-  const artifact = artifactById(card.artifactId)!;
-  const qr = encodeUrlQr(openClassUrl(code, `&view=look&group=${card.group}`));
+  const artifact = artifactById(card.artifactId);
+  if (!artifact) return null;
+  const qr = encodeUrlQr(printedGroupCardUrl(code, card));
   const photo = joseonModelFor(card.artifactId)?.photo;
   return <article className="oc-print-card">
     <header><b>{card.group}모둠 AR 카드</b><span>{artifact.name}({artifact.hanja})</span></header>
     {photo ? <figure className="oc-print-photo"><img src={`${import.meta.env.BASE_URL}${photo.path}`} alt={`${artifact.name} 실물 사진`} /><figcaption>사진: {photo.author} · {photo.license}</figcaption></figure>
       : <p className="oc-print-nophoto">{artifact.name} 실물 사진은 준비 중이에요. QR로 입체 모형을 보세요.</p>}
     <ol>{card.points.map(point => <li key={point.id}><b>{point.title}</b> {point.text}</li>)}</ol>
-    <footer><svg viewBox={`0 0 ${qr.size} ${qr.size}`} shapeRendering="crispEdges"><rect width="100%" height="100%" fill="#fff" /><path d={qr.path} fill="#000" /></svg><p>QR을 찍으면 이 카드의 입체 모형과 설명을 AR로 볼 수 있어요.</p></footer>
+    <footer><svg viewBox={`0 0 ${qr.size} ${qr.size}`} shapeRendering="crispEdges"><rect width="100%" height="100%" fill="#fff" /><path d={qr.path} fill="#000" /></svg><p>QR을 찍으면 이 모둠의 AR 카드와 설명이 바로 열려요.</p></footer>
   </article>;
 }

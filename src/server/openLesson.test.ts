@@ -27,6 +27,28 @@ describe('open lesson Edge API', () => {
     expect(sent.p_action).toBe('state'); expect(sent.p_code).toBe('5252');
     expect(sent.p_token_hash).toMatch(/^[a-f0-9]{64}$/); expect(sent.p_token_hash).not.toBe(token);
   });
+  it('returns only the printed card face without joining the room or sending a member token', async () => {
+    const point = { ...newPoint([0, .5, .2]), title: '쓰임', text: '그림자로 시각을 알 수 있어요.' };
+    const api = setup({ ...newCard(3, 4), members: '이름', points: [{ ...point, extra: '인쇄되지 않은 항목' }] });
+    const response = await api.handler(request('/rooms/5252/printed-card/3?artifact=4', undefined, { authorization: '' }));
+    expect(response.status).toBe(200);
+    expect(response.headers.get('cache-control')).toBe('no-store');
+    expect(await response.json()).toEqual({ card: { group: 3, artifactId: 4, points: [point] } });
+    expect(api.fetcher.mock.calls[0][0]).toBe('https://database.example/rest/v1/rpc/history_ar_printed_joseon_card');
+    expect(api.sent()).toEqual({ p_code: '5252', p_group: 3, p_artifact_id: 4 });
+    expect((await api.handler(request('/rooms/5252/printed-card/3', undefined, { authorization: '' }))).status).toBe(200);
+    expect(api.sent().p_artifact_id).toBeNull();
+  });
+  it('rejects an unrelated card and keeps classroom state and writes behind membership', async () => {
+    const api = setup(newCard(2, 4));
+    expect((await api.handler(request('/rooms/5252/printed-card/3'))).status).toBe(404);
+    expect((await api.handler(request('/rooms/5252/printed-card/2?artifact=3'))).status).toBe(404);
+    expect((await api.handler(request('/rooms/5252/printed-card/2?artifact=0'))).status).toBe(400);
+    expect((await api.handler(request('/rooms/5252/printed-card/7'))).status).toBe(404);
+    expect((await api.handler(request('/rooms/5252/printed-card/2', { data: card() }))).status).toBe(405);
+    expect((await api.handler(request('/rooms/5252', undefined, { authorization: '' }))).status).toBe(401);
+    expect(api.fetcher).toHaveBeenCalledTimes(2);
+  });
   it('saves a valid card under its own group', async () => {
     const api = setup();
     const response = await api.handler(request('/rooms/5252/card', { data: card(), expectedVersion: 0 }));

@@ -1,7 +1,7 @@
 import { createOpenLessonHandler } from './openLesson.js';
 
-// Platform JWT check is disabled only because the handler authenticates every
-// request with the classroom-bound member token issued by history-ar's /join.
+// The handler uses history-ar's classroom-bound member tokens for classroom
+// state and writes. Printed card links have a separate read-only response.
 // Teacher questions additionally need the teacher PIN (OPEN_LESSON_TEACHER_PIN, default: the site's PIN).
 Deno.serve(createOpenLessonHandler({
   url: Deno.env.get('SUPABASE_URL') || '',

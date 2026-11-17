@@ -1,5 +1,6 @@
 import { studioApi, StudioApiError, type StudioSession } from '../ar-studio/api';
-import type { GroupCard, TeacherSet, Verification } from './model';
+import { isPrintedGroupCard, type GroupCard, type TeacherSet, type Verification } from './model';
+import type { PrintedCardTarget } from './cardLinks';
 
 export interface OpenItem<T> { key: string; version: number; data: T; updatedAt: string }
 export interface OpenState { cards: OpenItem<GroupCard>[]; checks: OpenItem<Verification>[]; teacher: OpenItem<TeacherSet>[] }
@@ -13,11 +14,11 @@ const noAnswer = (save: boolean, slow: boolean) => new StudioApiError(save
   ? `인터넷이 ${slow ? '느려서' : '잘 안 돼서'} 아직 저장하지 못했어요. 쓴 내용은 이 태블릿에 남아 있어요.`
   : `인터넷이 ${slow ? '느려서' : '잘 안 돼서'} 우리 반 카드를 새로 받지 못했어요. 잠시 뒤 저절로 다시 받아요.`, NO_ANSWER);
 
-async function openApi<T>(path: string, token: string, body?: unknown): Promise<T> {
+async function openApi<T>(path: string, token: string | undefined, body?: unknown): Promise<T> {
   const controller = new AbortController(), timer = setTimeout(() => controller.abort(), OPEN_API_TIMEOUT);
   try {
     const response = await fetch(`${import.meta.env.BASE_URL}api/open-lesson${path}`, { method: body === undefined ? 'GET' : 'POST', cache: 'no-store', credentials: 'same-origin', signal: controller.signal,
-      headers: { Authorization: `Bearer ${token}`, ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) }, body: body === undefined ? undefined : JSON.stringify(body) });
+      headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) }, body: body === undefined ? undefined : JSON.stringify(body) });
     const value = await response.json().catch(() => ({}));
     // A body cut off by the timeout must not pass for an empty answer.
     if (controller.signal.aborted) throw noAnswer(body !== undefined, true);
@@ -58,6 +59,16 @@ export async function loadState(code: string, token: string): Promise<OpenState>
   const pick = <T,>(kind: string) => items.filter(item => item.kind === kind) as unknown as OpenItem<T>[];
   return { cards: pick<GroupCard>('card'), checks: pick<Verification>('verify'), teacher: pick<TeacherSet>('teacher') };
 }
+
+export async function loadPrintedGroupCard({ code, group, artifactId }: PrintedCardTarget) {
+  const query = artifactId === undefined ? '' : `?artifact=${artifactId}`;
+  const { card } = await openApi<{ card: unknown }>(`/rooms/${code}/printed-card/${group}${query}`, undefined);
+  if (!isPrintedGroupCard(card) || card.group !== group || (artifactId !== undefined && card.artifactId !== artifactId)) {
+    throw new StudioApiError('이 QR에 연결된 AR 카드를 찾지 못했어요.', 404);
+  }
+  return card;
+}
+
 export const saveCard = (code: string, token: string, data: GroupCard, expectedVersion: number) =>
   openApi<{ saved: true; version: number }>(`/rooms/${code}/card`, token, { data, expectedVersion });
 export const saveCheck = (code: string, token: string, data: Verification, expectedVersion: number) =>

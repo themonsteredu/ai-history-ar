@@ -7,6 +7,7 @@ export type Decision = 'adopt' | 'revise' | 'exclude';
 export interface CardPoint { id: string; position: [number, number, number]; title: string; text: string }
 export interface OxQuestion { id: string; statement: string; answer: Ox; explanation: string; pointId: string }
 export interface GroupCard { version: 1; group: number; artifactId: number; members: string; points: CardPoint[]; questions: OxQuestion[] }
+export type PrintedGroupCard = Pick<GroupCard, 'group' | 'artifactId' | 'points'>;
 export interface TeacherSet { version: 1; artifactId: number; questions: OxQuestion[] }
 /** The fill-in-the-blank parts of a question to Gemini. The page joins them; students write each part. */
 export interface PromptParts { role: string; situation: string; style: string }
@@ -48,12 +49,19 @@ function isQuestion(q: unknown): q is OxQuestion {
   return !!v && typeof v === 'object' && id(v.id) && text(v.statement, 200) && ox(v.answer) && text(v.explanation, 400) && typeof v.pointId === 'string' && v.pointId.length <= 40;
 }
 const uniqueIds = (list: { id: string }[]) => new Set(list.map(item => item.id)).size === list.length;
+const cardPoints = (value: unknown): value is CardPoint[] =>
+  Array.isArray(value) && value.length <= MAX_POINTS &&
+  value.every(p => p && id(p.id) && vector(p.position) && text(p.title, 40) && text(p.text, 400)) && uniqueIds(value);
+
+export function isPrintedGroupCard(value: unknown): value is PrintedGroupCard {
+  const v = value as PrintedGroupCard;
+  return !!v && typeof v === 'object' && group(v.group) && artifact(v.artifactId) && cardPoints(v.points);
+}
 
 export function isGroupCard(value: unknown): value is GroupCard {
   const v = value as GroupCard;
   return !!v && typeof v === 'object' && v.version === 1 && group(v.group) && (v.artifactId === 0 || artifact(v.artifactId)) && text(v.members, 100) &&
-    Array.isArray(v.points) && v.points.length <= MAX_POINTS && uniqueIds(v.points) &&
-    v.points.every(p => p && id(p.id) && vector(p.position) && text(p.title, 40) && text(p.text, 400)) &&
+    cardPoints(v.points) &&
     Array.isArray(v.questions) && v.questions.length <= MAX_QUESTIONS && uniqueIds(v.questions) && v.questions.every(isQuestion);
 }
 export function isTeacherSet(value: unknown): value is TeacherSet {
