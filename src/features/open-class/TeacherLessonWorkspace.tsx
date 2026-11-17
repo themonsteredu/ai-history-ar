@@ -8,6 +8,7 @@ import { Presentation } from './Presentation';
 import { usePresentationDialog } from './usePresentationDialog';
 import { teacherWorkspaceGroups, type TeacherEra, type TeacherGroup } from './teacherWorkspaceGroups';
 import { TeacherArtifactAssignments } from './TeacherArtifactAssignments';
+import { JoseonClassSlides } from './JoseonClassSlides';
 import './teacher-workspace.css';
 import { PhotoRef } from './PhotoRef';
 
@@ -47,6 +48,7 @@ export function TeacherLessonWorkspace({ era, code, groupCount, state, sessionTo
 
   return <section className="teacher-workspace" aria-label="수업 진행">
     <TeacherArtifactAssignments key={`${era}:${code}`} era={era} code={code} groupCount={groupCount} cards={state.cards} sessionToken={sessionToken} loaded={!!updatedAt && !error} onRefresh={onRefresh} />
+    {era === 'joseon' && <JoseonClassSlides />}
     <nav className="teacher-workspace__menus" aria-label="수업 진행 메뉴">
       {menus.map(menu => <button key={menu.id} type="button" aria-pressed={view === menu.id} onClick={() => selectView(menu.id)}>{menu.label}</button>)}
     </nav>

@@ -18,6 +18,7 @@ import { OpenLessonMaterials } from './OpenLessonMaterials';
 import { readingsPackUrl } from './HeritageReading';
 import { museumProgress } from './MuseumBoard';
 import { TeacherLessonWorkspace } from './TeacherLessonWorkspace';
+import { JoseonClassSlides } from './JoseonClassSlides';
 import { saveLabel, useSyncedDraft } from './useSyncedDraft';
 import './open-class.css';
 
@@ -46,7 +47,7 @@ export default function OpenClassTeacher() {
     <header className="oc-head"><div><p className="oc-eyebrow">선생님 화면 · 조선시대 공개수업</p><h1>{name ? `${name} · 수업코드 ${code}` : code ? `수업코드 ${code}` : '세종 때 과학 유물 AR 카드'}</h1></div></header>
     {code ? <details className="oc-panel oc-class-settings"><summary>수업 바꾸기</summary><TeacherClassPicker era="joseon" code={code} onSelect={next => { setCode(next); setClasses(readTeacherClasses(window.localStorage)); }} /></details>
       : <TeacherClassPicker era="joseon" code={code} onSelect={next => { setCode(next); setClasses(readTeacherClasses(window.localStorage)); }} />}
-    {code ? <ClassBoard key={code} code={code} groupCount={groupCount} onGroupCount={changeGroupCount} /> : <><p className="oc-empty">수업코드를 선택하면 발표와 모둠별 진행 상황을 볼 수 있어요.</p><OpenLessonMaterials era="joseon" /></>}
+    {code ? <ClassBoard key={code} code={code} groupCount={groupCount} onGroupCount={changeGroupCount} /> : <><JoseonClassSlides /><p className="oc-empty">수업코드를 선택하면 발표와 모둠별 진행 상황을 볼 수 있어요.</p><OpenLessonMaterials era="joseon" /></>}
   </div>;
 }
 
