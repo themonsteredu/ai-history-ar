@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { readTeacherClass, teacherCodeParam, teacherRoomLink, teacherRoomPath, validTeacherCode, type TeacherCourse } from '../features/ar-studio/teacherClassNavigation';
+import { selectedTeacherCode, teacherRoomLink, teacherRoomPath, type TeacherCourse } from '../features/ar-studio/teacherClassNavigation';
 import '../styles/teacher-navigation.css';
 
 export function TeacherNavigation() {
@@ -7,8 +7,7 @@ export function TeacherNavigation() {
   const params = new URLSearchParams(search);
   const requested = pathname.split('/')[2] || params.get('course');
   const course: TeacherCourse = requested === 'goryeo' || requested === 'joseon' ? requested : 'three-kingdoms';
-  const code = params.has(teacherCodeParam(course))
-    ? validTeacherCode(course, params.get(teacherCodeParam(course)) || '') : readTeacherClass(course);
+  const code = selectedTeacherCode(course, params);
   const home = `/teacher?course=${course}`;
   const isHome = pathname === '/teacher' || pathname === '/teacher/';
   const isRoom = pathname === teacherRoomPath(course);

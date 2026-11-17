@@ -7,7 +7,7 @@ import { classNameFor, readTeacherClasses, type TeacherClass } from '../ar-studi
 import { TeacherClassPicker } from './TeacherClassPicker';
 import { useTeacherClass } from '../ar-studio/useTeacherClass';
 import { groupCountKey, readGroupCount } from '../ar-studio/teacherRun';
-import { forgetOpenSession, joinOpenLesson, latestLoads, loadState, readOpenSession, saveTeacherSet, type OpenItem, type OpenState } from './api';
+import { forgetOpenTeacherSession, joinOpenTeacher, latestLoads, loadState, readOpenTeacherSession, saveTeacherSet, type OpenItem, type OpenState } from './api';
 import { joseonModelFor, joseonModels, joseonTargets } from '../../lib/ar/joseon/catalog';
 import { openClassUrl, printedGroupCardUrl } from './cardLinks';
 import { ArCard } from './ArCard';
@@ -67,8 +67,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
   const refresh = useCallback(async () => {
     if (document.visibilityState === 'hidden') return;
     const result = await loads(async () => {
-      let entry = session || readOpenSession(code);
-      if (!entry) entry = await joinOpenLesson(code, '선생님', 1);
+      const entry = session || readOpenTeacherSession(code) || await joinOpenTeacher(code);
       if (entry !== session) setSession(entry);
       return loadState(code, entry.token);
     });
@@ -76,7 +75,7 @@ function ClassBoard({ code, groupCount, onGroupCount }: { code: string; groupCou
     if (result.ok) { setState(result.value); setUpdatedAt(Date.now()); setError(''); return; }
     const status = (result.error as { status?: number }).status;
     // A stale entry on this device is replaced on the next check instead of failing every time.
-    if (status === 401 || status === 403) { forgetOpenSession(code); setSession(undefined); }
+    if (status === 401 || status === 403) { forgetOpenTeacherSession(code); setSession(undefined); }
     setError(result.error instanceof Error ? result.error.message : '수업을 열지 못했어요. 잠시 뒤 저절로 다시 해 볼게요.');
   }, [code, session, loads]);
   useClassPolling(refresh);

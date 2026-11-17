@@ -80,25 +80,47 @@ export const saveTeacherSet = (code: string, token: string, data: TeacherSet, ex
 export const assignGroupArtifact = (code: string, token: string, group: number, artifactId: number, expectedVersion: number, pin: string, lesson?: string) =>
   openApi<{ saved: true; version: number }>(`/rooms/${code}/assignment/${group}`, token, { artifactId, expectedVersion, pin, ...(lesson ? { lesson } : {}) });
 
-// The open lesson keeps its own entry so a tablet used for the Three Kingdoms lesson is not mixed up with it.
-const sessionKey = (code: string) => `history-ar-open-session:${code}`;
-export function readOpenSession(code: string): StudioSession | undefined {
-  try { const value = JSON.parse(localStorage.getItem(sessionKey(code)) || 'null'); return value?.code === code && typeof value.token === 'string' ? value : undefined; } catch { return undefined; }
+type OpenEntryRole = 'student' | 'teacher';
+type StoredOpenEntry = StudioSession & { openRole?: OpenEntryRole };
+const teacherEntryName = '선생님';
+// Teacher visits must not replace a student's currently selected group on the same device.
+const sessionKey = (code: string, role: OpenEntryRole = 'student') =>
+  role === 'teacher' ? `history-ar-open-teacher-session:${code}` : `history-ar-open-session:${code}`;
+function readStoredOpenEntry(code: string, role: OpenEntryRole = 'student'): StoredOpenEntry | undefined {
+  try { const value = JSON.parse(localStorage.getItem(sessionKey(code, role)) || 'null'); return value?.code === code && typeof value.token === 'string' ? value : undefined; } catch { return undefined; }
+}
+function entryRole(entry: StoredOpenEntry): OpenEntryRole {
+  // Older teacher pages joined as this member before they had a separate storage key.
+  return entry.openRole ?? (entry.name === teacherEntryName && entry.group === 1 ? 'teacher' : 'student');
+}
+function sessionFromEntry({ openRole: _role, ...session }: StoredOpenEntry): StudioSession {
+  return session;
+}
+export function readOpenSession(code: string) {
+  const entry = readStoredOpenEntry(code);
+  return entry && entryRole(entry) === 'student' ? sessionFromEntry(entry) : undefined;
+}
+export function readOpenTeacherSession(code: string) {
+  const entry = readStoredOpenEntry(code, 'teacher');
+  return entry ? sessionFromEntry(entry) : undefined;
 }
 // Keep recent entries for this classroom on this device, so switching groups and
 // returning does not create a new server member every time.
 const historyKey = (code: string) => `history-ar-open-session-history:${code}`;
-function sessionHistory(code: string): StudioSession[] {
+function sessionHistory(code: string): StoredOpenEntry[] {
   try {
     const list: unknown = JSON.parse(localStorage.getItem(historyKey(code)) || '[]');
-    return Array.isArray(list) ? list.filter((v): v is StudioSession => !!v && v.code === code && typeof v.token === 'string' && typeof v.memberId === 'string' && typeof v.name === 'string' && Number.isInteger(v.group) && v.group >= 1 && v.group <= 6) : [];
+    return Array.isArray(list) ? list.filter((v): v is StoredOpenEntry => !!v && v.code === code && typeof v.token === 'string' && typeof v.memberId === 'string' && typeof v.name === 'string' && Number.isInteger(v.group) && v.group >= 1 && v.group <= 6) : [];
   } catch { return []; }
 }
-function rememberOpenSession(session: StudioSession) {
+function rememberOpenSession(session: StudioSession, role: OpenEntryRole = 'student') {
   try {
-    const history = [session, ...sessionHistory(session.code).filter(item => item.memberId !== session.memberId)].slice(0, 20);
-    localStorage.setItem(historyKey(session.code), JSON.stringify(history));
-    localStorage.setItem(sessionKey(session.code), JSON.stringify(session));
+    const entry = { ...session, openRole: role };
+    if (role === 'student') {
+      const history = [entry, ...sessionHistory(session.code).filter(item => item.memberId !== session.memberId)].slice(0, 20);
+      localStorage.setItem(historyKey(session.code), JSON.stringify(history));
+    }
+    localStorage.setItem(sessionKey(session.code, role), JSON.stringify(entry));
   } catch { /* the current visit still works */ }
 }
 export function forgetOpenSession(code: string) {
@@ -106,19 +128,29 @@ export function forgetOpenSession(code: string) {
   if (session) rememberOpenSession(session);
   try { localStorage.removeItem(sessionKey(code)); } catch { /* nothing kept */ }
 }
+export function forgetOpenTeacherSession(code: string) {
+  try { localStorage.removeItem(sessionKey(code, 'teacher')); } catch { /* nothing kept */ }
+}
+
 const joining = new Map<string, Promise<StudioSession>>();
-export function joinOpenLesson(code: string, name: string, group: number): Promise<StudioSession> {
+export const joinOpenLesson = (code: string, name: string, group: number) => joinOpenRoom(code, name, group, 'student');
+export const joinOpenTeacher = (code: string) => joinOpenRoom(code, teacherEntryName, 1, 'teacher');
+
+function joinOpenRoom(code: string, name: string, group: number, role: OpenEntryRole): Promise<StudioSession> {
   const cleanName = name.trim();
-  const identity = JSON.stringify([code, cleanName, group]);
+  const identity = JSON.stringify([code, cleanName, group, role]);
   const existing = joining.get(identity);
   if (existing) return existing;
   const pending = (async () => {
-    const cached = [readOpenSession(code), ...sessionHistory(code)].find(session => session?.code === code && session.group === group && session.name === cleanName);
+    const teacher = role === 'teacher' ? readStoredOpenEntry(code, 'teacher') : undefined;
+    const entries = [teacher, readStoredOpenEntry(code), ...sessionHistory(code)];
+    const cached = entries.find(entry => entry?.group === group && entry.name === cleanName && entryRole(entry) === role);
     if (cached) {
       try {
         await loadState(code, cached.token);
-        rememberOpenSession(cached);
-        return cached;
+        const session = sessionFromEntry(cached);
+        rememberOpenSession(session, role);
+        return session;
       } catch (error) {
         // A slow network is not evidence that an entry is invalid. Do not
         // create duplicate members when it is simply offline.
@@ -128,7 +160,7 @@ export function joinOpenLesson(code: string, name: string, group: number): Promi
     const session = await studioApi<StudioSession>('/join', undefined, { code, name: cleanName, group }).catch((error: unknown) => {
       throw error instanceof StudioApiError ? error : new StudioApiError('인터넷이 잘 안 돼서 수업에 들어가지 못했어요. 인터넷이 되는지 확인해 주세요.', NO_ANSWER);
     });
-    rememberOpenSession(session);
+    rememberOpenSession(session, role);
     return session;
   })();
   joining.set(identity, pending);

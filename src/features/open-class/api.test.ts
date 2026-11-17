@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StudioApiError } from '../ar-studio/api';
-import { assignGroupArtifact, clearRequestedExampleDrafts, forgetOpenSession, joinOpenLesson, latestLoads, loadState, NO_ANSWER, OPEN_API_TIMEOUT, readDraft, saveCard } from './api';
+import { assignGroupArtifact, clearRequestedExampleDrafts, forgetOpenSession, forgetOpenTeacherSession, joinOpenLesson, joinOpenTeacher, latestLoads, loadState, NO_ANSWER, OPEN_API_TIMEOUT, readDraft, readOpenSession, readOpenTeacherSession, saveCard } from './api';
 import { newCard } from './model';
 
 const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'content-type': 'application/json' } });
@@ -202,6 +202,38 @@ describe('classroom re-entry', () => {
     return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => { items.set(key, value); }, removeItem: (key: string) => { items.delete(key); } };
   }
   const entry = { token: 'token-a', memberId: 'member-a', code: '891234', group: 2, name: '하늘' };
+  const teacher = { ...entry, group: 1, name: '선생님', token: 'teacher-token', memberId: 'teacher-member' };
+
+  it('keeps an active student group while opening, reusing and clearing a teacher visit', async () => {
+    vi.stubGlobal('localStorage', storage());
+    const fetch = vi.fn().mockResolvedValueOnce(json(entry)).mockResolvedValueOnce(json(teacher)).mockResolvedValueOnce(json({ items: [] }));
+    vi.stubGlobal('fetch', fetch);
+    await joinOpenLesson(entry.code, entry.name, entry.group);
+    expect(await joinOpenTeacher(entry.code)).toEqual(teacher);
+    expect(await joinOpenTeacher(entry.code)).toEqual(teacher);
+    expect(readOpenSession(entry.code)).toEqual(entry);
+    expect(readOpenTeacherSession(entry.code)).toEqual(teacher);
+    forgetOpenTeacherSession(entry.code);
+    expect(readOpenSession(entry.code)).toEqual(entry);
+    expect(readOpenTeacherSession(entry.code)).toBeUndefined();
+    expect(fetch.mock.calls.map(call => String(call[0]).includes('/join'))).toEqual([true, true, false]);
+  });
+
+  it('reuses a legacy teacher entry only on the teacher page and keeps a separately entered student alias', async () => {
+    const cached = storage();
+    cached.setItem(`history-ar-open-session:${entry.code}`, JSON.stringify(teacher));
+    vi.stubGlobal('localStorage', cached);
+    const student = { ...teacher, token: 'student-token', memberId: 'student-member' };
+    const fetch = vi.fn().mockResolvedValueOnce(json({ items: [] })).mockResolvedValueOnce(json(student));
+    vi.stubGlobal('fetch', fetch);
+    expect(readOpenSession(entry.code)).toBeUndefined();
+    expect(await joinOpenTeacher(entry.code)).toEqual(teacher);
+    expect(readOpenTeacherSession(entry.code)).toEqual(teacher);
+    expect(await joinOpenLesson(entry.code, student.name, student.group)).toEqual(student);
+    expect(readOpenSession(entry.code)).toEqual(student);
+    expect(readOpenTeacherSession(entry.code)).toEqual(teacher);
+  });
+
   it('reuses the same device entry after leaving, and creates another for a different group', async () => {
     vi.stubGlobal('localStorage', storage());
     const fetch = vi.fn().mockResolvedValueOnce(json(entry)).mockResolvedValueOnce(json({ items: [] })).mockResolvedValueOnce(json({ ...entry, group: 3, memberId: 'member-b', token: 'token-b' }));

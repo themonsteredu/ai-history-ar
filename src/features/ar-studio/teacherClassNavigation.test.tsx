@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
-import { readTeacherClass, rememberTeacherClass, teacherRoomLink } from './teacherClassNavigation';
+import { readTeacherClass, rememberTeacherClass, teacherLinkFromStudent, teacherRoomLink } from './teacherClassNavigation';
 import { useTeacherClass } from './useTeacherClass';
 import { TeacherNavigation } from '../../components/TeacherNavigation';
+import { TeacherShell } from '../../components/TeacherShell';
 
 beforeEach(() => {
   const values = new Map<string, string>();
@@ -45,4 +46,15 @@ it('still opens URL codes when the browser blocks storage', () => {
   expect(() => rememberTeacherClass('goryeo', '5252')).not.toThrow();
   expect(readTeacherClass('goryeo')).toBe('');
   expect(render('/teacher/goryeo/open-class?code=5252')).toContain('<output>5252</output>');
+});
+
+it('opens the student view of the same class and accepts the original teacher return link', () => {
+  const teacher = '/teacher/joseon/open-class?code=5252&teacher_view=quiz';
+  const shell = (path: string) => renderToStaticMarkup(<MemoryRouter initialEntries={[path]}><TeacherShell onLock={() => {}} /></MemoryRouter>);
+  expect(shell(teacher)).toContain('href="/joseon/open-class?code=5252"');
+  expect(shell('/teacher/goryeo/open-class?code=6161')).toContain('href="/goryeo?code=6161"');
+  expect(shell('/teacher/goryeo/open-class?code=')).toContain('href="/goryeo"');
+  expect(teacherLinkFromStudent('/joseon/open-class', '?code=5252', { teacherReturn: teacher })).toBe(teacher);
+  expect(teacherLinkFromStudent('/goryeo', '?code=6161', null)).toBe('/teacher/goryeo/open-class?code=6161');
+  expect(teacherLinkFromStudent('/classes', '', { teacherReturn: '//different.example' })).toBe('/teacher');
 });
