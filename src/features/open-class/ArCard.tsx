@@ -22,7 +22,7 @@ const asExhibitPoints = (points: readonly CardPoint[]): ExhibitPoint[] => points
 
 interface ArCardProps {
   artifactId: number; points: readonly CardPoint[]; selected?: string;
-  onSelect?: (id: string) => void; onPlace?: (position: [number, number, number]) => void; caption?: string; era?: 'goryeo' | 'joseon'; showReference?: boolean;
+  onSelect?: (id: string) => void; onPlace?: (position: [number, number, number]) => void; caption?: string; era?: 'goryeo' | 'joseon'; showReference?: boolean; fallbackImage?: string;
 }
 
 /**
@@ -30,7 +30,7 @@ interface ArCardProps {
  * bubble beside the number. A tap on the model places a pin while `onPlace` is given. Without `onSelect` (the teacher's
  * view) the card remembers the tapped pin itself.
  */
-export function ArCard({ artifactId, points, selected, onSelect, onPlace, caption, era = 'joseon', showReference = true }: ArCardProps) {
+export function ArCard({ artifactId, points, selected, onSelect, onPlace, caption, era = 'joseon', showReference = true, fallbackImage }: ArCardProps) {
   const artifact = era === 'goryeo' ? goryeoArtifact(artifactId) : artifactById(artifactId);
   const model = useMemo(() => era === 'goryeo' ? goryeoModel(artifactId) : artifactModel(artifactId), [artifactId, era]);
   const exhibitPoints = useMemo(() => asExhibitPoints(points), [points]);
@@ -38,7 +38,7 @@ export function ArCard({ artifactId, points, selected, onSelect, onPlace, captio
   if (!artifact || !model) return <figure className="oc-card is-empty"><p className="oc-help">유물을 골라 주세요.</p></figure>;
   return <figure className={`oc-card${onPlace ? ' is-placing' : ''}`}>
     <Suspense fallback={<p className="oc-help" role="status">입체 유물을 불러와요…</p>}>
-      <HeritageModelView observe bubbles model={model} image="" points={exhibitPoints} selectedId={(onSelect ? selected : own) || ''} onSelect={onSelect || setOwn} onPlace={onPlace} targetIndex={artifactId - 1} eraId={era === 'joseon' ? 'joseon' : undefined} />
+      <HeritageModelView observe bubbles model={model} image="" points={exhibitPoints} selectedId={(onSelect ? selected : own) || ''} onSelect={onSelect || setOwn} onPlace={onPlace} targetIndex={artifactId - 1} eraId={era === 'joseon' ? 'joseon' : undefined} fallbackImage={fallbackImage} />
     </Suspense>
     <figcaption>{caption || artifact.name}</figcaption>
     {showReference && <><GoryeoBackPhoto era={era} artifactId={artifactId} /><JoseonBackPhoto era={era} artifactId={artifactId} /></>}

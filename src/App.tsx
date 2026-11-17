@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useSearchParams } from "react-router-dom";
 import { AppShell } from "./components/AppShell";
 import { TeacherGate } from "./components/TeacherGate";
 import { DownloadCenterPage } from "./pages/DownloadCenterPage";
@@ -11,6 +11,7 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { TeacherDashboardPage } from "./pages/TeacherDashboardPage";
 import { TeacherToolSettingsPage } from "./pages/TeacherToolSettingsPage";
 import { DataInquiryLessonPage } from './pages/DataInquiryLessonPage';
+import { readPrintedCardLink } from './features/open-class/cardLinks';
 
 const JoseonCoursePage = lazy(() => import('./pages/JoseonCoursePage'));
 const ArPreviewPage = lazy(() => import("./pages/ArPreviewPage"));
@@ -21,11 +22,19 @@ const VisitPage = lazy(() => import('./features/ar-studio/VisitPage'));
 const QuizPrintPage = lazy(() => import('./features/ar-studio/QuizPrintPage'));
 const TeacherPage = lazy(() => import('./features/ar-studio/TeacherPage'));
 const OpenClassPage = lazy(() => import('./features/open-class/OpenClassPage'));
+const PrintedArCardPage = lazy(() => import('./features/open-class/PrintedArCardPage'));
 const OpenClassTeacher = lazy(() => import('./features/open-class/OpenClassTeacher'));
 const PresentationExample = lazy(() => import('./features/open-class/PresentationExample'));
 const GoryeoLesson = lazy(() => import('./features/goryeo/GoryeoLesson'));
 const GoryeoOpenClass = lazy(() => import('./features/goryeo/GoryeoOpenClass'));
 const GoryeoTeacher = lazy(() => import('./features/goryeo/GoryeoOpenClass').then(m => ({default:m.GoryeoTeacher})));
+
+function JoseonOpenClassRoute() {
+  const [params] = useSearchParams();
+  const target = readPrintedCardLink(params);
+  if (target !== undefined) return <PrintedArCardPage key={params.toString()} target={target} />;
+  return <OpenClassPage />;
+}
 
 export function App() {
   return (
@@ -48,7 +57,7 @@ export function App() {
         <Route path="joseon/course/:sessionId" element={<Suspense fallback={<p>수업을 준비해요…</p>}><JoseonCoursePage /></Suspense>} />
         <Route path="joseon" element={<EraPage eraId="joseon" />} />
         <Route path="joseon/lesson/:lessonId" element={<LessonPage eraId="joseon" mode="student" />} />
-        <Route path="joseon/open-class" element={<Suspense fallback={<p>공개수업 화면을 열어요…</p>}><OpenClassPage /></Suspense>} />
+        <Route path="joseon/open-class" element={<Suspense fallback={<p>공개수업 화면을 열어요…</p>}><JoseonOpenClassRoute /></Suspense>} />
         <Route path="goryeo" element={<Suspense fallback={<p>고려 유물 수업을 열어요…</p>}><GoryeoOpenClass /></Suspense>} />
         <Route path="presentation-example" element={<Suspense fallback={<p>발표 예시를 열어요…</p>}><PresentationExample /></Suspense>} />
         <Route path="goryeo/sample" element={<Suspense fallback={<p>고려 샘플을 열어요…</p>}><GoryeoLesson /></Suspense>} />

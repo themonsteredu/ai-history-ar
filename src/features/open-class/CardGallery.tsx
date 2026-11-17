@@ -6,9 +6,9 @@ import type { OpenItem } from './api';
 import { readyQuestions, type GroupCard } from './model';
 
 /** Step 2: look at the other groups' cards, on screen or floating over the camera. */
-export function CardGallery({ cards, myGroup, onCheck, initialGroup, showAllGroups = false, era = 'joseon' }: { cards: OpenItem<GroupCard>[]; myGroup: number; onCheck?: (group: number) => void; initialGroup?: number; showAllGroups?: boolean; era?: 'goryeo' | 'joseon' }) {
+export function CardGallery({ cards, myGroup, onCheck, showAllGroups = false, era = 'joseon' }: { cards: OpenItem<GroupCard>[]; myGroup: number; onCheck?: (group: number) => void; showAllGroups?: boolean; era?: 'goryeo' | 'joseon' }) {
   const visible = cards.filter(item => item.data.artifactId).sort((a, b) => a.data.group - b.data.group);
-  const [open, setOpen] = useState<number | undefined>(initialGroup);
+  const [open, setOpen] = useState<number>();
   const [selected, setSelected] = useState<string>();
   const [ar, setAr] = useState(false);
   const current = visible.find(item => item.data.group === open)?.data;

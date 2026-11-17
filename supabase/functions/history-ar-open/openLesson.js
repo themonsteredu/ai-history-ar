@@ -108,9 +108,14 @@ function isQuestion(q) {
 	return !!v && typeof v === "object" && id(v.id) && text(v.statement, 200) && ox(v.answer) && text(v.explanation, 400) && typeof v.pointId === "string" && v.pointId.length <= 40;
 }
 var uniqueIds = (list) => new Set(list.map((item) => item.id)).size === list.length;
+var cardPoints = (value) => Array.isArray(value) && value.length <= 6 && value.every((p) => p && id(p.id) && vector(p.position) && text(p.title, 40) && text(p.text, 400)) && uniqueIds(value);
+function isPrintedGroupCard(value) {
+	const v = value;
+	return !!v && typeof v === "object" && group(v.group) && artifact(v.artifactId) && cardPoints(v.points);
+}
 function isGroupCard(value) {
 	const v = value;
-	return !!v && typeof v === "object" && v.version === 1 && group(v.group) && (v.artifactId === 0 || artifact(v.artifactId)) && text(v.members, 100) && Array.isArray(v.points) && v.points.length <= 6 && uniqueIds(v.points) && v.points.every((p) => p && id(p.id) && vector(p.position) && text(p.title, 40) && text(p.text, 400)) && Array.isArray(v.questions) && v.questions.length <= 5 && uniqueIds(v.questions) && v.questions.every(isQuestion);
+	return !!v && typeof v === "object" && v.version === 1 && group(v.group) && (v.artifactId === 0 || artifact(v.artifactId)) && text(v.members, 100) && cardPoints(v.points) && Array.isArray(v.questions) && v.questions.length <= 5 && uniqueIds(v.questions) && v.questions.every(isQuestion);
 }
 function isTeacherSet(value) {
 	const v = value;
@@ -167,12 +172,12 @@ async function readBody(request) {
 async function hash(token) {
 	return Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token))), (n) => n.toString(16).padStart(2, "0")).join("");
 }
-/** Joseon open lesson API. Students join through the existing /api/ar-studio/join; this only reads and saves the lesson's items. */
+/** Printed QR links read a single card face. Classroom state and saves require an existing member token. */
 function createOpenLessonHandler(config) {
 	const fetcher = config.fetch || fetch;
 	const writes = /* @__PURE__ */ new Map();
-	async function rpc(payload) {
-		const response = await fetcher(`${config.url}/rest/v1/rpc/history_ar_open_dispatch`, {
+	async function rpc(payload, name = "history_ar_open_dispatch") {
+		const response = await fetcher(`${config.url}/rest/v1/rpc/${name}`, {
 			method: "POST",
 			signal: AbortSignal.timeout(2e4),
 			headers: {
@@ -201,10 +206,35 @@ function createOpenLessonHandler(config) {
 					"Vary": "Origin"
 				}
 			});
-			const path = new URL(request.url).pathname.replace(/^.*\/(?:history-ar-open|api\/open-lesson)/, "") || "/";
+			const url = new URL(request.url);
+			const path = url.pathname.replace(/^.*\/(?:history-ar-open|api\/open-lesson)/, "") || "/";
 			if (path === "/health" && request.method === "GET") return json({ status: config.url && config.key ? "ready" : "unconfigured" }, config.url && config.key ? 200 : 503, origin);
 			if (!["GET", "POST"].includes(request.method)) throw new RequestError(405, "지원하지 않는 요청입니다.");
 			if (!config.url || !config.key) throw new RequestError(503, "저장 서버 연결을 확인해 주세요.");
+			const printed = path.match(/^\/rooms\/([a-z0-9]{4,12})\/printed-card\/([1-6])$/);
+			if (printed) {
+				if (request.method !== "GET") throw new RequestError(405, "지원하지 않는 요청입니다.");
+				const artifact = url.searchParams.get("artifact");
+				if (artifact !== null && !/^[1-6]$/.test(artifact)) throw new RequestError(400, "유물 번호를 확인해 주세요.");
+				const group = Number(printed[2]), artifactId = artifact === null ? null : Number(artifact);
+				const card = await rpc({
+					p_code: printed[1],
+					p_group: group,
+					p_artifact_id: artifactId
+				}, "history_ar_printed_joseon_card");
+				if (!isPrintedGroupCard(card) || card.group !== group || artifactId !== null && card.artifactId !== artifactId) throw new RequestError(404, "이 QR에 연결된 AR 카드를 찾지 못했어요.");
+				const points = card.points.map(({ id, title, text, position }) => ({
+					id,
+					title,
+					text,
+					position
+				}));
+				return json({ card: {
+					group,
+					artifactId: card.artifactId,
+					points
+				} }, 200, origin);
+			}
 			const match = path.match(/^\/rooms\/([a-z0-9]{4,12})(?:\/(card|verify\/([1-6])|teacher\/([1-6])|assignment\/([1-6])))?$/);
 			if (!match) throw new RequestError(404, "수업 경로를 찾지 못했어요.");
 			const token = request.headers.get("authorization")?.match(/^Bearer ([a-f0-9]{64})$/)?.[1] || "";

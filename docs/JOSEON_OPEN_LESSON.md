@@ -43,6 +43,7 @@
 
 - 학생 입장은 기존 `/api/ar-studio/join`(수업코드·모둠 입장)을 그대로 씁니다.
 - 카드·검증 기록·선생님 문제는 `/api/open-lesson` → Supabase Edge Function `history-ar-open` → `public.history_ar_open_dispatch` → `history_ar.open_items` 에 저장됩니다. 기존 삼국시대 작품·답안 표는 바꾸지 않습니다.
+- 모둠 카드 인쇄용 QR은 저장된 모둠의 유물과 설명을 별도 읽기 화면으로 엽니다. 기존 인쇄물의 `view=look&group=…` 주소도 지원합니다. 새 주소는 유물 번호까지 대조합니다. 읽기 API 배포 전 `db/history-ar-printed-joseon-card.sql`을 적용합니다.
 - 모둠은 자기 카드와 자기 검증 기록만 저장할 수 있고, 같은 항목을 두 태블릿이 동시에 저장하면 버전 번호로 겹침을 알려 줍니다. 쓴 내용은 태블릿에도 임시 보관됩니다.
 - 선생님 문제 저장은 Edge 함수가 교사 PIN(`OPEN_LESSON_TEACHER_PIN`, 기본값은 사이트 PIN)을 확인합니다.
 - 함수 코드 다시 만들기: `node scripts/build-open-lesson.mjs` → `supabase/functions/history-ar-open/` 배포. DB 정의는 `db/history-ar-open-lesson.sql`.

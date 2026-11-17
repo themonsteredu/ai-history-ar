@@ -1,4 +1,4 @@
-import { isGroupCard, isTeacherSet, isVerification } from '../features/open-class/model';
+import { isGroupCard, isPrintedGroupCard, isTeacherSet, isVerification } from '../features/open-class/model';
 
 export interface OpenLessonConfig { url: string; key: string; teacherPin: string; fetch?: typeof fetch }
 const MAX_BODY = 130_000;
@@ -23,12 +23,12 @@ async function hash(token: string) {
   return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token))), n => n.toString(16).padStart(2, '0')).join('');
 }
 
-/** Joseon open lesson API. Students join through the existing /api/ar-studio/join; this only reads and saves the lesson's items. */
+/** Printed QR links read a single card face. Classroom state and saves require an existing member token. */
 export function createOpenLessonHandler(config: OpenLessonConfig) {
   const fetcher = config.fetch || fetch;
   const writes = new Map<string, { start: number; count: number }>();
-  async function rpc(payload: Record<string, unknown>) {
-    const response = await fetcher(`${config.url}/rest/v1/rpc/history_ar_open_dispatch`, { method: 'POST', signal: AbortSignal.timeout(20_000),
+  async function rpc(payload: Record<string, unknown>, name = 'history_ar_open_dispatch') {
+    const response = await fetcher(`${config.url}/rest/v1/rpc/${name}`, { method: 'POST', signal: AbortSignal.timeout(20_000),
       headers: { 'Content-Type': 'application/json', apikey: config.key, Authorization: `Bearer ${config.key}` }, body: JSON.stringify(payload) });
     if (!response.ok) throw new RequestError(503, '저장 서버에 연결하지 못했어요. 쓴 내용은 이 기기에 남아 있으니 다시 눌러 주세요.');
     const value = await response.json();
@@ -48,6 +48,19 @@ export function createOpenLessonHandler(config: OpenLessonConfig) {
       if (path === '/health' && request.method === 'GET') return json({ status: config.url && config.key ? 'ready' : 'unconfigured' }, config.url && config.key ? 200 : 503, origin);
       if (!['GET', 'POST'].includes(request.method)) throw new RequestError(405, '지원하지 않는 요청입니다.');
       if (!config.url || !config.key) throw new RequestError(503, '저장 서버 연결을 확인해 주세요.');
+      const printed = path.match(/^\/rooms\/([a-z0-9]{4,12})\/printed-card\/([1-6])$/);
+      if (printed) {
+        if (request.method !== 'GET') throw new RequestError(405, '지원하지 않는 요청입니다.');
+        const artifact = url.searchParams.get('artifact');
+        if (artifact !== null && !/^[1-6]$/.test(artifact)) throw new RequestError(400, '유물 번호를 확인해 주세요.');
+        const group = Number(printed[2]), artifactId = artifact === null ? null : Number(artifact);
+        const card = await rpc({ p_code: printed[1], p_group: group, p_artifact_id: artifactId }, 'history_ar_printed_joseon_card');
+        if (!isPrintedGroupCard(card) || card.group !== group || (artifactId !== null && card.artifactId !== artifactId)) {
+          throw new RequestError(404, '이 QR에 연결된 AR 카드를 찾지 못했어요.');
+        }
+        const points = card.points.map(({ id, title, text, position }) => ({ id, title, text, position }));
+        return json({ card: { group, artifactId: card.artifactId, points } }, 200, origin);
+      }
       const match = path.match(/^\/rooms\/([a-z0-9]{4,12})(?:\/(card|verify\/([1-6])|teacher\/([1-6])|assignment\/([1-6])))?$/);
       if (!match) throw new RequestError(404, '수업 경로를 찾지 못했어요.');
       const token = request.headers.get('authorization')?.match(/^Bearer ([a-f0-9]{64})$/)?.[1] || '';
