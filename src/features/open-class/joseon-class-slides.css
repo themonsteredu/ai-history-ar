@@ -63,6 +63,7 @@
 
 .joseon-slide-show__base { display: block; width: 100%; height: 100%; }
 .joseon-slide-show__reveal { position: absolute; pointer-events: none; }
+.joseon-slide-show__reveal[hidden] { display: none; }
 .joseon-slide-show__reveal[data-motion="true"]:not([hidden]) {
   animation: joseon-slide-reveal var(--reveal-duration) linear both;
 }
