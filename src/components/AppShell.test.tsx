@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { clearTeacherAccess, grantTeacherAccess } from '../auth/teacherAccess';
+import { clearTeacherAccess, grantTeacherAccess, readTeacherAccess } from '../auth/teacherAccess';
 import { AppShell } from './AppShell';
 
 function createStorage() {
@@ -17,7 +17,7 @@ function renderNavigation(storage: ReturnType<typeof createStorage>, path = '/cl
   vi.stubGlobal('window', { sessionStorage: storage });
   const html = renderToStaticMarkup(
     <MemoryRouter initialEntries={[path]}>
-      <Routes><Route element={<AppShell />}><Route path="*" element={<span>본문</span>} /></Route></Routes>
+      <Routes><Route element={<AppShell teacherVerified={readTeacherAccess(storage)} />}><Route path="*" element={<span>본문</span>} /></Route></Routes>
     </MemoryRouter>,
   );
   return html.match(/<nav aria-label="주요 메뉴"[\s\S]*?<\/nav>/)?.[0] ?? '';

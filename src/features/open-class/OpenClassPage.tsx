@@ -1,6 +1,6 @@
 import { StudentGroupViews } from './StudentGroupViews';
 import { useCallback, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import type { StudioSession } from '../ar-studio/api';
 import { forgetOpenSession, joinOpenLesson, latestLoads, loadState, readOpenSession, saveCard, saveCheck, type OpenState } from './api';
 
@@ -27,6 +27,7 @@ const emptyState: OpenState = { cards: [], checks: [], teacher: [] };
 
 /** Joseon open lesson for students: make a card, look at others, check them with Gemini, present. */
 export default function OpenClassPage() {
+  const { state: navigationState } = useLocation();
   const [params, setParams] = useSearchParams();
   const code = (params.get('code') || params.get('hub_code') || '').trim().toLowerCase();
   const [session, setSession] = useState<StudioSession | undefined>(() => code ? readOpenSession(code) : undefined);
@@ -40,7 +41,7 @@ export default function OpenClassPage() {
     try {
       const next = await joinOpenLesson(inputCode.trim().toLowerCase(), name.trim(), group);
       setSession(next);
-      const nextParams = new URLSearchParams(params); nextParams.delete('hub_code'); nextParams.set('code', next.code); setParams(nextParams);
+      const nextParams = new URLSearchParams(params); nextParams.delete('hub_code'); nextParams.set('code', next.code); setParams(nextParams, { state: navigationState });
     } catch (value) { setError(value instanceof Error ? value.message : '수업에 들어가지 못했어요. 수업코드를 확인해 주세요.'); }
     finally { setBusy(false); }
   }
@@ -64,12 +65,13 @@ export default function OpenClassPage() {
 }
 
 function Lesson({ session, onLeave }: { session: StudioSession; onLeave: () => void }) {
+ const { state: navigationState } = useLocation();
  const [params,setParams]=useSearchParams();const view=(params.get('view')==='make'?'make':VIEWS.some(v=>v.id===params.get('view'))?params.get('view'):'make') as View;
  const {code,token,group}=session;const [state,setState]=useState<OpenState>(emptyState),[loaded,setLoaded]=useState(false),[error,setError]=useState('');
  const [loads]=useState(()=>latestLoads());
  const refresh=useCallback(async()=>{if(document.visibilityState==='hidden')return;const result=await loads(()=>loadState(code,token));if(!result)return;if(result.ok){setState(result.value);setLoaded(true);setError('');}else setError(result.error instanceof Error?result.error.message:'수업 기록을 불러오지 못했어요.');},[code,token,loads]);
  useClassPolling(refresh);
- const go=(next:View)=>{const p=new URLSearchParams(params);p.set('view',next);p.delete('group');setParams(p);window.scrollTo({top:0});};
+ const go=(next:View)=>{const p=new URLSearchParams(params);p.set('view',next);p.delete('group');setParams(p,{state:navigationState});window.scrollTo({top:0});};
  const saveMyCard=useCallback((data:GroupCard,version:number)=>saveCard(code,token,data,version),[code,token]);
  const assignedCard=state.cards.find(i=>i.key===String(group));
  const cardDraft=useSyncedDraft<GroupCard>({draftKey:`${code}:card:${group}`,server:assignedCard,blank:()=>newCard(group),check:isGroupCard,save:saveMyCard,canSave:d=>loaded&&d.artifactId>0&&d.artifactId===assignedCard?.data.artifactId&&d.group===group});

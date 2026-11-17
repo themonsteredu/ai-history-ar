@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Route, Routes, useSearchParams } from "react-router-dom";
 import { AppShell } from "./components/AppShell";
 import { TeacherGate } from "./components/TeacherGate";
@@ -12,6 +12,7 @@ import { TeacherDashboardPage } from "./pages/TeacherDashboardPage";
 import { TeacherToolSettingsPage } from "./pages/TeacherToolSettingsPage";
 import { DataInquiryLessonPage } from './pages/DataInquiryLessonPage';
 import { readPrintedCardLink } from './features/open-class/cardLinks';
+import { clearTeacherAccess, grantTeacherAccess, readTeacherAccess } from './auth/teacherAccess';
 
 const JoseonCoursePage = lazy(() => import('./pages/JoseonCoursePage'));
 const ArPreviewPage = lazy(() => import("./pages/ArPreviewPage"));
@@ -37,9 +38,19 @@ function JoseonOpenClassRoute() {
 }
 
 export function App() {
+  const [teacherVerified, setTeacherVerified] = useState(() => readTeacherAccess());
+  function unlockTeacher() {
+    grantTeacherAccess();
+    setTeacherVerified(true);
+  }
+  function lockTeacher() {
+    clearTeacherAccess();
+    setTeacherVerified(false);
+  }
+
   return (
     <Routes>
-      <Route element={<AppShell />}>
+      <Route element={<AppShell teacherVerified={teacherVerified} />}>
         <Route index element={<HomePage />} />
         <Route path="classes" element={<ClassSelectionPage />} />
         <Route path="three-kingdoms" element={<EraPage eraId="three-kingdoms" />} />
@@ -63,7 +74,7 @@ export function App() {
         <Route path="goryeo/sample" element={<Suspense fallback={<p>고려 샘플을 열어요…</p>}><GoryeoLesson /></Suspense>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
-      <Route path="teacher" element={<TeacherGate />}>
+      <Route path="teacher" element={<TeacherGate isUnlocked={teacherVerified} onUnlock={unlockTeacher} onLock={lockTeacher} />}>
         <Route index element={<TeacherDashboardPage />} />
         <Route path="three-kingdoms/data/:sessionId" element={<DataInquiryLessonPage teacher />} />
         <Route path="three-kingdoms/ar" element={<Suspense fallback={<p>AR 수업 화면을 열어요…</p>}><TeacherPage /></Suspense>} />

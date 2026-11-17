@@ -1,16 +1,10 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import {
-  clearTeacherAccess,
-  grantTeacherAccess,
-  isValidTeacherPin,
-  readTeacherAccess,
-} from "../auth/teacherAccess";
+import { isValidTeacherPin } from "../auth/teacherAccess";
 import { Icon } from "./Icon";
 import { TeacherShell } from "./TeacherShell";
 
-export function TeacherGate() {
-  const [isUnlocked, setIsUnlocked] = useState(() => readTeacherAccess(window.sessionStorage));
+export function TeacherGate({ isUnlocked, onUnlock, onLock }: { isUnlocked: boolean; onUnlock: () => void; onLock: () => void }) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
 
@@ -23,19 +17,12 @@ export function TeacherGate() {
       return;
     }
 
-    grantTeacherAccess(window.sessionStorage);
-    setError("");
-    setIsUnlocked(true);
-  }
-
-  function handleLock() {
-    clearTeacherAccess(window.sessionStorage);
     setPin("");
     setError("");
-    setIsUnlocked(false);
+    onUnlock();
   }
 
-  if (isUnlocked) return <TeacherShell onLock={handleLock} />;
+  if (isUnlocked) return <TeacherShell onLock={onLock} />;
 
   return (
     <main className="teacher-gate">
@@ -68,7 +55,7 @@ export function TeacherGate() {
             설정 열기 <Icon name="arrow" size={18} />
           </button>
         </form>
-        <p className="teacher-gate__help" id="teacher-pin-help">현재 브라우저 탭을 닫으면 교사 화면이 자동으로 잠깁니다.</p>
+        <p className="teacher-gate__help" id="teacher-pin-help">이 탭에서 학생 화면으로 갔다 돌아와도 교사 확인이 유지됩니다.</p>
         <Link className="teacher-gate__back" to="/">← 학생 화면으로 돌아가기</Link>
       </section>
     </main>

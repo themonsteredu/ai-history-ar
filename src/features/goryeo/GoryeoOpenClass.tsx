@@ -1,6 +1,6 @@
 import { StudentGroupViews } from '../open-class/StudentGroupViews';
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { useTeacherClass } from '../ar-studio/useTeacherClass';
 import { LessonFlow } from '../open-class/OpenClassTeacher';
 import { CardMaker } from '../open-class/CardMaker';
@@ -10,7 +10,7 @@ import { TeacherLessonWorkspace } from '../open-class/TeacherLessonWorkspace';
 import { groupCountKey, readGroupCount } from '../ar-studio/teacherRun';
 import type { StudioSession } from '../ar-studio/api';
 import { encodeUrlQr } from '../../lib/qr/classroomQr';
-import { forgetOpenSession, readOpenSession, joinOpenLesson, loadState, saveCard, saveCheck, latestLoads, type OpenState } from '../open-class/api';
+import { forgetOpenSession, readOpenSession, joinOpenLesson, joinOpenTeacher, loadState, saveCard, saveCheck, latestLoads, type OpenState } from '../open-class/api';
 import { isGroupCard, isVerification, newCard, newSelfVerification, selfItemDone, selfQuestions, type GroupCard, type Verification } from '../open-class/model';
 import { confirmLeave, useSyncedDraft } from '../open-class/useSyncedDraft';
 import { useClassPolling } from '../open-class/useClassPolling';
@@ -31,9 +31,10 @@ type Tab='card'|'look'|'check'|'present'|'reflect';
 const steps:{key:Tab;label:string;help:string}[]=[{key:'card',label:'AR 카드 만들기',help:'유물에 설명을 쓰고 저장'},{key:'look',label:'AR 카드 발표',help:'완성한 카드로 유물 소개'},{key:'check',label:'AI 문제 만들고 검증',help:'두 문제를 자료로 확인'},{key:'present',label:'퀴즈 발표',help:'친구들이 푼 뒤 정답과 근거 공개'},{key:'reflect',label:'배움 정리',help:'배운 점과 AI 정보를 확인하는 까닭'}];
 
 export default function GoryeoOpenClass() {
+ const { state: navigationState } = useLocation();
  const [params,setParams]=useSearchParams(); const initialCode=params.get('code')||'';
  const [code,setCode]=useState(initialCode),[name,setName]=useState(''),[group,setGroup]=useState(1),[session,setSession]=useState<StudioSession|undefined>(()=>goodCode(initialCode)?readOpenSession(goryeoCode(initialCode)):undefined),[error,setError]=useState(''),[busy,setBusy]=useState(false);
- async function join(){setBusy(true);setError('');try{setSession(await joinOpenLesson(goryeoCode(code),name.trim(),group));const next=new URLSearchParams(params);next.set('code',code);setParams(next);}catch(e){setError(e instanceof Error?e.message:'입장하지 못했어요.');}finally{setBusy(false);}}
+ async function join(){setBusy(true);setError('');try{setSession(await joinOpenLesson(goryeoCode(code),name.trim(),group));const next=new URLSearchParams(params);next.set('code',code);setParams(next,{state:navigationState});}catch(e){setError(e instanceof Error?e.message:'입장하지 못했어요.');}finally{setBusy(false);}}
  if(session)return <GoryeoRoom key={session.memberId} session={session} onLeave={()=>{forgetOpenSession(session.code);setSession(undefined);}}/>;
  return <main className="oc-page page-width"><p className="oc-eyebrow">고려시대 공개수업</p><h1>고려 유물 AR 탐구</h1><p>선생님이 알려 준 수업코드와 내 이름, 모둠을 입력하세요.</p><form className="oc-entry" onSubmit={e=>{e.preventDefault();if(goodCode(code)&&name.trim()&&!busy)void join();}}><label>수업코드<input inputMode="numeric" maxLength={10} value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,''))} placeholder="숫자 4~10자리"/></label><label>내 이름<input maxLength={30} value={name} onChange={e=>setName(e.target.value)} placeholder="이름 또는 별명"/></label><label>내 모둠<select value={group} onChange={e=>setGroup(Number(e.target.value))}>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}모둠</option>)}</select></label><button className="oc-big" type="submit" disabled={busy||!goodCode(code)||!name.trim()}>{busy?'들어가는 중…':'수업 들어가기'}</button></form>{error&&<p role="alert">{error}</p>}<OpenLessonMaterials era="goryeo"/><p><a href={`${import.meta.env.BASE_URL}goryeo/sample`}>이전 고려 유물 샘플 보기</a></p></main>;
 }
@@ -71,7 +72,7 @@ export function GoryeoTeacher() {
  const [code,setCode]=useTeacherClass('goryeo');
  const [session,setSession]=useState<StudioSession>(),[count,setCount]=useState(6),[error,setError]=useState('');
  useEffect(()=>setCount(readGroupCount(window.localStorage)),[]);
- useEffect(()=>{setSession(undefined);setError('');if(!code)return;let active=true;void joinOpenLesson(goryeoCode(code),'선생님',1).then(next=>{if(active)setSession(next);}).catch(e=>{if(active)setError(e instanceof Error?e.message:'수업을 열지 못했어요.');});return()=>{active=false;};},[code]);
+ useEffect(()=>{setSession(undefined);setError('');if(!code)return;let active=true;void joinOpenTeacher(goryeoCode(code)).then(next=>{if(active)setSession(next);}).catch(e=>{if(active)setError(e instanceof Error?e.message:'수업을 열지 못했어요.');});return()=>{active=false;};},[code]);
  function changeCount(value:number){setCount(value);try{window.localStorage.setItem(groupCountKey,String(value));}catch{/* keep for this visit */}}
  return <div className="oc-page oc-teacher page-width">
   <header className="oc-head"><div><p className="oc-eyebrow">선생님 화면 · 고려시대 공개수업</p><h1>{code ? `수업코드 ${code}` : '고려 유물 AR 카드'}</h1></div></header>

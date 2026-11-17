@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { Icon } from "./Icon";
 import { TeacherNavigation } from './TeacherNavigation';
+import { selectedTeacherCode, studentOpenClassLink, teacherRoomPath } from '../features/ar-studio/teacherClassNavigation';
 
 interface TeacherShellProps {
   onLock: () => void;
@@ -11,7 +12,7 @@ function teacherNavClassName({ isActive }: { isActive: boolean }) {
 }
 
 export function TeacherShell({ onLock }: TeacherShellProps) {
-  const { pathname, search } = useLocation();
+  const { pathname, search, hash } = useLocation();
   const courseLink = (course: string) => {
     const params = new URLSearchParams(search);
     params.delete('code');
@@ -21,6 +22,9 @@ export function TeacherShell({ onLock }: TeacherShellProps) {
   };
   const currentCourse = pathname.split('/')[2] || new URLSearchParams(search).get('course') || 'three-kingdoms';
   const homeLink = courseLink(currentCourse);
+  const studentLink = (currentCourse === 'joseon' || currentCourse === 'goryeo') && pathname.replace(/\/$/, '') === teacherRoomPath(currentCourse)
+    ? studentOpenClassLink(currentCourse, selectedTeacherCode(currentCourse, new URLSearchParams(search)))
+    : '/classes';
   return (
     <div className="teacher-shell">
       <a className="skip-link" href="#teacher-main-content">본문으로 바로가기</a>
@@ -40,7 +44,7 @@ export function TeacherShell({ onLock }: TeacherShellProps) {
             <Link className="teacher-nav__link" to={courseLink("joseon")}>조선시대</Link>
           </nav>
           <div className="teacher-workspace-actions">
-            <Link className="teacher-workspace-actions__student" title="교사 확인 중에는 학생 화면에서 전체 메뉴를 볼 수 있어요" to="/classes">학생 화면</Link>
+            <Link className="teacher-workspace-actions__student" to={studentLink} state={{ teacherReturn: `${pathname}${search}${hash}` }}>학생 화면</Link>
             <button className="teacher-workspace-actions__lock" onClick={onLock} type="button">
               <Icon name="lock" size={16} />잠그기
             </button>
