@@ -40,7 +40,15 @@
 .joseon-slide-show header strong { word-break: keep-all; }
 .joseon-slide-show footer { justify-content: center; }
 .joseon-slide-show footer span { min-width: 72px; text-align: center; font-variant-numeric: tabular-nums; }
-.oc-page .joseon-slide-show button { min-height: 44px; flex-shrink: 0; }
+.oc-page .joseon-slide-show button {
+  min-height: 44px;
+  flex-shrink: 0;
+  background: #fffefa;
+  border-color: #bcc8be;
+  color: #263e34;
+  font-weight: 700;
+}
+.oc-page .joseon-slide-show button:not(:disabled):hover { background: #e1eadf; }
 .oc-page .joseon-slide-show button:disabled { opacity: .45; }
 .oc-page .joseon-slide-show button:focus-visible { outline: 3px solid #e5b465; outline-offset: 3px; }
 
