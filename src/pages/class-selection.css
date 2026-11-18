@@ -10,6 +10,7 @@
 .class-selection__era { margin-bottom: 10px; color: #54736a; font-size: .9rem; font-weight: 700; }
 .class-selection__link { display: inline-flex; align-items: center; justify-content: center; gap: 10px; align-self: flex-start; min-height: 48px; margin-top: auto; padding: 10px 18px; border-radius: 10px; background: var(--green); color: #fff; font-weight: 700; }
 .class-selection__link:hover { background: var(--green-bright); }
+.class-selection__link + .class-selection__link { margin-top: 8px; }
 @media (max-width: 700px) {
   .class-selection { padding-block: 34px 56px; }
   .class-selection__grid { grid-template-columns: 1fr; gap: 14px; }

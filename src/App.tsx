@@ -24,6 +24,7 @@ const QuizPrintPage = lazy(() => import('./features/ar-studio/QuizPrintPage'));
 const TeacherPage = lazy(() => import('./features/ar-studio/TeacherPage'));
 const OpenClassPage = lazy(() => import('./features/open-class/OpenClassPage'));
 const PrintedArCardPage = lazy(() => import('./features/open-class/PrintedArCardPage'));
+const ArtifactObservationPage = lazy(() => import('./features/open-class/ArtifactObservationPage'));
 const OpenClassTeacher = lazy(() => import('./features/open-class/OpenClassTeacher'));
 const PresentationExample = lazy(() => import('./features/open-class/PresentationExample'));
 const GoryeoLesson = lazy(() => import('./features/goryeo/GoryeoLesson'));
@@ -53,6 +54,8 @@ export function App() {
       <Route element={<AppShell teacherVerified={teacherVerified} />}>
         <Route index element={<HomePage />} />
         <Route path="classes" element={<ClassSelectionPage />} />
+        <Route path="classes/goryeo/observe" element={<Suspense fallback={<p role="status">고려 유물을 불러오는 중…</p>}><ArtifactObservationPage key="goryeo" era="goryeo" /></Suspense>} />
+        <Route path="classes/joseon/observe" element={<Suspense fallback={<p role="status">조선 유물을 불러오는 중…</p>}><ArtifactObservationPage key="joseon" era="joseon" /></Suspense>} />
         <Route path="three-kingdoms" element={<EraPage eraId="three-kingdoms" />} />
         <Route path="three-kingdoms/data/:sessionId" element={<DataInquiryLessonPage />} />
         <Route path="three-kingdoms/ar-sample" element={<Suspense fallback={<p>AR 예제를 준비해요…</p>}><SampleExhibition /></Suspense>} />

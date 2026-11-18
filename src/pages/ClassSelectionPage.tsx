@@ -15,13 +15,17 @@ export function ClassSelectionPage() {
           <p className="class-selection__era">고려 시대</p>
           <h2>고려유물수업</h2>
           <p>우리 모둠이 AR 카드를 만들고 AI 문제를 자료로 검증해요.</p>
-          <Link className="class-selection__link" to="/goryeo">고려유물 탐구실 입장 <Icon name="arrow" size={19} /></Link><Link className="class-selection__link" to="/teacher/goryeo/open-class">고려 수업 선생님 화면 <Icon name="lock" size={17} /></Link>
+          <Link className="class-selection__link" to="/goryeo">고려유물 탐구실 입장 <Icon name="arrow" size={19} /></Link>
+          <Link className="class-selection__link" to="/teacher/goryeo/open-class">고려 수업 선생님 화면 <Icon name="lock" size={17} /></Link>
+          <Link className="class-selection__link" to="/classes/goryeo/observe" aria-label="고려 AR 카드 바로 관찰하기">AR 카드 바로 관찰하기 <Icon name="eye" size={19} /></Link>
         </article>
         <article className="class-selection__card class-selection__card--joseon">
           <p className="class-selection__era">조선 시대</p>
           <h2>조선유물수업</h2>
           <p>우리 모둠이 AR 카드를 만들고 AI 문제를 자료로 검증해요.</p>
-          <Link className="class-selection__link" to="/joseon/open-class">조선유물 탐구실 입장 <Icon name="arrow" size={19} /></Link><Link className="class-selection__link" to="/teacher/joseon/open-class">조선 수업 선생님 화면 <Icon name="lock" size={17} /></Link>
+          <Link className="class-selection__link" to="/joseon/open-class">조선유물 탐구실 입장 <Icon name="arrow" size={19} /></Link>
+          <Link className="class-selection__link" to="/teacher/joseon/open-class">조선 수업 선생님 화면 <Icon name="lock" size={17} /></Link>
+          <Link className="class-selection__link" to="/classes/joseon/observe" aria-label="조선 AR 카드 바로 관찰하기">AR 카드 바로 관찰하기 <Icon name="eye" size={19} /></Link>
         </article>
       </div>
     </div>

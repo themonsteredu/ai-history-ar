@@ -2,6 +2,10 @@ import type { GroupCard } from './model';
 
 const SITE = 'https://ai-history-ar.vercel.app';
 
+export function artifactObservationUrl(era: 'goryeo' | 'joseon', artifactId: number) {
+  return `${SITE}/classes/${era}/observe?artifact=${artifactId}`;
+}
+
 export function openClassUrl(code: string) {
   return `${SITE}/joseon/open-class?code=${encodeURIComponent(code)}`;
 }

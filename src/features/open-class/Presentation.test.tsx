@@ -44,13 +44,15 @@ it.each([['goryeo', '팔만대장경'], ['joseon', '측우기']] as const)('show
   check.selfQuestions = check.selfQuestions!.map((q, i) => ({ ...q, statement: `저장된 문장 ${i + 1}`, answer: 'O', explanation: 'AI가 쓴 해설' }));
   check.items = [
     { ...newVerifyItem(check.selfQuestions[0].id, 'student'), solved: 'O', why: '신문 1쪽', decision: 'adopt', reason: '자료와 같아요', explanation: '확인한 근거' },
-    { ...newVerifyItem(check.selfQuestions[1].id, 'student'), solved: 'X', why: '신문 2쪽', decision: 'exclude', reason: '다른 자료와 다릅니다', explanation: '찾은 차이' },
+    { ...newVerifyItem(check.selfQuestions[1].id, 'student'), solved: 'X', why: '신문 2쪽', decision: 'exclude', reason: '다른 자료와 다릅니다' },
   ];
   check.notes = { feature: '유물의 특징', use: '유물의 쓰임', benefit: '생활에 준 도움', source: '자료 출처', listening: Array(6).fill(''), learned: '새로 알게 된 점', caution: 'AI도 확인해야 한다' };
   const questions = check.selfQuestions.map(q => ({ ...q, source: 'student' as const }));
   const review = renderToStaticMarkup(<Presentation big teacherReview check={check} card={card} questions={questions} era={era} artifactName={name} />);
   for (const text of [name, '유물의 특징', '유물의 쓰임', '생활에 준 도움', '자료 출처', '카드의 특징', '번호를 눌러 읽는 설명', '저장된 문장 1', '저장된 문장 2', 'AI가 쓴 해설', '신문 1쪽', '다른 자료와 다릅니다', '새로 알게 된 점', 'AI도 확인해야 한다']) expect(review).toContain(text);
   expect(review).toContain('퀴즈 발표 보기');
+  expect(review.match(/<dt>최종 정답 해설<\/dt>/g)).toHaveLength(1);
+  expect(review).toContain('<dd>확인한 근거</dd>');
   expect(review).not.toContain('AI 정답 보기');
   const student = renderToStaticMarkup(<Presentation big check={check} card={card} questions={questions} era={era} artifactName={name} />);
   expect(student).toContain('발표할 문제를 2개 검증해 주세요');

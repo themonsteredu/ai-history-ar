@@ -64,7 +64,7 @@ function TeacherPresentation({ check, card, questions, artifactName, era }: { ch
                 <div><dt>확인한 자료</dt><dd>{show(item?.why)}</dd></div>
                 <div><dt>판단과 이유</dt><dd><strong>{decisionLabel(item?.decision || '')}</strong> · {show(item?.reason)}</dd></div>
                 <div><dt>바르게 고친 내용</dt><dd>{show(item?.revised)}{item?.revisedAnswer ? ` (정답 ${item.revisedAnswer})` : ''}</dd></div>
-                <div><dt>최종 정답 해설</dt><dd>{show(item?.explanation)}</dd></div>
+                {item?.explanation?.trim() && <div><dt>최종 정답 해설</dt><dd>{item.explanation}</dd></div>}
               </dl>
             </li>;
           })}
