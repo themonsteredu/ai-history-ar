@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { GroupStatus, GroupDetail } from './OpenClassTeacher';
-import { newCard, newSelfVerification, newQuestion } from './model';
+import { isVerification, newCard, newSelfVerification, newQuestion, newVerifyItem } from './model';
+import { SelfQuizLab } from './SelfInquiry';
+import { useSyncedDraft } from './useSyncedDraft';
 import { goryeoCard, GORYEO_TAG } from '../goryeo/readyCards';
 import type { OpenItem } from './api';
 import type { Verification } from './model';
@@ -17,4 +19,17 @@ describe('shared era class status', () => {
   expect(detail).toContain('첫 문제');expect(detail).toContain('둘째 문제');
   if(era==='goryeo')expect((card as typeof card & {lesson:string}).lesson).toBe(GORYEO_TAG);
  });
+});
+
+it.each(['goryeo', 'joseon'] as const)('omits the retired final explanation input from the %s quiz form', era => {
+  const card = newCard(1, 1);
+  const check = newSelfVerification(1);
+  check.items = [{ ...newVerifyItem(check.selfQuestions![0].id, 'student'), explanation: '예전에 저장한 최종 해설' }];
+  function StudentForm() {
+    const draft = useSyncedDraft({ draftKey: 'test', blank: () => check, check: isVerification, save: async () => ({ version: 1 }) });
+    return <SelfQuizLab draft={draft} card={card} era={era} />;
+  }
+  const html = renderToStaticMarkup(<StudentForm />);
+  expect(html).toContain('채택하거나 수정한 이유');
+  expect(html).not.toMatch(/최종 정답 해설|예전에 저장한 최종 해설/);
 });

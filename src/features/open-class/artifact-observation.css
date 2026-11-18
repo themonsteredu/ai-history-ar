@@ -1,0 +1,23 @@
+.artifact-observation { padding-top: clamp(24px, 4vw, 48px); }
+.artifact-observation header > a { color: var(--oc-accent); }
+.artifact-observation__tools { display: flex; align-items: start; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+.artifact-observation__choose { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-weight: 700; }
+.artifact-observation__tools select { width: auto; max-width: 100%; }
+.artifact-observation__qr { min-width: 0; }
+.artifact-observation__qr summary { display: list-item; padding: 10px 12px; min-height: 44px; cursor: pointer; color: var(--oc-accent); font-weight: 700; }
+.artifact-observation__qr svg { display: block; width: 200px; max-width: 100%; margin: 6px auto; }
+.artifact-observation__qr a { display: block; text-align: center; }
+.artifact-observation__exhibit { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; gap: clamp(20px, 4vw, 48px); padding: 20px 0; border-top: 1px solid var(--oc-line); }
+.artifact-observation__exhibit h2 { font-size: 1.25rem; }
+.artifact-observation__exhibit ol { padding-left: 1.5em; margin: 0; }
+.artifact-observation__exhibit li { padding-left: 3px; margin-bottom: 14px; }
+.artifact-observation__exhibit li::marker { color: var(--oc-accent); font-weight: 700; }
+.artifact-observation__exhibit p { margin: 4px 0; }
+.artifact-observation__marker { padding-top: 14px; border-top: 1px solid var(--oc-line); }
+.artifact-observation__marker a { color: var(--oc-accent); font-weight: 700; text-decoration: underline; }
+@media (max-width: 700px) {
+  .artifact-observation__exhibit { grid-template-columns: minmax(0, 1fr); }
+  .artifact-observation__tools { gap: 8px; margin: 16px 0; }
+  .artifact-observation__choose { width: 100%; }
+  .artifact-observation__tools select { flex: 1; min-width: 0; }
+}
