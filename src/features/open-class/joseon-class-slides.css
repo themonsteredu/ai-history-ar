@@ -1,8 +1,12 @@
 .joseon-slides-links {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin: 12px 0;
+}
+
+@media (max-width: 640px) {
+  .joseon-slides-links { grid-template-columns: minmax(0, 1fr); }
 }
 
 .oc-page .joseon-slides-links button {
@@ -51,6 +55,31 @@
 .oc-page .joseon-slide-show button:not(:disabled):hover { background: #e1eadf; }
 .oc-page .joseon-slide-show button:disabled { opacity: .45; }
 .oc-page .joseon-slide-show button:focus-visible { outline: 3px solid #e5b465; outline-offset: 3px; }
+
+/* Jumps to one artifact's questions, for groups that present in any order. */
+.joseon-slide-show header { flex-wrap: wrap; }
+.joseon-slide-show__chapters {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+.oc-page .joseon-slide-show .joseon-slide-show__chapters button {
+  min-height: 40px;
+  padding: 6px 14px;
+  border-color: #5f7368;
+  background: transparent;
+  color: #fffefa;
+  font-size: 15px;
+  word-break: keep-all;
+}
+.oc-page .joseon-slide-show .joseon-slide-show__chapters button:hover { background: #2c3d35; }
+.oc-page .joseon-slide-show .joseon-slide-show__chapters button[aria-current="true"] {
+  border-color: #e4ca8c;
+  background: #e4ca8c;
+  color: #173e34;
+}
 
 .joseon-slide-show__canvas {
   display: grid;
