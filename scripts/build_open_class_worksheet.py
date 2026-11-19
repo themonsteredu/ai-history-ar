@@ -10,11 +10,12 @@ def lines(page,y,n=2):
 text(p,15,96,'5학년 (    )반   (    )모둠    이름: __________________',10)
 text(p,15,108,'활동 1  우리 모둠 AR 카드 발표하기',13,True)
 for y,s in [(120,'우리 모둠은 (                              )을/를 조사하겠습니다.'),(132,'특징은 (                                                                         )입니다.'),(144,'(                                                                  )에 사용하였습니다.'),(156,'이 내용은 (                                                             )에서 확인했습니다.')]:text(p,15,y,s,10)
-text(p,15,174,'친구들의 발표에서 특징과 쓰임을 핵심어로 적어요.',10,True)
+text(p,15,174,'친구들의 발표에서 특징 및 쓰임을 핵심어로 한 줄에 적어요.',10,True)
 for row in range(8):
  y=180+row*10.5;p.draw_line((15*MM,y*MM),(195*MM,y*MM),width=.4)
-for x in [15,54,124.5,195]:p.draw_line((x*MM,180*MM),(x*MM,253.5*MM),width=.4)
-text(p,18,187,'과학 기술',10,True);text(p,57,187,'특징',10,True);text(p,127.5,187,'쓰임',10,True)
+# One merged cell per artifact: features and use go on a single line.
+for x in [15,54,195]:p.draw_line((x*MM,180*MM),(x*MM,253.5*MM),width=.4)
+text(p,18,187,'과학 기술',10,True);text(p,57,187,'특징 및 쓰임',10,True)
 for i,n in enumerate(['농사직설','측우기','간의','앙부일구','자격루','혼천의']):text(p,18,197.5+i*10.5,n,10)
 text(p,178,293,'1 / 2',8)
 p=d.new_page(width=595.276,height=841.89);fonts(p)
