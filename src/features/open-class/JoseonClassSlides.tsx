@@ -1,29 +1,7 @@
 import { useEffect, useState, type CSSProperties, type KeyboardEvent } from 'react';
-import slides from './joseonSlides.json';
+import { deckSlides, presentations, slideUrl as assetUrl, type Presentation } from './joseonSlideDecks';
 import { usePresentationDialog } from './usePresentationDialog';
 import './joseon-class-slides.css';
-
-type Reveal = {
-  image: string;
-  alt: string;
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-  durationMs?: number;
-  offsetY?: number;
-};
-type Slide = { image: string; alt: string; autoAdvanceMs?: number; reveals?: Reveal[] };
-
-const presentations = [
-  { id: 'flash-quiz', title: '조선 유물 깜빡퀴즈', firstSlide: 1 },
-  { id: 'lesson-recap', title: '조선 과학기술 수업 정리', firstSlide: 0 },
-] as const;
-type Presentation = typeof presentations[number];
-
-function assetUrl(deck: Presentation, image: string) {
-  return `${import.meta.env.BASE_URL}presentations/joseon/${deck.id}/${image}`;
-}
 
 export function JoseonClassSlides() {
   const [deck, setDeck] = useState<Presentation>();
@@ -39,7 +17,7 @@ export function JoseonClassSlides() {
 
 function SlideShow({ deck, onClose }: { deck: Presentation; onClose: () => void }) {
   const root = usePresentationDialog(onClose);
-  const pages: Slide[] = slides[deck.id];
+  const pages = deckSlides(deck);
   const [position, setPosition] = useState({ page: deck.firstSlide as number, revealed: 0, animateFrom: 0 });
   const [readyImage, setReadyImage] = useState('');
   const [failedImage, setFailedImage] = useState('');
@@ -50,6 +28,9 @@ function SlideShow({ deck, onClose }: { deck: Presentation; onClose: () => void 
   const revealCount = slide.reveals?.length ?? 0;
   const canGoNext = !slide.autoAdvanceMs && (revealed < revealCount || page < pages.length - 1);
   const canGoBack = revealed > 0 || page > 0;
+  const nextLabel = revealed < revealCount ? slide.reveals?.[revealed].nextLabel ?? '다음 사진' : '다음';
+  const chapters = pages.flatMap((item, index) => item.chapter ? [{ title: item.chapter, index }] : []);
+  const currentChapter = chapters.filter(chapter => chapter.index <= page).at(-1);
 
   useEffect(() => {
     // Decode the flash and its follow-up before the teacher advances from the prompt.
@@ -111,6 +92,10 @@ function SlideShow({ deck, onClose }: { deck: Presentation; onClose: () => void 
   return <section ref={root} className="joseon-slide-show" role="dialog" aria-modal="true" aria-label={deck.title} onKeyDown={onKeyDown}>
     <header>
       <strong>{deck.title}</strong>
+      {chapters.length > 0 && <nav className="joseon-slide-show__chapters" aria-label="유물 바로 가기">
+        {chapters.map(chapter => <button type="button" key={chapter.index} aria-current={chapter === currentChapter ? 'true' : undefined}
+          onClick={() => setPosition({ page: chapter.index, revealed: 0, animateFrom: 0 })}>{chapter.title}</button>)}
+      </nav>}
       <button type="button" data-autofocus onClick={onClose}>발표 닫기</button>
     </header>
     <div className="joseon-slide-show__canvas">
@@ -136,7 +121,7 @@ function SlideShow({ deck, onClose }: { deck: Presentation; onClose: () => void 
       <button type="button" onClick={goBack} disabled={!canGoBack}>이전</button>
       <span aria-live="polite">{page + 1} / {pages.length}</span>
       <button type="button" onClick={advance} disabled={!canGoNext || readyImage !== image}>
-        {revealed < revealCount ? '다음 사진' : '다음'}
+        {nextLabel}
       </button>
     </footer>
   </section>;

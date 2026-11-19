@@ -78,14 +78,14 @@ function fontFiles() {
   return found;
 }
 
-/** The app shell, every built file this page has loaded, the fonts, the six photo textures (and print photos for the teacher) and the AR card targets. */
-function lessonFiles(page: PrepPage) {
+/** The app shell, every built file this page has loaded, the fonts, the six photo textures (and print photos for the teacher), the AR card targets and, for the teacher, the class slides. */
+function lessonFiles(page: PrepPage, slides: string[]) {
   // Only built files from the timing list: a page visited earlier in this tab may have loaded big files the lesson never uses.
   const built = performance.getEntriesByType('resource').map(entry => entry.name).filter(name => name.startsWith(`${window.location.origin}${base}assets/`));
   const tags = Array.from(document.querySelectorAll<HTMLScriptElement | HTMLLinkElement>('script[src], link[rel~="stylesheet"][href], link[rel="modulepreload"][href], link[rel~="icon"][href]'))
     .map(tag => tag instanceof HTMLScriptElement ? tag.src : tag.href);
   const photos = lessonPhotoPaths(joseonModels.map(info => info.photo), page).map(path => `${base}${path}`);
-  return lessonFileUrls([shellUrl(), targetsUrl(), ...(page === 'teacher' ? [`${base}images/joseon-museum-board.webp`] : []), ...built, ...tags, ...fontFiles(), ...photos], window.location.origin, base);
+  return lessonFileUrls([shellUrl(), targetsUrl(), ...(page === 'teacher' ? [`${base}images/joseon-museum-board.webp`] : []), ...built, ...tags, ...fontFiles(), ...photos, ...slides], window.location.origin, base);
 }
 
 async function prepareLesson(page: PrepPage, onProgress: (done: number, total: number) => void): Promise<PrepStatus> {
@@ -98,7 +98,9 @@ async function prepareLesson(page: PrepPage, onProgress: (done: number, total: n
     // Asks the browser not to clear the saved files when the tablet runs low on space; a refusal changes nothing.
     void navigator.storage?.persist?.().catch(() => false);
     await Promise.all(lessonChunkLoaders.map(load => load()));
-    const { failed } = await askWorker(worker, page, lessonFiles(page), onProgress);
+    // Only the teacher presents the slides (including the OX quiz made in advance for a lesson without internet).
+    const slides = page === 'teacher' ? (await import('./joseonSlideDecks')).allSlideUrls() : [];
+    const { failed } = await askWorker(worker, page, lessonFiles(page, slides), onProgress);
     if (failed) return { kind: 'error', reason: offline() ? 'offline' : 'partial', missing: failed };
     const at = new Date();
     try { window.localStorage.setItem(prepKey(page), JSON.stringify({ at: at.toISOString(), build: currentBuild() })); } catch { /* shown for this visit */ }
